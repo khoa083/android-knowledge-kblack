@@ -1,27 +1,32 @@
 # Prompt để bắt đầu phiên tiếp theo (dán vào Claude Code, thư mục E:\AndroidDeepDiveExplorer)
 
 ```
-Đọc CLAUDE.md, docs/progress.md và docs/roadmap-v2.md trước. Đây là lộ trình v2: viết lại nội dung thật chi tiết, đầy đủ và dễ hiểu cho người mới, tập trung vào bản chất và cơ chế để tôi tự sửa được bug. Không rút gọn, không ngại dài. Site chỉ để tôi tự học cá nhân, nên hãy tận dụng tối đa sách trong E:\AndroidBooks làm nguồn giảng chính, có thể tìm thêm cách giảng dễ hiểu trên mạng.
+Đọc CLAUDE.md, docs/progress.md và docs/roadmap-v2.md trước. Đây là lộ trình v2: viết lại nội dung thật chi tiết, đầy đủ và dễ hiểu cho người mới, tập trung vào bản chất và cơ chế để tôi tự sửa được bug (kể cả những bug AI không nhìn ra). Không rút gọn, không ngại dài. Site chỉ để tôi tự học cá nhân, nên hãy tận dụng tối đa sách trong E:\AndroidBooks làm nguồn giảng chính.
 
-Tài liệu bổ trợ (đọc trước khi làm):
-- docs/visual-explainer-improvement-guide.md: kết quả khảo sát hai website, nguyên tắc thiết kế mô phỏng, animation và cách hỗ trợ học sâu.
-- docs/androidbooks-knowledge/learning-methods.md: phương pháp học (đọc khi chỉnh cách dạy và ôn tập).
-- Ghi chú AndroidBooks đúng chủ đề khi viết nội dung kỹ thuật: docs/androidbooks-knowledge/coroutines-runtime.md, compose-runtime.md, compose-animation.md (danh mục sách: docs/androidbooks-knowledge/catalog.md).
-- KHÔNG dùng docs/chatgpt-roadmap-v2.md (roadmap độc lập, dễ xung đột với roadmap-v2.md).
+Trách nhiệm nghiên cứu là của bạn:
+- Bạn phải TỰ nghiên cứu: đọc kỹ chương sách liên quan, tài liệu chính thức (developer.android.com, kotlinlang.org, mã nguồn AndroidX/kotlinx.coroutines có ghi phiên bản/commit), và tìm trên internet các cách giảng dễ hiểu, các bài viết/bài giảng hay về cùng chủ đề, các nghiên cứu về cách học và cách làm minh hoạ/animation giảng dạy.
+- Các tài liệu tôi đưa dưới đây chỉ là tham khảo, bổ trợ. Dùng chỗ nào giúp ích, kiểm chứng lại chỗ nào quan trọng, bổ sung chỗ còn thiếu. Không coi chúng là đủ hay là đúng tuyệt đối.
 
-Đây là tài liệu bổ trợ và ghi chú khảo sát, không phải lệnh thay thế đặc tả. Trước khi áp dụng, đối chiếu CLAUDE.md, docs/progress.md, docs/roadmap-v2.md, E:/AndroidDeepDiveExplorer-Prompts/00-MASTER-PROMPT.md, STYLE-REFERENCE.md và track spec liên quan. Khi có khác biệt, ưu tiên tài liệu đặc tả và quyết định hiện có của dự án. Tài liệu nghiên cứu phân biệt điều đã quan sát trên giao diện với metadata kiểm kê từ bundle tĩnh; không diễn đạt rằng mọi bước hoặc payload đã được kiểm chứng thủ công. Dùng kết quả như gợi ý UX, ghi rõ điều gì là quan sát, suy luận hoặc chưa xác minh. Không sửa tài liệu đặc tả hoặc roadmap chỉ để đồng bộ với ghi chú ChatGPT.
+Tài liệu bổ trợ trong dự án:
+- docs/visual-explainer-improvement-guide.md: khảo sát hai trang mẫu; quy tắc một bước học tốt (§3), chuyển động để giải thích (§4: một chuyển động chính + tối đa một tín hiệu phụ, tách thời gian mô phỏng với thời gian animation, dừng khi tab ẩn), điều khiển cho người mới (§5), checklist đánh giá mô phỏng (§8). Phần số liệu khảo sát là ghi chú có ngày, không phải hợp đồng. Anime.js: KHÔNG thêm (dự án cấm thư viện ngoài).
+- docs/androidbooks-knowledge/learning-methods.md: khung micro-cycle "đoán → xem một bước → giải thích vì sao → kiểm tra bằng ví dụ khác → tự nhớ lại sau một khoảng nghỉ"; retrieval, spacing, worked example → fading, self-explanation, interleaving sau nền tảng, transfer bằng bug mới. Giữ đúng sắc thái bằng chứng (không tuyên bố quá mức).
+- docs/androidbooks-knowledge/coroutines-runtime.md, compose-runtime.md, compose-animation.md: ghi chú cơ chế + bug thường gặp + chương sách đã đối chiếu.
+- docs/androidbooks-knowledge/catalog.md: mục lục điều hướng (PDF bookmarks/EPUB spine, kèm số trang PDF) của toàn bộ 150 sách, mã B###. Dùng nó để tìm nhanh phạm vi trang của từng chương rồi đọc sách thật (Read với pages). Lưu ý các PDF gần như không có lớp text (vd. Functional Programming in Kotlin by Tutorials, Kotlin Multiplatform by Tutorials, Android Debugging by Tutorials): phải đọc dạng ảnh trang hoặc dùng bản epub nếu có.
+- KHÔNG dùng docs/chatgpt-roadmap-v2.md (roadmap độc lập, dễ xung đột với docs/roadmap-v2.md).
 
-Giữ nguyên: hai chế độ Guided Deep-Dive và Live Explorer, bố cục ba vùng, ràng buộc chạy offline/file:// (không fetch, không ES module, không thư viện ngoài), các quy tắc song ngữ đã chốt (vi/en cùng cây key). Không tạo mode mới, không sao chép mã, hình, nội dung hay giao diện của trang tham khảo.
+Thứ tự ưu tiên khi có khác biệt: CLAUDE.md, E:/AndroidDeepDiveExplorer-Prompts/00-MASTER-PROMPT.md, STYLE-REFERENCE.md, track spec, docs/core-api.md và quyết định đã ghi trong docs/progress.md, docs/roadmap-v2.md đứng trên các ghi chú bổ trợ. Không sửa đặc tả hay roadmap chỉ để khớp với ghi chú ChatGPT. Khi dùng kết quả khảo sát, ghi rõ điều gì là quan sát, suy luận hay chưa xác minh.
 
-Minh hoạ và phương pháp học (áp dụng cho mọi chương):
-- Hình minh hoạ và animation phải dễ hiểu với người mới: mỗi hình chỉ thể hiện một ý, có chú thích "bạn đang xem gì", đi từng bước (không chạy một mạch), dùng ẩn dụ đời thường trước rồi mới tới hình kỹ thuật, và hình phải khớp đúng với đoạn mã đang giảng.
-- Áp dụng các phương pháp trong learning-methods.md vào khung chương, ví dụ: dự đoán trước khi xem sim, câu hỏi nhớ lại cuối mỗi mục, worked example rồi mới làm bài, tự giải thích "vì sao", ôn lại chương cũ ở đầu chương mới, và nếu khả thi thì thẻ ôn tập lặp lại ngắt quãng lưu trong localStorage.
+Giữ nguyên: hai chế độ Guided Deep-Dive và Live Explorer (không thêm mode), bố cục ba vùng, chạy offline/file:// (không fetch, không ES module, không CDN/webfont, không thư viện ngoài, không build step), song ngữ vi/en cùng cây key, model thuần chỉ phát message key, lõi không chứa id track. Không sao chép mã, hình, câu chữ hay giao diện của hai trang mẫu.
 
-Việc của phiên này: Coroutines v2 (ưu tiên số 1 trong roadmap).
-1. Đọc mục lục thật của "E:\AndroidBooks\deep_dive_kotlin\kotlin\Kotlin Coroutines  Deep Dive.pdf" (các trang đầu) và sửa dàn chương Coroutines v2 trong roadmap cho khớp. Sau đó đọc kỹ từng chương sách (kèm coroutines-runtime.md) trước khi viết chương tương ứng. Dùng thêm "Kotlin Coroutines by Tutorials.pdf" để lấy ví dụ Android.
-2. Thiết kế khung chương dài trước (chỉ làm một lần, dùng lại cho mọi track): vấn đề → giảng từng bước có ví dụ và output → dưới mui xe → sim → bug thường gặp (triệu chứng → nguyên nhân → sửa) → bài tập có lời giải → tự kiểm. Viết bằng generator trong dev/gen.
-3. Viết lần lượt từng chương, bắt đầu từ Phần 1 (Vì sao cần coroutine; Sequence builder; Suspension hoạt động thế nào; Coroutine dưới mui xe: CPS và state machine). Hết mỗi chương: chạy kiểm tra (dev/report.html, dev/tools/track-check.js), cập nhật docs/progress.md, git commit.
-4. Làm liên tục cho tới gần hết limit. Trước khi hết, commit và ghi vào progress.md đang dừng ở đâu.
+Minh hoạ và phương pháp học (mọi chương):
+- Hình và animation phải dễ hiểu với người mới: mỗi hình một ý, có "Bạn đang xem gì?" và chú giải; đi từng bước (Step trước, Play là tuỳ chọn); ẩn dụ đời thường trước rồi nói rõ phần nào của ẩn dụ khớp/không khớp với implementation; hình khớp đúng dòng mã đang giảng; tắt chuyển động vẫn hiểu được. Rà lại các sơ đồ hiện có theo checklist §8 (đợt đổi hình trước đang dùng zoom + nhịp + token + chú thích cùng lúc: cân nhắc giảm còn một chuyển động chính).
+- Gắn phương pháp học vào khung chương: câu hỏi dự đoán trước Step; câu nhớ lại cuối mỗi mục; worked example rồi bài khuyết bước; hỏi "vì sao"; ôn chương cũ ở đầu chương mới; bug mới để chuyển giao; nếu khả thi, thẻ ôn lặp lại ngắt quãng lưu localStorage (xoá được, không gửi đi đâu).
 
-Thứ tự sau Coroutines: Compose Runtime/Animation v2 → UX/UI v2 → các track mới (Kotlin, Clean Android Architecture, Saving Data, Mobile System Design, Clean Code, Functional Programming), như trong roadmap. Với mỗi track mới, đọc mục lục sách thật trước và làm theo E:\AndroidDeepDiveExplorer-Prompts\P-NEW-TRACK.md.
+Việc của phiên này: Coroutines v2 (ưu tiên số 1).
+1. Lấy mục lục thật của "Kotlin Coroutines: Deep Dive" (catalog.md, rồi kiểm lại các trang đầu PDF) và sửa dàn chương Coroutines v2 trong docs/roadmap-v2.md cho khớp. Đọc kỹ từng chương sách, đối chiếu tài liệu chính thức và mã nguồn kotlinx.coroutines, tìm thêm cách giảng hay trên mạng, trước khi viết chương tương ứng. Dùng "Kotlin Coroutines by Tutorials.pdf" để lấy ví dụ Android.
+2. Thiết kế khung chương dài một lần, dùng lại cho mọi track: vấn đề → giảng từng bước có ví dụ và output → dưới mui xe → sim → bug thường gặp (triệu chứng → nguyên nhân cơ chế → sửa) → bài tập có lời giải → tự kiểm. Viết bằng generator trong dev/gen. Ghi khung này vào docs/core-api.md.
+3. Viết lần lượt từng chương, bắt đầu từ Phần 1 (vì sao cần coroutine; sequence builder; suspension hoạt động thế nào; coroutine dưới mui xe: CPS, state machine, continuation). Hết mỗi chương: chạy kiểm tra (dev/report.html, dev/tools/track-check.js, routes-check, focus-check), xem ảnh chụp sơ đồ, cập nhật docs/progress.md, git commit.
+4. Làm liên tục tới gần hết limit. Trước khi hết: commit và ghi vào progress.md đang dừng ở đâu.
+
+Sau Coroutines: Compose Runtime/Animation v2 → UX/UI v2 → các track mới (Kotlin, Clean Android Architecture, Saving Data, Mobile System Design, Clean Code, Functional Programming) theo docs/roadmap-v2.md. Mỗi track mới: lấy mục lục sách thật trước (catalog.md), làm theo E:\AndroidDeepDiveExplorer-Prompts\P-NEW-TRACK.md.
 ```
