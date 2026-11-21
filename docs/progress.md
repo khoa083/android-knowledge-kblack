@@ -142,3 +142,5 @@ Trạng thái: `chưa / đang / xong`.
 - **Việc còn lại của P8 đã xử lý**: node sơ đồ B0 bấm được (`view.nodeAction` trong lõi: chuột, Enter, Space, `aria-pressed`, `data-fk` giữ focus sau khi vẽ lại); đã kiểm bằng CDP (bấm snapshot → ô chọn = snapshot; Enter trên applier → bước đổi, focus vẫn ở node).
 
 - **Dừng 2026-11-21 (hạn mức tuần 96%)**: chưa làm các lệch spec còn lại vì mỗi việc cần đọc nguồn và viết nội dung song ngữ, không đủ hạn mức để làm trọn: (1) D9 sandbox 2: model `ux.tone` hiện cho chọn 2 voice dựng sẵn (mỗi voice 3 thuộc tính) × 3 bối cảnh; spec muốn người đọc tự chọn 3 thuộc tính (cần câu mẫu cho từng tổ hợp, nguồn: tone-of-voice-dimensions, Podmajersky). (2) D6: journey map kéo thả và bộ câu hỏi phỏng vấn (đọc journey-mapping-101, user-interviews trước). (3) E: inspector 4 tab (Giải thích / Mã Compose / Token / Kiểm tra a11y). Kiểm thêm Firefox/Safari, thiết bị Android thật.
+
+- **2026-11-21 (cuối):** người dùng thấy nội dung quá rút gọn → lộ trình v2 ở `docs/roadmap-v2.md` (viết lại Coroutines theo Deep Dive trước, rồi 6 track mới). Đã `git init` + commit.
