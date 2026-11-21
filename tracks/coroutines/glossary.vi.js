@@ -1,0 +1,28 @@
+/* Thuật ngữ track coroutines (tiếng Việt). */
+ADE.addGlossary('vi', 'coroutines', {
+  "coroutine": { term: "coroutine", def: "Một đoạn việc có thể suspend (dừng) và resume (chạy tiếp), tạo trong một scope. Nó không phải một thread.", chapter: "coroutines/a0" },
+  "suspend-function": { term: "suspend function", def: "Hàm có thể chứa điểm suspension. Từ khóa `suspend` không tạo luồng và không có nghĩa là chạy nền.", chapter: "coroutines/a1" },
+  "continuation": { term: "continuation", def: "Đối tượng nhớ điểm một hàm suspend đang dừng để chạy tiếp được sau. Là chi tiết cài đặt của compiler, không phải API để dựa vào.", chapter: "coroutines/a1" },
+  "job": { term: "Job", def: "Tay cầm vòng đời của một coroutine; các Job tạo thành cây cha–con, và hủy đi từ cha xuống con.", chapter: "coroutines/a2" },
+  "structured-concurrency": { term: "structured concurrency", def: "Nguyên tắc coroutine thuộc một scope: cha đợi con, hủy đi xuống, lỗi được xử lý theo cây.", chapter: "coroutines/a2" },
+  "coroutine-scope": { term: "CoroutineScope", def: "Nơi cung cấp context và ranh giới vòng đời cho các coroutine được tạo trong nó.", chapter: "coroutines/a2" },
+  "supervisor-job": { term: "SupervisorJob", def: "Job mà lỗi hay hủy của một con không lan lên nó hay sang con khác. `supervisorScope` dùng cơ chế này.", chapter: "coroutines/a6" },
+  "deferred": { term: "Deferred", def: "Job có kết quả, do `async` trả về; lấy kết quả bằng `await()`.", chapter: "coroutines/a3" },
+  "coroutine-context": { term: "CoroutineContext", def: "Tập các element (Job, dispatcher, tên...) ghép bằng `+` và tra cứu theo key.", chapter: "coroutines/a4" },
+  "dispatcher": { term: "dispatcher", def: "Element của context quyết định cách coroutine được phân phối để chạy. Không bảo đảm một luồng cố định.", chapter: "coroutines/a4" },
+  "main-safety": { term: "main-safety", def: "Một suspend function là main-safe khi gọi từ Main không làm chặn Main; hàm tự chuyển việc chặn dài khỏi Main.", chapter: "coroutines/a4" },
+  "cooperative-cancellation": { term: "cooperative cancellation", def: "Hủy hợp tác: coroutine chỉ dừng khi suspend hoặc chủ động kiểm tra hủy; `cancel()` chỉ là yêu cầu.", chapter: "coroutines/a5" },
+  "cancellation-exception": { term: "CancellationException", def: "Ngoại lệ biểu diễn việc hủy; là tín hiệu bình thường. Nếu bắt để dọn dẹp thì phải ném lại.", chapter: "coroutines/a5" },
+  "exception-handler": { term: "CoroutineExceptionHandler", def: "Element context nhận lỗi chưa được xử lý của root coroutine; không phục hồi được vì coroutine đã hoàn tất.", chapter: "coroutines/a6" },
+  "flow": { term: "Flow", def: "Chuỗi giá trị tuần tự được sinh bất đồng bộ. Là cách dữ liệu được thu về, không phải một thread.", chapter: "coroutines/a7" },
+  "cold-flow": { term: "cold flow", def: "Flow bắt đầu sản xuất khi được collect; mỗi collector kích hoạt một lần chạy riêng.", chapter: "coroutines/a7" },
+  "hot-flow": { term: "hot flow", def: "Flow phát giá trị độc lập với collector, như StateFlow và SharedFlow.", chapter: "coroutines/a7" },
+  "state-flow": { term: "StateFlow", def: "Hot flow là state holder: có giá trị hiện tại (`value`) và phát các cập nhật mới.", chapter: "coroutines/a7" },
+  "shared-flow": { term: "SharedFlow", def: "Hot flow phát cho nhiều collector, cấu hình được replay và buffer.", chapter: "coroutines/a7" },
+  "channel": { term: "Channel", def: "Kênh gửi/nhận giữa các coroutine (`send` và `receive` đều suspend); mỗi phần tử tới một receiver.", chapter: "coroutines/a7" },
+  "launched-effect": { term: "LaunchedEffect", def: "Composable chạy coroutine gắn với Composition: đổi key thì chạy lại, rời Composition thì bị hủy.", chapter: "coroutines/a8" },
+  "race-condition": { term: "race condition", def: "Kết quả phụ thuộc thứ tự xen kẽ không xác định của các luồng hoặc coroutine cùng sửa một trạng thái chung.", chapter: "coroutines/a9" },
+  "mutex": { term: "Mutex", def: "Khóa của coroutine: `lock()` là suspend nên chờ khóa không chặn luồng.", chapter: "coroutines/a9" },
+  "virtual-time": { term: "virtual time", def: "Đồng hồ ảo của `runTest`: delay được bỏ qua và thời gian chỉ tiến khi bạn bảo nó tiến.", chapter: "coroutines/a9" },
+  "frame-clock": { term: "frame clock", def: "Nhịp theo từng frame mà coroutine có thể đợi, khác với nhịp của dispatcher. Được giải thích ở chương Compose Runtime (cầu nối X3).", chapter: "runtime/b5" }
+});

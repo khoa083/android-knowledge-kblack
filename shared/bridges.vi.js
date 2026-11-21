@@ -1,0 +1,18 @@
+ADE.addSharedStrings('vi', {
+  'shared.bridge.X1.title': 'Compose phases: state được đọc ở đâu',
+  'shared.bridge.X1.summary': 'Một thay đổi state có thể dẫn tới Composition, Layout hoặc Drawing chạy lại, tùy nơi state đó được đọc. Chương chủ sở hữu giải thích đầy đủ; các chương khác chỉ nhắc lại và dẫn về đây.',
+  'shared.bridge.X2.title': 'Coroutine trong Compose',
+  'shared.bridge.X2.summary': 'Cách `LaunchedEffect`, `rememberCoroutineScope` và `collectAsStateWithLifecycle` gắn coroutine với vòng đời của Composition và của màn hình.',
+  'shared.bridge.X3.title': 'Frame clock',
+  'shared.bridge.X3.summary': '`MonotonicFrameClock` và `withFrameNanos` cho coroutine một nhịp khác với dispatcher: nhịp theo từng frame.',
+  'shared.bridge.X4.title': '`Animatable` là suspend API',
+  'shared.bridge.X4.summary': 'Một animation chạy trong coroutine nên chịu cùng quy tắc hủy và tuần tự/đồng thời như mọi coroutine khác.',
+  'shared.bridge.X5.title': 'Material 3 theming trong Compose',
+  'shared.bridge.X5.summary': 'Từ color roles, typography và shape của design system tới `MaterialTheme` trong mã Compose.',
+  'shared.bridge.X6.title': 'Accessibility: WCAG, semantics và thiết kế bao hàm',
+  'shared.bridge.X6.summary': 'Tiêu chí WCAG, cây semantics trong Compose và cách thiết kế cho nhiều người dùng gặp nhau ở đây.',
+  'shared.bridge.X7.title': 'Chuyển động có mục đích',
+  'shared.bridge.X7.summary': 'Nguyên tắc chuyển động của Material nối với cơ chế animation của Compose: chuyển động dùng để làm gì và chạy ra sao.',
+  'shared.bridge.X8.title': 'UX writing và bản địa hóa',
+  'shared.bridge.X8.summary': 'Chữ trong giao diện phải sống được qua nhiều ngôn ngữ: độ dài, ngữ pháp, số nhiều và cách tổ chức chuỗi trên Android.'
+});

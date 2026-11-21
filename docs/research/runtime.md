@@ -1,0 +1,70 @@
+# Nghiên cứu Track B: Compose Runtime (P3, 2026-11-21)
+
+Mọi URL dưới đây đã đọc trực tiếp ngày 2026-11-21, đều trả HTTP 200, không chuyển hướng.
+
+## Phiên bản chốt (từ `global.md` mục 2)
+- Compose BOM 2026.11.01 → `compose.runtime` 1.13.0, `compose.ui` 1.13.0.
+- Compose Compiler = plugin `org.jetbrains.kotlin.plugin.compose` đi cùng Kotlin 2.4.21.
+- Strong skipping bật mặc định từ Kotlin 2.0.20 (nhãn `version`).
+
+## Chi tiết nội bộ: nguồn và giới hạn
+- `how-compose-works.md`: nhánh **androidx-main**, đường dẫn `compose/runtime/design/how-compose-works.md`, đọc 2026-11-21. Trang không hiện commit hash; vì vậy mọi chi tiết lấy từ đây ghi "androidx-main, đọc 2026-11-21" và gắn `impl`. Bản thân tài liệu cảnh báo SlotTable đang phát triển và có thể mô tả bản cũ.
+- Lấy từ đó (mức khái niệm, nhãn `impl`): Composer làm positional memoization, phát hiện thay đổi, đánh giá lại tăng dần; SlotTable gồm nhóm (group) và slot lưu trong mảng phẳng dạng gap buffer; compiler thêm tham số `$composer`, gọi start/end group, restart group trả về update scope khi có lần đọc quan sát được; thao tác node liền kề được gộp trước khi gọi Applier.
+- `$changed`: tài liệu nói nằm ngoài phạm vi → **chỉ nhắc tên, không giải thích bit**. Không mô tả layout bộ nhớ chi tiết.
+- Recomposer chạy trong coroutine: reference `Recomposer` có `runRecomposeAndApplyChanges()` là suspend function, chờ composer bị invalidate, recompose, apply; có pause/resume frame clock. Không có nguồn nói dispatcher cụ thể → không nêu.
+
+## Khẳng định theo chương
+| Ch. | Khẳng định | Nguồn | Nhãn |
+|---|---|---|---|
+| B0 | Composition, Recomposer, Composer, Applier là vai trò khác nhau | how-compose-works, Recomposer ref, Applier ref | stable / impl |
+| B1 | ComposeView: composition ban đầu khi view gắn vào window hoặc khi gọi `createComposition()`, cái nào trước; cần LifecycleOwner, SavedStateRegistryOwner | ComposeView ref | android-impl |
+| B2 | Compiler thêm `$composer`, group, kiểm tra skipping; mã giả chỉ minh họa | how-compose-works | impl simplified |
+| B3 | Identity theo call site + thứ tự thực thi; thêm cuối danh sách: tái dùng; thêm đầu/giữa, xóa, đổi chỗ: các item đổi vị trí bị recompose và effect đang chạy bị hủy, chạy lại; `key()` giữ identity | lifecycle | stable |
+| B4 | Snapshot: giá trị cách ly, `apply` nguyên tử, có xung đột; read/write observer dùng để composition đăng ký đọc | Snapshot ref | stable |
+| B5 | Recomposer là "scheduler" cho recomposition và apply; `withFrameNanos` suspend tới frame mới, thời gian tăng nghiêm ngặt | Recomposer ref, MonotonicFrameClock ref | stable |
+| B6 | Applier áp dụng thao tác cây phát ra khi composition; generic theo kiểu node; onBeginChanges/onEndChanges bao mỗi đợt | Applier ref | stable; UiApplier/LayoutNode `android-impl` |
+| B7 | Đọc trong composition → recompose rồi layout/draw có thể bỏ qua; đọc trong `Modifier.offset {}` (placement) → layout (+draw nếu đổi vị trí); đọc trong `drawBehind` → chỉ draw | phases | stable |
+| B7 | Ghi state từ `onSizeChanged` rồi dùng trong layout → thêm một frame (vòng lặp phase) | phases | stable |
+| B8 | Stable: so bằng `equals`; unstable khi strong skipping bật: so `===`; tắt strong skipping: composable có tham số unstable recompose mỗi lần cha recompose; List/Set/Map coi là unstable; lambda luôn coi là stable; không gắn @Stable đại trà | stability, strongskipping, lifecycle | stable / version |
+| B8 | Recomposition lạc quan, có thể bị hủy; composable nên nhanh, idempotent, không side effect | mental-model, side-effects | guideline |
+| B9 | Semantics tree song song, dùng cho accessibility và testing; accessibility dùng cây unmerged, test mặc định dùng merged | semantics | stable |
+| B10 | Chuỗi `+1`: write → (apply) → invalidate scope đã đọc → Recomposer lên lịch → Composer chạy lại, skip con có tham số không đổi → Applier chỉ khi cấu trúc đổi → layout/draw khi cần | tổng hợp các nguồn trên | simplified |
+
+## Điểm chưa xác minh / cách xử lý
+- Không có commit hash cho how-compose-works → ghi nhánh + ngày đọc.
+- mental-model nói composable "có thể" chạy song song nhưng ghi chú hiện chưa chạy song song → nội dung dùng "tài liệu yêu cầu viết như thể có thể chạy song song".
+- Số frame, thời lượng frame: không ghi.
+- Grokking Android (nguồn phụ): không dùng cho khẳng định nào.
+
+## Sách
+Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delegation, equals) ở mức "đọc thêm", không chép.
+
+## Checklist mục 5 (Track B) — tick 2026-11-21
+
+| Mục | Ở đâu |
+|---|---|
+| Không gộp 4 vai trò | B0 `sec.roles`, model `runtime.map` (mỗi vai trò một node, ba bước riêng) |
+| Runtime chung ≠ Android host | B0 `sec.roles.p.2`, node host/uitree mang trạng thái `android-impl`, callout `co.android` |
+| Không khẳng định mọi `setContent` tạo Composition mới | B1 `essence` dòng 3 |
+| Runtime gọi mã đã biến đổi | B1 bước `run` + `co.transformed`; B2 |
+| Không "chỉ khi Snapshot đổi", không "mỗi frame một lần" | B5 essence, quiz, misconceptions `recomposer-snapshot`, `one-per-frame` |
+| Không hard-code thời lượng frame | `m.recomposer.simp.2`, B5 `sec.x3.p.2` (không có số ms nào trong track) |
+| Mã giả có nhãn minh họa | `code.js` (illustrative), `m.compiler.co.illustrative`, badge `impl simplified` |
+| Không khuyến khích `currentComposer`/API nội bộ | B2 `sec.transform.p.2`, `m.compiler.simp.2`, misconception `manual-composer` |
+| Gap buffer, `$changed` không như API ổn định; có nhánh/ngày | B3 `sec.slots.p.2`, B2 `sec.transform` (androidx-main, đọc 2026-11-21; không có commit hash, xem "Điểm chưa xác minh") |
+| SlotTable ≠ "mảng Any?"; khác cây UI; cảnh báo của tài liệu | B3 `sec.slots`, quiz q2, misconception `slot-ui` |
+| Applier: tính ≠ áp dụng; không chỉ Android | B6 essence, `sec.applier`, model `runtime.applier` |
+| StateObject/StateRecord khái niệm; nhiều record | B4 `sec.snapshot.p.2`, `m.snapshot.simp.1` |
+| Không chạy lại toàn bộ cây; recomposition ≠ redraw | B4 essence, B7 essence, misconceptions `whole-tree`, `redraw` |
+| Không "thiếu key luôn tạo lại" | B3, model `runtime.keys` (4 thao tác × 2 chế độ, selfCheck thêm cuối giữ nguyên) |
+| Không phải Virtual DOM nhưng có theo dõi cấu trúc | B3 essence dòng 3 |
+| `AndroidComposeView`, `Owner`, `UiApplier`, `LayoutNode` gắn `android-impl` | B0, B6 `sec.applier.p.2`, B9 `sec.sem.p.2` |
+| Accessibility không chỉ qua Owner; semantics song song | B9 `sec.sem`, model `runtime.semantics` |
+| Stability không thành mẹo; không `@Stable` đại trà; strong skipping `version` | B8 `sec.stability`, `m.skip.co.correct`, `m.skip.co.version` |
+| Composable an toàn khi chạy lại | B8 `sec.correct` |
+| Chỉ kết luận phase sau khi chỉ ra nơi đọc | model `runtime.phases`: bước 1 luôn là "State được đọc ở đâu?" |
+| Luồng `+1` đủ 8 bước | model `runtime.counter` (selfCheck "luôn đủ 8 bước") |
+| Hiểu lầm ≥ 8, có nguồn | 9 mục |
+| Release notes không là nguồn duy nhất; Grokking chỉ bổ trợ | `rt-releases` chỉ dùng cho phiên bản (B0); Grokking không dùng |
+
+**Đã xử lý 2026-11-21:** mỗi khối của sơ đồ B0 bấm được (chuột, Enter, Space; `role=button`, `aria-pressed`, nhãn "Chọn {tên}") qua `view.nodeAction: 'focus'` trong lõi; ô chọn "Thành phần" vẫn giữ làm cách thứ hai. (Trước đó là lệch spec có chủ ý vì lời nhắc tác vụ tự động cấm sửa `js/core`.)

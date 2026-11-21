@@ -1,0 +1,38 @@
+/* Nguồn của track A. URL là URL đích đã đối chiếu ngày 2026-11-20 (docs/research/coroutines.md). Tiêu đề giữ nguyên bản gốc. */
+(function () {
+  var s = function (id, title, url, org, label, vi, en) { return { id: id, title: title, url: url, org: org, tracks: ['coroutines'], label: label, lang: 'en', supports: { vi: vi, en: en } }; };
+  ADE.addSources([
+    s('kt-guide', 'Coroutines guide', 'https://kotlinlang.org/docs/coroutines-guide.html', 'JetBrains (kotlinlang.org)', 'stable',
+      'Mục lục khái niệm của coroutine: nền cho bản đồ ở chương A0.', 'The conceptual index of coroutines: the basis for the overview map in chapter A0.'),
+    s('kt-basics', 'Coroutines basics', 'https://kotlinlang.org/docs/coroutines-basics.html', 'JetBrains (kotlinlang.org)', 'stable',
+      'Coroutine, suspending function, scope và structured concurrency ở mức cơ bản (A1, A2).', 'Coroutines, suspending functions, scopes and structured concurrency at the basic level (A1, A2).'),
+    s('kt-composing', 'Composing suspending functions', 'https://kotlinlang.org/docs/composing-suspending-functions.html', 'JetBrains (kotlinlang.org)', 'stable',
+      'Mặc định tuần tự, `async` cho đồng thời, và structured concurrency với `async`: lỗi trong scope hủy mọi con (A3).', 'Sequential by default, `async` for concurrency, and structured concurrency with `async`: a failure inside the scope cancels every child (A3).'),
+    s('kt-cancellation', 'Cancellation and timeouts', 'https://kotlinlang.org/docs/coroutines-cancellation.html', 'JetBrains (kotlinlang.org)', 'stable',
+      'Hủy hợp tác, `isActive`, `ensureActive()`, `NonCancellable`, `withTimeoutOrNull` (A5). Thay cho URL cũ `cancellation-and-timeouts.html` chỉ là trang chuyển hướng.', 'Cooperative cancellation, `isActive`, `ensureActive()`, `NonCancellable`, `withTimeoutOrNull` (A5). Replaces the old `cancellation-and-timeouts.html` URL, which is only a redirect page.'),
+    s('kt-context', 'Coroutine context and dispatchers', 'https://kotlinlang.org/docs/coroutine-context-and-dispatchers.html', 'JetBrains (kotlinlang.org)', 'stable',
+      'Context, toán tử `+`, dispatcher, `withContext`, `CoroutineName`, quan hệ cha–con của Job (A2, A4).', 'Context, the `+` operator, dispatchers, `withContext`, `CoroutineName`, and the parent–child relation of Jobs (A2, A4).'),
+    s('kt-exceptions', 'Coroutine exceptions handling', 'https://kotlinlang.org/docs/exception-handling.html', 'JetBrains (kotlinlang.org)', 'stable',
+      '`launch` và `async`, `CoroutineExceptionHandler`, `SupervisorJob`, `supervisorScope` (A6).', '`launch` and `async`, `CoroutineExceptionHandler`, `SupervisorJob`, `supervisorScope` (A6).'),
+    s('kt-flow', 'Flows', 'https://kotlinlang.org/docs/coroutines-flow.html', 'JetBrains (kotlinlang.org)', 'stable',
+      'Cold và hot flow, `flowOn`, `buffer`, xử lý exception, StateFlow và SharedFlow (A7). Thay cho URL cũ `flow.html` chỉ là trang chuyển hướng.', 'Cold and hot flows, `flowOn`, `buffer`, exception handling, StateFlow and SharedFlow (A7). Replaces the old `flow.html` URL, which is only a redirect page.'),
+    s('kt-flow-ops', 'Flow operators', 'https://kotlinlang.org/docs/coroutines-flow-operators.html', 'JetBrains (kotlinlang.org)', 'stable',
+      '`buffer`, `conflate`, `collectLatest` và cách chúng chạy upstream (A7). Trang này tách riêng khỏi trang Flows trong tài liệu hiện hành.', '`buffer`, `conflate`, `collectLatest` and how they run the upstream (A7). This page is separate from the Flows page in the current documentation.'),
+    s('kt-channels', 'Channels', 'https://kotlinlang.org/docs/channels.html', 'JetBrains (kotlinlang.org)', 'stable',
+      'Channel gần với BlockingQueue nhưng `send`/`receive` là suspend; fan-out; send và receive phục vụ theo thứ tự FIFO (A7).', 'A Channel is close to a BlockingQueue but `send`/`receive` suspend; fan-out; send and receive are served in first-in first-out order (A7).'),
+    s('kt-shared-state', 'Shared mutable state and concurrency', 'https://kotlinlang.org/docs/shared-mutable-state-and-concurrency.html', 'JetBrains (kotlinlang.org)', 'stable',
+      'Volatile không đủ, thread confinement, Mutex, cấu trúc dữ liệu thread-safe (A9).', 'Volatile is not enough, thread confinement, Mutex, thread-safe data structures (A9).'),
+    s('and-co-best', 'Best practices for coroutines in Android', 'https://developer.android.com/kotlin/coroutines/coroutines-best-practices', 'Android Developers', 'guideline',
+      'Inject dispatcher, main-safety, tránh `GlobalScope`, ViewModel tạo coroutine, không nuốt `CancellationException` (A0, A4, A5, A8).', 'Inject dispatchers, main-safety, avoid `GlobalScope`, let the ViewModel create coroutines, do not swallow `CancellationException` (A0, A4, A5, A8).'),
+    s('and-co-lifecycle', 'Use Kotlin coroutines with lifecycle-aware components', 'https://developer.android.com/topic/libraries/architecture/coroutines', 'Android Developers', 'stable',
+      '`viewModelScope` và coroutine gắn với Composition bị hủy khi composable rời màn hình (A0, A8).', '`viewModelScope` and Composition-bound coroutines are cancelled when the composable leaves the screen (A0, A8).'),
+    s('and-stateflow', 'StateFlow and SharedFlow', 'https://developer.android.com/kotlin/flow/stateflow-and-sharedflow', 'Android Developers', 'stable',
+      'StateFlow là state holder có giá trị hiện tại; SharedFlow có replay; `repeatOnLifecycle(STARTED)` (A7, A8).', 'StateFlow is a state holder with a current value; SharedFlow has replay; `repeatOnLifecycle(STARTED)` (A7, A8).'),
+    s('and-co-test', 'Testing Kotlin coroutines on Android', 'https://developer.android.com/kotlin/coroutines/test', 'Android Developers', 'stable',
+      '`runTest`, `TestDispatcher`, `TestCoroutineScheduler`, virtual time; `withContext` làm delay không còn bị bỏ qua (A9).', '`runTest`, `TestDispatcher`, `TestCoroutineScheduler`, virtual time; `withContext` stops delays from being skipped (A9).'),
+    s('and-effects', 'Side-effects in Compose', 'https://developer.android.com/develop/ui/compose/side-effects', 'Android Developers', 'stable',
+      '`LaunchedEffect` và `rememberCoroutineScope`: vòng đời coroutine theo Composition, key đổi thì chạy lại (A8, cầu nối X2).', '`LaunchedEffect` and `rememberCoroutineScope`: coroutine lifetime follows the Composition, and a key change restarts it (A8, bridge X2).'),
+    s('and-state', 'State and Jetpack Compose', 'https://developer.android.com/develop/ui/compose/state', 'Android Developers', 'stable',
+      '`collectAsStateWithLifecycle()` thu giá trị Flow theo lifecycle (A8).', '`collectAsStateWithLifecycle()` collects Flow values in a lifecycle-aware way (A8).')
+  ]);
+})();

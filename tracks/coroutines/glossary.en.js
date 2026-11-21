@@ -1,0 +1,28 @@
+/* Coroutines track glossary (English). */
+ADE.addGlossary('en', 'coroutines', {
+  "coroutine": { term: "coroutine", def: "A piece of work that can suspend (pause) and resume (carry on), created in a scope. It is not a thread.", chapter: "coroutines/a0" },
+  "suspend-function": { term: "suspend function", def: "A function that can contain suspension points. The `suspend` keyword creates no thread and does not mean background work.", chapter: "coroutines/a1" },
+  "continuation": { term: "continuation", def: "An object that remembers where a suspend function stopped so it can carry on later. A compiler implementation detail, not an API to rely on.", chapter: "coroutines/a1" },
+  "job": { term: "Job", def: "The lifecycle handle of a coroutine; Jobs form a parent–child tree, and cancellation flows from parent to child.", chapter: "coroutines/a2" },
+  "structured-concurrency": { term: "structured concurrency", def: "The principle that coroutines belong to a scope: a parent waits for its children, cancellation goes down, and failures are handled along the tree.", chapter: "coroutines/a2" },
+  "coroutine-scope": { term: "CoroutineScope", def: "The place that provides context and a lifetime boundary for the coroutines created in it.", chapter: "coroutines/a2" },
+  "supervisor-job": { term: "SupervisorJob", def: "A Job where a child failure or cancellation does not reach it or the other children. `supervisorScope` uses this mechanism.", chapter: "coroutines/a6" },
+  "deferred": { term: "Deferred", def: "A Job with a result, returned by `async`; you get the result with `await()`.", chapter: "coroutines/a3" },
+  "coroutine-context": { term: "CoroutineContext", def: "A set of elements (Job, dispatcher, name...) combined with `+` and looked up by key.", chapter: "coroutines/a4" },
+  "dispatcher": { term: "dispatcher", def: "The context element that decides how a coroutine is distributed to run. It does not guarantee a fixed thread.", chapter: "coroutines/a4" },
+  "main-safety": { term: "main-safety", def: "A suspend function is main-safe when calling it from Main does not block Main; the function moves long blocking work off Main itself.", chapter: "coroutines/a4" },
+  "cooperative-cancellation": { term: "cooperative cancellation", def: "Cooperative cancellation: a coroutine stops only when it suspends or checks for cancellation; `cancel()` is only a request.", chapter: "coroutines/a5" },
+  "cancellation-exception": { term: "CancellationException", def: "The exception that represents cancellation; a normal signal. If you catch it to clean up, rethrow it.", chapter: "coroutines/a5" },
+  "exception-handler": { term: "CoroutineExceptionHandler", def: "A context element that receives the unhandled errors of a root coroutine; it cannot recover because the coroutine has completed.", chapter: "coroutines/a6" },
+  "flow": { term: "Flow", def: "A sequential stream of values produced asynchronously. It is how data is collected, not a thread.", chapter: "coroutines/a7" },
+  "cold-flow": { term: "cold flow", def: "A flow that starts producing when collected; each collector triggers its own run.", chapter: "coroutines/a7" },
+  "hot-flow": { term: "hot flow", def: "A flow that emits values independently of collectors, such as StateFlow and SharedFlow.", chapter: "coroutines/a7" },
+  "state-flow": { term: "StateFlow", def: "A hot flow that is a state holder: it has a current value (`value`) and emits new updates.", chapter: "coroutines/a7" },
+  "shared-flow": { term: "SharedFlow", def: "A hot flow that emits to several collectors, with configurable replay and buffer.", chapter: "coroutines/a7" },
+  "channel": { term: "Channel", def: "A channel for sending and receiving between coroutines (both `send` and `receive` suspend); each element goes to one receiver.", chapter: "coroutines/a7" },
+  "launched-effect": { term: "LaunchedEffect", def: "A composable that runs a coroutine tied to the Composition: a key change restarts it, leaving the Composition cancels it.", chapter: "coroutines/a8" },
+  "race-condition": { term: "race condition", def: "A result that depends on the non-deterministic interleaving of threads or coroutines modifying shared state.", chapter: "coroutines/a9" },
+  "mutex": { term: "Mutex", def: "A coroutine lock: `lock()` suspends, so waiting for the lock does not block a thread.", chapter: "coroutines/a9" },
+  "virtual-time": { term: "virtual time", def: "The virtual clock of `runTest`: delays are skipped and time only moves when you tell it to.", chapter: "coroutines/a9" },
+  "frame-clock": { term: "frame clock", def: "A per-frame beat a coroutine can wait on, different from a dispatcher. Explained in the Compose Runtime chapter (bridge X3).", chapter: "runtime/b5" }
+});

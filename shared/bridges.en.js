@@ -1,0 +1,18 @@
+ADE.addSharedStrings('en', {
+  'shared.bridge.X1.title': 'Compose phases: where state is read',
+  'shared.bridge.X1.summary': 'A state change can make Composition, Layout or Drawing run again, depending on where that state is read. The owning chapter explains it in full; other chapters only recap and link back here.',
+  'shared.bridge.X2.title': 'Coroutines in Compose',
+  'shared.bridge.X2.summary': 'How `LaunchedEffect`, `rememberCoroutineScope` and `collectAsStateWithLifecycle` tie a coroutine to the lifecycle of a Composition and of a screen.',
+  'shared.bridge.X3.title': 'The frame clock',
+  'shared.bridge.X3.summary': '`MonotonicFrameClock` and `withFrameNanos` give a coroutine a different beat from a dispatcher: a beat per frame.',
+  'shared.bridge.X4.title': '`Animatable` is a suspend API',
+  'shared.bridge.X4.summary': 'An animation runs inside a coroutine, so it follows the same cancellation and sequential/concurrent rules as any other coroutine.',
+  'shared.bridge.X5.title': 'Material 3 theming in Compose',
+  'shared.bridge.X5.summary': 'From the design system color roles, typography and shape to `MaterialTheme` in Compose code.',
+  'shared.bridge.X6.title': 'Accessibility: WCAG, semantics and inclusive design',
+  'shared.bridge.X6.summary': 'WCAG criteria, the semantics tree in Compose and designing for many kinds of users meet here.',
+  'shared.bridge.X7.title': 'Motion with purpose',
+  'shared.bridge.X7.summary': 'Material motion principles connect to the Compose animation mechanism: what motion is for and how it runs.',
+  'shared.bridge.X8.title': 'UX writing and localization',
+  'shared.bridge.X8.summary': 'Interface text has to survive several languages: length, grammar, plurals and how strings are organized on Android.'
+});

@@ -1,0 +1,24 @@
+/* Nguồn của track C. Đọc trực tiếp ngày 2026-11-21 (HTTP 200); xem docs/research/animation.md.
+   URL tổng quan cũ /develop/ui/compose/animation trả 404 → dùng /animation/introduction (global.md §3). */
+(function () {
+  var s = function (id, title, url, org, label, vi, en) { return { id: id, title: title, url: url, org: org, tracks: ['animation'], label: label, lang: 'en', supports: { vi: vi, en: en } }; };
+  var D = 'https://developer.android.com/develop/ui/compose/animation/', R = 'https://developer.android.com/reference/kotlin/androidx/compose/animation/core/';
+  var G = 'https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/compose/animation/animation-core/src/commonMain/kotlin/androidx/compose/animation/core/';
+  ADE.addSources([
+    s('an-intro', 'Animations in Compose', D + 'introduction', 'Android Developers', 'stable', 'Tổng quan các nhóm API animation (C0).', 'Overview of the animation API groups (C0).'),
+    s('an-choose', 'Choose an animation API', D + 'choose-api', 'Android Developers', 'stable', 'Cây quyết định chọn API (C0).', 'The decision tree for choosing an API (C0).'),
+    s('an-value', 'Value-based animations', D + 'value-based', 'Android Developers', 'stable', 'animate*AsState đổi target giữa chừng, Animatable, updateTransition, infinite transition (C1, C3, C6).', 'animate*AsState retargeting, Animatable, updateTransition, infinite transitions (C1, C3, C6).'),
+    s('an-composables', 'Animation modifiers and composables', D + 'composables-modifiers', 'Android Developers', 'stable', 'AnimatedVisibility, AnimatedContent, Crossfade, animateContentSize (C4, C5).', 'AnimatedVisibility, AnimatedContent, Crossfade, animateContentSize (C4, C5).'),
+    s('an-customize', 'Customize animations', D + 'customize', 'Android Developers', 'stable', 'spring, tween, keyframes, keyframesWithSpline, repeatable, snap, easing, AnimationVector (C2).', 'spring, tween, keyframes, keyframesWithSpline, repeatable, snap, easing, AnimationVector (C2).'),
+    s('an-advanced', 'Advanced animation example: Gestures', D + 'advanced', 'Android Developers', 'stable', 'Kéo, stop(), VelocityTracker, decay, animateTo với initialVelocity (C6).', 'Dragging, stop(), VelocityTracker, decay, animateTo with initialVelocity (C6).'),
+    s('an-testing', 'Test animations', D + 'testing', 'Android Developers', 'stable', 'mainClock, autoAdvance, advanceTimeBy làm tròn lên theo frame (C8).', 'mainClock, autoAdvance, advanceTimeBy rounding up to frames (C8).'),
+    s('an-quick', 'Quick guide to Animations in Compose', D + 'quick-guide', 'Android Developers', 'guideline', 'Tối ưu hiệu năng: dạng lambda của modifier, graphicsLayer, thứ tự animateContentSize (C5, C7).', 'Performance: lambda modifiers, graphicsLayer, animateContentSize order (C5, C7).'),
+    s('an-animatable', 'Animatable', R + 'Animatable', 'Android Developers', 'stable', 'Hủy animation đang chạy bằng CancellationException, stop(), initialVelocity mặc định = velocity (C6).', 'Cancelling a running animation with CancellationException, stop(), initialVelocity defaulting to velocity (C6).'),
+    s('an-spring', 'Spring', R + 'Spring', 'Android Developers', 'stable', 'Hằng số damping ratio và stiffness (C2).', 'Damping ratio and stiffness constants (C2).'),
+    s('an-constants', 'AnimationConstants', R + 'AnimationConstants', 'Android Developers', 'stable', 'DefaultDurationMillis = 300 (C2).', 'DefaultDurationMillis = 300 (C2).'),
+    s('an-decayspec', 'FloatExponentialDecaySpec', R + 'FloatExponentialDecaySpec', 'Android Developers', 'stable', 'Tham số mặc định của exponential decay (C2, C6).', 'Default parameters of exponential decay (C2, C6).'),
+    s('an-pkg', 'androidx.compose.animation.core (package summary)', R + 'package-summary', 'Android Developers', 'version', 'Mặc định của spring() và tween(); keyframesWithSpline thêm ở 1.6.0 (C2).', 'Defaults of spring() and tween(); keyframesWithSpline added in 1.6.0 (C2).'),
+    s('an-easing-src', 'Easing.kt (androidx-main)', G + 'Easing.kt', 'AndroidX (android.googlesource.com)', 'impl', 'Điểm điều khiển cubic-bezier của các easing chuẩn; đọc 2026-11-21 (C2).', 'Cubic-bezier control points of the standard easings; read 2026-11-21 (C2).'),
+    s('an-decay-src', 'FloatDecayAnimationSpec.kt (androidx-main)', G + 'FloatDecayAnimationSpec.kt', 'AndroidX (android.googlesource.com)', 'impl', 'Công thức exponential decay, friction −4.2; đọc 2026-11-21 (C2, C6).', 'The exponential decay formula, friction −4.2; read 2026-11-21 (C2, C6).')
+  ]);
+})();

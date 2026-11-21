@@ -1,0 +1,70 @@
+# Nghiên cứu track A: Kotlin Coroutines (P2)
+
+> Ngày đối chiếu 2026-11-20. Đọc trực tiếp các trang bên dưới (tải về dạng văn bản và đối chiếu từng khẳng định). Phiên bản: Kotlin 2.4.21, kotlinx.coroutines 1.11.0, AndroidX Lifecycle 2.11.1 (xem `global.md`).
+
+## Thay đổi so với spec (tài liệu đã được tổ chức lại)
+
+| Spec ghi | Thực tế (đã đọc) | Xử lý |
+|---|---|---|
+| `kotlinlang.org/docs/flow.html` | stub chuyển hướng | dùng `coroutines-flow.html` ("Flows") |
+| `…/cancellation-and-timeouts.html` | stub chuyển hướng | dùng `coroutines-cancellation.html` |
+| Trang Flow chứa `conflate`, `collectLatest`, `flatMap*` | Trang "Flows" chỉ còn cold/hot, `flowOn`, `buffer`, `catch`, StateFlow/SharedFlow; `buffer`, `conflate`, `collectLatest` nằm ở **`coroutines-flow-operators.html`** ("Flow operators", 200) | thêm nguồn này; **không** khẳng định `flatMapConcat/Merge/Latest` vì chưa tìm thấy trong hai trang (xem "Điểm chưa xác minh") |
+| `repeatOnLifecycle` thuộc trang lifecycle | Trang `topic/libraries/architecture/coroutines` chỉ nói ViewModelScope và scope gắn Composition; `repeatOnLifecycle` có trong ví dụ của `developer.android.com/kotlin/flow/stateflow-and-sharedflow` (200) | thêm nguồn này |
+| `collectAsStateWithLifecycle` | Có ở `developer.android.com/develop/ui/compose/state` ("State and Jetpack Compose", 200) và trong reference `androidx.lifecycle.compose` | thêm nguồn này |
+
+## Khẳng định theo chương (kèm nguồn và nhãn dự kiến)
+
+**A0 Bản đồ.** Flow là chuỗi giá trị tuần tự sinh bất đồng bộ, không phải một thread riêng (`coroutines-flow`: "A flow represents a sequential stream of values that can be produced asynchronously"). ViewModel sở hữu coroutine, view không kích hoạt logic nghiệp vụ (`coroutines-best-practices`, nhãn `guideline`). `viewModelScope`: coroutine bị hủy khi ViewModel bị clear (`architecture/coroutines`, `stable`).
+
+**A1 suspend và continuation.** Coroutine là computation có thể suspend/resume; bản thân `suspend` không tạo thread (`coroutines-basics`). Đối chiếu bộ nhớ coroutine so với thread (50 000 thread cần mỗi thread một stack riêng) là ví dụ của trang basics, **không** dùng số liệu. Continuation/state machine là chi tiết compiler → `impl`, mã giả gắn "minh họa"; sách KCDD chỉ để lấy ý.
+
+**A2 Scope, Job.** Coroutine mới nhận context từ scope cha, Job của nó là con của Job cha; "When the parent coroutine is cancelled, all its children are recursively cancelled" (`coroutine-context-and-dispatchers`). Có hai cách ghi đè quan hệ cha–con (scope khác, hoặc truyền `Job` mới). `supervisorScope`: lan truyền hủy một chiều, chỉ hủy con khi chính nó fail, vẫn đợi mọi con (`exception-handling`).
+
+**A3 Builders.** Mặc định tuần tự; `async` cho thực thi đồng thời, `await` lấy kết quả. Với structured concurrency, nếu `concurrentSum` ném exception thì mọi coroutine trong scope của nó bị hủy (`composing-suspending-functions`). `withContext` chạy khối trong context khác và trả kết quả (`coroutine-context-and-dispatchers`); không phải coroutine detached.
+
+**A4 Context và Dispatcher.** Context ghép bằng toán tử `+`; `CoroutineName` giống tên thread, dùng khi debug; `Dispatchers.Default`, `Dispatchers.Unconfined`, dispatcher riêng (`coroutine-context-and-dispatchers`). Main-safety: suspend function nên an toàn khi gọi từ Main, lớp làm việc chặn dài phải tự chuyển bằng `withContext`; inject dispatcher, tránh hard-code (`coroutines-best-practices`, `guideline`).
+
+**A5 Hủy và timeout.** "coroutine cancellation is cooperative": chỉ phản ứng khi suspend hoặc kiểm tra hủy; `isActive` trả `false`, `ensureActive()` ném `CancellationException`; khi bị hủy, coroutine ném `CancellationException` ở lần kiểm tra kế tiếp; `NonCancellable` chỉ truyền cho `withContext`, tránh dùng với `launch/async` vì phá structured concurrency; `withTimeoutOrNull` dùng cho trường hợp muốn fallback (`coroutines-cancellation`). Best practice: không nuốt `CancellationException` (không catch, hoặc luôn ném lại nếu catch) (`coroutines-best-practices`).
+
+**A6 Exception.** `launch` coi exception là uncaught; `async` dựa vào người dùng gọi `await`; `CoroutineExceptionHandler` trên root coroutine là "generic catch block" cho root đó và các con, nhưng **không thể phục hồi**: handler gọi khi coroutine đã hoàn tất với exception; `async` bắt mọi exception vào `Deferred` nên handler của nó cũng vô tác dụng; coroutine trong supervision scope không lan exception lên cha và được loại khỏi quy tắc đó (`exception-handling`). `SupervisorJob`: fail hoặc cancel của một con không lan lên supervisor hay con khác.
+
+**A7 Flow.** Cold flow bắt đầu sản xuất khi được collect, mỗi collector chạy một lần riêng; hot flow phát độc lập với collector (`coroutines-flow`). Mặc định cold flow chạy trong cùng coroutine context của collector; `flowOn` đổi context của upstream. `buffer` cho producer chạy trước tối đa N giá trị; `conflate` là rút gọn của `buffer(1, DROP_OLDEST)`; `collectLatest` hủy xử lý đã bắt đầu (`coroutines-flow-operators`). Channel về khái niệm giống `BlockingQueue` nhưng `send`/`receive` là suspend; nhiều coroutine nhận cùng channel là fan-out (`channels`). StateFlow là state holder có giá trị hiện tại; ví dụ SharedFlow `replay = 1` phát lại giá trị cuối cho collector mới (`kotlin/flow/stateflow-and-sharedflow`).
+
+**A8 Lifecycle và Compose.** `viewModelScope` hủy khi ViewModel clear; coroutine gắn Composition tự hủy khi composable rời màn hình (`architecture/coroutines`). `repeatOnLifecycle(STARTED)` chạy khối trong coroutine mới mỗi lần lifecycle ở STARTED trở lên và hủy khi STOPPED (ví dụ trong `stateflow-and-sharedflow`). `LaunchedEffect`: chạy coroutine khi vào Composition, hủy khi rời, và nếu key đổi thì hủy coroutine cũ rồi chạy mới (`side-effects`). `collectAsStateWithLifecycle` thu giá trị Flow theo lifecycle để tiết kiệm tài nguyên (`develop/ui/compose/state`).
+
+**A9 Shared state và test.** Volatile không giải quyết vấn đề đồng thời: bảo đảm đọc/ghi từng biến nhưng không bảo đảm tính nguyên tử của thao tác lớn như tăng; Mutex có `lock` suspend, không chặn thread; thread confinement; cấu trúc dữ liệu thread-safe (`shared-mutable-state-and-concurrency`). `runTest`, `TestDispatcher` dùng chung một `TestCoroutineScheduler` điều khiển virtual time; nếu code chuyển sang dispatcher khác (ví dụ `withContext`), delay không còn được bỏ qua (`kotlin/coroutines/test`).
+
+## Điểm chưa xác minh / cách xử lý
+
+- `flatMapConcat/flatMapMerge/flatMapLatest`: không có trong hai trang đã đọc ("Flows", "Flow operators"). Site **không** mô phỏng hay khẳng định ngữ nghĩa của chúng; chỉ nhắc tên ở mức "xem tài liệu API", không dựa trên trí nhớ.
+- Số thread của `Dispatchers.IO`/`Default`: không ghi (spec cấm hard-code). Tên thread trong sơ đồ chỉ là ví dụ.
+- Thứ tự thực thi giữa các coroutine cùng dispatcher không được tài liệu bảo đảm: mô hình chỉ dùng FIFO để minh họa, gắn nhãn `simplified`.
+- Hành vi chính xác khi `CancellationException` bị bắt rồi tiếp tục chạy: mô hình giản lược; chỉ khẳng định điều trang `coroutines-best-practices` nêu.
+- `lifecycleScope`: không được tìm thấy trong trang `architecture/coroutines` bản hiện tại; site dùng `repeatOnLifecycle` và `viewModelScope` (có nguồn) và không dựa vào `lifecycleScope` như khẳng định riêng.
+
+## Sách (chỉ để lấy ý, không chép)
+
+*Kotlin Coroutines: Deep Dive* (Moskała, bản 2023-06-26): A1 (suspension, under the hood), A2 (Job), A5 (Cancellation), A6 (Exception handling), A7 (Flow). Ý tưởng câu tự kiểm tra lấy chủ đề từ *Kotlin Exercises* (không chép). Sách ra trước Kotlin 2.4 nên mọi API đã được đối chiếu lại với tài liệu hiện hành ở trên.
+
+## Checklist mục 6 (Track A) — đã tick 2026-11-21
+
+| Mục | Ở đâu |
+|---|---|
+| 9 cặp khái niệm | A0 mục `pairs` (`track.coroutines.a0.sec.pairs.*`), mỗi cặp dẫn tới chương chi tiết |
+| Không nói các hiểu lầm cấm (suspend = background, 1 coroutine = 1 thread, hủy = dừng ngay, CEH = try/catch, Flow luôn cold, IO bắt buộc, GlobalScope, async thay launch) | `misconceptions.{vi,en}.js` (11 mục, có nguồn); rà câu tuyệt đối vi/en 2026-11-21 |
+| `withContext` không tạo coroutine detached | `m.full.co.withctx`, misconceptions |
+| Không gộp các kiểu lan truyền lỗi; builder và supervisor boundary | model `coroutines.exception` (builder, CEH, ai ném), A6 `sec.rules`, A2 nhánh coroutineScope/supervisorScope |
+| Dispatcher không gắn thread cố định; không hard-code số thread | `simp.sched`, select số luồng ở A1 (tham số minh họa), A4 |
+| Rethrow `CancellationException`; ví dụ nuốt sai; giới hạn `finally`/`NonCancellable` | model `coroutines.cancel` (điều khiển `fin`, nhánh nuốt exception), `m.cancel.wrapup` |
+| `withTimeout` ≠ `withTimeoutOrNull`; non-cooperative không dừng ngay | model `coroutines.cancel` (mode timeout/timeoutNull, coop) |
+| cancelling / cancelled / completed tách biệt | model `coroutines.jobtree` (`simp.1` nêu điều kiện hiện `cancelling`) |
+| `flowOn`, `catch` chỉ upstream; Flow không mô phỏng scheduler | A7 `sec.ops.p.3`, `m.flowpipe.simp.1` |
+| Mã giả continuation có nhãn giản lược | A1 `sec.impl.badge = "impl simplified"` |
+| Thời gian minh họa; race/thứ tự gắn nhãn minh họa | `simp.time`, `simp.sched`, `m.race.*` (interleaving minh họa) |
+| Không có chiến lược concurrency luôn tốt nhất | `m.race.co.atomic` |
+| Best practice gắn `guideline` + nguồn chính thức | A8 `sec.scopes.p.2`, `sec.bridge.p.3` (and-co-best, and-effects) |
+| Phiên bản Kotlin, kotlinx.coroutines, Lifecycle | `shared/sources.js` (mục phiên bản), A8 `sec.bridge.p.2` |
+| Badge "mô phỏng khái niệm" ở khu timeline | lõi hiển thị trên panel sơ đồ/timeline (đã chụp ảnh kiểm) |
+| Hiểu lầm ≥ 8, có nguồn | 11 mục |
+
+Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bridges.*.js` giữ tóm tắt 1–2 dòng cho nơi dẫn (B4, B8, C6).

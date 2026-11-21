@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ANDROID DEEP DIVE</title>
+<meta name="description" content="Android Deep Dive Explorer — Hiểu Android từ bên trong / Understand Android from the inside">
+<script>
+/* Đặt theme và tuỳ chọn giao diện trước khi vẽ để tránh nháy. Cổ điển, không module; lỗi storage bị bỏ qua. */
+(function () {
+  var d = document.documentElement, g = function (k) { try { return JSON.parse(localStorage.getItem('ade.' + k)); } catch (e) { return null; } };
+  var th = g('theme');
+  if (th !== 'light' && th !== 'dark') th = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  d.setAttribute('data-theme', th);
+  var m = g('motion'), os = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (m === 'reduce' || (m !== 'full' && os)) d.classList.add('reduced-motion');
+  if (m === 'full') d.classList.add('motion-full');
+})();
+</script>
+<link rel="stylesheet" href="styles.css">
+<!-- Thứ tự nạp cố định (defer giữ đúng thứ tự tài liệu): core → i18n → shared → từng track → app.js. Không ES module, không fetch. -->
+<!-- core -->
+<script defer src="js/core/i18n.js"></script>
+<script defer src="js/core/registry.js"></script>
+<script defer src="js/core/engine.js"></script>
+<script defer src="js/core/diagram.js"></script>
+<script defer src="js/core/ui.js"></script>
+<script defer src="js/core/controls.js"></script>
+<script defer src="js/core/search.js"></script>
+<script defer src="js/core/router.js"></script>
+<!-- chuỗi giao diện chung -->
+<script defer src="i18n/ui.vi.js"></script>
+<script defer src="i18n/ui.en.js"></script>
+<!-- dữ liệu dùng chung -->
+<script defer src="shared/sources.js"></script>
+<script defer src="shared/glossary.vi.js"></script>
+<script defer src="shared/glossary.en.js"></script>
+<script defer src="shared/misconceptions.vi.js"></script>
+<script defer src="shared/misconceptions.en.js"></script>
+<script defer src="shared/bridges.js"></script>
+<script defer src="shared/bridges.vi.js"></script>
+<script defer src="shared/bridges.en.js"></script>
+<script defer src="shared/paths.js"></script>
+<script defer src="shared/about.vi.js"></script>
+<script defer src="shared/about.en.js"></script>
+<script defer src="shared/mock-app/mock-app.js"></script>
+<script defer src="shared/mock-app/mock-app.vi.js"></script>
+<script defer src="shared/mock-app/mock-app.en.js"></script>
+<!-- track: coroutines -->
+<script defer src="tracks/coroutines/manifest.js"></script>
+<script defer src="tracks/coroutines/content.vi.js"></script>
+<script defer src="tracks/coroutines/content.en.js"></script>
+<script defer src="tracks/coroutines/code.js"></script>
+<script defer src="tracks/coroutines/sources.js"></script>
+<script defer src="tracks/coroutines/glossary.vi.js"></script>
+<script defer src="tracks/coroutines/glossary.en.js"></script>
+<script defer src="tracks/coroutines/misconceptions.vi.js"></script>
+<script defer src="tracks/coroutines/misconceptions.en.js"></script>
+<script defer src="tracks/coroutines/models/common.js"></script>
+<script defer src="tracks/coroutines/models/models-a.js"></script>
+<script defer src="tracks/coroutines/models/models-b.js"></script>
+<script defer src="tracks/coroutines/models/models-c.js"></script>
+<script defer src="tracks/coroutines/views/views.js"></script>
+<!-- /track: coroutines -->
+<!-- track: runtime -->
+<script defer src="tracks/runtime/manifest.js"></script>
+<script defer src="tracks/runtime/content.vi.js"></script>
+<script defer src="tracks/runtime/content.en.js"></script>
+<script defer src="tracks/runtime/code.js"></script>
+<script defer src="tracks/runtime/sources.js"></script>
+<script defer src="tracks/runtime/glossary.vi.js"></script>
+<script defer src="tracks/runtime/glossary.en.js"></script>
+<script defer src="tracks/runtime/misconceptions.vi.js"></script>
+<script defer src="tracks/runtime/misconceptions.en.js"></script>
+<script defer src="tracks/runtime/models/models.js"></script>
+<script defer src="tracks/runtime/views/views.js"></script>
+<!-- /track: runtime -->
+<!-- track: animation -->
+<script defer src="tracks/animation/manifest.js"></script>
+<script defer src="tracks/animation/content.vi.js"></script>
+<script defer src="tracks/animation/content.en.js"></script>
+<script defer src="tracks/animation/code.js"></script>
+<script defer src="tracks/animation/sources.js"></script>
+<script defer src="tracks/animation/glossary.vi.js"></script>
+<script defer src="tracks/animation/glossary.en.js"></script>
+<script defer src="tracks/animation/misconceptions.vi.js"></script>
+<script defer src="tracks/animation/misconceptions.en.js"></script>
+<script defer src="tracks/animation/models/physics.js"></script>
+<script defer src="tracks/animation/models/models.js"></script>
+<script defer src="tracks/animation/views/lab.js"></script>
+<script defer src="tracks/animation/views/views.js"></script>
+<!-- /track: animation -->
+<!-- track: ux -->
+<script defer src="tracks/ux/manifest.js"></script>
+<script defer src="tracks/ux/content.vi.js"></script>
+<script defer src="tracks/ux/content.en.js"></script>
+<script defer src="tracks/ux/sources.js"></script>
+<script defer src="tracks/ux/glossary.vi.js"></script>
+<script defer src="tracks/ux/glossary.en.js"></script>
+<script defer src="tracks/ux/misconceptions.vi.js"></script>
+<script defer src="tracks/ux/misconceptions.en.js"></script>
+<script defer src="tracks/ux/models/quant.js"></script>
+<script defer src="tracks/ux/models/models.js"></script>
+<script defer src="tracks/ux/views/views.js"></script>
+<script defer src="tracks/ux/views/labs.js"></script>
+<!-- /track: ux -->
+<!-- track: ui -->
+<script defer src="tracks/ui/manifest.js"></script>
+<script defer src="tracks/ui/content.vi.js"></script>
+<script defer src="tracks/ui/content.en.js"></script>
+<script defer src="tracks/ui/sources.js"></script>
+<script defer src="tracks/ui/glossary.vi.js"></script>
+<script defer src="tracks/ui/glossary.en.js"></script>
+<script defer src="tracks/ui/misconceptions.vi.js"></script>
+<script defer src="tracks/ui/misconceptions.en.js"></script>
+<script defer src="tracks/ui/models/quant.js"></script>
+<script defer src="tracks/ui/models/models.js"></script>
+<script defer src="tracks/ui/views/views.js"></script>
+<script defer src="tracks/ui/views/labs.js"></script>
+<!-- /track: ui -->
+<!-- khởi động -->
+<script defer src="app.js"></script>
+</head>
+<body>
+<div id="app">
+  <noscript>
+    <p style="padding:16px">Trang này cần JavaScript để chạy các mô phỏng. / This page needs JavaScript to run the simulations.</p>
+  </noscript>
+</div>
+</body>
+</html>

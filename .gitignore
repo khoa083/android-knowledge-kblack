@@ -1,0 +1,6 @@
+dev/out/
+dev/shots/
+*.png
+*.log
+Thumbs.db
+.claude/settings.local.json
