@@ -90,3 +90,156 @@ Thêm track mới theo `E:\AndroidDeepDiveExplorer-Prompts\P-NEW-TRACK.md` và `
 
 - `git init` và commit đầu tiên (snapshot P0–P8 cùng đợt đổi hình minh hoạ).
 - `core.autocrlf=false` để generator vẫn tái tạo đúng từng byte.
+
+## Dàn chương nháp cho các track còn lại (2026-11-21)
+
+> **Chưa đối chiếu mục lục sách.** Viết từ hiểu biết chung về các sách này vì usage tuần gần hết. Trước khi viết một track, phải đọc mục lục thật (`tools/epub_toc.py` cho epub, các trang đầu cho pdf) rồi sửa dàn chương cho khớp.
+
+### Compose Runtime v2 (track B mở rộng)
+- Compose là gì ở tầng dưới: compiler plugin, `Composer`, slot table, gap buffer.
+- `@Composable` bị biến đổi thế nào:
+  - tham số `$composer` và `$changed`;
+  - group;
+  - `remember` lưu vào slot.
+- Positional memoization và `key`. Bug thường gặp: state "nhảy" sang item khác trong list.
+- Snapshot system:
+  - `MutableState`;
+  - đọc và ghi trong snapshot;
+  - snapshot toàn cục;
+  - `derivedStateOf`;
+  - `snapshotFlow`.
+- Recomposition:
+  - invalidation, scope recompose;
+  - skippable/restartable;
+  - stability (`@Stable`, `@Immutable`, strong skipping);
+  - compiler report.
+- Side effects: `LaunchedEffect`, `DisposableEffect`, `SideEffect`, `rememberUpdatedState`, `produceState`. Bug thường gặp: effect chạy lại hoặc capture giá trị cũ.
+- Ba phase: composition → layout → draw. Defer read bằng lambda modifier.
+- Layout: measure policy, constraints, intrinsic, `SubcomposeLayout`, `LazyColumn` bên trong.
+- Modifier chain: `Modifier.Node`, thứ tự áp dụng.
+- `CompositionLocal`; Applier và cây `LayoutNode`; semantics tree.
+- Hiệu năng: layout inspector, đếm số lần recompose, baseline profile.
+
+### Compose Animation v2 (track C mở rộng)
+- Nền tảng: frame clock, `withFrameNanos`, `Animatable`, `AnimationSpec` (tween, spring, keyframes, repeatable), easing.
+- API cao: `animate*AsState`, `updateTransition`, `AnimatedVisibility`, `AnimatedContent`, `Crossfade`, `animateContentSize`.
+- Cử chỉ: `pointerInput`, `draggable`, fling/decay, ngắt và retarget.
+- Shared element transition, navigation animation.
+- Từ *Android Animations by Tutorials*:
+  - View system (property animator, `MotionLayout`, vector drawable);
+  - đối chiếu với Compose.
+- Hiệu năng và a11y: đọc state trong phase draw, reduced motion.
+
+### UX v2 / UI v2 (track D, E mở rộng)
+- **UX:**
+  - Norman: affordance, signifier, mapping, feedback, mô hình tư duy, hai vịnh (gulf of execution/evaluation), phân loại lỗi.
+  - Krug: quét trang, tự giải thích, test khả dụng giá rẻ.
+  - *Design for How People Think*.
+  - Viết UX: Podmajersky (voice chart, các mẫu chữ), Metts & Welfle.
+  - Bảo vệ quyết định thiết kế: Greever.
+  - Đo lường: Albert & Tullis (task success, time, SUS, cỡ mẫu). Công thức phải có ví dụ kiểm chứng.
+- **UI:**
+  - Tidwell *Designing Interfaces*: pattern theo nhóm.
+  - Neil, *Mobile Design Pattern Gallery*.
+  - MacDonald, *Practical UI Patterns for Design Systems*.
+  - Robin Williams: 4 nguyên tắc CRAP.
+  - Wendel, *Designing for Behavior Change*.
+  - *Design Sprint*, *Design Thinking Playbook*.
+  - Material 3 trong Compose: token, theme.
+
+### Kotlin (track mới, trừ coroutines)
+- **Essentials:** biến, kiểu, null-safety, hàm, class/object, data/sealed/enum, interface, generics cơ bản, collection, exception.
+- **Advanced Kotlin:**
+  - generics nâng cao: variance in/out, reified;
+  - delegation (`by`, property delegate);
+  - DSL và lambda with receiver;
+  - annotation processing/KSP;
+  - reflection;
+  - Kotlin/JVM interop;
+  - contract.
+- **Functional Kotlin:** hàm bậc cao, inline/crossinline/noinline, `Sequence` so với collection, scope function, function reference.
+- **Effective Kotlin:**
+  - an toàn: hạn chế mutability, smart cast, require/check;
+  - dễ đọc;
+  - thiết kế lại mã;
+  - hiệu năng: inline class, tránh tạo object, collection.
+- **Dưới mui xe:** bytecode của lambda, inline, data class, `object`, `companion`, `lateinit`, `by lazy`.
+- Bài tập lấy từ *Kotlin Exercises*.
+
+### Clean Android Architecture (track mới)
+- Vì sao cần kiến trúc: mã dính vào framework, khó test.
+- Clean Architecture (Martin):
+  - SOLID;
+  - Dependency Rule;
+  - entity/use case/interface adapter/framework;
+  - boundary.
+- Tầng trên Android (Dumbravan, Boudjnah):
+  - domain (use case, model);
+  - data (repository, data source);
+  - presentation (MVVM/MVI, ViewModel, UI state).
+- Module hoá: feature module, quy tắc phụ thuộc giữa các module.
+- DI: thủ công → Dagger/Hilt (*Dagger by Tutorials*), scope, component.
+- *Advanced Android App Architecture*: MVC → MVP → MVVM → MVI → VIPER, so sánh trên cùng một app.
+- Test theo tầng.
+- *Fundamentals of Software Architecture*: đặc tính kiến trúc, trade-off.
+
+### Saving Data on Android (track mới)
+- SharedPreferences → DataStore (Preferences/Proto): luồng ghi, đọc qua Flow, tính nhất quán.
+- File: internal/external, scoped storage.
+- SQLite thuần: transaction, index.
+- Room:
+  - entity, DAO, quan hệ;
+  - migration;
+  - Flow/LiveData;
+  - test.
+- Đồng bộ dữ liệu với server, cache, offline-first, xung đột.
+- Bảo mật dữ liệu lưu trên máy.
+
+### Mobile System Design (track mới)
+- **Khung phỏng vấn:** làm rõ yêu cầu → API → luồng dữ liệu → kiến trúc client → các chủ đề sâu.
+- **Bài mẫu** (*Mobile System Design*, Alex Xu tập 1 và 2, *Acing the SDI*, chỉ phần client):
+  - feed, chat, ảnh/video;
+  - thông báo đẩy;
+  - đồng bộ offline;
+  - phân trang.
+- **Dữ liệu** (DDIA):
+  - mô hình dữ liệu;
+  - đồng bộ, nhất quán;
+  - replication;
+  - log, idempotency, retry.
+- **Mạng:** REST/GraphQL/WebSocket, cache HTTP, backoff, giới hạn băng thông và pin.
+- **Hệ điều hành** (OS Concepts, phần áp dụng cho mobile):
+  - tiến trình/luồng, lập lịch;
+  - bộ nhớ (từ đó suy ra LMK trên Android);
+  - đồng bộ hoá, deadlock.
+- **Phi chức năng:** hiệu năng, khởi động app, kích thước, quan sát (log/metric), feature flag, phát hành từng phần.
+
+### Clean Code (track mới, tuyển tập)
+- **Mã sạch ở mức dòng/hàm:**
+  - đặt tên, hàm nhỏ;
+  - comment;
+  - xử lý lỗi;
+  - mã Kotlin minh hoạ lấy từ *Effective Kotlin*.
+- **Kỷ luật** (*Clean Craftsmanship*):
+  - TDD (3 luật, chu trình red-green-refactor);
+  - refactoring;
+  - simple design;
+  - lập trình theo cặp.
+- *Code That Fits in Your Head*: giới hạn trí nhớ làm việc, checklist, đo độ phức tạp, quy tắc 80/24.
+- **Tính chuyên nghiệp** (*The Clean Coder*, *The Software Craftsman*): nói "không", ước lượng, áp lực, luyện tập.
+- *Clean Agile*: các thực hành kỹ thuật của XP.
+- **Thiết kế** (*Clean Architecture*, phần SOLID): dùng chung với track Clean Android Architecture, có liên kết qua lại.
+
+### Functional Programming in Kotlin (track mới)
+- **Nền tảng:**
+  - hàm thuần, bất biến;
+  - referential transparency;
+  - hàm bậc cao, composition, currying.
+- **Kiểu dữ liệu:**
+  - ADT với sealed class;
+  - Option/Either/Result;
+  - xử lý lỗi không dùng exception.
+- **Trừu tượng:** functor, applicative, monad (giảng bằng ví dụ, không bắt đầu từ lý thuyết), fold/recursion, lazy evaluation.
+- **Hiệu ứng:** tách hiệu ứng ra rìa (functional core, imperative shell).
+- **Từ OOP sang FP** (*From Objects to Functions*): dựng một app thật theo kiểu hàm.
+- **FP trên Android** (*FP in Kotlin by Tutorials*): Arrow, state bất biến cho UI.
