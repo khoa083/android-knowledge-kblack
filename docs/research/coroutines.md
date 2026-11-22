@@ -147,3 +147,19 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 | Chế độ debug / `-ea` / khôi phục stack trace | `kx-debug` | API ổn định; **chưa trích nguyên văn điều kiện bật** |
 
 **Sim `coroutines.sm` (mới):** dạng pipeline gồm người gọi, label 0/1/2 và continuation. Dải chỉ số hiện các trường. Có 3 tình huống. selfCheck đạt.
+
+### Đối chiếu bổ sung U1–U4 (2026-11-22, sau khi viết)
+
+Đã tải mã nguồn và tài liệu thật để đóng các mục "chưa xác minh" (raw.githubusercontent.com, nhánh master, ngày 2026-11-22):
+
+| Mục | Kết quả |
+|---|---|
+| `SequenceBuilderIterator` (U2) | **Đúng**, có chỉnh câu chữ. `kotlin/libraries/stdlib/src/kotlin/collections/SequenceBuilder.kt`: lớp là `SequenceScope<T>(), Iterator<T>, Continuation<Unit>`; trường `nextStep`; `createCoroutineUnintercepted(receiver = iterator, completion = iterator)`; `SequenceScope` có `@RestrictsSuspension`. Đã sửa ghi chú U2 cho chính xác (iterator là completion của khối) |
+| Vòng lặp `BaseContinuationImpl.resumeWith` (U4) | **Đúng.** `stdlib/jvm/src/kotlin/coroutines/jvm/internal/ContinuationImpl.kt`: `while (true)`, `probeCoroutineResumed`, `if (outcome === COROUTINE_SUSPENDED) return`, `releaseIntercepted()` |
+| "Already resumed" (U3) | **Đúng.** `stdlib/jvm/src/kotlin/coroutines/SafeContinuationJvm.kt`: `throw IllegalStateException("Already resumed")` |
+| Chế độ debug kotlinx (U4) | **Đúng**, đã sửa chi tiết. Tài liệu đã chuyển sang `kotlinlang.org/docs/coroutines-debugging.html`: chạy với assertion bật → tự bật debug mode (unit test mặc định bật); `-Dkotlinx.coroutines.debug`; debug mode bật stack trace recovery mặc định; tắt bằng `-Dkotlinx.coroutines.stacktrace.recovery=false`. Đã đổi URL `kx-debug` |
+| "was optimized out" và `-Xdebug` (U4) | **Đúng**, có thêm cảnh báo. `kotlinlang.org/docs/debug-coroutines-with-idea.html` mục "Optimized-out variables": `-Xdebug` tắt tối ưu này; "Never use this flag in production: -Xdebug can cause memory leaks". Đã thêm nguồn `kt-debugidea` và cảnh báo vào U4 |
+| Thông báo lỗi `@RestrictsSuspension` (U2) | **Chưa xác minh nguyên văn.** Đã bỏ phần trích nguyên văn, chỉ còn mô tả loại lỗi |
+| `viewModelScope` dùng `Dispatchers.Main.immediate` (U1) | Còn mở. Sẽ trích nguồn AndroidX ở chương Dispatchers / A8 |
+| `CalledFromWrongThreadException` (U1) | Còn mở. Chưa có trang chính thức riêng |
+
