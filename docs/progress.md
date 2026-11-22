@@ -246,4 +246,10 @@ Trạng thái: `chưa / đang / xong`.
   - sim A8 đặt sau mục "scopes" (v1);
   - thêm nguồn `kx-scopefn`.
 - **Kiểm:** report 0 lỗi; track-check và routes-check như trên.
+- **A9 v2 phần 1 "Trạng thái chung" (2026-11-22):**
+  - nội dung gồm: ôn tập, `UserDownloader`, vì sao mất cập nhật, `synchronized`, atomic, giới hạn một luồng thô/mịn, `Mutex` (ví von, 2 nguy hiểm), `Semaphore`, race (v1), 3 bug, 2 bài tập; mục v1 "test" để cuối, chờ chương Testing;
+  - sim đặt sau mục "lost";
+  - thêm 2 nguồn.
+- **Kiểm:** report 0 lỗi; track-check không thêm vấn đề; routes-check 0 vấn đề.
+- **Còn lại của Phần 2:** Testing (Deep Dive tr. 198–233, 36 trang) → A9 phần 2.
 

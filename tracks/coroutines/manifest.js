@@ -24,7 +24,7 @@ ADE.registerTrack({
     { id: 'sf', titleKey: 'track.coroutines.sf.title', sims: ['coroutines.builders'], simAfter: 'cs', bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },   // v2 (Deep Dive "Coroutine scope functions")
     { id: 'a7', titleKey: 'track.coroutines.a7.title', sims: ['coroutines.flowpipe', 'coroutines.hotcold'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'a8', titleKey: 'track.coroutines.a8.title', sims: ['coroutines.lifecycle', 'coroutines.effects'], simAfter: 'scopes', bridges: ['X2'], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
-    { id: 'a9', titleKey: 'track.coroutines.a9.title', sims: ['coroutines.race', 'coroutines.vtime'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] }
+    { id: 'a9', titleKey: 'track.coroutines.a9.title', sims: ['coroutines.race', 'coroutines.vtime'], simAfter: 'lost', bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'coroutines-full-example', model: 'coroutines.full', titleKey: 'track.coroutines.preset.full' },

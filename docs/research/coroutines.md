@@ -286,3 +286,18 @@ Chương mới id `sf`, đặt giữa A6 và A7, dùng lại sim `coroutines.bui
 | Scope backend/analytics | Deep Dive tr. 180–182 | Mẫu thiết kế |
 | Scope đã hủy: `launch` tạo coroutine bị hủy ngay, thân không chạy | Suy từ ngữ nghĩa Job (Job đã hủy không làm cha) và `CoroutineStart.DEFAULT` | **Suy luận; chưa chạy thử** |
 | `backgroundScope` của `runTest` | kotlinx-coroutines-test | Sẽ đối chiếu ở chương Testing |
+
+### A9 v2 (phần 1) · Trạng thái chung (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "The problem with shared state", trang PDF 183–197. Đọc toàn văn.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| `UserDownloader` mất phần tử, có thể ném `ArrayIndexOutOfBoundsException`; `counter++` mất cập nhật | Deep Dive tr. 183–185 (số đo của tác giả, mỗi lần chạy khác nhau) | Ví dụ |
+| `synchronized` đúng nhưng chặn luồng, không gọi được hàm suspend bên trong | Deep Dive tr. 185–186 | Nguyên tắc |
+| Atomic: chỉ từng thao tác; `getAndUpdate` | Deep Dive tr. 186–188 | API Java ổn định |
+| Dispatcher 1 luồng, thô và mịn | Deep Dive tr. 188–190 | Khuyến nghị của tác giả |
+| `Mutex`: `withLock`; không reentrant (deadlock khi khoá lồng); không nhả khi suspend | Deep Dive tr. 190–195; `kx-mutex` (URL 200) | API ổn định |
+| `Semaphore` để giới hạn đồng thời | Deep Dive tr. 195–197; `kx-semaphore` (URL 200) | API ổn định |
+| `@Volatile` không làm `++` nguyên tử; `MutableStateFlow.update` so sánh-và-đặt | Kiến thức JVM/kotlinx | **Chưa trích nguồn riêng** (sẽ đối chiếu ở chương StateFlow) |
+| `withContext` lồng với cùng dispatcher 1 luồng không deadlock | Suy từ ngữ nghĩa `withContext` (cùng dispatcher thì không dispatch lại) | **Suy luận; chưa chạy thử** |
