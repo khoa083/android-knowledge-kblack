@@ -167,3 +167,19 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | ArrayList/mutableListOf/data class `var` không quan sát được; dùng State<List> + listOf hoặc mutableStateListOf | `and-state` | stable |
 | collectAsStateWithLifecycle / collectAsState / observeAsState; snapshotFlow lạnh, phát khi khác lần trước | `and-state`, `and-effects` | stable |
 | Sim `runtime.records`: 4 tổ hợp (structural/counter × +20/=10) | Theo reference (counterPolicy) và mã @296313a4 | selfCheck; id snapshot minh họa |
+
+### SH · Quản lý state (chương mới, 2026-11-23)
+
+**Đã đọc:**
+- Sách: Kunneth Ch.5 (toàn văn), Jetpack Compose by Tutorials Ch.7 (phần lý thuyết: UI update loop, UDF, ViewModel), Jetpack Compose 1.3 Essentials Ch.20 (20.1–20.8).
+- Tài liệu: "Where to hoist state" (`cp-hoisting`), "Save UI state in Compose" (`cp-saving`) và phần hoisting/rememberSaveable của "State and Jetpack Compose" (`and-state`), 2026-11-23.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Vòng cập nhật UI (event, update state, display state); rắc rối của hệ View; lợi ích UDF | Tutorials Ch.7 | Ví dụ của sách |
+| FunctionA/FunctionB (Switch); NameField/NameText hoist lên MainScreen; rememberSaveable qua xoay màn hình | Essentials Ch.20 | Ví dụ của sách |
+| Stateful/stateless, idempotent; TextFieldDemo hai bản; TemperatureRadioButton/calc lambda; `MutableState` làm tham số; ViewModel + LiveData + observeAsState (lifecycle 2.4.0) | Kunneth Ch.5 | Ví dụ của sách; mẫu `MutableState` làm tham số và LiveData được ghi là cách của sách, kèm mẫu hiện tại |
+| Ba luật hoist; underhoisting; `rememberSaveable` không giữ khi người dùng đóng hẳn activity | `and-state` | stable |
+| Screen UI state / UI element state; business / UI logic; composable, plain state holder, ViewModel làm chủ; tổ tiên chung thấp nhất; không truyền ViewModel xuống; property drilling; caveat MonotonicFrameClock (DrawerState.close) | `cp-hoisting` | stable |
+| Đổi cấu hình, process death do hệ thống, khác người dùng đóng hẳn; giữ tối thiểu input và state điều hướng; rememberSaveable + Saver; giới hạn Bundle, TransactionTooLarge; ViewModel không qua process death → SavedStateHandle; StateRestorationTester | `cp-saving` | stable |
+| Sim `runtime.survive`: 5 nơi giữ × 4 sự kiện | Bảng suy từ `cp-saving` và `and-state` | selfCheck; nhãn giản lược |

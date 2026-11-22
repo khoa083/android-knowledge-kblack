@@ -847,4 +847,64 @@
       } }]
     });
   })();
+
+  /* ================= SH (v2): state giữ ở đâu thì sống qua sự kiện nào =================
+     Theo "Save UI state in Compose" và "State and Jetpack Compose" (developer.android.com, đọc 2026-11-23):
+     remember sống theo Composition; rememberSaveable dùng saved instance state (Bundle): qua đổi cấu hình và process bị hệ thống
+     dừng, KHÔNG qua lúc người dùng đóng hẳn activity; ViewModel sống qua đổi cấu hình, không qua process death;
+     SavedStateHandle dùng saved state nên qua process death; lưu trữ bền (DataStore/Room) qua mọi thứ ở đây. */
+  (function () {
+    var m = 'survive';
+    var HOLD = ['remember', 'saveable', 'vm', 'handle', 'disk'];
+    var EV = ['recompose', 'rotate', 'processDeath', 'dismiss'];
+    var KEEP = {   // sự kiện → giữ được hay không, theo từng nơi giữ
+      recompose: { remember: 1, saveable: 1, vm: 1, handle: 1, disk: 1 },
+      rotate: { remember: 0, saveable: 1, vm: 1, handle: 1, disk: 1 },
+      processDeath: { remember: 0, saveable: 1, vm: 0, handle: 1, disk: 1 },
+      dismiss: { remember: 0, saveable: 0, vm: 0, handle: 0, disk: 1 }
+    };
+    var NODE = { remember: 'composition', saveable: 'bundle', vm: 'vm', handle: 'bundle', disk: 'disk' };
+    var EDGE = { remember: 'e1', saveable: 'e2', vm: 'e3', handle: 'e4', disk: 'e5' };
+    var LINE = { remember: 2, saveable: 3, vm: 4, handle: 5, disk: 6 };
+    function steps(s) {
+      var ev = EV.indexOf(s.event) >= 0 ? s.event : 'rotate', out = [], t = 0, kept = 0, lost = 0, vals = {};
+      HOLD.forEach(function (h) { vals[h] = '—'; });
+      var table = function () { return HOLD.map(function (h) { return { labelKey: M(m, 'h.' + h), value: vals[h] }; }); };
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {}; o.metrics = { kept: kept, lost: lost, checked: kept + lost };
+        o.stateAfter = table(); o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'surviveCode', lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'observe', subject: o.activeNodes[o.activeNodes.length - 1] || 'ui', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      HOLD.forEach(function (h) { vals[h] = '"Ana"'; });
+      P('type', { type: 'scenario', activeNodes: ['ui', 'composition', 'bundle', 'vm', 'disk'], movingSignals: HOLD.map(function (h) { return { edge: EDGE[h], tok: 'state' }; }), lines: [2, 3, 4, 5, 6], kind: 'write' });
+      P('event.' + ev, { type: ev === 'dismiss' || ev === 'processDeath' ? 'pitfall' : 'mechanism', activeNodes: ev === 'recompose' ? ['composition'] : ev === 'rotate' ? ['ui', 'composition'] : ['process'], kind: ev === 'recompose' ? 'recompose' : 'act' });
+      HOLD.forEach(function (h) {
+        var ok = KEEP[ev][h];
+        if (ok) kept++; else { lost++; vals[h] = '""'; }
+        var key = 'h.' + h + '.' + (ev === 'recompose' ? 'recompose' : ev);
+        P(key, { type: ok ? 'mechanism' : 'pitfall', activeNodes: [NODE[h]], movingSignals: ok ? [{ edge: EDGE[h], tok: 'state' }] : [], lines: [LINE[h]], kind: ok ? 'resume' : 'skip',
+          callouts: h === 'saveable' && ev === 'dismiss' ? [{ kind: 'source', textKey: M(m, 'co.dismiss') }] : h === 'vm' && ev === 'processDeath' ? [{ kind: 'pitfall', textKey: M(m, 'co.vmDeath') }] : [] });
+      });
+      P('end.' + ev, { type: lost >= 3 ? 'pitfall' : 'mechanism', activeNodes: ['ui'], kind: 'observe', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.end.' + ev) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'surviveCode',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'event', type: 'select', labelKey: M(m, 'ctl.event'), get: function (s) { return s.event; }, action: 'event', options: EV.map(function (v) { return { value: v, labelKey: M(m, 'ctl.event.' + v) }; }) }
+      ],
+      init: function () { return { event: 'rotate' }; },
+      act: function (s, a, v) { return { event: EV.indexOf(v) >= 0 ? v : 'rotate' }; },
+      steps: steps,
+      selfChecks: [{ name: 'recompose giữ 5/5; xoay màn hình mất remember (4/5); process bị hệ thống dừng mất remember và ViewModel (3/5); người dùng đóng hẳn chỉ còn lưu trữ bền (1/5)', run: function () {
+        var last = function (e) { var x = steps({ event: e }); return x[x.length - 1].metrics.kept; };
+        return last('recompose') === 5 && last('rotate') === 4 && last('processDeath') === 3 && last('dismiss') === 1;
+      } }]
+    });
+  })();
 })();

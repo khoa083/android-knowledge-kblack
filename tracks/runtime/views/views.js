@@ -75,6 +75,14 @@
       E('e6', 'snapB', 'policy'), E('e7', 'global', 'observers')],
     metrics: [T('records', 'global'), T('records', 'applied'), T('records', 'conflicts'), T('records', 'records')]
   });
+  /* SH (v2): màn hình và năm nơi giữ state: Composition, Bundle (saved instance state), ViewModelStore, process, lưu trữ bền. */
+  V('survive', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('survive', 'ui', 0, 4, 'phone', 'ui'), N('survive', 'composition', 4, 0, 'layers', 'runtime'), N('survive', 'bundle', 4, 4, 'store', 'state'),
+      N('survive', 'vm', 4, 8, 'chip', 'state'), N('survive', 'disk', 8, 8, 'store', 'job'), N('survive', 'process', 8, 0, 'thread', 'error')],
+    edges: [E('e1', 'ui', 'composition'), E('e2', 'ui', 'bundle'), E('e3', 'ui', 'vm'), E('e4', 'vm', 'bundle'), E('e5', 'vm', 'disk')],
+    metrics: [T('survive', 'kept'), T('survive', 'lost'), T('survive', 'checked')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

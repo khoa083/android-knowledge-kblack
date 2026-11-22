@@ -375,3 +375,8 @@ Trạng thái: `chưa / đang / xong`.
   - **Tiếp theo:** sh (quản lý state: stateless/stateful, hoisting, rememberSaveable, ViewModel), dựa trên Kunneth Ch.5, Ch.7; Tutorials Ch.7; Essentials Ch.42.
   - **Rà sau B4 (2026-11-23):** goal g1 của b4 sửa thành bước 5 (`applyA`); bug 2 của B2 bỏ hệ quả cụ thể không có nguồn (giờ ghi "không xác định"); goal g1 của B3 viết trung tính (đúng cho cả kịch bản Counters và tab `runtime.keys`); ghi chú ghim commit trong `docs/research/runtime.md` và đầu `models.js` được cập nhật.
   - **Còn nợ (làm khi viết lại từng chương):** chữ "androidx-main, đọc 2026-11-21" trong nội dung v1 của B0, B5, B6; một dòng trong overview của tab `runtime.compiler` (B2) nói tab đó dùng tên API thật ở commit ghim; rà glossary của track cho các thuật ngữ mới (group, slot, restart scope, Pending, insert table, flow-control group, state record, mutation policy, derived state) ở cả hai ngôn ngữ.
+- **Runtime v2 · SH chương mới (2026-11-23):**
+  - Nội dung (`runtime_v2_sh.py`): vòng cập nhật UI và UDF (Tutorials Ch.7, Essentials Ch.20), stateful/stateless (Kunneth Ch.5), ba luật hoist, ai giữ state (composable, plain state holder, ViewModel; caveat MonotonicFrameClock), sống qua đổi cấu hình/process death (rememberSaveable, Saver, giới hạn Bundle, SavedStateHandle); 3 bug, 3 bài tập, tự trả lời, quiz 4 câu. Ví dụ LiveData của sách được ghi là phiên bản sách.
+  - Sim mới `runtime.survive` (5 nơi giữ × 4 sự kiện). Nguồn mới `cp-hoisting`, `cp-saving`.
+  - **Kiểm:** report 0 lỗi, 121 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
+  - **Tiếp theo:** b5 (Recomposer và frame clock).

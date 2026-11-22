@@ -196,4 +196,12 @@
       'a.dispose(); b.dispose()'
     ]);
   });
+  add('surviveCode', [
+    { vi: '// năm nơi giữ cùng một chữ "Ana" người dùng gõ', en: '// five places holding the same "Ana" the user typed' },
+    'var a by remember { mutableStateOf("") }',
+    'var b by rememberSaveable { mutableStateOf("") }',
+    { vi: 'val c by vm.draft.collectAsStateWithLifecycle()          // StateFlow trong ViewModel', en: 'val c by vm.draft.collectAsStateWithLifecycle()          // a StateFlow in the ViewModel' },
+    { vi: 'val d by vm.savedDraft.collectAsStateWithLifecycle()     // savedStateHandle.getStateFlow("draft", "")', en: 'val d by vm.savedDraft.collectAsStateWithLifecycle()     // savedStateHandle.getStateFlow("draft", "")' },
+    { vi: 'val e by vm.storedDraft.collectAsStateWithLifecycle()    // đọc từ DataStore/Room', en: 'val e by vm.storedDraft.collectAsStateWithLifecycle()    // read from DataStore/Room' }
+  ]);
 })();
