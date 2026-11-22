@@ -13,7 +13,7 @@ def override(o):
       'An ordinary function cannot call a suspending function, so the chain of suspending functions has to start somewhere. It starts at a coroutine builder: the bridge from the normal world to the suspending world.\n'
       'The three core builders of kotlinx.coroutines: `launch` (starts an independent job and returns a `Job`), `async` (like `launch` but produces a value; it returns a `Deferred<T>` you read with `await()`), and `runBlocking` (blocks the current thread until the coroutine inside finishes; only for `main` or tests).\n'
       '`launch` and `async` are extensions on `CoroutineScope`. Called inside another coroutine\'s scope, they become that coroutine\'s children: that is structured concurrency. The parent waits for its children, cancelling the parent cancels the children, and a child\'s failure propagates to the parent.')
-    o('a3.goal.g1', 'Đã so thời gian tuần tự với đồng thời (bật "đồng thời")', 'Compared sequential and concurrent timing (turn on "concurrent")')
+    o('a3.goal.g1', 'Đã so thời gian tuần tự với đồng thời (bật "Chạy đồng thời với async")', 'Compared sequential and concurrent timing (turn on the concurrency toggle)')
 
 
 def add(a):
@@ -78,7 +78,7 @@ def add(a):
     B(C, S, 5, 'kt',
       'scope.launch {\n    val news = async {\n        newsRepo.getNews().sortedByDescending { it.date }\n    }\n    val newsSummary = newsRepo.getNewsSummary()   // bọc async ở đây là thừa\n    view.showNews(newsSummary, news.await())\n}',
       'scope.launch {\n    val news = async {\n        newsRepo.getNews().sortedByDescending { it.date }\n    }\n    val newsSummary = newsRepo.getNewsSummary()   // wrapping this in async would be redundant\n    view.showNews(newsSummary, news.await())\n}')
-    B(C, S, 6, 'p', 'Mô phỏng ngay dưới cho thấy hai việc tải chạy tuần tự hay đồng thời (bật "đồng thời"), và chuyện gì xảy ra với việc còn lại khi một việc lỗi.', 'The simulation just below shows two loads running sequentially or concurrently (turn on "concurrent"), and what happens to the other job when one fails.')
+    B(C, S, 6, 'p', 'Mô phỏng ngay dưới cho thấy hai việc tải chạy tuần tự hay đồng thời (bật "Chạy đồng thời với async"), và chuyện gì xảy ra với việc còn lại khi một việc lỗi.', 'The simulation just below shows two loads running sequentially or concurrently (turn on the concurrency toggle), and what happens to the other job when one fails.')
 
     S = 'structured'
     a(C + '.sec.%s.title' % S, 'Structured concurrency: bỏ GlobalScope, để cha chờ con', 'Structured concurrency: drop GlobalScope, let the parent wait')

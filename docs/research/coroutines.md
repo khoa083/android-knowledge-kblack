@@ -238,3 +238,20 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 | `CancellationException` không lan lên cha | Deep Dive tr. 131 | API ổn định |
 | CEH không chặn lan truyền; chỉ dùng ở gốc hoặc con trực tiếp của supervisor; không dùng cho `async` | Deep Dive tr. 131–132 (phần đầu); `kx-ceh`, `kt-exceptions` (phần "chỉ ở gốc") | API ổn định |
 | Bài đoán output supervisorScope (lỗi, Will be printed, Done) | Output in sẵn trong sách tr. 128 | Ví dụ của sách |
+
+### SF · Coroutine scope functions (chương mới, viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "Coroutine scope functions", trang PDF 133–152. Đọc toàn văn.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Vấn đề của `GlobalScope.async` và của việc truyền scope; ví dụ Twitter | Deep Dive tr. 133–137; `kx-globalscope` (URL 200) | API ổn định / ví dụ của sách |
+| `coroutineScope` chạy tại chỗ, thừa hưởng context, ghi đè Job, chờ con, ném lại lỗi | Deep Dive tr. 137–141; `kx-coroutinescope` | API ổn định |
+| Bảng so sánh builder và scope function; `runBlocking` ở đỉnh | Deep Dive tr. 141–143 | Tóm tắt |
+| `withContext(EmptyCoroutineContext)` = `coroutineScope`; `async{}.await()` gần tương đương | Deep Dive tr. 143–144 | API ổn định |
+| `supervisorScope` + `try/catch` ở `await`; `withContext(SupervisorJob())` sai | Deep Dive tr. 144–147 | API ổn định |
+| `withTimeout`/`withTimeoutOrNull`; `TimeoutCancellationException` là `CancellationException`, không lan lên cha | Deep Dive tr. 147–150; `kx-withtimeout` (URL 200) | API ổn định |
+| Việc phụ chạy trên scope riêng được inject | Deep Dive tr. 150–152 | Khuyến nghị của tác giả |
+| Bug "withTimeout im lặng trong launch" | Suy ra từ ngữ nghĩa `CancellationException` (tr. 149) | Suy luận, khớp ví dụ của sách |
+
+Chương mới id `sf`, đặt giữa A6 và A7, dùng lại sim `coroutines.builders` (đặt sau mục "cs"). Đã sửa câu dẫn sim ở SF và A3 cho khớp nhãn điều khiển thật.

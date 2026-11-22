@@ -229,4 +229,10 @@ Trạng thái: `chưa / đang / xong`.
   - sim đặt sau mục "ceh";
   - thêm 3 nguồn API.
 - **Kiểm A6 v2:** report 0 lỗi; track-check không thêm vấn đề; routes-check 0 vấn đề.
+- **SF "Scope functions" (chương mới, 2026-11-22):**
+  - nội dung gồm: ôn tập, ba cách chưa ổn (`GlobalScope`, truyền scope, ví dụ Twitter), `coroutineScope`, họ scope function so với builder, `withContext`, `supervisorScope`, `withTimeout`/`withTimeoutOrNull`, việc phụ trên scope riêng, 2 bug, 3 bài tập, tự trả lời, quiz 3 câu;
+  - dùng lại sim `coroutines.builders`;
+  - thêm 2 nguồn API.
+- **Kiểm SF:** report 0 lỗi; track-check không thêm vấn đề; routes-check 103 route, 0 vấn đề.
+- **Phần 2 còn lại:** Dispatchers (tr. 153–172) → A4; Tự dựng scope (tr. 173–182); Shared state (tr. 183–197) và Testing (tr. 198–233) → A9. Sau đó Phần 3 (Channel, Flow → A7) và Phần 4 (→ A8).
 
