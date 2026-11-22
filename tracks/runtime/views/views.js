@@ -116,6 +116,13 @@
     edges: [E('e1', 'r', 'b'), E('e2', 'b', 'a'), E('e3', 'b', 'c')],
     metrics: [T('insert', 'notifications'), T('insert', 'inserts')]
   });
+  /* B7 (v2): một state cuộn được đọc ở composition, layout (placement) hoặc draw; phase nào đọc thì phase đó chạy lại, rồi các phase sau. */
+  V('scroll', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('scroll', 'state', 0, 4, 'frame', 'state'), N('scroll', 'comp', 4, 0, 'layers', 'runtime'), N('scroll', 'layout', 8, 4, 'grid', 'ui'), N('scroll', 'draw', 12, 8, 'spark', 'ui')],
+    edges: [E('e1', 'state', 'comp'), E('e2', 'state', 'layout'), E('e3', 'state', 'draw'), E('e4', 'comp', 'layout'), E('e5', 'layout', 'draw'), E('e6', 'layout', 'state')],
+    metrics: [T('scroll', 'comp'), T('scroll', 'layout'), T('scroll', 'draw'), T('scroll', 'frames')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

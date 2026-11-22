@@ -1173,4 +1173,70 @@
       } }]
     });
   })();
+
+  /* ================= B7 (v2): đọc state ở phase nào thì phase đó chạy lại (Compose phases docs, đọc 2026-11-23) =================
+     comp: đọc trong composition → mỗi frame cuộn: composition + layout + draw. layout: đọc trong lambda của Modifier.offset { } (placement)
+     → layout + draw. draw: đọc trong drawBehind → chỉ draw. loop: onSizeChanged ghi state đọc trong composition → cần frame thứ hai,
+     frame đầu vẽ chồng chữ lên ảnh. */
+  (function () {
+    var m = 'scroll';
+    var SC = ['comp', 'layout', 'draw', 'loop'];
+    function steps(s) {
+      var sc = SC.indexOf(s.where) >= 0 ? s.where : 'comp', out = [], t = 0, c = { comp: 0, layout: 0, draw: 0, frames: 0 }, val = '0';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {}; o.params.f = c.frames;
+        o.metrics = { comp: c.comp, layout: c.layout, draw: c.draw, frames: c.frames };
+        o.stateAfter = [{ labelKey: M(m, 'st.value'), value: val }, { labelKey: M(m, 'st.ran'), value: o.ran || '—' }];
+        delete o.ran;
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'scroll_' + sc, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'frame', subject: o.activeNodes[0] || 'state', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var LINE = { comp: [4, 5], layout: [4, 5], draw: [4, 5] };
+      if (sc !== 'loop') {
+        P('intro.' + sc, { type: 'scenario', activeNodes: ['state', sc === 'comp' ? 'comp' : sc === 'layout' ? 'layout' : 'draw'], lines: LINE[sc], kind: 'observe' });
+        [1, 2, 3].forEach(function (i) {
+          c.frames++; val = String(i * 40); var ran = [];
+          if (sc === 'comp') { c.comp++; ran.push('composition'); }
+          if (sc !== 'draw') { c.layout++; ran.push('layout'); }
+          c.draw++; ran.push('draw');
+          var act = ['state'].concat(sc === 'comp' ? ['comp', 'layout', 'draw'] : sc === 'layout' ? ['layout', 'draw'] : ['draw']);
+          var sig = sc === 'comp' ? [{ edge: 'e1', tok: 'state' }, { edge: 'e4', tok: 'runtime' }, { edge: 'e5', tok: 'ui' }] : sc === 'layout' ? [{ edge: 'e2', tok: 'state' }, { edge: 'e5', tok: 'ui' }] : [{ edge: 'e3', tok: 'state' }];
+          P(i === 1 ? 'frame1.' + sc : 'frame.' + sc, { activeNodes: act, movingSignals: sig, lines: LINE[sc], ran: ran.join(' → '), kind: sc === 'comp' ? 'recompose' : sc === 'layout' ? 'layout' : 'draw' });
+        });
+        P('end.' + sc, { type: sc === 'comp' ? 'pitfall' : 'mechanism', activeNodes: ['state'], lines: [], kind: 'observe', callouts: [{ kind: sc === 'comp' ? 'pitfall' : 'mechanism', textKey: M(m, 'co.end.' + sc) }] });
+        return out;
+      }
+      // vòng lặp qua hai frame: onSizeChanged ghi imageHeightPx, Text đọc nó trong composition
+      P('intro.loop', { type: 'scenario', activeNodes: ['state', 'comp'], lines: [2, 7, 8], kind: 'observe' });
+      c.frames++; c.comp++; val = '0';
+      P('l1comp', { activeNodes: ['comp'], movingSignals: [{ edge: 'e4', tok: 'runtime' }], lines: [12, 13], ran: 'composition', kind: 'recompose' });
+      c.layout++; val = '200';
+      P('l1layout', { type: 'pitfall', activeNodes: ['layout', 'state'], movingSignals: [{ edge: 'e6', tok: 'error' }], lines: [7, 8], ran: 'layout', kind: 'write' });
+      c.draw++;
+      P('l1draw', { type: 'pitfall', activeNodes: ['draw'], movingSignals: [{ edge: 'e5', tok: 'ui' }], lines: [], ran: 'draw', kind: 'draw', callouts: [{ kind: 'pitfall', textKey: M(m, 'co.overlap') }] });
+      c.frames++; c.comp++; c.layout++; c.draw++;
+      P('l2', { activeNodes: ['state', 'comp', 'layout', 'draw'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e4', tok: 'runtime' }, { edge: 'e5', tok: 'ui' }], lines: [12, 13], ran: 'composition → layout → draw', kind: 'recompose' });
+      P('end.loop', { type: 'pitfall', activeNodes: ['state'], lines: [], kind: 'observe', callouts: [{ kind: 'pitfall', textKey: M(m, 'co.end.loop') }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'scroll_comp',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'where', type: 'select', labelKey: M(m, 'ctl.where'), get: function (s) { return s.where; }, action: 'where', options: SC.map(function (v) { return { value: v, labelKey: M(m, 'ctl.where.' + v) }; }) }
+      ],
+      init: function () { return { where: 'comp' }; },
+      act: function (s, a, v) { return { where: SC.indexOf(v) >= 0 ? v : 'comp' }; },
+      steps: steps,
+      selfChecks: [{ name: '3 frame cuộn: đọc ở composition → 3/3/3 (composition/layout/draw); ở placement → 0/3/3; ở draw → 0/0/3; vòng lặp onSizeChanged cần 2 frame và 2 lượt composition', run: function () {
+        var last = function (w) { var x = steps({ where: w }); return x[x.length - 1].metrics; };
+        var a = last('comp'), b = last('layout'), d = last('draw'), l = last('loop');
+        return a.comp === 3 && a.layout === 3 && a.draw === 3 && b.comp === 0 && b.layout === 3 && b.draw === 3 && d.comp === 0 && d.layout === 0 && d.draw === 3 && l.frames === 2 && l.comp === 2;
+      } }]
+    });
+  })();
 })();

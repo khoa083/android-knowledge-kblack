@@ -400,3 +400,8 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `runtime.insert` (thứ tự chèn × kiểu thông báo); sim `runtime.applier` giữ làm tab thứ hai. 4 nguồn mới.
   - **Kiểm:** report 0 lỗi, 121 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
   - **Tiếp theo:** b7 (Composition, Layout, Drawing: ba phase và đọc state theo phase), rồi lo, md, lz, b8, b9, pf, b10, b0.
+- **Runtime v2 · B7 viết lại (2026-11-23):**
+  - Nội dung (`runtime_v2_b7.py`): ba phase, layout một lượt, đọc state theo phase, hoãn lần đọc (Modifier.offset { }, drawBehind), vòng lặp onSizeChanged; giữ cầu nối X1; 2 bug, 2 bài tập, tự trả lời, quiz 4 câu.
+  - Sim mới `runtime.scroll` (đọc ở composition/placement/draw qua 3 frame; vòng lặp hai frame); sim `runtime.phases` giữ làm tab thứ hai.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
+  - **Tiếp theo:** lo (layout tùy chỉnh và modifier), rồi md, lz, b8, b9, pf, b10, b0.

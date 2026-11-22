@@ -294,4 +294,46 @@
     '  override fun insertBottomUp(index: Int, instance: LayoutNode) { current.insertAt(index, instance) }',
     '}'
   ]);
+  var scrollHead = ['Box {', '    val listState = rememberLazyListState()'];
+  add('scroll_comp', scrollHead.concat([
+    '    Image(painter, null, Modifier.offset(',
+    { vi: '        with(LocalDensity.current) {                       // ✗ đọc trong COMPOSITION', en: '        with(LocalDensity.current) {                       // ✗ read in COMPOSITION' },
+    '            (listState.firstVisibleItemScrollOffset / 2).toDp() }',
+    '    ))',
+    '    LazyColumn(state = listState) { /* … */ }',
+    '}'
+  ]));
+  add('scroll_layout', scrollHead.concat([
+    '    Image(painter, null, Modifier.offset {',
+    { vi: '        // ✓ lambda chạy ở bước PLACEMENT của layout', en: '        // ✓ the lambda runs in the PLACEMENT step of layout' },
+    '        IntOffset(x = 0, y = listState.firstVisibleItemScrollOffset / 2)',
+    '    })',
+    '    LazyColumn(state = listState) { /* … */ }',
+    '}'
+  ]));
+  add('scroll_draw', scrollHead.concat([
+    '    Box(Modifier.fillMaxWidth().height(4.dp).drawBehind {',
+    { vi: '        // ✓ đọc trong DRAW: thanh tiến độ cuộn', en: '        // ✓ read in DRAW: a scroll progress bar' },
+    '        drawRect(Teal, size = size.copy(width = listState.firstVisibleItemScrollOffset.toFloat()))',
+    '    })',
+    '    LazyColumn(state = listState) { /* … */ }',
+    '}'
+  ]));
+  add('scroll_loop', [
+    'Box {',
+    '    var imageHeightPx by remember { mutableIntStateOf(0) }',
+    '    Image(',
+    '        painter = painterResource(R.drawable.rectangle),',
+    '        contentDescription = null,',
+    '        modifier = Modifier.fillMaxWidth()',
+    { vi: '            .onSizeChanged { size ->                      // ✗ đừng làm vậy', en: '            .onSizeChanged { size ->                      // ✗ don\'t do this' },
+    '                imageHeightPx = size.height }',
+    '    )',
+    '    Text(',
+    '        text = "I\'m below the image",',
+    '        modifier = Modifier.padding(',
+    '            top = with(LocalDensity.current) { imageHeightPx.toDp() })',
+    '    )',
+    '}'
+  ]);
 })();

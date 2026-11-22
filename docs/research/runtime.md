@@ -254,3 +254,17 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | UiApplier bỏ qua insertTopDown, chèn trong insertBottomUp; onEndChanges → owner.onEndApplyChanges | `ui-uiapplier` | android-impl |
 | BasicText (chuỗi đơn giản) → Layout(modifier TextStringSimpleElement) → ReusableComposeNode; CoreText là bản của sách (Kunneth Ch.3) | `ui-layout-src`, Kunneth Ch.3 | impl; ghi chú lệch phiên bản |
 | Sim `runtime.insert`: 4 tổ hợp | Theo KDoc Applier | selfCheck |
+
+### B7 · Ba phase và đọc state theo phase (viết lại 2026-11-23)
+
+**Đã đọc:** "Jetpack Compose phases" (`cp-phases`), toàn văn, 2026-11-23.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Ba phase (what/where/how), so với View; thứ tự một chiều; ngoại lệ BoxWithConstraints, LazyColumn, LazyRow | `cp-phases` | stable |
+| Bỏ qua việc lặp nhờ theo dõi đọc state theo phase | `cp-phases` | stable |
+| Layout ba bước, ví dụ Row(Image, Column(Text, Text)), mỗi node thăm một lần (tuyến tính) | `cp-phases` | stable |
+| Đọc theo phase: composition; layout (measurement, placement có restart scope riêng; draw nếu kích thước/vị trí đổi); draw | `cp-phases` | stable |
+| Tối ưu parallax bằng Modifier.offset { }; lambda có chi phí nhưng đáng; derivedStateOf để lọc | `cp-phases` | stable |
+| Vòng lặp onSizeChanged qua hai frame; mẫu onSizeChanged/onGloballyPositioned | `cp-phases` | stable |
+| Sim `runtime.scroll`: 3/3/3, 0/3/3, 0/0/3, vòng lặp 2 frame | Theo `cp-phases` | selfCheck; nhãn giản lược |
