@@ -87,7 +87,7 @@ def add(a):
       'There is no magic: the compiler turns each `suspend` function into an ordinary function that takes an extra `Continuation` parameter (continuation-passing style) and contains a state machine. Each suspension point splits the function into a state; the state number (`label`) and the local variables still needed are stored in the continuation object.\n'
       'When it suspends, the function returns the special value `COROUTINE_SUSPENDED`, every function above it returns too, and the thread is released. When it resumes, the continuation calls that same function again; thanks to `label`, the function continues after the suspension point.\n'
       'Each continuation holds a reference to the continuation of the function that called it, so the continuation chain plays the role of the call stack. Understand these three ideas and you can read stack traces, see what memory is retained, and know why some variables "disappear" in the debugger.')
-    a(C + '.goal.g1', 'Đã thấy hàm trả COROUTINE_SUSPENDED và luồng được thả', 'Saw the function return COROUTINE_SUSPENDED and the thread get released')
+    a(C + '.goal.g1', 'Đã thấy label được đặt TRƯỚC lời gọi suspend', 'Saw the label being set BEFORE the suspending call')
     a(C + '.goal.g2', 'Đã đi hết state machine tới khi người gọi được resume', 'Followed the state machine until the caller is resumed')
 
     S = 'recap'

@@ -95,8 +95,8 @@ def add(a):
       'Before studying "real" coroutines, look at suspension in its simplest form: `sequence { … yield(x) … }`. A function can stop midway, hand back a value, and later continue from that exact point.\n'
       'Everything happens on a single thread. Execution jumps back and forth between the place that uses the sequence and the block that produces it. The producing block runs only when someone asks for the next element.\n'
       'Understanding this jump is understanding the first half of coroutines: suspending means saving where you stopped, not holding a thread while you wait.')
-    a(C + '.goal.g1', 'Đã thấy khối sequence chạy tiếp sau yield thay vì chạy lại từ đầu', 'Saw the sequence block continue after yield instead of starting over')
-    a(C + '.goal.g2', 'Đã so sánh sequence với buildList', 'Compared sequence with buildList')
+    a(C + '.goal.g1', 'Đã bấm tới bước 5 và đối chiếu output với câu đoán', 'Stepped to step 5 and compared the output with your prediction')
+    a(C + '.goal.g2', 'Đã đi hết một lượt (nên bật thêm "Dùng List" để so)', 'Went through one full run (also try "Use a List" to compare)')
 
     S = 'recap'
     a(C + '.sec.%s.title' % S, 'Ôn nhanh chương trước', 'Quick review of the previous chapter')

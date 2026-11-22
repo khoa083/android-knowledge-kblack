@@ -65,7 +65,7 @@ Nếu font đầu stack không đủ dấu, đưa font đủ dấu lên trước
 - [ ] `prefers-reduced-motion` + nút tắt thủ công (class `.reduced-motion`): zoom camera và gõ chữ **tắt hẳn**; animation dừng hoặc chuyển tức thời; Play chạy từng bước. Có nút "Chỉ sơ đồ / không zoom".
 ### 5.1 Chuyển cảnh và chuyển động bắt buộc (thêm 2026-11-22)
 
-Người dùng phản hồi: site gần như không có chuyển động, cảm giác thiếu sinh động. Từ nay, mọi trang và mọi mô phỏng **phải có** các chuyển động dưới đây. Đã làm trong lõi (`styles.css` khối "chuyển cảnh", `js/core/ui.js`, `app.js` `reveal`), track mới tự có.
+Người dùng phản hồi: site gần như không có chuyển động, cảm giác thiếu sinh động, sơ đồ chỉ "nhảy" giữa các trạng thái. Đây là quyết định của người dùng (2026-11-22): khi mâu thuẫn, mục này thắng §4 của `docs/visual-explainer-improvement-guide.md` (hướng dẫn bổ trợ). Từ nay, mọi trang và mọi mô phỏng **phải có** các chuyển động dưới đây. Đã làm trong lõi (`styles.css` khối "chuyển cảnh", `js/core/ui.js`, `app.js` `reveal`), track mới tự có.
 
 | Chỗ | Chuyển động | Thời lượng | Mục đích |
 |---|---|---|---|
@@ -74,7 +74,7 @@ Người dùng phản hồi: site gần như không có chuyển động, cảm 
 | Đổi bước mô phỏng | panel giải thích trượt vào theo hướng đi (tới: từ phải, lùi: từ trái) | `--mo-base` 280 ms | biết đang đi tới hay lùi |
 | Chỉ số đổi giá trị | viền nháy + số bật lên một lần | 280–900 ms | chỉ đúng con số vừa đổi |
 | Nhật ký | dòng của bước vừa tới trượt vào, nền nhấn mờ dần | 700 ms | nối bước với sự kiện |
-| Sơ đồ | thẻ vừa đổi trạng thái bật (scale), token chạy dọc cạnh, cạnh đang hoạt động chảy nét đứt, zoom camera (`iso`/phẳng), thanh lanes dài ra | sẵn có | một chuyển động chính mỗi bước |
+| Sơ đồ | lanes: thanh chạy liên tục từ độ dài cũ tới mới, thanh mới mọc ra, vạch "bây giờ" trượt tới, mốc bật lên, chú thích hiện dần (`Scene._laneTween`, kiểu FLIP); thẻ: thẻ vừa đổi trạng thái bật (scale), token chạy dọc cạnh, cạnh đang hoạt động chảy nét đứt, zoom camera | 560 ms ÷ tốc độ | sơ đồ CHUYỂN từ trạng thái cũ sang mới, không nhảy |
 | Mở ô đoán trước / bug / bài tập / tự kiểm | nội dung trượt xuống | 280 ms | thấy phần vừa mở |
 | Nút | đổi nền khi rê, lún nhẹ khi bấm | `--mo-fast` 160 ms | phản hồi thao tác |
 
@@ -82,7 +82,7 @@ Quy tắc:
 - Chỉ animate `transform` và `opacity` (trừ nháy viền); dùng biến `--mo-*` và `--mo-ease`, không đặt thời lượng riêng lẻ.
 - Trạng thái cuối luôn là trạng thái tĩnh đầy đủ. Tắt animation không làm mất nội dung.
 - `prefers-reduced-motion` hoặc nút "Chuyển động" tắt → mọi chuyển cảnh tắt (khối CSS reduced-motion sẵn có); `reveal` không ẩn gì.
-- Mỗi bước mô phỏng: một chuyển động chính trên sơ đồ, cộng chuyển cảnh panel. Không thêm hiệu ứng thứ ba cạnh tranh sự chú ý.
+- Mỗi bước mô phỏng: sơ đồ có một chuyển động chính (cái vừa đổi). Chuyển cảnh panel, nháy chỉ số và dòng log là xác nhận cục bộ ở vùng riêng của chúng, được phép chạy cùng lúc; không thêm hiệu ứng trang trí nào khác.
 - Track hoặc view mới có thể thêm chuyển động riêng cho sơ đồ, nhưng phải theo các quy tắc trên và kiểm cả hai chế độ chuyển động.
 
 - [ ] Tab/Shift+Tab qua mọi điều khiển; Enter/Space kích hoạt; focus ring rõ (cam đậm/vàng, 2px + offset 2px, ≥ 3:1).

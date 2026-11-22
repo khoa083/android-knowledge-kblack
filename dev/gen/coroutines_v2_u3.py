@@ -101,7 +101,7 @@ def add(a):
       'Suspending a coroutine means stopping it midway in exchange for a `Continuation` object: a "ticket" to continue from that exact point. A suspended coroutine runs on no thread and costs almost nothing.\n'
       '`suspendCoroutine { continuation -> … }` hands you the continuation right before suspending. Whoever calls `continuation.resume(value)` makes the coroutine continue and receive `value`; with `resumeWithException(e)`, `e` is thrown at the suspension point. If nobody calls either, the coroutine stays stopped forever.\n'
       'The whole library (delay, Retrofit suspend functions, Room, withContext…) is built on this mechanism. Understand it and you can read any suspending function and turn any callback API into one.')
-    a(C + '.goal.g1', 'Đã thấy coroutine suspend mà không giữ luồng nào', 'Saw a coroutine suspend while holding no thread')
+    a(C + '.goal.g1', 'Đã thấy điều xảy ra ngay sau khi lambda nhận continuation', 'Saw what happens right after the lambda receives the continuation')
     a(C + '.goal.g2', 'Đã xem hết một cách resume', 'Went through one way of resuming to the end')
 
     S = 'recap'

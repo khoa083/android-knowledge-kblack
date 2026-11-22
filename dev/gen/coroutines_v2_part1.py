@@ -17,8 +17,8 @@ def add(a):
       'An Android app has only one thread that draws the UI and receives input: the Main thread. That thread must not sit waiting for the network or the disk, yet the result of the wait has to come back to that very thread to be shown on screen.\n'
       'This chapter walks through four ways to solve that problem (switching threads by hand, callbacks, RxJava, coroutines) on the same news screen, to show where each one pays a price.\n'
       'The core idea to take away: a coroutine can pause (suspend) at a point and continue later, and while it is paused it does NOT hold a thread. That is why the code can still be written straight from top to bottom, like synchronous code.')
-    a(C + '.goal.g1', 'Đã thấy B vẫn chạy được trên cùng luồng khi A chờ bằng `delay`', 'Saw B still run on the same thread while A waits with `delay`')
-    a(C + '.goal.g2', 'Đã thấy B bị trễ khi A giữ luồng bằng `Thread.sleep`', 'Saw B delayed when A holds the thread with `Thread.sleep`')
+    a(C + '.goal.g1', 'Đã bấm Step và đối chiếu với câu đoán trước', 'Pressed Step and compared it with your prediction')
+    a(C + '.goal.g2', 'Đã đi hết mô phỏng (nên thử cả `delay` và `Thread.sleep`)', 'Went through the whole simulation (try both `delay` and `Thread.sleep`)')
 
     # ---- 1. Vấn đề ----
     S = 'problem'

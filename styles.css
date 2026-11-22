@@ -373,6 +373,9 @@ progress { accent-color: var(--brand); height: 8px; width: 90px; vertical-align:
 .bar-t { font: 700 11.5px var(--mono); fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
 .bar-g.cur .bar { stroke: var(--focus); stroke-width: 2.6; }
 .bar-g.ghost .bar { fill: none; stroke: var(--line-strong); stroke-width: 1.6; stroke-dasharray: 3 3; }
+.bar-g .bar, .bar-g .bar-t, .lane-mark { transform-box: fill-box; }
+.bar-g .bar { transform-origin: left center; }
+.lane-mark { transform-origin: center; }
 .bar-g.grow .bar { transform-box: fill-box; transform-origin: left center; animation: dg-grow .45s ease-out 1; }
 @keyframes dg-grow { from { transform: scaleX(.05); } to { transform: scaleX(1); } }
 .lane-mark path { fill: var(--paper); stroke: var(--ink); stroke-width: 1.4; }

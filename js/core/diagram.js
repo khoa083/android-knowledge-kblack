@@ -525,6 +525,42 @@
     tick();
   };
 
+  /* ---------- lanes: chuyển động liên tục giữa hai bước (kiểu FLIP) ----------
+     Mỗi lần vẽ lại, nhớ vị trí/độ dài từng thanh (data-k), từng mốc và vạch "bây giờ". Lần vẽ sau, phần tử nào đã có thì chạy
+     từ hình cũ sang hình mới (thanh dài ra, vạch "bây giờ" trượt tới); phần tử mới thì mọc ra từ mép trái / bật lên.
+     Dùng Web Animations trên transform/opacity; tắt khi reduced-motion, "Chỉ sơ đồ" hoặc vẽ tức thời (anim = false). */
+  Scene.prototype._laneTween = function (anim, nowX, opts) {
+    var svg = this.svg, geo = { bars: {}, marks: {}, now: nowX }, prev = this._laneGeo;
+    [].forEach.call(svg.querySelectorAll('.bar-g[data-k]'), function (g) { geo.bars[g.getAttribute('data-k')] = { x: +g.getAttribute('data-x'), w: +g.getAttribute('data-w') }; });
+    [].forEach.call(svg.querySelectorAll('.lane-mark[data-k]'), function (g) { geo.marks[g.getAttribute('data-k')] = +g.getAttribute('data-x'); });
+    this._laneGeo = geo;
+    if (!anim || !prev || !svg.animate) return;
+    var dur = 560 / ((opts && opts.speed) || 1), ease = 'cubic-bezier(.2,.7,.2,1)', T = { duration: dur, easing: ease };
+    [].forEach.call(svg.querySelectorAll('.bar-g[data-k]'), function (g) {
+      var k = g.getAttribute('data-k'), n = geo.bars[k], p = prev.bars[k], rect = g.querySelector('.bar'), txt = g.querySelector('.bar-t');
+      g.classList.remove('grow');
+      if (!rect) return;
+      if (p) {
+        if (Math.abs(p.x - n.x) < 0.5 && Math.abs(p.w - n.w) < 0.5) return;
+        rect.animate([{ transform: 'translateX(' + (p.x - n.x).toFixed(1) + 'px) scaleX(' + (p.w / n.w).toFixed(3) + ')' }, { transform: 'none' }], T);
+        if (txt) txt.animate([{ transform: 'translateX(' + (p.x - n.x).toFixed(1) + 'px)' }, { transform: 'none' }], T);
+      } else {
+        rect.animate([{ transform: 'scaleX(0.02)', opacity: 0.2 }, { transform: 'none', opacity: 1 }], T);
+        if (txt) txt.animate([{ opacity: 0 }, { opacity: 0 }, { opacity: 1 }], T);
+      }
+    });
+    [].forEach.call(svg.querySelectorAll('.lane-mark[data-k]'), function (g) {
+      var k = g.getAttribute('data-k'), p = prev.marks[k];
+      if (p == null) g.animate([{ transform: 'scale(0)', opacity: 0 }, { transform: 'scale(1.25)', opacity: 1, offset: 0.7 }, { transform: 'none', opacity: 1 }], { duration: dur, easing: ease, delay: dur * 0.35, fill: 'backwards' });
+      else if (Math.abs(p - geo.marks[k]) > 0.5) g.animate([{ transform: 'translateX(' + (p - geo.marks[k]).toFixed(1) + 'px)' }, { transform: 'none' }], T);
+    });
+    if (prev.now != null && nowX != null && Math.abs(prev.now - nowX) > 0.5) {
+      [].forEach.call(svg.querySelectorAll('.lane-now, .lane-now-t'), function (el) { el.animate([{ transform: 'translateX(' + (prev.now - nowX).toFixed(1) + 'px)' }, { transform: 'none' }], T); });
+    }
+    var co = svg.querySelector('.dg-callout');
+    if (co) co.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: dur * 0.8, easing: ease, delay: dur * 0.3, fill: 'backwards' });
+  };
+
   /* ---------- bố cục "lanes": hàng = tài nguyên/coroutine, trục ngang = thời gian ---------- */
   // view.lanes(events, step, opts) → {rows:[{id, labelKey|label, group?}], bars:[{row, from, to, kind:'run'|'block'|'wait'|'ready', label?, cur?}],
   //   marks:[{row, t, label?, cur?}], tMax, now, axisKey?}. Track tự suy ra thanh từ nhật ký; lõi chỉ vẽ.
@@ -550,7 +586,7 @@
     (d.bars || []).forEach(function (b) {
       var ry = rowY[b.row]; if (ry === undefined) return;
       var x0 = sx(b.from) + 1, x1 = sx(b.to == null ? d.now : b.to) - 1, w = Math.max(3, x1 - x0);
-      html += '<g class="bar-g' + (b.ghost ? ' ghost' : '') + (b.cur ? ' cur' + (anim ? ' grow' : '') : '') + '">' +
+      html += '<g class="bar-g' + (b.ghost ? ' ghost' : '') + (b.cur ? ' cur' + (anim ? ' grow' : '') : '') + '" data-k="' + ADE.esc(b.row + '|' + b.from + '|' + b.kind + (b.ghost ? '|g' : '')) + '" data-x="' + x0.toFixed(1) + '" data-w="' + w.toFixed(1) + '">' +
         '<rect class="bar bar-' + b.kind + '" x="' + x0.toFixed(1) + '" y="' + (ry + 13) + '" width="' + w.toFixed(1) + '" height="22" rx="2"' + (b.kind === 'block' ? ' style="fill:url(#' + self.uid + '-hatch)"' : '') + '/>';
       if (b.label && w > b.label.length * 7 + 8) html += '<text class="bar-t" x="' + (x0 + 6).toFixed(1) + '" y="' + (ry + 28) + '">' + ADE.esc(b.label) + '</text>';
       html += '</g>';
@@ -560,7 +596,7 @@
       var ry = rowY[m.row]; if (ry === undefined) return;
       var x = sx(m.t);
       var flip = m.label && x + 4 + m.label.length * 6.5 > RIGHT + 30;
-      html += '<g class="lane-mark' + (m.cur ? ' cur' : '') + '"><path d="M' + x.toFixed(1) + ' ' + (ry + 15) + 'l6 9-6 9-6-9z"/>' + (m.label ? '<text class="mark-t" x="' + (flip ? x - 4 : x + 4).toFixed(1) + '" y="' + (ry + 10) + '"' + (flip ? ' text-anchor="end"' : '') + '>' + ADE.esc(m.label) + '</text>' : '') + '</g>';
+      html += '<g class="lane-mark' + (m.cur ? ' cur' : '') + '" data-k="' + ADE.esc(m.row + '|' + m.t + '|' + (m.label || '')) + '" data-x="' + x.toFixed(1) + '"><path d="M' + x.toFixed(1) + ' ' + (ry + 15) + 'l6 9-6 9-6-9z"/>' + (m.label ? '<text class="mark-t" x="' + (flip ? x - 4 : x + 4).toFixed(1) + '" y="' + (ry + 10) + '"' + (flip ? ' text-anchor="end"' : '') + '>' + ADE.esc(m.label) + '</text>' : '') + '</g>';
       if (m.cur && !cur) cur = { x: x, y: ry + 13, row: m.row };
     });
     if (d.now != null) html += '<path class="lane-now" d="M' + sx(d.now).toFixed(1) + ' ' + (top - 6) + 'V' + (H - 28) + '"/><text class="lane-now-t" x="' + sx(d.now).toFixed(1) + '" y="' + (H - 12) + '" text-anchor="' + (sx(d.now) > RIGHT - 30 ? 'end' : 'middle') + '">' + ADE.esc(ADE.t('app.lanes.now', { t: ADE.num(d.now) })) + '</text>';
@@ -577,6 +613,7 @@
     this.full = full; this.setVB(full); this._fit();
     this.svg.innerHTML = '<title>' + ADE.esc(ADE.t(v.titleKey)) + '</title><desc>' + ADE.esc(ADE.t(v.descKey) + (step ? ' — ' + ADE.t(step.titleKey, step.params) : '')) + '</desc>' + html;
     if (!anim) this.svg.classList.add('still'); else this.svg.classList.remove('still');
+    this._laneTween(anim, d.now != null ? sx(d.now) : null, opts);
     this.lastLanes = d;
   };
   Scene.prototype.destroy = function () { this._stop(); };

@@ -205,4 +205,5 @@ Trạng thái: `chưa / đang / xong`.
   - quy tắc mới ở `docs/design-principles.md` §5.1;
   - reduced-motion tắt hết, đã kiểm bằng `--reduce` (rv=0, animation none);
   - chưa xem bằng mắt trên trình duyệt thật (headless chỉ kiểm class/animationName).
+- **Sơ đồ lanes chuyển động liên tục (2026-11-22, người dùng: "sơ đồ chỉ nhảy giữa các trạng thái"):** `Scene._laneTween` nhớ vị trí và độ dài từng thanh, mốc, vạch "bây giờ"; bước sau chạy từ hình cũ sang mới (Web Animations, 560 ms ÷ tốc độ). Đã kiểm bằng CDP: 7 animation chạy ở một lần đổi bước của U3. Mục tiêu (goal) của U1–U4 đổi câu chữ cho đúng ở mọi chế độ sim. `next-prompt.md` cập nhật: §5.1 thắng hướng dẫn bổ trợ; bắt buộc nghiên cứu nguồn trước mỗi chương.
 
