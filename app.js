@@ -513,7 +513,7 @@
     if (!def) { slot.appendChild(empty('app.noModel')); return; }
     if (def.kind === 'compute') {
       var vw = ADE.views[modelId];
-      if (vw && vw.mount) { var m = vw.mount(slot, { trackId: trackId, modelId: modelId, def: def }); if (m) cur.mounts.push(m); }
+      if (vw && vw.mount) { var m = vw.mount(slot, { trackId: trackId, modelId: modelId, def: def }); if (m) cur.mounts.push(m); cur.mounts.push(ui.labMotion(slot)); }
       return;
     }
     var key = (mode === 'live' ? 'live:' : 'ch:' + trackId + '/' + chapter.id + ':') + modelId;

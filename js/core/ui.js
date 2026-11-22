@@ -437,4 +437,128 @@
       destroy: function () { offs.forEach(function (f) { f(); }); if (scene) scene.destroy(); if (mq.removeEventListener) mq.removeEventListener('change', mqh); else mq.removeListener(mqh); if (root.parentNode) root.parentNode.removeChild(root); }
     };
   };
+
+  /* ---------- chuyển động cho lab tự vẽ (model kind 'compute') ----------
+     Lab vẽ lại DOM của chính nó (thường bằng innerHTML) khi người dùng thao tác. Lõi không biết lab vẽ gì, nên so CẤU TRÚC:
+     chụp cây trước (đường dẫn tag+thứ tự), lab vẽ lại, MutationObserver báo (trước khi trình duyệt vẽ), rồi so:
+       · chữ là số đổi → số chạy dần từ cũ tới mới; chữ khác đổi → nháy một lần;
+       · thuộc tính hình học SVG đổi (x, y, width, height, cx, cy, r, x1…y2, points, d cùng cấu trúc) → nội suy;
+       · phần tử mới → hiện dần; những gì vừa đổi giữ lớp .mo-live (chuyển động liên tục) tới lần đổi sau.
+     Lab tự chạy theo khung hình (đổi DOM liên tục < 150 ms) thì bỏ qua: chính nó đã là chuyển động.
+     Tắt hết khi giảm chuyển động hoặc "Chỉ sơ đồ". Không đổi nội dung: trạng thái cuối luôn là DOM lab đã vẽ. */
+  var GEO = ['x', 'y', 'width', 'height', 'cx', 'cy', 'r', 'rx', 'ry', 'x1', 'y1', 'x2', 'y2', 'points', 'd'];
+  var SKIP = { OPTION: 1, SCRIPT: 1, STYLE: 1, TEXTAREA: 1, INPUT: 1, SELECT: 1 };
+  var NUM_RE = /-?\d[\d.,\u00a0\u202f]*\d|-?\d/g;
+  function seps() {
+    var s = ADE.num ? ADE.num(12345.6, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '12,345.6';
+    return { dec: s.charAt(s.length - 2), grp: s.replace(/\d/g, '').charAt(0) === s.charAt(s.length - 2) ? '' : s.replace(/\d/g, '').charAt(0) };
+  }
+  function parseTok(t, sp) {
+    var dec = 0, s = t.replace(/[\u00a0\u202f\s]/g, '');
+    var i = sp.dec ? s.lastIndexOf(sp.dec) : -1;
+    if (i >= 0 && sp.grp !== sp.dec) { dec = s.length - i - 1; s = s.slice(0, i).split(sp.grp).join('') + '.' + s.slice(i + 1); }
+    else if (sp.grp) s = s.split(sp.grp).join('');
+    var v = parseFloat(s);
+    return isNaN(v) ? null : { v: v, dec: dec, grp: sp.grp && t.indexOf(sp.grp) >= 0 };
+  }
+  function fmtTok(v, ref) {
+    return ADE.num ? ADE.num(v, { minimumFractionDigits: ref.dec, maximumFractionDigits: ref.dec, useGrouping: !!ref.grp }) : v.toFixed(ref.dec);
+  }
+  function geoNums(s) { return String(s).match(/-?\d*\.?\d+(e-?\d+)?/gi) || []; }
+  function geoSkel(s) { return String(s).replace(/-?\d*\.?\d+(e-?\d+)?/gi, '#'); }
+
+  ui.labMotion = function (root) {
+    if (!root || typeof MutationObserver === 'undefined') return { destroy: function () { } };
+    var off = function () { return ADE.motionReduced() || ADE.diagramOnly(); };
+    var last = null, lastMut = 0, settle = null, mo = null, dead = false, gen = 0;
+    function take() {
+      var m = {};
+      (function walk(el, key) {
+        var seen = {}, kids = el.children;
+        for (var i = 0; i < kids.length; i++) {
+          var c = kids[i], t = c.tagName; seen[t] = (seen[t] || 0) + 1;
+          var k = key + '/' + t + seen[t], info = { el: c, tag: t };
+          if (!c.children.length && !SKIP[t]) info.txt = c.textContent;
+          if (c instanceof SVGElement) { info.g = {}; GEO.forEach(function (a) { var v = c.getAttribute(a); if (v != null) info.g[a] = v; }); }
+          m[k] = info;
+          if (!SKIP[t]) walk(c, k);
+        }
+      })(root, '');
+      return m;
+    }
+    function tween(ms, step, done) {
+      var t0 = performance.now(), g = gen;
+      (function fr(now) {
+        if (dead || g !== gen) return;
+        var p = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - p, 3);
+        step(e); if (mo) mo.takeRecords();
+        if (p < 1) requestAnimationFrame(fr); else if (done) done();
+      })(t0);
+    }
+    function morph(old) {
+      var now = take(), sp = seps(), live = [], flash = [], fresh = [];
+      root.querySelectorAll('.mo-live').forEach(function (x) { x.classList.remove('mo-live'); });
+      Object.keys(now).forEach(function (k) {
+        var n = now[k], o = old[k];
+        if (!o || o.tag !== n.tag) {
+          var pk = k.slice(0, k.lastIndexOf('/'));
+          if (!pk || (old[pk] && old[pk].tag === (now[pk] || {}).tag)) fresh.push(n.el);
+          return;
+        }
+        if (n.txt != null && o.txt != null && n.txt !== o.txt) {
+          var a = o.txt.match(NUM_RE) || [], b = n.txt.match(NUM_RE) || [];
+          if (b.length && a.length === b.length && o.txt.replace(NUM_RE, '#') === n.txt.replace(NUM_RE, '#')) {
+            var from = a.map(function (t) { return parseTok(t, sp); }), to = b.map(function (t) { return parseTok(t, sp); });
+            var norm = function (x) { return x.replace(/[  \s]/g, ' '); };
+            var exact = function (arr, toks) { return arr.every(function (t, i) { return t && norm(fmtTok(t.v, t)) === norm(toks[i]); }); };
+            if (exact(from, a) && exact(to, b)) {
+              var parts = n.txt.split(NUM_RE), el = n.el, fin = n.txt;
+              tween(520, function (e) {
+                var s = parts[0];
+                for (var i = 0; i < to.length; i++) s += fmtTok(from[i].v + (to[i].v - from[i].v) * e, to[i]) + parts[i + 1];
+                el.textContent = e >= 1 ? fin : s;
+              });
+            }
+          }
+          flash.push(n.el); live.push(n.el);
+        }
+        if (n.g && o.g) {
+          var ch = GEO.filter(function (a) { return n.g[a] != null && o.g[a] != null && n.g[a] !== o.g[a] && geoSkel(n.g[a]) === geoSkel(o.g[a]); });
+          if (ch.length) {
+            var el2 = n.el, fromG = {}, toG = {};
+            ch.forEach(function (a) { fromG[a] = geoNums(o.g[a]).map(Number); toG[a] = geoNums(n.g[a]).map(Number); });
+            tween(460, function (e) {
+              ch.forEach(function (a) {
+                if (e >= 1) { el2.setAttribute(a, n.g[a]); return; }
+                var i = 0, f = fromG[a], t = toG[a];
+                el2.setAttribute(a, geoSkel(n.g[a]).replace(/#/g, function () { var v = f[i] + (t[i] - f[i]) * e; i++; return String(Math.round(v * 100) / 100); }));
+              });
+            });
+            live.push(n.el);
+          }
+        }
+      });
+      fresh.slice(0, 60).forEach(function (el) {
+        if (el instanceof SVGElement) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' });
+        else el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 280, easing: 'cubic-bezier(.2,.7,.2,1)' });
+      });
+      flash.slice(0, 40).forEach(function (el) { if (!(el instanceof SVGElement)) { el.classList.remove('mo-chg'); void el.offsetWidth; el.classList.add('mo-chg'); } });
+      live.slice(0, 14).forEach(function (el) { el.classList.add('mo-live'); });
+      return now;
+    }
+    function onMut() {
+      if (dead) return;
+      var t = performance.now(), streaming = t - lastMut < 150;
+      lastMut = t;
+      clearTimeout(settle);
+      if (streaming) gen++;
+      if (!last || streaming || off()) { settle = setTimeout(function () { if (!dead) last = take(); }, 160); return; }
+      last = morph(last);
+      if (mo) mo.takeRecords();
+    }
+    mo = new MutationObserver(onMut);
+    mo.observe(root, { childList: true, subtree: true, characterData: true });
+    setTimeout(function () { if (!dead) last = take(); }, 0);
+    return { destroy: function () { dead = true; clearTimeout(settle); if (mo) mo.disconnect(); mo = null; } };
+  };
 })();

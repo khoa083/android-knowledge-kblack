@@ -324,3 +324,14 @@ Trạng thái: `chưa / đang / xong`.
     - đã kiểm misconceptions (nhãn điều khiển vẫn khớp), A0 (tham chiếu chương vẫn đúng), câu cũ về flatMap ở A7 (đã sửa trước đó);
     - `estMinutes` của track: 300 → 900 (nội dung khoảng 66 nghìn từ, khoảng 440 phút chỉ để đọc).
 - **Còn nợ (người dùng đã yêu cầu chuyển động cho toàn bộ bài học):** 6 lab tự vẽ (Animation C-labs, UX/UI labs) chưa có chuyển động liên tục. Làm như việc đầu tiên khi viết Animation/UX/UI v2, hoặc sớm hơn nếu người dùng muốn.
+- **Chuyển động cho mọi lab tự vẽ (2026-11-22, theo yêu cầu "toàn bộ bài học"):**
+  - lõi thêm `ui.labMotion(root)` (js/core/ui.js); `app.js` gắn nó cho mọi model `compute` khi mount, nên lab hiện có (Animation, UX, UI) và lab sau này tự có;
+  - cơ chế: MutationObserver chạy so cấu trúc trước/sau: số chạy dần, SVG nội suy, phần mới hiện dần, phần vừa đổi giữ `.mo-live` (liên tục) tới lần đổi sau; lab tự cập nhật theo frame thì bỏ qua;
+  - CSS: `.mo-chg`, `.mo-live` (tắt khi giảm chuyển động và "Chỉ sơ đồ");
+  - `docs/design-principles.md` §5.1 thêm dòng "Lab tự vẽ".
+- **Kiểm:**
+  - SUS: số 76,1 → 77,5 chạy dần;
+  - discovery curve: path nội suy, các phần vừa đổi có `.mo-live`;
+  - Play của lab Animation: giá trị tăng đều, không bị đè;
+  - `--reduce`: 0 animation;
+  - track-check UX/UI/Animation 0 vấn đề, 0 lỗi console; routes-check 108 route 0 vấn đề; report 0 lỗi.
