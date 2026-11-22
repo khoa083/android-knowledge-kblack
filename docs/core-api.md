@@ -20,6 +20,24 @@ Mỗi khối có comment `<!-- track: <id> -->`. Thêm track = thêm khối này
   - `.quiz.<q>.q|a|why`,
   - `.sim.<modelId>` (nhãn tab khi chương có nhiều sim).
 - Thứ tự các mục lấy theo thứ tự khai báo trong file `content.vi.js`.
+
+### 2.1 Khối nội dung cho chương dài (v2, thêm 2026-11-22)
+
+Trong một mục `…sec.<s>`, ngoài `.p.<n>` và `.code`, có thể dùng danh sách khối `.b.<n>.<trường>`. Các khối hiện xen kẽ theo thứ tự khai báo (`p`, `code` và `b` hiện theo vị trí xuất hiện đầu tiên của chúng). Trường có mặt quyết định loại khối:
+
+| Trường | Khối | Ghi chú |
+|---|---|---|
+| `h` | tiêu đề con (h3) | |
+| `p` | đoạn văn | `\n` tách nhiều đoạn; có markup |
+| `kt` (+ `lang`) | khối mã viết thẳng | mặc định `kotlin`; chú thích trong mã được dịch theo ngôn ngữ |
+| `out` | output của chương trình | |
+| `note` (+ `kind`) | callout | `kind` ∈ `mechanism pitfall android source try analogy` (mặc định `mechanism`) |
+| `predict` + `ans` | câu "Đoán trước" có đáp án ẩn | đặt TRƯỚC phần lộ đáp án (sim, output) |
+| `ask` + `ans` | câu "Tự trả lời" (nhớ lại, tự giải thích) | |
+| `bug` + `cause` + `fix` (+ `fixkt`) | thẻ bug: triệu chứng hiện, nguyên nhân và cách sửa ẩn | |
+| `ex` (+ `exkt`, `hint`) + `sol` (+ `solkt`) | bài tập có gợi ý và lời giải ẩn | |
+
+Manifest: `chapter.simAfter = '<id mục>'` đặt sim sau mục đó (mặc định ngay sau "bản chất"). `registry.validateAll` báo lỗi khi `simAfter` trỏ sai, `kind` lạ, hoặc khối hỏi–đáp thiếu trường. Cách dùng các khối theo nhịp sư phạm: `docs/chapter-template-v2.md`.
 - Plural: `key.one` / `key.other` (en), `key.other` hoặc khoá thường (vi); gọi `ADE.t(key, {n})`.
 - Markup: `[[term:id]]`, `[[src:id]]`, `[[badge:key]]`, `` `code` ``. Không `**đậm**`. Mọi chuỗi ở dạng NFC.
 - Glossary: `ADE.addGlossary(lang, '<id>', { termId: {term, def, chapter:'<track>/<chapter>'} })`. `term` là thuật ngữ gốc tiếng Anh (cả hai ngôn ngữ). Id thuật ngữ là **toàn cục**.

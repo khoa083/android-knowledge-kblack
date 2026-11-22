@@ -56,6 +56,34 @@
   function setTitle(s) { document.title = ADE.stripSentinel((s ? s + ' · ' : '') + ADE.t('app.name')); }
   function para(str, cls) { return h('p', { class: cls || 'prose', html: ADE.markup(str) }); }
   function lines(key, cls) { return ADE.t(key).split('\n').map(function (l) { return para(l, cls); }); }
+  /* khối nội dung v2 trong một mục: key `<mục>.b.<n>.<trường>`; trường quyết định loại khối (docs/core-api.md §2.1) */
+  function block(k) {
+    var has = function (f) { return ADE.hasKey(k + '.' + f); }, tx = function (f) { return ADE.t(k + '.' + f); };
+    var paras = function (f) { return tx(f).split('\n').map(function (l) { return para(l); }); };
+    var codeEl = function (f, lang) { return ui.codeBlock({ lang: lang, lines: tx(f).split('\n') }, []); };
+    var reveal = function (cls, label, q, inner, open) {
+      return h('details', { class: 'blk ' + cls }, h('summary', null, h('span', { class: 'blk-l caps', text: ADE.t(label) }), q ? h('span', { html: ADE.markup(q) }) : null), h('div', { class: 'blk-a' }, inner));
+    };
+    if (has('h')) return h('h3', { class: 'blk-h', text: tx('h') });
+    if (has('kt')) return codeEl('kt', has('lang') ? tx('lang') : 'kotlin');
+    if (has('out')) return h('div', { class: 'blk-out' }, codeEl('out', ADE.t('app.blk.output')));
+    if (has('note')) return ui.callout(has('kind') ? tx('kind') : 'mechanism', ADE.markup(tx('note')).split('\n').join('<br>'));
+    if (has('predict')) return reveal('predict', 'app.blk.predict', tx('predict'), paras('ans'));
+    if (has('ask')) return reveal('recall', 'app.blk.recall', tx('ask'), paras('ans'));
+    if (has('bug')) {
+      return h('div', { class: 'blk bug' }, h('p', { class: 'prose' }, h('span', { class: 'blk-l caps', text: ADE.t('app.blk.bug') }), h('span', { html: ADE.markup(tx('bug')) })),
+        reveal('bug-why', 'app.blk.cause', null, [h('p', { class: 'prose', html: ADE.markup(tx('cause')) }), h('p', { class: 'prose' }, h('b', { text: ADE.t('app.blk.fix') + ': ' }), h('span', { html: ADE.markup(tx('fix')) }))].concat(has('fixkt') ? [codeEl('fixkt', 'kotlin')] : [])));
+    }
+    if (has('ex')) {
+      var box = h('div', { class: 'blk ex' }, h('p', { class: 'prose' }, h('span', { class: 'blk-l caps', text: ADE.t('app.blk.exercise') }), h('span', { html: ADE.markup(tx('ex')) })));
+      if (has('exkt')) box.appendChild(codeEl('exkt', 'kotlin'));
+      if (has('hint')) box.appendChild(reveal('hint', 'app.blk.hint', null, paras('hint')));
+      box.appendChild(reveal('sol', 'app.blk.solution', null, paras('sol').concat(has('solkt') ? [codeEl('solkt', 'kotlin')] : [])));
+      return box;
+    }
+    if (has('p')) return h('div', null, paras('p'));
+    return null;
+  }
   function levelChip(t) { return h('span', { class: 'chip' }, icon('chevr', { size: 12 }), h('span', { text: ADE.t('app.level.' + t.level) })); }
   function trackIcon(t) { return ADE.diagram.ICONS[t.icon] ? t.icon : 'chip'; }
   function metaChips(t) {
@@ -514,8 +542,9 @@
       h('h1', { class: ui.caps(title), text: title }), metaChips(t)));
     // 1. bản chất
     wrap.appendChild(h('section', { class: 'panel essence' }, h('header', { class: 'panel-h' }, h('h2', { class: 'caps', text: ADE.t('app.essence') })), h('div', { class: 'pad' }, lines(base + '.essence'))));
-    // 2. mô phỏng
-    if (c.sims.length) {
+    // 2. mô phỏng (mặc định ngay sau "bản chất"; chapter.simAfter = id mục → đặt sau mục đó, để câu "đoán trước" đứng trước sim)
+    function addSim() {
+      if (!c.sims.length) return;
       var simSel = cur.viewStates['sim:' + t.id + '/' + c.id] || (cur.viewStates['sim:' + t.id + '/' + c.id] = { idx: 0 });
       var slot = h('div', { class: 'stage-slot' });
       if (c.sims.length > 1) {
@@ -524,15 +553,21 @@
       wrap.appendChild(slot);
       mountStage(slot, t.id, c, c.sims[Math.min(simSel.idx, c.sims.length - 1)], 'guided', r.step != null ? r.step : null);
     }
-    // 3. các mục nội dung
-    ADE.keysUnder(base + '.sec').forEach(function (s) {
+    var secIds = ADE.keysUnder(base + '.sec');
+    if (!c.simAfter || secIds.indexOf(c.simAfter) < 0) addSim();
+    // 3. các mục nội dung (khối v2: docs/core-api.md §2.1)
+    secIds.forEach(function (s) {
       var pre = base + '.sec.' + s, st = ADE.t(pre + '.title');
-      var sec = h('section', { class: 'panel sec' }, h('header', { class: 'panel-h' }, h('h2', { class: ui.caps(st), text: st }),
+      var sec = h('section', { class: 'panel sec', id: 'sec-' + s }, h('header', { class: 'panel-h' }, h('h2', { class: ui.caps(st), text: st }),
         ADE.hasKey(pre + '.badge') ? h('span', { class: 'badges' }, ADE.t(pre + '.badge').split(/\s+/).filter(Boolean).map(function (b) { return ui.badge(b); })) : null));
       var body = h('div', { class: 'pad' });
-      ADE.keysUnder(pre + '.p').forEach(function (n) { body.appendChild(para(ADE.t(pre + '.p.' + n))); });
-      if (ADE.hasKey(pre + '.code')) { var sn = ADE.getCode(t.id, ADE.t(pre + '.code')); if (sn) body.appendChild(ui.codeBlock(sn, [])); }
+      ADE.keysUnder(pre).forEach(function (part) {
+        if (part === 'p') ADE.keysUnder(pre + '.p').forEach(function (n) { body.appendChild(para(ADE.t(pre + '.p.' + n))); });
+        else if (part === 'code') { var sn = ADE.getCode(t.id, ADE.t(pre + '.code')); if (sn) body.appendChild(ui.codeBlock(sn, [])); }
+        else if (part === 'b') ADE.keysUnder(pre + '.b').forEach(function (n) { var el = block(pre + '.b.' + n); if (el) body.appendChild(el); });
+      });
       sec.appendChild(body); wrap.appendChild(sec);
+      if (c.simAfter === s) addSim();
     });
     // 4. tự kiểm tra
     var qs = ADE.keysUnder(base + '.quiz');

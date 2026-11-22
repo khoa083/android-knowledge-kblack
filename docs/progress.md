@@ -144,3 +144,38 @@ Trạng thái: `chưa / đang / xong`.
 - **Dừng 2026-11-21 (hạn mức tuần 96%)**: chưa làm các lệch spec còn lại vì mỗi việc cần đọc nguồn và viết nội dung song ngữ, không đủ hạn mức để làm trọn: (1) D9 sandbox 2: model `ux.tone` hiện cho chọn 2 voice dựng sẵn (mỗi voice 3 thuộc tính) × 3 bối cảnh; spec muốn người đọc tự chọn 3 thuộc tính (cần câu mẫu cho từng tổ hợp, nguồn: tone-of-voice-dimensions, Podmajersky). (2) D6: journey map kéo thả và bộ câu hỏi phỏng vấn (đọc journey-mapping-101, user-interviews trước). (3) E: inspector 4 tab (Giải thích / Mã Compose / Token / Kiểm tra a11y). Kiểm thêm Firefox/Safari, thiết bị Android thật.
 
 - **2026-11-21 (cuối):** người dùng thấy nội dung quá rút gọn → lộ trình v2 ở `docs/roadmap-v2.md` (viết lại Coroutines theo Deep Dive trước, rồi 6 track mới). Đã `git init` + commit.
+
+## Coroutines v2 (bắt đầu 2026-11-22)
+
+- Dàn chương trong `docs/roadmap-v2.md` đã khớp với mục lục thật của Deep Dive.
+- **Generator:**
+  - `dev/gen/coroutines_content.py` nạp `coroutines_base.json` (nội dung v1) cùng các file `coroutines_v2_*.py`;
+  - đã kiểm: chỉ với base, generator tái tạo đúng từng byte (chỉ khác dòng chú thích đầu file).
+- **Lõi (chung cho mọi track):**
+  - khối nội dung v2 `.sec.<s>.b.<n>.<trường>`: tiêu đề con, đoạn, mã, output, callout (thêm `analogy`), đoán trước, tự trả lời, bug, bài tập; xem `docs/core-api.md` §2.1;
+  - `chapter.simAfter`;
+  - `registry` kiểm các khối này;
+  - report bỏ cảnh báo "chưa dịch" cho các trường mã.
+- **Khung sư phạm:** `docs/chapter-template-v2.md`.
+- **U1 "Vì sao cần coroutine?" xong:**
+  - nội dung gồm 10 mục: vấn đề, 4 cách giải, song song bằng async, chi phí luồng, 4 bug, 3 bài tập, tự trả lời, quiz 3 câu;
+  - dùng lại sim `coroutines.suspend` (đặt sau mục "Cách 4" để câu đoán đứng trước sim);
+  - thêm 4 nguồn;
+  - bảng nguồn ở `docs/research/coroutines.md`.
+- **Kiểm U1:**
+  - report: 0 lỗi;
+  - track-check 1280 và 360: chỉ còn 4 vấn đề cũ, cố ý;
+  - routes-check: 99 route, 0 vấn đề;
+  - focus-check: đạt;
+  - đã xem ảnh mục bug (tối).
+- **Chưa làm ở U1:**
+  - xem ảnh trang ở nền sáng;
+  - mở lại các URL nguồn mới;
+  - đọc phần tương ứng trong *Coroutines by Tutorials*;
+  - tìm thêm cách giảng trên mạng.
+- **Tiếp theo:**
+  - U2 Sequence builder (Deep Dive tr. 27–32);
+  - U3 How does suspension work? (tr. 33–44);
+  - U4 Coroutines under the hood (tr. 45–62): cần sim mới cho state machine/continuation;
+  - sau đó Phần 2 (viết sâu lại A1–A9 theo các chương tr. 65–233).
+

@@ -39,7 +39,7 @@
     var a = ADE.strings.vi, b = ADE.strings.en;
     Object.keys(a).forEach(function (k) {
       if (b[k] === undefined || SAME_OK.test(k)) return;
-      if (a[k] === b[k] && /\s/.test(a[k]) && a[k].length > 12) items.push(row('warn', 'Nghi chưa dịch (vi = en): ' + k + ' → "' + a[k].slice(0, 50) + '"'));
+      if (a[k] === b[k] && !/\.(kt|exkt|solkt|fixkt|out|kind|lang)$/.test(k) && /\s/.test(a[k]) && a[k].length > 12) items.push(row('warn', 'Nghi chưa dịch (vi = en): ' + k + ' → "' + a[k].slice(0, 50) + '"'));
     });
     // markup trong hai ngôn ngữ phải khớp: cùng tập [[src:]], [[term:]], [[badge:]]
     var refs = function (s) { var m = String(s).match(/\[\[(?:src|term|badge):[^\]]+\]\]/g) || []; return m.sort().join(' '); };

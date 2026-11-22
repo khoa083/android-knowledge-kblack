@@ -11,7 +11,7 @@ import json, os, sys, unicodedata
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 P = 'track.coroutines.'
 E = []
-def a(k, vi, en): E.append((P + k, vi, en))
+def a(k, vi, en=None): E.append((P + k, vi, vi if en is None else en))
 
 with open(os.path.join(ROOT, 'dev', 'gen', 'coroutines_base.json'), encoding='utf-8') as f:
     for k, vi, en in json.load(f): E.append((k, vi, en))

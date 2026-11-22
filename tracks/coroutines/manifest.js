@@ -11,6 +11,7 @@ ADE.registerTrack({
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
     { id: 'a0', titleKey: 'track.coroutines.a0.title', sims: ['coroutines.full'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
+    { id: 'u1', titleKey: 'track.coroutines.u1.title', sims: ['coroutines.suspend'], simAfter: 'coroutines', bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },   // v2 Phần 1 (Deep Dive "Why Kotlin Coroutines?")
     { id: 'a1', titleKey: 'track.coroutines.a1.title', sims: ['coroutines.suspend'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'a2', titleKey: 'track.coroutines.a2.title', sims: ['coroutines.jobtree'], bridges: ['X4'], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'a3', titleKey: 'track.coroutines.a3.title', sims: ['coroutines.builders'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },

@@ -2,6 +2,14 @@
 (function () {
   var s = function (id, title, url, org, label, vi, en) { return { id: id, title: title, url: url, org: org, tracks: ['coroutines'], label: label, lang: 'en', supports: { vi: vi, en: en } }; };
   ADE.addSources([
+    s('and-threads', 'Processes and threads overview', 'https://developer.android.com/guide/components/processes-and-threads', 'Android Developers', 'stable',
+      'Luồng Main xử lý sự kiện và vẽ UI; bộ công cụ UI không thread-safe nên chỉ sửa view từ luồng UI (U1).', 'The Main thread handles events and draws the UI; the UI toolkit is not thread-safe, so views are changed only from the UI thread (U1).'),
+    s('and-nomain', 'NetworkOnMainThreadException', 'https://developer.android.com/reference/android/os/NetworkOnMainThreadException', 'Android Developers', 'stable',
+      'Ném ra khi ứng dụng gọi mạng trên luồng chính (U1).', 'Thrown when an app performs a networking operation on its main thread (U1).'),
+    s('and-anr', 'ANRs', 'https://developer.android.com/topic/performance/vitals/anr', 'Android Developers', 'stable',
+      'ANR khi luồng chính không phản hồi sự kiện nhập trong khoảng 5 giây (U1).', 'An ANR occurs when the main thread does not respond to an input event within about 5 seconds (U1).'),
+    s('book-deepdive', 'Kotlin Coroutines: Deep Dive (Marcin Moskała)', 'https://leanpub.com/coroutines', 'Kt. Academy (sách)', 'guideline',
+      'Sách nguồn giảng chính của Coroutines v2: bố cục chương và ví dụ màn hình tin tức (U1 theo chương "Why Kotlin Coroutines?").', 'The main teaching source for Coroutines v2: chapter structure and the news-screen example (U1 follows the chapter "Why Kotlin Coroutines?").'),
     s('kt-guide', 'Coroutines guide', 'https://kotlinlang.org/docs/coroutines-guide.html', 'JetBrains (kotlinlang.org)', 'stable',
       'Mục lục khái niệm của coroutine: nền cho bản đồ ở chương A0.', 'The conceptual index of coroutines: the basis for the overview map in chapter A0.'),
     s('kt-basics', 'Coroutines basics', 'https://kotlinlang.org/docs/coroutines-basics.html', 'JetBrains (kotlinlang.org)', 'stable',

@@ -215,6 +215,18 @@
           if (!ADE.hasKey(ek, l)) ADE.err('error', 'registry', t.id + '/' + ch.id + ': thiếu "bản chất" ' + ek + ' ở ' + l);
         });
         ch.sims.forEach(function (s) { if (!ADE.models[s]) ADE.err('error', 'registry', t.id + '/' + ch.id + ': sim trỏ tới model không tồn tại: ' + s); });
+        // khối v2 (core-api §2.1): simAfter trỏ tới mục có thật; note.kind hợp lệ; khối hỏi–đáp có đủ trường
+        var sb = ADE.chapterKey(t.id, ch.id, 'sec'), secs = ADE.keysUnder(sb);
+        if (ch.simAfter && secs.indexOf(ch.simAfter) < 0) ADE.err('error', 'registry', t.id + '/' + ch.id + ': simAfter trỏ tới mục không tồn tại: ' + ch.simAfter);
+        secs.forEach(function (s) {
+          ADE.keysUnder(sb + '.' + s + '.b').forEach(function (n) {
+            var k = sb + '.' + s + '.b.' + n, need = function (f) { if (!ADE.hasKey(k + '.' + f)) ADE.err('error', 'registry', k + ': thiếu trường ' + f); };
+            if (ADE.hasKey(k + '.kind') && ['mechanism', 'pitfall', 'android', 'source', 'try', 'analogy'].indexOf(ADE.t(k + '.kind')) < 0) ADE.err('error', 'registry', k + ': kind không hợp lệ');
+            if (ADE.hasKey(k + '.predict') || ADE.hasKey(k + '.ask')) need('ans');
+            if (ADE.hasKey(k + '.bug')) { need('cause'); need('fix'); }
+            if (ADE.hasKey(k + '.ex')) need('sol');
+          });
+        });
         ch.bridges.forEach(function (b) { if (!ADE.bridgeMap[b]) ADE.err('error', 'registry', t.id + '/' + ch.id + ': cầu nối không tồn tại: ' + b); });
         ch.goals.forEach(function (g) {
           ADE.langs.forEach(function (l) { var gk = ADE.chapterKey(t.id, ch.id, 'goal.' + g.id); if (!ADE.hasKey(gk, l)) ADE.err('error', 'registry', 'Thiếu mục tiêu ' + gk + ' ở ' + l); });

@@ -387,6 +387,25 @@ progress { accent-color: var(--brand); height: 8px; width: 90px; vertical-align:
 .qa summary { display: flex; gap: 8px; cursor: pointer; min-height: 32px; align-items: baseline; }
 .qa .n { font-weight: 800; }
 .qa-a { padding: 6px 0 6px 22px; }
+/* khối nội dung v2 (đoán trước, tự trả lời, bug, bài tập, output) */
+.blk-h { font-size: 1rem; margin: 18px 0 6px; }
+.blk { border: 1px solid var(--line); border-radius: var(--radius); margin: 12px 0; background: var(--paper); }
+.blk > summary, .blk > p:first-child { padding: 8px 10px; margin: 0; }
+details.blk > summary { cursor: pointer; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; min-height: 32px; }
+details.blk > summary { list-style: none; }
+details.blk > summary::-webkit-details-marker { display: none; }
+details.blk > summary::before { content: '▸'; font-weight: 800; }
+details.blk[open] > summary::before { content: '▾'; }
+.blk-l { font-weight: 800; font-size: .78rem; letter-spacing: .04em; margin-right: 8px; }
+.blk-a { padding: 0 12px 10px 22px; }
+.blk.predict { border-left: 4px solid var(--ink); }
+.blk.recall { border-left: 4px double var(--ink); }
+.blk.bug { border-left: 5px dashed var(--ink); }
+.blk.ex { border-left: 4px solid var(--line-strong); }
+.blk .blk { margin: 4px 10px 10px; }
+.blk-out .code-lang { font-style: italic; }
+.co-analogy { border-left-style: dotted; border-left-width: 5px; }
+
 .labels-list { display: grid; gap: 8px; margin-top: 8px; }
 .labels-list li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
 .mis-list { display: grid; gap: 12px; }

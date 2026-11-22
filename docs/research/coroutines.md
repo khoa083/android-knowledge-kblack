@@ -68,3 +68,30 @@
 | Hiểu lầm ≥ 8, có nguồn | 11 mục |
 
 Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bridges.*.js` giữ tóm tắt 1–2 dòng cho nơi dẫn (B4, B8, C6).
+
+## v2 · Bảng theo dõi nguồn theo chương
+
+### U1 · Vì sao cần coroutine? (viết 2026-11-22)
+
+**Đã đọc**
+- *Kotlin Coroutines: Deep Dive*, chương "Why Kotlin Coroutines?", trang PDF 14–26. Trích text bằng `pdftotext`.
+  - Các dòng gạch đầu dòng bị mất khi trích; nội dung của chúng được dựng lại từ ngữ cảnh của sách.
+  - Hình updateNews/updateProfile (khoảng tr. 28) chưa xem dạng ảnh; chỉ dùng phần chú thích hình.
+- Chưa đọc *Kotlin Coroutines by Tutorials* cho chương này.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Chỉ luồng tạo cây view mới được sửa view; UI toolkit không thread-safe | `and-threads` (developer.android.com, Processes and threads) | API ổn định |
+| Gọi mạng trên luồng Main ném `NetworkOnMainThreadException` | `and-nomain` (API reference) | API ổn định (với ứng dụng target từ Honeycomb trở lên) |
+| ANR khi luồng Main không phản hồi sự kiện nhập trong khoảng 5 giây | `and-anr` | Hành vi hệ thống. Ngưỡng là số được tài liệu công bố, có thể đổi |
+| `CalledFromWrongThreadException` khi sửa view từ luồng khác | kiến thức chung về Android, cùng nhóm với `and-threads` | **Chưa trích nguồn riêng** |
+| Bốn cách giải (thread, callback, RxJava, coroutine), ví dụ tin tức, ba endpoint, progress bar, 100 000 luồng so với coroutine | Deep Dive tr. 15–25 | Ví dụ giảng dạy, đã viết lại |
+| `async`/`await`; mặc định tuần tự | `kt-composing` | API ổn định |
+| Stack luồng JVM mặc định thường 1 MB trên 64-bit, đặt bằng `-Xss` | Deep Dive tr. 25; tài liệu `java` launcher của Oracle (`-Xss`) | Phụ thuộc nền tảng; **URL Oracle chưa thêm vào sources.js** |
+| `viewModelScope` dùng `Dispatchers.Main.immediate` | tài liệu AndroidX lifecycle-viewmodel-ktx | Chi tiết thư viện. **Chưa thêm nguồn/phiên bản**; cần thêm khi viết chương A8 v2 |
+| Coroutine đang suspend lưu trạng thái trong continuation trên heap | Deep Dive (chương under the hood, sẽ đọc ở U4) | impl, đã gắn nhãn |
+
+**Chưa xác minh**
+- URL `https://leanpub.com/coroutines` của sách: viết theo trí nhớ, chưa mở lại.
+- URL `and-threads`, `and-nomain`, `and-anr`: chưa mở lại trong phiên này. Đây là các trang chính thức quen thuộc nhưng cần đối chiếu URL đích.
+- Chưa tìm cách giảng khác trên mạng cho chương này.
