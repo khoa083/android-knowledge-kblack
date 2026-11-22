@@ -184,4 +184,16 @@
       '}'
     ]);
   });
+  [['recPlus', true], ['recSet', false]].forEach(function (c) {
+    add(c[0], [
+      { vi: 'val count = mutableStateOf(0, policy)       // policy: structuralEqualityPolicy() hoặc counterPolicy()', en: 'val count = mutableStateOf(0, policy)       // policy: structuralEqualityPolicy() or counterPolicy()' },
+      'val a = Snapshot.takeMutableSnapshot()',
+      'val b = Snapshot.takeMutableSnapshot()',
+      'a.enter { count.value += 10 }',
+      c[1] ? 'b.enter { count.value += 20 }' : 'b.enter { count.value = 10 }',
+      'val ra = a.apply()                          // Success',
+      { vi: 'val rb = b.apply()                          // Success hoặc Failure (xung đột)', en: 'val rb = b.apply()                          // Success or Failure (conflict)' },
+      'a.dispose(); b.dispose()'
+    ]);
+  });
 })();

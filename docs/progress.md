@@ -368,3 +368,8 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `runtime.structure` (5 kịch bản theo tài liệu); sim `runtime.keys` giữ làm tab thứ hai.
   - **Kiểm:** report 0 lỗi (selfCheck PASS); track-check Runtime 1280/360 0 vấn đề; routes-check; đã xem ảnh sim.
   - **Tiếp theo:** b4 (State và Snapshot).
+- **Runtime v2 · B4 viết lại (2026-11-23):**
+  - Nội dung (`runtime_v2_b4.py`): State/MutableState/remember (Kunneth Ch.5), đường đi từ một lần ghi tới recomposition (read/write observer, global write observer, GlobalSnapshotManager trên Android), snapshot và record (quy tắc readable ở commit ghim), policy (equivalent, merge, counterPolicy), derivedStateOf (dùng đúng/sai, cơ chế isInvalidFor), collection không quan sát được, collectAsState/snapshotFlow; 3 bug, 3 bài tập, tự trả lời, quiz 4 câu.
+  - Sim mới `runtime.records` (A/B snapshot, apply, xung đột, merge); sim `runtime.snapshot` giữ làm tab thứ hai. 5 nguồn mới.
+  - **Kiểm:** report 0 lỗi, 123 cảnh báo (bằng mốc cũ); selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
+  - **Tiếp theo:** sh (quản lý state: stateless/stateful, hoisting, rememberSaveable, ViewModel), dựa trên Kunneth Ch.5, Ch.7; Tutorials Ch.7; Essentials Ch.42.

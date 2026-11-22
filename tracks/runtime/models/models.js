@@ -773,4 +773,78 @@
       } }]
     });
   })();
+
+  /* ================= B4 (v2): state record, snapshot cách ly, apply, xung đột và merge =================
+     Theo Snapshot/SnapshotMutationPolicy reference và mã @296313a4: mutableStateOf mặc định structuralEqualityPolicy;
+     setter không ghi nếu policy.equivalent(cũ, mới); bản ghi đọc được = bản ghi hợp lệ có snapshotId lớn nhất
+     (id ≤ id snapshot, không nằm trong tập invalid); khi apply mà giá trị đã bị snapshot khác đổi: equivalent(current, applied)
+     → giữ current; không thì policy.merge(previous, current, applied), null → thất bại (SnapshotApplyResult.Failure).
+     counterPolicy là ví dụ trong reference: merge = current + (applied − previous). */
+  (function () {
+    var m = 'records';
+    function steps(s) {
+      var counter = s.policy === 'counter', plus = s.bWrite === 'plus20';
+      var bVal = plus ? 20 : 10, out = [], t = 0, glob = 0, applied = 0, conflicts = 0;
+      var recs = ['#1 = 0'];
+      var outcome;
+      if (!plus) outcome = 'same';                     // equivalent(10, 10) với cả hai policy
+      else outcome = counter ? 'merged' : 'failed';
+      var snip = plus ? 'recPlus' : 'recSet';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {}; o.params.g = glob; o.params.b = bVal;
+        o.metrics = { global: glob, applied: applied, conflicts: conflicts, records: recs.length };
+        o.stateAfter = [{ labelKey: M(m, 'st.records'), value: recs.join(' · ') }, { labelKey: M(m, 'st.global'), value: String(glob) }].concat(o.extra || []); delete o.extra;
+        o.codeHighlight = { snippet: snip, lines: o.lines || [] }; delete o.lines;
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'write', subject: o.activeNodes[o.activeNodes.length - 1] || 'records', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('init', { type: 'scenario', activeNodes: ['global', 'records'], lines: [1], kind: 'observe' });
+      P('take', { activeNodes: ['global', 'snapA', 'snapB'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'state' }], lines: [2, 3], kind: 'observe',
+        extra: [{ labelKey: M(m, 'st.readA'), value: '0' }, { labelKey: M(m, 'st.readB'), value: '0' }] });
+      recs.push('#2 = 10 (A)');
+      P('writeA', { activeNodes: ['snapA', 'records'], movingSignals: [{ edge: 'e3', tok: 'state' }], lines: [4],
+        extra: [{ labelKey: M(m, 'st.readA'), value: '10' }, { labelKey: M(m, 'st.readB'), value: '0' }], callouts: [{ kind: 'mechanism', textKey: M(m, 'co.readable') }] });
+      recs.push('#3 = ' + bVal + ' (B)');
+      P('writeB', { activeNodes: ['snapB', 'records'], movingSignals: [{ edge: 'e4', tok: 'state' }], lines: [5],
+        extra: [{ labelKey: M(m, 'st.readA'), value: '10' }, { labelKey: M(m, 'st.readB'), value: String(bVal) }] });
+      glob = 10; applied++;
+      P('applyA', { activeNodes: ['snapA', 'global', 'observers'], movingSignals: [{ edge: 'e5', tok: 'state' }, { edge: 'e7', tok: 'signal' }], lines: [6], kind: 'apply',
+        callouts: [{ kind: 'mechanism', textKey: M(m, 'co.notify') }] });
+      if (outcome === 'failed') {
+        conflicts++;
+        P('applyB.failed', { type: 'pitfall', activeNodes: ['snapB', 'policy'], movingSignals: [{ edge: 'e6', tok: 'error' }], lines: [7], kind: 'observe',
+          extra: [{ labelKey: M(m, 'st.merge'), value: 'previous 0 · current 10 · applied 20 → null' }], callouts: [{ kind: 'pitfall', textKey: M(m, 'co.failed') }] });
+      } else if (outcome === 'merged') {
+        conflicts++; glob = 30; applied++; recs.push('#4 = 30 (merge)');
+        P('applyB.merged', { activeNodes: ['snapB', 'policy', 'global', 'observers'], movingSignals: [{ edge: 'e6', tok: 'state' }, { edge: 'e7', tok: 'signal' }], lines: [7], kind: 'apply',
+          extra: [{ labelKey: M(m, 'st.merge'), value: 'previous 0 · current 10 · applied 20 → 10 + (20 − 0) = 30' }], callouts: [{ kind: 'mechanism', textKey: M(m, 'co.merged') }] });
+      } else {
+        applied++;
+        P('applyB.same', { activeNodes: ['snapB', 'policy', 'global'], movingSignals: [{ edge: 'e6', tok: 'state' }], lines: [7], kind: 'apply',
+          extra: [{ labelKey: M(m, 'st.merge'), value: 'equivalent(current 10, applied 10) = true → current' }] });
+      }
+      P('end.' + outcome, { type: outcome === 'failed' ? 'pitfall' : 'mechanism', activeNodes: ['global'], lines: [8], kind: 'observe',
+        callouts: [{ kind: outcome === 'failed' ? 'pitfall' : 'mechanism', textKey: M(m, 'co.end.' + outcome) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'recPlus',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'policy', type: 'select', labelKey: M(m, 'ctl.policy'), get: function (s) { return s.policy; }, action: 'policy', options: ['structural', 'counter'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.policy.' + v) }; }) },
+        { id: 'bWrite', type: 'select', labelKey: M(m, 'ctl.bWrite'), get: function (s) { return s.bWrite; }, action: 'bWrite', options: ['plus20', 'set10'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.bWrite.' + v) }; }) }
+      ],
+      init: function () { return { policy: 'structural', bWrite: 'plus20' }; },
+      act: function (s, a, v) { var n = { policy: s.policy, bWrite: s.bWrite }; if (a === 'policy') n.policy = v === 'counter' ? 'counter' : 'structural'; else n.bWrite = v === 'set10' ? 'set10' : 'plus20'; return n; },
+      steps: steps,
+      selfChecks: [{ name: 'structural +20: B thất bại, global 10; counter +20: merge thành 30; ghi 10 (bằng A): apply thành công, global 10 với cả hai policy', run: function () {
+        var last = function (p, b) { var x = steps({ policy: p, bWrite: b }); return x[x.length - 1].metrics; };
+        var f = last('structural', 'plus20'), mg = last('counter', 'plus20'), s1 = last('structural', 'set10'), s2 = last('counter', 'set10');
+        return f.global === 10 && f.applied === 1 && f.conflicts === 1 && mg.global === 30 && mg.applied === 2 && s1.global === 10 && s1.applied === 2 && s1.conflicts === 0 && s2.global === 10;
+      } }]
+    });
+  })();
 })();

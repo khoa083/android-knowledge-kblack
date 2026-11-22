@@ -66,6 +66,15 @@
     edges: [E('e1', 'code', 'composer'), E('e2', 'composer', 'old'), E('e3', 'composer', 'pending'), E('e4', 'composer', 'insert'), E('e5', 'composer', 'changes'), E('e6', 'changes', 'nodes')],
     metrics: [T('structure', 'matched'), T('structure', 'moved'), T('structure', 'inserted'), T('structure', 'deleted'), T('structure', 'applier')]
   });
+  /* B4 (v2): global snapshot, hai mutable snapshot A và B, chuỗi state record, policy khi apply, và apply observer (Recomposer). */
+  V('records', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('records', 'global', 0, 4, 'layers', 'state'), N('records', 'snapA', 4, 0, 'frame', 'state'), N('records', 'snapB', 4, 8, 'frame', 'state'),
+      N('records', 'records', 8, 4, 'list', 'runtime'), N('records', 'policy', 8, 8, 'diamond', 'runtime'), N('records', 'observers', 0, 0, 'clock', 'runtime')],
+    edges: [E('e1', 'global', 'snapA'), E('e2', 'global', 'snapB'), E('e3', 'snapA', 'records'), E('e4', 'snapB', 'records'), E('e5', 'snapA', 'global'),
+      E('e6', 'snapB', 'policy'), E('e7', 'global', 'observers')],
+    metrics: [T('records', 'global'), T('records', 'applied'), T('records', 'conflicts'), T('records', 'records')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

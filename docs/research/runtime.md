@@ -143,3 +143,27 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Key trùng trả theo thứ tự bảng cũ (ví dụ repeat + Text có điều kiện) | `rt-how` | impl |
 | Call site, thứ tự thực thi; thêm cuối dùng lại; chèn đầu/giữa, xóa, đổi chỗ làm recompose và effect chạy lại; `key()` chỉ cần duy nhất trong call site; `LazyColumn items(key)`; ví dụ LoginScreen | `cp-lifecycle` | stable |
 | Sim `runtime.structure`: 5 kịch bản (xóa, chèn, di chuyển, Counters không/có group `if`) | Theo lời mô tả của tài liệu; kịch bản không group là giả định | selfCheck; nhãn giản lược |
+
+### B4 · State và Snapshot (viết lại 2026-11-23)
+
+**Đã đọc:**
+- Snapshot reference và SnapshotMutationPolicy reference, toàn văn;
+- "State and Jetpack Compose" (`and-state`) và mục derivedStateOf/snapshotFlow của "Side-effects in Compose" (`and-effects`), 2026-11-23;
+- `SnapshotState.kt`, `snapshots/Snapshot.kt` (readable/valid), `DerivedState.kt`, `RecomposeScopeImpl.kt` (isInvalidFor), `Composition.kt` và `GlobalSnapshotManager.android.kt` @296313a4;
+- Kunneth Ch.5 (đọc toàn văn; phần stateless/hoisting/rememberSaveable/ViewModel dành cho chương SH).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| State/MutableState; scope đọc `value` được đăng ký; so với `Delegates.observable`; `remember(key)` (RememberWithKeyDemo) | Kunneth Ch.5, `and-state` | stable; ví dụ của sách |
+| Ba cách khai báo MutableState; remember không giữ qua đổi cấu hình | `and-state` | stable |
+| Read observer cho composition/layout/draw; write observer; registerGlobalWriteObserver; sendApplyNotifications hoãn thông báo ghi global; apply mutable snapshot ngầm gửi | `rt-snapshot` | stable |
+| Android: GlobalSnapshotManager, Channel(1), AndroidUiDispatcher.Main | `ui-globalsnap` | android-impl |
+| Snapshot cách ly, enter theo luồng, apply nguyên tử, dispose, xung đột; composition dùng mutable snapshot và lên lịch lại khi apply thất bại | `rt-snapshot` | stable |
+| Record đọc được = record hợp lệ có id lớn nhất (id ≤ snapshot, không thuộc invalid set) | `rt-snapshot-src` | impl |
+| mutableStateOf mặc định structuralEqualityPolicy; setter bỏ qua giá trị tương đương; mergeRecords giữ current khi tương đương, gọi merge khi không | `rt-state-src` | impl |
+| Ba policy có sẵn; equivalent/merge; ví dụ counterPolicy | `rt-policy`, `SnapshotMutationPolicy.kt` | stable |
+| derivedStateOf: dùng đúng/sai (firstVisibleItemIndex, fullName); đắt | `and-effects` | stable |
+| Scope chỉ đọc derived state là "conditional"; `isInvalidFor` dùng policy hoặc structural equality | `rt-derived-src`, `RecomposeScopeImpl.kt` | impl. KDoc @296313a4 nói derived state không có policy "trigger updates on each dependency change"; với composition, so sánh `isInvalidFor` vẫn chặn recompose khi kết quả không đổi |
+| ArrayList/mutableListOf/data class `var` không quan sát được; dùng State<List> + listOf hoặc mutableStateListOf | `and-state` | stable |
+| collectAsStateWithLifecycle / collectAsState / observeAsState; snapshotFlow lạnh, phát khi khác lần trước | `and-state`, `and-effects` | stable |
+| Sim `runtime.records`: 4 tổ hợp (structural/counter × +20/=10) | Theo reference (counterPolicy) và mã @296313a4 | selfCheck; id snapshot minh họa |
