@@ -344,3 +344,16 @@ Trạng thái: `chưa / đang / xong`.
     - 3 nguồn sách mới.
   - **Kiểm:** report 0 lỗi (selfCheck PASS); track-check Runtime (1280, 360) 0 vấn đề; routes-check 109 route, 0 vấn đề.
   - **Tiếp theo:** b2 (compiler: `$composer`, group, `changed`, restart group), dựa trên `how-compose-works.md` @296313a4.
+- **Đổi tên site, tác giả, git (2026-11-22):**
+  - Tên site là **MOBILE DEEP DIVE**, câu tagline "Hiểu Mobile (Android…) từ bên trong". Có favicon riêng (`favicon.svg`, nhúng data URI để chạy được qua `file://`).
+  - Tác giả **Kblack**, có link GitHub ở footer và mục "Tác giả" trong trang Về site này.
+  - Lịch sử git đã viết lại sang danh tính của người dùng và bỏ dòng ghi công Claude. Mỗi commit đều push lên `origin main` (quy tắc ghi trong `CLAUDE.md`).
+- **Tô màu cú pháp cho mọi khối mã (2026-11-23):**
+  - Thêm `ADE.syntax.tokenize` (regex, Kotlin) trong `js/core/ui.js`; `ui.codeBlock` tự tô màu. Tác động: chương, sim, lab, bài tập và lời giải. Khối "Kết quả" vẫn để chữ thuần.
+  - Bảng màu theo sắc độ One Light / One Dark, chỉnh độ sáng cho ≥ 4.6:1 trên nền khối và trên dòng đang highlight. Bảng đo ở `design-principles.md` §3.1; script `dev/tools/syn_palette.py`.
+  - **Kiểm:**
+    - `dev/tools/syntax-check.js`: 566 khối (vi + en), 0 dòng sai lệch chữ;
+    - đã xem ảnh khối Channel (ch) và mã sim runtime-counter có dòng highlight, ở light và dark;
+    - report 0 lỗi; track-check ở 1280 và 360: Runtime, Animation, UX, UI 0 vấn đề, Coroutines chỉ còn 4 mục cũ đã biết (a2#1 undo/clear, a8 undo); 0 lỗi console; routes-check 109 route, 0 vấn đề, không cuộn ngang ở 360;
+    - labMotion: khi đổi màu trong lab token editor, chỉ các literal hex bị đổi mới nhấp nháy (trước đây cả dòng); lab Animation không có token nào bị đánh dấu.
+  - **Tiếp theo:** b2 (compiler).

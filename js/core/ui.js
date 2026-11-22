@@ -90,6 +90,83 @@
     return h('section', { class: 'panel ' + (cls || '') }, h('header', { class: 'panel-h' }, h('h2', { class: 'caps', text: titleText }), right || null), body);
   };
 
+  /* ---------- tô màu cú pháp (Kotlin). Tokenizer regex nhỏ, có trạng thái qua dòng (block comment, raw string).
+     ADE.syntax.tokenize(lines, lang) → mảng dòng, mỗi dòng là [{c: lớp|null, t: chữ}]. Ngôn ngữ khác trả null (để chữ thuần).
+     Chỉ bọc span quanh chữ gốc: textContent không đổi nên copy/chọn văn bản vẫn đúng. Màu ở styles.css (--syn-*). ---------- */
+  ADE.syntax = (function () {
+    var words = function (s) { var o = {}; s.split(' ').forEach(function (w) { o[w] = 1; }); return o; };
+    var KW = words('as break class continue do else for fun if in interface is object package return super this throw try typealias typeof val var when while ' +
+      'by catch constructor finally import init where ' +
+      'abstract actual annotation companion const crossinline data enum expect external final infix inline inner internal lateinit noinline open operator out override private protected public reified sealed suspend tailrec vararg');
+    var LIT = words('true false null');
+    var LANGS = words('kotlin kt kts');
+    var ID = /^[A-Za-z_][A-Za-z0-9_]*/, NUM = /^(0[xX][0-9A-Fa-f_]+|0[bB][01_]+|\d[\d_]*(\.\d[\d_]*)?([eE][+-]?\d+)?)[fFdDlLuU]*/;
+    var cache = {}, cacheN = 0;
+    function tokenize(lines, lang) {
+      if (!LANGS[String(lang || 'kotlin').toLowerCase()]) return null;
+      var key = lines.join('\n'), hit = cache[key];
+      if (hit) return hit;
+      var st = { m: 'n' }, out = lines.map(function (ln) { return line(ln, st); });
+      if (++cacheN > 300) { cache = {}; cacheN = 0; }
+      cache[key] = out;
+      return out;
+    }
+    function line(s, st) {
+      var toks = [], i = 0, n = s.length, ctx = '', lastCh = '';
+      var push = function (c, t) {
+        if (!t) return; var l = toks[toks.length - 1]; if (l && l.c === c) l.t += t; else toks.push({ c: c, t: t });
+        var tt = t.replace(/\s+$/, ''); if (tt) lastCh = tt[tt.length - 1];
+      };
+      // chuỗi: thường (một dòng) hoặc raw """ (nhiều dòng); phần $x, ${…} và \escape có lớp riêng
+      function str(raw) {
+        var start = i;
+        while (i < n) {
+          if (raw && s.substr(i, 3) === '"""') { push('str', s.slice(start, i + 3)); i += 3; while (s[i] === '"') { push('str', '"'); i++; } st.m = 'n'; return; }
+          if (!raw && s[i] === '"') { push('str', s.slice(start, i + 1)); i++; st.m = 'n'; return; }
+          if (!raw && s[i] === '\\' && i + 1 < n) { push('str', s.slice(start, i)); push('esc', s.substr(i, 2)); i += 2; start = i; continue; }
+          if (s[i] === '$' && s[i + 1] === '{') {
+            push('str', s.slice(start, i)); var d = 0, j = i + 1;
+            for (; j < n; j++) { if (s[j] === '{') d++; else if (s[j] === '}' && --d === 0) break; }
+            push('esc', s.slice(i, j + 1)); i = j + 1; start = i; continue;
+          }
+          if (s[i] === '$' && /[A-Za-z_]/.test(s[i + 1] || '')) { push('str', s.slice(start, i)); var m = ID.exec(s.slice(i + 1)); push('esc', '$' + m[0]); i += 1 + m[0].length; start = i; continue; }
+          i++;
+        }
+        push('str', s.slice(start)); st.m = raw ? 'raw' : 'n';
+      }
+      if (st.m === 'bc') { var e = s.indexOf('*/'); if (e < 0) { push('com', s); return toks; } push('com', s.slice(0, e + 2)); i = e + 2; st.m = 'n'; }
+      else if (st.m === 'raw') str(true);
+      while (i < n) {
+        var ch = s[i], rest = s.slice(i), m;
+        if (ch === '/' && s[i + 1] === '/') { push('com', rest); break; }
+        if (ch === '/' && s[i + 1] === '*') { var e2 = s.indexOf('*/', i + 2); if (e2 < 0) { push('com', rest); st.m = 'bc'; break; } push('com', s.slice(i, e2 + 2)); i = e2 + 2; continue; }
+        if (rest.substr(0, 3) === '"""') { i += 3; push('str', '"""'); str(true); continue; }
+        if (ch === '"') { push('str', '"'); i++; str(false); continue; }
+        if (ch === '\'' && (m = /^'(\\.[^']*|[^'\\])'/.exec(rest))) { push('str', m[0]); i += m[0].length; continue; }
+        if (ch === '@' && (m = /^@[A-Za-z_][A-Za-z0-9_]*/.exec(rest))) { push('ann', m[0]); i += m[0].length; continue; }
+        if (/[0-9]/.test(ch) && !/[A-Za-z0-9_]/.test(s[i - 1] || '') && (m = NUM.exec(rest))) { push('num', m[0]); i += m[0].length; continue; }
+        if ((m = ID.exec(rest)) && !/[A-Za-z0-9_]/.test(s[i - 1] || '')) {
+          var w = m[0], after = s.slice(i + w.length), up = /^[A-Z]/.test(w), c = null, prev = lastCh;
+          if (KW[w]) { c = 'kw'; ctx = w === 'fun' ? 'fun' : /^(class|object|interface|typealias)$/.test(w) ? 'decl' : ''; }
+          else if (LIT[w]) c = 'num';
+          else if (after[0] === '@') { push('ann', w + '@'); i += w.length + 1; continue; }   // nhãn: outer@ for (…)
+          else if (ctx === 'fun') {                                                 // fun <T> Foo.bar(…): receiver/generic là kiểu, tên là hàm
+            if (/^\s*[.<>,:]/.test(after)) c = 'type'; else { c = 'fn'; ctx = ''; }
+          }
+          else if (ctx === 'decl') { c = 'type'; ctx = ''; }
+          else if (up && (prev === ':' || prev === ',' && /^\s*\{/.test(after))) c = 'type';   // x: Int, (): Unit {, : Base(), Other {
+          else if (/^\s*(<[^>()]*>)?\s*\(/.test(after) || /^\s*\{/.test(after)) c = 'fn';   // gọi hàm, trailing lambda (launch {, Column {)
+          else if (up) c = 'type';
+          push(c, w); i += w.length;
+          continue;
+        }
+        push(null, ch); if ('(){}=;'.indexOf(ch) >= 0) ctx = ''; i++;
+      }
+      return toks;
+    }
+    return { tokenize: tokenize };
+  })();
+
   /* ---------- khối mã: translate="no", dòng được highlight; snippet = {lang, illustrative?, lines:[string | {vi,en}]} ---------- */
   ui.codeBlock = function (sn, hlLines) {
     hlLines = hlLines || [];
@@ -99,9 +176,17 @@
     if (sn.illustrative) head.lastChild.textContent = ADE.t('app.illustrative');
     wrap.appendChild(head);
     var pre = h('pre', { class: 'code', translate: 'no', tabindex: '0', 'aria-label': ADE.t('app.codeBlock') });
-    sn.lines.forEach(function (ln, i) {
-      var on = hlLines.indexOf(i + 1) >= 0;
-      pre.appendChild(h('span', { class: 'cl' + (on ? ' hl' : '') }, h('span', { class: 'ln', 'aria-hidden': 'true', text: String(i + 1) }), h('span', { class: 'lt', text: typeof ln === 'string' ? ln : (ln[ADE.lang] || ln.vi) }), on ? h('span', { class: 'sr-only', text: ' ◀' }) : null));
+    var texts = sn.lines.map(function (ln) { return typeof ln === 'string' ? ln : (ln[ADE.lang] || ln.vi); });
+    var toks = ADE.syntax.tokenize(texts, sn.lang);
+    if (toks) pre.classList.add('syn');
+    texts.forEach(function (txt, i) {
+      var on = hlLines.indexOf(i + 1) >= 0, lt = h('span', { class: 'lt' });
+      if (toks) toks[i].forEach(function (tk) {
+        if (!tk.c) { lt.appendChild(document.createTextNode(tk.t)); return; }
+        var sp = document.createElement('span'); sp.className = 't-' + tk.c; sp.textContent = tk.t; lt.appendChild(sp);
+      });
+      else lt.textContent = txt;
+      pre.appendChild(h('span', { class: 'cl' + (on ? ' hl' : '') }, h('span', { class: 'ln', 'aria-hidden': 'true', text: String(i + 1) }), lt, on ? h('span', { class: 'sr-only', text: ' ◀' }) : null));
     });
     wrap.appendChild(pre);
     return wrap;

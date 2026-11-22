@@ -39,6 +39,27 @@
 - [ ] Không truyền tin chỉ bằng màu: luôn kèm icon, nhãn hoặc kiểu nét (current value nét đặc, velocity nét đứt). Đạt/không đạt: ✓/✗ + chữ.
 - [ ] Mock UI: có viền `--line-strong` và nhãn "Giao diện mẫu / Sample UI"; token ngữ nghĩa không áp dụng bên trong khung.
 
+### 3.1 Màu cú pháp trong khối mã (thêm 2026-11-23)
+
+Khối mã có nền riêng `--syn-bg` để nổi như một vùng editor. Sắc độ lấy từ **One Light / One Dark** (theme Atom, phổ biến trong VS Code và JetBrains), rồi chỉnh **độ sáng HSL, giữ hue** cho tới khi đạt ≥ 4.6:1 trên **cả** `--syn-bg` và nền dòng đang highlight `--syn-hl`. Ở theme light, `type` đổi sang xanh-lục đậm của site vì màu vàng gốc của One Light trùng với màu số sau khi làm tối. Script đo: `dev/tools/syn_palette.py` (công thức luminance của WCAG 2.x). Màu chỉ là lớp trang trí thêm: comment còn in nghiêng; dòng đang chạy có nền, vạch trái `--brand`, chữ đậm và dấu ◀ cho trình đọc màn hình.
+
+| Biến | Light | trên bg / hl | Dark | trên bg / hl |
+|---|---|---|---|---|
+| `--syn-bg` / `--syn-hl` | `#F4F8F6` / `#DFEBE6` | | `#13211D` / `#1F362F` | |
+| `--syn-fg` chữ thường | `#383A42` | 10.59 / 9.27 | `#ABB2BF` | 7.80 / 6.06 |
+| `--syn-kw` từ khóa | `#A626A4` | 5.71 / 5.00 | `#C980DF` | 6.05 / 4.69 |
+| `--syn-str` chuỗi | `#387137` | 5.47 / 4.79 | `#98C379` | 8.25 / 6.40 |
+| `--syn-esc` `$x`, `${…}`, `
+` | `#016B98` | 5.51 / 4.82 | `#56B6C2` | 7.02 / 5.45 |
+| `--syn-num` số, true/false/null | `#895E01` | 5.35 / 4.68 | `#D19A66` | 6.75 / 5.24 |
+| `--syn-com` comment (nghiêng) | `#65666D` | 5.33 / 4.67 | `#959BA8` | 5.96 / 4.63 |
+| `--syn-ann` annotation, nhãn `@` | `#C32B1D` | 5.32 / 4.66 | `#E47D85` | 5.99 / 4.65 |
+| `--syn-type` kiểu | `#0B7269` | 5.41 / 4.73 | `#E5C07B` | 9.63 / 7.47 |
+| `--syn-fn` hàm (khai báo, gọi, trailing lambda) | `#1056EF` | 5.45 / 4.77 | `#61AFEF` | 7.04 / 5.46 |
+| `--syn-ln` số dòng (aria-hidden) | `#7A8581` | 3.56 / 3.12 | `#717B94` | 3.93 / 3.05 |
+
+`forced-colors`: token về `CanvasText`.
+
 ## 4. Typography song ngữ
 
 - [ ] `text-transform: uppercase` chỉ cho header panel, nhãn, tiêu đề bước/chương ngắn (≤ 40 ký tự). Đoạn giải thích luôn sentence case.

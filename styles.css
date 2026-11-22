@@ -16,6 +16,10 @@
   --tok-state: #925F00; --tok-signal: #B0287A; --tok-runtime: #6236C9; --tok-ui: #0B776D;
   --tok-coroutine: #1D5FD1; --tok-job: #1F793A; --tok-thread: #5B6878; --tok-flow: #587300;
   --tok-cancel: #AC4E0C; --tok-error: #C42B32; --tok-anim: #0B4F45;
+  /* mã: sắc độ gốc One Light (Atom), chỉnh độ sáng cho đủ ≥ 4.6:1 trên --syn-bg và --syn-hl (đo trong docs/design-principles.md) */
+  --syn-bg: #F4F8F6; --syn-hl: #DFEBE6; --syn-fg: #383A42; --syn-ln: #7A8581;
+  --syn-kw: #A626A4; --syn-str: #387137; --syn-esc: #016B98; --syn-num: #895E01;
+  --syn-com: #65666D; --syn-ann: #C32B1D; --syn-type: #0B7269; --syn-fn: #1056EF;
   --radius: 4px;
   --mono: ui-monospace, "Cascadia Mono", "Cascadia Code", Consolas, "SF Mono", "Roboto Mono", "Noto Sans Mono", monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
@@ -29,6 +33,10 @@
   --tok-state: #F2B84B; --tok-signal: #F472B6; --tok-runtime: #A78BFA; --tok-ui: #2DD4BF;
   --tok-coroutine: #60A5FA; --tok-job: #4ADE80; --tok-thread: #94A3B8; --tok-flow: #BEF264;
   --tok-cancel: #FB923C; --tok-error: #F87171; --tok-anim: #E2E8F0;
+  /* mã: sắc độ One Dark (Atom) trên nền xanh-lục đậm của site */
+  --syn-bg: #13211D; --syn-hl: #1F362F; --syn-fg: #ABB2BF; --syn-ln: #717B94;
+  --syn-kw: #C980DF; --syn-str: #98C379; --syn-esc: #56B6C2; --syn-num: #D19A66;
+  --syn-com: #959BA8; --syn-ann: #E47D85; --syn-type: #E5C07B; --syn-fn: #61AFEF;
   color-scheme: dark;
 }
 
@@ -246,11 +254,15 @@ progress { accent-color: var(--brand); height: 8px; width: 90px; vertical-align:
 .code-wrap { display: grid; gap: 6px; }
 .code-h { display: flex; gap: 8px; align-items: center; }
 .code-lang { font: 700 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); }
-.code { font: 13px/1.55 var(--mono); background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 8px 0; margin: 0; overflow: auto; max-height: 380px; tab-size: 4; }
+.code { font: 13px/1.55 var(--mono); background: var(--syn-bg); color: var(--syn-fg); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 8px 0; margin: 0; overflow: auto; max-height: 380px; tab-size: 4; }
 .cl { display: block; padding-right: 12px; white-space: pre; }
-.cl.hl { background: var(--paper-3); box-shadow: inset 4px 0 0 var(--brand); }
+.cl.hl { background: var(--syn-hl); box-shadow: inset 4px 0 0 var(--brand); }
 .cl.hl .lt { font-weight: 800; }
-.ln { display: inline-block; width: 2.6em; margin-right: 12px; text-align: right; color: var(--ink-3); user-select: none; }
+.ln { display: inline-block; width: 2.6em; margin-right: 12px; text-align: right; color: var(--syn-ln); user-select: none; }
+/* tô màu cú pháp (ADE.syntax): chỉ là lớp trang trí thêm, không mang thông tin bắt buộc */
+.t-kw { color: var(--syn-kw); } .t-str { color: var(--syn-str); } .t-esc { color: var(--syn-esc); } .t-num { color: var(--syn-num); }
+.t-com { color: var(--syn-com); font-style: italic; } .t-ann { color: var(--syn-ann); } .t-type { color: var(--syn-type); } .t-fn { color: var(--syn-fn); }
+@media (forced-colors: active) { .code [class^="t-"] { color: CanvasText; } }
 
 /* nhật ký sự kiện */
 .log-h .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-right: auto; margin-left: 8px; }

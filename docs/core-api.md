@@ -104,6 +104,8 @@ Lõi làm chung cho mọi dạng:
 
 Icon mới: thêm vào `ADE.diagram.ICONS` (nét 24×24, `currentColor`). Khung điện thoại mẫu: `ADE.ui.mockFrame(node)`. Đoạn mã: `ADE.addCode(trackId, id, {lang, illustrative?, lines:[string | {vi,en}]})`.
 
+**Tô màu cú pháp (thêm 2026-11-23):** `ADE.ui.codeBlock` tự tô màu khi `lang` là `kotlin`, `kt` hoặc `kts` (mặc định `kotlin`); ngôn ngữ khác (ví dụ khối "Kết quả") để chữ thuần. Lõi là `ADE.syntax.tokenize(lines, lang)`, trả về `[[{c, t}]]` (mỗi dòng một mảng token; `c` thuộc `kw str esc num com ann type fn` hoặc `null`). Tokenizer dùng regex, giữ trạng thái qua dòng cho `/* … */` và raw string `"""`, có cache theo nội dung. Nó chỉ bọc `<span class="t-…">` quanh chữ gốc nên `textContent` không đổi. `dev/tools/syntax-check.js` (chạy bằng `cdp.js --eval`) tokenize mọi snippet và mọi khối `kt/exkt/fixkt/solkt` ở cả vi và en, rồi báo dòng nào ghép lại khác chữ gốc. Đây là phép tô màu theo heuristic, không phải parser Kotlin: ví dụ `Channel<Int>()` được tô như lời gọi hàm.
+
 ## 5. Route và lưu trữ
 
 `#/<lang>/<track>/<chapter>/<pos>` · `#/<lang>/live?preset=<id>&step=<n>`. Id cấm dùng làm id track: `app track job phase step badge a11y domain shared live misconceptions glossary sources about search dev`. Bước đổi bằng `history.replaceState`. `localStorage` có tiền tố `ade.` (`lang, theme, motion, sans, diagramOnly, rail, progress, last`), luôn bọc try/catch.
