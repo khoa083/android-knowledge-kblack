@@ -102,6 +102,39 @@
     }
   });
 
+  /* U3: coroutine, luồng main và luồng phụ/scheduler. Coroutine đang suspend không có luồng nào; luồng nào gọi resume thì chạy phần tiếp theo
+     (trong suspend fun main không có dispatcher). Thời gian là minh hoạ. */
+  V('cont', {
+    layout: 'lanes',
+    nodes: [N('cont', 'co', 0, 0, 'job', 'coroutine'), N('cont', 'th0', 4, 0, 'thread', 'thread'), N('cont', 'th1', 4, 4, 'thread', 'thread')],
+    edges: [], metrics: [TIME, { id: 'on', labelKey: K + 'm.cont.met.on' }, { id: 'out', labelKey: K + 'm.cont.met.out' }], scopeKey: K + 'col.thread',
+    barKeys: { wait: K + 'm.cont.bar.wait', ready: K + 'm.cont.bar.timer' },
+    lanes: function (events, step, opts) {
+      var c = clock(step, opts), L = new Lanes(opts.pos), cur = { co: null, th0: null, th1: null, done: 0 };
+      var rows = [{ id: 'co', labelKey: K + 'm.cont.n.co', group: K + 'lanes.co' }, { id: 'th0', labelKey: K + 'm.cont.n.th0', group: K + 'lanes.th' }, { id: 'th1', labelKey: K + 'm.cont.n.th1', group: K + 'lanes.th' }];
+      var CO = ADE.t(K + 'm.cont.lbl.co');
+      events.forEach(function (x) {
+        var e = x.e, P = e.params || {}, t0 = e.t;
+        var want = {
+          co: P.co === 'run' ? ['run', P.on ? ADE.t(K + 'm.cont.n.' + P.on) : ''] : P.co === 'wait' ? ['wait', ADE.t(K + 'm.cont.lbl.wait')] : null,
+          th0: P.on === 'th0' ? ['run', CO] : null,
+          th1: P.on === 'th1' ? ['run', CO] : P.t1 === 'run' ? ['run', ''] : P.t1 === 'block' ? ['block', 'Thread.sleep'] : P.t1 === 'timer' ? ['ready', ADE.t(K + 'm.cont.lbl.timer')] : null
+        };
+        ['co', 'th0', 'th1'].forEach(function (row) {
+          var w = want[row], sig = w ? w.join('|') : '';
+          if (sig === cur[row]) return;
+          cur[row] = sig;
+          if (w) L.start(row, t0, w[0], w[1], x.step, w[0] === 'block' ? P.to : null); else L.end(row, t0);
+        });
+        if (P.co === 'done' && !cur.done) { cur.done = 1; L.mark('co', t0, fam('done'), x.step); }
+        if (e.kind === 'resume') L.mark('co', t0, 'resume', x.step);
+        if (e.kind === 'exception') L.mark('co', t0, 'throw', x.step);
+      });
+      L.finish(c.now);
+      return { rows: rows, bars: L.bars, marks: L.marks, tMax: c.tMax, now: c.now, axisKey: K + 'm.cont.axis' };
+    }
+  });
+
   V('jobtree', {
     layout: 'tree',
     nodes: [N('jobtree', 'root', -2, -2, 'job', 'job'), N('jobtree', 'c1', 0, 4, 'job', 'coroutine'), N('jobtree', 'c2', 2, 2, 'job', 'coroutine'), N('jobtree', 'c3', 4, 0, 'job', 'coroutine'), N('jobtree', 'g', 6, 6, 'job', 'coroutine')],

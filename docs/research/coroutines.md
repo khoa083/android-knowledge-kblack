@@ -111,3 +111,22 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 **Sim `coroutines.seq` (mới):** lanes gồm main, khối sequence và một luồng; trục là thứ tự bước. Có hai bật/tắt: "gọi tới hết" và "Dùng List" (`buildList`). Có selfCheck.
 
 **Chưa xác minh:** URL `kt-restricts` (dạng URL API mới của kotlinlang.org) chưa mở lại.
+
+### U3 · Suspension hoạt động thế nào (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "How does suspension work?", trang PDF 33–44. Đọc toàn văn.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| `suspendCoroutine` gọi lambda với continuation ngay trước khi suspend | `kt-suspendco`; Deep Dive tr. 34–35 | API ổn định |
+| Resume ngay trong lambda thì không suspend thật (tối ưu) | Deep Dive tr. 35, chú thích 10 | impl, ghi là tối ưu |
+| `Continuation` có `context` + `resumeWith(Result)`; `resume`/`resumeWithException` là extension (từ Kotlin 1.3) | `kt-continuation`; Deep Dive tr. 35–36 | API ổn định |
+| Resume từ luồng khác trong `suspend fun main`: phần sau chạy trên luồng gọi resume; thứ tự Before, Suspended, After, Resumed | Deep Dive tr. 36 (output in sẵn); `suspend fun main` không có dispatcher | Hành vi; mô hình giữ đúng output của sách |
+| `delay` tự viết bằng `ScheduledExecutorService`; `delay` thật từng được viết như vậy | Deep Dive tr. 37–39; `kx-delay` | Lịch sử và impl theo lời tác giả. Không khẳng định chi tiết bản hiện tại ngoài "dispatcher xử lý (interface `Delay`)" |
+| `suspendCancellableCoroutine` + `invokeOnCancellation` | `kx-scc`; Deep Dive tr. 41 | API ổn định |
+| Resume hai lần ném `IllegalStateException` ("Already resumed") | kiến thức về `SafeContinuation` (stdlib) | **Chưa đối chiếu nguyên văn thông báo lỗi ở phiên này** |
+| Dispatcher (Main) chặn resume và chuyển continuation về luồng của nó | ContinuationInterceptor (kotlin.coroutines); sẽ trích nguồn ở chương Dispatchers | Cần thêm nguồn ở chương Dispatchers |
+
+**Sim `coroutines.cont` (mới):** lanes gồm coroutine, luồng main, luồng phụ/scheduler. Có 5 chế độ resume. selfCheck kiểm: thứ tự After trước Resumed, After chạy trên luồng phụ; chế độ never không có After; chế độ now không suspend.
+
+**URL đã kiểm (curl, 2026-11-22):** 10 URL nguồn mới của U1–U3 đều trả về 200. Trang ANR chuyển hướng sang `/topic/performance/issues/anr`, đã cập nhật.

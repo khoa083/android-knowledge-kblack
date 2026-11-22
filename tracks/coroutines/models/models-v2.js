@@ -73,4 +73,82 @@
       ]
     });
   })();
+
+  /* ================= U3: suspendCoroutine, Continuation và các cách resume =================
+     Năm chế độ (control 'how'): never (không ai resume → treo), now (resume ngay trong lambda → không suspend thật),
+     thread (luồng mới ngủ 1000 ms rồi resume → phần sau chạy TRÊN luồng đó), sched (scheduler hẹn giờ = delay tự viết),
+     exc (resumeWithException → exception ném ra tại điểm suspension). Thời gian là minh hoạ (1000 ms trong mã vẽ thành 100).
+     params của sự kiện: co ∈ run|wait|done; on ∈ th0|th1|'' (luồng đang chạy coroutine); t1 ∈ run|block|timer|''. */
+  (function () {
+    var m = 'cont';
+    var SN = { never: 'contNever', now: 'contNow', thread: 'contThread', sched: 'contSched', exc: 'contExc' };
+    function steps(s) {
+      var out = [], how = s.how;
+      var push = function (id, from, to, o) {
+        var ps = o.ps;
+        var ev = [{ t: from, kind: o.kind || 'run', subject: o.subject || 'co', scope: M(m, 'scope.' + (ps.on || 'none')), detailKey: M(m, 'ev.' + (o.ev || id)),
+          params: { co: ps.co, on: ps.on || '', t1: ps.t1 || '', to: to } }];
+        out.push(step({ id: id, type: o.type || 'mechanism', titleKey: M(m, 's.' + id + '.title'), explainKey: M(m, 's.' + id + '.explain'),
+          activeNodes: [o.subject === 'th1' ? 'th1' : 'co'],
+          nodeStates: { co: M(m, 'st.' + ps.co), th0: M(m, 'st.' + (ps.on === 'th0' ? 'busy' : 'free')), th1: M(m, 'st.' + (ps.on === 'th1' ? 'busy' : ps.t1 === 'block' ? 'blocked' : ps.t1 === 'timer' ? 'timer' : 'free')) },
+          metrics: { time: to, out: M(m, 'o.' + (o.out || 'none')), on: M(m, 'thr.' + (ps.on || 'none')) }, codeHighlight: { snippet: SN[how], lines: o.lines },
+          callouts: o.co ? [{ kind: o.co[0], textKey: M(m, 'co.' + o.co[1]) }] : [], logEvents: ev }));
+      };
+      if (how === 'exc') {
+        push('excLambda', 0, 10, { ps: { co: 'run', on: 'th0' }, lines: [5, 6] });
+        push('excThrow', 10, 20, { ps: { co: 'run', on: 'th0' }, lines: [6, 8], kind: 'exception', co: ['mechanism', 'exc'] });
+        push('excCatch', 20, 30, { ps: { co: 'run', on: 'th0' }, lines: [9], out: 'caught' });
+        push('done', 30, 40, { ps: { co: 'done', on: '' }, lines: [11], kind: 'complete' });
+        return out;
+      }
+      if (how === 'sched') {
+        push('before', 0, 10, { ps: { co: 'run', on: 'th0' }, lines: [11], out: 'before' });
+        push('schedule', 10, 20, { ps: { co: 'run', on: 'th0', t1: 'timer' }, lines: [12, 6, 7], co: ['mechanism', 'schedule'] });
+        push('suspended', 20, 120, { ps: { co: 'wait', on: '', t1: 'timer' }, lines: [12], kind: 'suspend', co: ['mechanism', 'free'] });
+        push('fire', 120, 130, { ps: { co: 'run', on: 'th1' }, lines: [7, 13], kind: 'resume', out: 'after', co: ['pitfall', 'onSched'] });
+        push('done', 130, 140, { ps: { co: 'done', on: '' }, lines: [14], kind: 'complete' });
+        return out;
+      }
+      push('before', 0, 10, { ps: { co: 'run', on: 'th0' }, lines: [2], out: 'before' });
+      if (how === 'never') {
+        push('lambda', 10, 20, { ps: { co: 'run', on: 'th0' }, lines: [3, 4], out: 'beforeToo', co: ['mechanism', 'lambda'] });
+        push('suspended', 20, 120, { ps: { co: 'wait', on: '' }, lines: [3], kind: 'suspend', co: ['mechanism', 'free'] });
+        push('hang', 120, 130, { ps: { co: 'wait', on: '' }, lines: [6], type: 'pitfall', kind: 'skip', co: ['pitfall', 'hang'] });
+        return out;
+      }
+      if (how === 'now') {
+        push('lambdaNow', 10, 20, { ps: { co: 'run', on: 'th0' }, lines: [3, 4], kind: 'resume', co: ['mechanism', 'noSuspend'] });
+        push('after', 20, 30, { ps: { co: 'run', on: 'th0' }, lines: [6], out: 'after' });
+        push('done', 30, 40, { ps: { co: 'done', on: '' }, lines: [7], kind: 'complete' });
+        return out;
+      }
+      // thread
+      push('lambdaThread', 10, 20, { ps: { co: 'run', on: 'th0', t1: 'run' }, lines: [3, 4], subject: 'th1', kind: 'launch' });
+      push('suspended', 20, 30, { ps: { co: 'wait', on: '', t1: 'run' }, lines: [3, 5], kind: 'suspend', out: 'suspended', co: ['mechanism', 'free'] });
+      push('sleep', 30, 120, { ps: { co: 'wait', on: '', t1: 'block' }, lines: [6], kind: 'block', subject: 'th1', co: ['pitfall', 'sleepCost'] });
+      push('resumeThread', 120, 130, { ps: { co: 'run', on: 'th1' }, lines: [7, 11], kind: 'resume', out: 'after', co: ['pitfall', 'onThread'] });
+      push('resumed', 130, 140, { ps: { co: 'done', on: '', t1: 'run' }, lines: [8], subject: 'th1', out: 'resumed', co: ['mechanism', 'order'] });
+      return out;
+    }
+    ADE.registerModel('coroutines.cont', {
+      kind: 'discrete', titleKey: M(m, 'title'), overviewKey: M(m, 'overview'), wrapupKey: M(m, 'wrapup'), codeId: 'contThread',
+      simplificationKeys: [M(m, 'simp.1'), M(m, 'simp.2'), K + 'simp.time'], controlsHintKey: M(m, 'ctl.hint'),
+      controls: [
+        { id: 'how', type: 'select', labelKey: M(m, 'ctl.how'), get: function (s) { return s.how; }, action: 'how',
+          options: ['thread', 'never', 'now', 'sched', 'exc'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.how.' + v) }; }) }
+      ],
+      init: function () { return { how: 'thread' }; },
+      act: function (s, a, v) { return { how: ['never', 'now', 'thread', 'sched', 'exc'].indexOf(v) >= 0 ? v : 'thread' }; },
+      steps: steps,
+      selfChecks: [
+        { name: 'thread: "After" chạy trên luồng phụ trước "Resumed"; never: không có "After"; now: không có bước suspend', run: function () {
+          var d = ADE.models['coroutines.cont'];
+          var th = d.steps({ how: 'thread' }), nv = d.steps({ how: 'never' }), nw = d.steps({ how: 'now' });
+          var ia = -1, ir = -1; th.forEach(function (x, i) { if (x.metrics.out === M(m, 'o.after')) ia = i; if (x.metrics.out === M(m, 'o.resumed')) ir = i; });
+          return ia >= 0 && ir > ia && th[ia].metrics.on === M(m, 'thr.th1') &&
+            !nv.some(function (x) { return x.metrics.out === M(m, 'o.after'); }) && !nw.some(function (x) { return x.logEvents[0].kind === 'suspend'; });
+        } }
+      ]
+    });
+  })();
 })();

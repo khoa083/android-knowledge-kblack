@@ -186,4 +186,12 @@ Trạng thái: `chưa / đang / xong`.
 - **Nội dung:**
   - viết trong `dev/gen/coroutines_v2_part1.py` (U1) và `coroutines_v2_u2.py` (U2);
   - mỗi chương mới nên là một file `coroutines_v2_<id>.py`, thêm tên vào danh sách `mod` trong `coroutines_content.py`.
+- **U3 "Suspension hoạt động thế nào" xong (2026-11-22):**
+  - nội dung gồm: ôn chương trước, ví von lưu game (khớp/không khớp), `suspendCoroutine`, resume và luồng, tự viết `delay`, resume với giá trị (gói callback), resume với exception, "suspend coroutine chứ không phải hàm", 4 bug, 3 bài tập, tự trả lời, quiz 3 câu;
+  - sim mới `coroutines.cont` có 5 chế độ resume, đặt sau mục "resume";
+  - thêm 4 nguồn; đã kiểm 10 URL bằng curl (200).
+- **Kiểm U3:** report 0 lỗi, cả hai selfCheck đạt; track-check 1280 và 360 không thêm vấn đề; routes-check 101 route, 0 vấn đề; focus-check đạt; đã xem ảnh sim ở bước 5 (chế độ thread).
+- **Tiếp theo:**
+  - U4 "Coroutines under the hood" (Deep Dive tr. 45–62): CPS, state machine với `label`, continuation lồng nhau như call stack; cần sim mới (bước qua `label`, `COROUTINE_SUSPENDED`);
+  - U5 "built-in support vs library" (tr. 63–64), có thể gộp vào U4.
 
