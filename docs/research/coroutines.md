@@ -320,3 +320,19 @@ Chương mới id `sf`, đặt giữa A6 và A7, dùng lại sim `coroutines.bui
 | Trạng thái "experimental" ở phiên bản hiện tại | **Chưa đối chiếu**; nội dung đã ghi "kiểm ở đúng phiên bản bạn dùng" | |
 
 **Phần 2 của Coroutines v2 hoàn tất** (Builders → A3, Context + Dispatchers → A4, Job → A2, Hủy → A5, Exception → A6, Scope functions → SF, Tự dựng scope → A8, Shared state + Testing → A9).
+
+### CH · Channel và select (viết 2026-11-22)
+
+**Đã đọc:** Deep Dive tr. 235–262, toàn văn. Đã kiểm 3 URL API (`kx-channel`, `kx-produce`, `kx-select`: 200). Output của sim `coroutines.chan` khớp output in trong sách cho cả 5 chế độ (selfCheck). Sách sai một chỗ ở tr. 258: bản "dùng coroutineScope" in lại mã dùng `scope.async`; nội dung site trình bày đúng phiên bản `coroutineScope` + `cancelChildren`.
+
+### FL · Flow từ gốc (viết 2026-11-22)
+
+**Đã đọc:** Deep Dive "Hot and cold data sources" (tr. 263–270), "Flow introduction" (tr. 271–282), "Understanding Flow" (tr. 283–294), toàn văn.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Nóng/lạnh; output list và sequence (m1…f16) | Deep Dive tr. 263–266 | Ví dụ của sách |
+| Channel và Flow; "Flow started" mỗi lần collect | Deep Dive tr. 267–269 | Ví dụ của sách |
+| Sequence chặn luồng, Flow thì không (ví dụ "Processing") | Deep Dive tr. 272–275 | Ví dụ của sách |
+| Dựng Flow từ lambda; `map`/`filter`/`onEach`/`onStart` | Deep Dive tr. 283–291; `kt-flow` | impl giản lược; bản thật có `SafeCollector` (**chưa trích mã nguồn ở phiên này**) |
+| Flow đồng bộ; trạng thái chung trong và ngoài bước flow | Deep Dive tr. 291–294 | Nguyên tắc |

@@ -286,6 +286,58 @@
     });
   })();
 
+  /* ================= FL: Flow dưới mui xe: collect → map → flowOf → emit → lambda của collect =================
+     flowOf("A","B","C").map { it.lowercase() }.collect { println(it) }. Ba hàng: terminal (collect), map, builder (flowOf).
+     Trạng thái mỗi hàng: run (đang chạy mã của nó) | call (đang chờ một lời gọi lồng trả về) | idle | done. twice: collect lần 2 chạy lại từ đầu (flow lạnh). */
+  (function () {
+    var m = 'flowcall';
+    function steps(s) {
+      var out = [], st = { t: 'idle', m: 'idle', b: 'idle' }, printed = 0, t = 0, round = 0;
+      var push = function (id, ns, o) {
+        o = o || {};
+        for (var k in ns) st[k] = ns[k];
+        t += 10;
+        out.push(step({ id: id + round, type: o.type || 'mechanism', titleKey: M(m, 's.' + id + '.title'), explainKey: M(m, 's.' + id + '.explain'), params: o.p || {},
+          activeNodes: [o.who || 't'], nodeStates: {}, metrics: { time: t, out: printed, depth: (st.t === 'call' ? 1 : 0) + (st.m === 'call' ? 1 : 0) + (st.b !== 'idle' && st.b !== 'done' ? 1 : 0) },
+          codeHighlight: { snippet: 'flowCall', lines: o.lines || [] }, callouts: o.co ? [{ kind: o.co[0], textKey: M(m, 'co.' + o.co[1]) }] : [],
+          logEvents: [{ t: t, kind: o.kind || 'run', subject: o.who || 't', scope: M(m, 'scope'), detailKey: M(m, 'ev.' + id), params: { v: (o.p || {}).v, T: st.t, Mm: st.m, Bb: st.b } }] }));
+      };
+      var once = function () {
+        push('collect', { t: 'run', m: 'idle', b: 'idle' }, { who: 't', lines: [10, 11], kind: 'launch', co: round === 0 ? ['mechanism', 'collect'] : ['mechanism', 'again'] });
+        push('mapStart', { t: 'call', m: 'run' }, { who: 'm', lines: [5, 6], co: round === 0 ? ['mechanism', 'mapIs'] : null });
+        push('builderStart', { m: 'call', b: 'run' }, { who: 'b', lines: [1, 2], kind: 'resume' });
+        ['A', 'B', 'C'].forEach(function (v, i) {
+          push('emit', { b: 'call', m: 'run' }, { who: 'm', lines: [2, 6, 7], kind: 'emit', p: { v: v }, co: i === 0 && round === 0 ? ['mechanism', 'emitCalls'] : null });
+          push('mapEmit', { m: 'call', t: 'run' }, { who: 't', lines: [7, 11], kind: 'emit', p: { v: v.toLowerCase() } });
+          printed++;
+          push('print', {}, { who: 't', lines: [11], kind: 'collect', p: { v: v.toLowerCase() } });
+          push('back', { t: 'call', m: 'call', b: 'run' }, { who: 'b', lines: [2], kind: 'resume', p: { v: v }, co: i === 0 && round === 0 ? ['mechanism', 'sync'] : null });
+        });
+        push('builderEnd', { b: 'done', m: 'run' }, { who: 'b', lines: [3], kind: 'complete' });
+        push('mapEnd', { m: 'done', t: 'run' }, { who: 'm', lines: [8], kind: 'complete' });
+        push('collectEnd', { t: 'done' }, { who: 't', lines: [12], kind: 'complete' });
+      };
+      once();
+      if (s.twice) { round = 1; st = { t: 'idle', m: 'idle', b: 'idle' }; once(); }
+      return out;
+    }
+    ADE.registerModel('coroutines.flowcall', {
+      kind: 'discrete', titleKey: M(m, 'title'), overviewKey: M(m, 'overview'), wrapupKey: M(m, 'wrapup'), codeId: 'flowCall',
+      simplificationKeys: [M(m, 'simp.1')], controlsHintKey: M(m, 'ctl.hint'),
+      controls: [{ id: 'twice', type: 'toggle', labelKey: M(m, 'ctl.twice'), get: function (s) { return s.twice; }, action: 'twice' }],
+      init: function () { return { twice: false }; },
+      act: function (s, a, v) { return { twice: !!v }; },
+      steps: steps,
+      selfChecks: [
+        { name: 'một lần collect: 3 lần in, builder chạy 1 lần; collect 2 lần: builder chạy lại (6 lần in)', run: function () {
+          var d = ADE.models['coroutines.flowcall'], a = d.steps({ twice: false }), b = d.steps({ twice: true });
+          var cnt = function (st, pre) { return st.filter(function (x) { return x.id.indexOf(pre) === 0; }).length; };
+          return a[a.length - 1].metrics.out === 3 && cnt(a, 'builderStart') === 1 && b[b.length - 1].metrics.out === 6 && cnt(b, 'builderStart') === 2;
+        } }
+      ]
+    });
+  })();
+
   /* ================= CH: Channel và sức chứa (theo chương "Channel" của Deep Dive) =================
      Producer: repeat(5) { send(index * 2); delay(100); println("Sent") } rồi đóng (produce). Consumer: delay(1000); với mỗi phần tử: println; delay(1000).
      mode: rendezvous (0) | buffered (3) | unlimited | conflated (1, thay phần tử cũ) | dropOldest (2, bỏ phần tử cũ nhất).

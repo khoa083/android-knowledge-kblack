@@ -193,6 +193,34 @@
     }
   });
 
+  /* FL: chuỗi lời gọi của Flow. Ba hàng: collect (terminal), map, flowOf (builder). Thanh liền = đang chạy mã của hàng đó;
+     thanh "đợi lời gọi" = đang chờ một lời gọi lồng (emit hoặc collect) trả về. Trục ngang là thứ tự bước. */
+  V('flowcall', {
+    layout: 'lanes',
+    nodes: [N('flowcall', 't', 0, 0, 'screen', 'coroutine'), N('flowcall', 'm', 4, 0, 'diamond', 'flow'), N('flowcall', 'b', 8, 0, 'queue', 'flow')],
+    edges: [], metrics: [{ id: 'out', labelKey: K + 'm.flowcall.met.out' }, { id: 'depth', labelKey: K + 'm.flowcall.met.depth' }], scopeKey: K + 'm.flowcall.col',
+    barKeys: { run: K + 'm.flowcall.bar.run', ready: K + 'm.flowcall.bar.call' },
+    lanes: function (events, step, opts) {
+      var c = clock(step, opts), L = new Lanes(opts.pos), cur = { t: null, m: null, b: null };
+      var rows = [{ id: 't', labelKey: K + 'm.flowcall.n.t', group: K + 'm.flowcall.lanes.g' }, { id: 'm', labelKey: K + 'm.flowcall.n.m', group: K + 'm.flowcall.lanes.g' }, { id: 'b', labelKey: K + 'm.flowcall.n.b', group: K + 'm.flowcall.lanes.g' }];
+      var KIND = { run: 'run', call: 'ready' };
+      events.forEach(function (x) {
+        var e = x.e, P = e.params || {}, t0 = e.t - 10;
+        [['t', P.T], ['m', P.Mm], ['b', P.Bb]].forEach(function (rs) {
+          var row = rs[0], s = rs[1];
+          if (s === cur[row]) return;
+          cur[row] = s;
+          if (KIND[s]) L.start(row, t0, KIND[s], s === 'call' ? ADE.t(K + 'm.flowcall.lbl.call') : '', x.step); else L.end(row, t0);
+          if (s === 'done') L.mark(row, t0, fam('done'), x.step);
+        });
+        if (e.kind === 'emit' && P.v) L.mark(e.subject === 't' ? 'm' : 'b', t0, 'emit(' + P.v + ')', x.step);
+        if (e.kind === 'collect' && P.v) L.mark('t', t0, 'print ' + P.v, x.step);
+      });
+      L.finish(c.now);
+      return { rows: rows, bars: L.bars, marks: L.marks, tMax: c.tMax, now: c.now, axisKey: K + 'm.flowcall.axis' };
+    }
+  });
+
   V('jobtree', {
     layout: 'tree',
     nodes: [N('jobtree', 'root', -2, -2, 'job', 'job'), N('jobtree', 'c1', 0, 4, 'job', 'coroutine'), N('jobtree', 'c2', 2, 2, 'job', 'coroutine'), N('jobtree', 'c3', 4, 0, 'job', 'coroutine'), N('jobtree', 'g', 6, 6, 'job', 'coroutine')],

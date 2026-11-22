@@ -106,6 +106,20 @@
     '    }',
     '}'
   ]);
+  add('flowCall', [
+    'fun <T> flowOf(vararg elements: T): Flow<T> = flow {',
+    '    for (element in elements) emit(element)',
+    '}',
+    '',
+    'fun <T, R> Flow<T>.map(transform: suspend (T) -> R): Flow<R> = flow {',
+    { vi: '    collect { value ->                 // collect flow phía trên', en: '    collect { value ->                 // collect the upstream flow' },
+    { vi: '        emit(transform(value))         // phát xuống phía dưới', en: '        emit(transform(value))         // emit downstream' },
+    '    }',
+    '}',
+    'flowOf("A", "B", "C").map { it.lowercase() }',
+    { vi: '    .collect { println(it) }           // terminal: khởi động mọi thứ', en: '    .collect { println(it) }           // terminal: starts everything' },
+    { vi: '// collect chỉ trả về khi builder chạy xong', en: '// collect returns only when the builder has finished' }
+  ]);
   add('full', [
     'Button(onClick = { viewModel.load() })',
     '',

@@ -273,4 +273,8 @@ Trạng thái: `chưa / đang / xong`.
   - reduced-motion: không còn animation;
   - report 0 lỗi; track-check: coroutines 4 vấn đề cũ, runtime/animation/ux 0.
 - **Chưa phủ:** các "lab" tự vẽ (Animation C-labs, UX/UI labs như SUS, contrast, Fitts) dùng hình riêng, không qua lõi sơ đồ; chưa thêm chuyển động liên tục cho chúng.
+- **FL "Flow từ gốc" (chương mới, 2026-11-22):**
+  - nội dung gồm: nóng/lạnh, vì sao cần Flow, đặc điểm và tên gọi, tự dựng Flow từ lambda qua 5 bước, toán tử là `flow { collect { … } }`, trạng thái chung, 3 bug, 2 bài tập, tự trả lời, quiz 3 câu;
+  - sim mới `coroutines.flowcall` (lanes ba tầng collect/map/builder, có toggle "collect 2 lần"), cộng tab `hotcold` cũ.
+- **Kiểm:** report 0 lỗi; track-check và routes như trên.
 
