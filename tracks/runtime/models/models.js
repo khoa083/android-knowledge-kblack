@@ -1113,4 +1113,64 @@
       } }]
     });
   })();
+
+  /* ================= B6 (v2): chèn cây top-down hay bottom-up (KDoc Applier.insertTopDown @296313a4) =================
+     Chèn B (có con A, C) vào R. "ancestors": mỗi khi một con được thêm, mọi tổ tiên tới gốc được báo; "subtree": khi một node vào cây,
+     nó và mọi node trong cây con của nó được báo. Số đếm theo đúng ví dụ trong KDoc: ancestors TD 5 / BU 3; subtree TD 3 / BU 5.
+     UiApplier (Android) bỏ qua insertTopDown và chèn trong insertBottomUp. */
+  (function () {
+    var m = 'insert';
+    function steps(s) {
+      var td = s.order !== 'bottomUp', anc = s.notify !== 'subtree', out = [], t = 0, n = 0, ins = 0, log = [], tree = 'R';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {}; o.params.n = n;
+        o.metrics = { notifications: n, inserts: ins };
+        o.stateAfter = [{ labelKey: M(m, 'st.tree'), value: tree }, { labelKey: M(m, 'st.call'), value: o.call || '—' }, { labelKey: M(m, 'st.notified'), value: log.length ? log.join(' · ') : '—' }];
+        delete o.call;
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'insertOrder', lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'apply', subject: o.activeNodes[0] || 'r', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var note = function (arr) { arr.forEach(function (x) { log.push(x); n++; }); };
+      P('start', { type: 'scenario', activeNodes: ['r', 'b', 'a', 'c'], lines: [], kind: 'observe' });
+      if (td) {
+        ins++; tree = 'R → B'; note(anc ? ['R⇐B'] : ['B']);
+        P('td1', { activeNodes: ['r', 'b'], movingSignals: [{ edge: 'e1', tok: 'ui' }], lines: [3], call: 'insertTopDown(0, B)' });
+        ins++; tree = 'R → B → A'; note(anc ? ['B⇐A', 'R⇐A'] : ['A']);
+        P('td2', { activeNodes: ['b', 'a'].concat(anc ? ['r'] : []), movingSignals: [{ edge: 'e2', tok: 'ui' }], lines: [3], call: 'down(B); insertTopDown(0, A)' });
+        ins++; tree = 'R → B → (A, C)'; note(anc ? ['B⇐C', 'R⇐C'] : ['C']);
+        P('td3', { activeNodes: ['b', 'c'].concat(anc ? ['r'] : []), movingSignals: [{ edge: 'e3', tok: 'ui' }], lines: [3], call: 'insertTopDown(1, C); up()' });
+      } else {
+        ins++; tree = 'R · B → A'; note(anc ? ['B⇐A'] : ['A']);
+        P('bu1', { activeNodes: ['b', 'a'], movingSignals: [{ edge: 'e2', tok: 'ui' }], lines: [4], call: 'insertBottomUp(0, A)' });
+        ins++; tree = 'R · B → (A, C)'; note(anc ? ['B⇐C'] : ['C']);
+        P('bu2', { activeNodes: ['b', 'c'], movingSignals: [{ edge: 'e3', tok: 'ui' }], lines: [4], call: 'insertBottomUp(1, C)' });
+        ins++; tree = 'R → B → (A, C)'; note(anc ? ['R⇐B'] : ['B', 'A', 'C']);
+        P('bu3', { activeNodes: ['r', 'b'].concat(anc ? [] : ['a', 'c']), movingSignals: [{ edge: 'e1', tok: 'ui' }], lines: [4], call: 'up(); insertBottomUp(0, B)' });
+      }
+      var good = anc ? !td : td;
+      P('end.' + (anc ? 'anc' : 'sub') + (td ? 'TD' : 'BU'), { type: good ? 'mechanism' : 'pitfall', activeNodes: ['r'], lines: td ? [3] : [4, 7], kind: 'observe',
+        callouts: [{ kind: good ? 'mechanism' : 'pitfall', textKey: M(m, 'co.end.' + (anc ? 'anc' : 'sub')) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'insertOrder',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'order', type: 'select', labelKey: M(m, 'ctl.order'), get: function (s) { return s.order; }, action: 'order', options: ['topDown', 'bottomUp'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.order.' + v) }; }) },
+        { id: 'notify', type: 'select', labelKey: M(m, 'ctl.notify'), get: function (s) { return s.notify; }, action: 'notify', options: ['ancestors', 'subtree'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.notify.' + v) }; }) }
+      ],
+      init: function () { return { order: 'topDown', notify: 'ancestors' }; },
+      act: function (s, a, v) { var o = { order: s.order, notify: s.notify }; if (a === 'order') o.order = v === 'bottomUp' ? 'bottomUp' : 'topDown'; else o.notify = v === 'subtree' ? 'subtree' : 'ancestors'; return o; },
+      steps: steps,
+      selfChecks: [{ name: 'đúng số thông báo trong KDoc của Applier: báo tổ tiên → top-down 5, bottom-up 3; báo cây con → top-down 3, bottom-up 5; luôn 3 lần chèn', run: function () {
+        var last = function (o, nf) { var x = steps({ order: o, notify: nf }); return x[x.length - 1].metrics; };
+        return last('topDown', 'ancestors').notifications === 5 && last('bottomUp', 'ancestors').notifications === 3 &&
+          last('topDown', 'subtree').notifications === 3 && last('bottomUp', 'subtree').notifications === 5 && last('bottomUp', 'subtree').inserts === 3;
+      } }]
+    });
+  })();
 })();

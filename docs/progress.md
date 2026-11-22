@@ -395,3 +395,8 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `runtime.locals` (cây C1–C8, dynamic vs static). Nguồn mới `cp-compositionlocal`, `rt-local-src`.
   - **Kiểm:** report 0 lỗi, 121 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim (sửa chú thích hướng cây).
   - **Tiếp theo:** b6 (Composer ghi nhận, Applier áp dụng), rồi b7, lo, md, lz, b8, b9, pf, b10, b0.
+- **Runtime v2 · B6 viết lại (2026-11-23):**
+  - Nội dung (`runtime_v2_b6.py`): tính và áp thay đổi là hai bước, ComposeNode và Updater, giao diện Applier, insertTopDown vs insertBottomUp (ví dụ trong KDoc), UiApplier trên Android; đối chiếu chuỗi Text → … → ReusableComposeNode của Kunneth với commit ghim (đã hứa ở DC); 2 bug, 2 bài tập, tự trả lời, quiz 4 câu.
+  - Sim mới `runtime.insert` (thứ tự chèn × kiểu thông báo); sim `runtime.applier` giữ làm tab thứ hai. 4 nguồn mới.
+  - **Kiểm:** report 0 lỗi, 121 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
+  - **Tiếp theo:** b7 (Composition, Layout, Drawing: ba phase và đọc state theo phase), rồi lo, md, lz, b8, b9, pf, b10, b0.

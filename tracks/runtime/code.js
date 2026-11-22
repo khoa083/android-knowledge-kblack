@@ -282,4 +282,16 @@
       { vi: '@Composable fun C6() { Text("6", Modifier.background(LocalColor.current)) }   // nhánh khác: giá trị mặc định', en: '@Composable fun C6() { Text("6", Modifier.background(LocalColor.current)) }   // other branch: the default' }
     ]);
   });
+  add('insertOrder', [
+    { vi: '// Applier<N> (rút gọn, @296313a4): chèn ở MỘT trong hai hàm, không phải cả hai', en: '// Applier<N> (condensed, @296313a4): insert in ONE of the two functions, not both' },
+    'interface Applier<N> { val current: N; fun down(node: N); fun up()',
+    { vi: '  fun insertTopDown(index: Int, instance: N)    // gọi TRƯỚC khi con của instance được tạo', en: '  fun insertTopDown(index: Int, instance: N)    // called BEFORE instance\'s children are created' },
+    { vi: '  fun insertBottomUp(index: Int, instance: N)   // gọi SAU khi mọi con đã được chèn vào nó', en: '  fun insertBottomUp(index: Int, instance: N)   // called AFTER all children are inserted into it' },
+    '  fun remove(index: Int, count: Int); fun move(from: Int, to: Int, count: Int); fun clear() }',
+    { vi: '// Compose UI trên Android:', en: '// Compose UI on Android:' },
+    'internal class UiApplier(root: LayoutNode) : AbstractApplier<LayoutNode>(root) {',
+    { vi: '  override fun insertTopDown(index: Int, instance: LayoutNode) { /* bỏ qua */ }', en: '  override fun insertTopDown(index: Int, instance: LayoutNode) { /* ignored */ }' },
+    '  override fun insertBottomUp(index: Int, instance: LayoutNode) { current.insertAt(index, instance) }',
+    '}'
+  ]);
 })();

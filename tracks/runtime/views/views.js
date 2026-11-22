@@ -109,6 +109,13 @@
     edges: [E('e0', 'c1', 'c2'), E('e0b', 'c2', 'c4'), E('e0c', 'c4', 'c6'), E('e1', 'c1', 'prov'), E('e2', 'prov', 'c3'), E('e3', 'c3', 'c5'), E('e4', 'c5', 'c7'), E('e5', 'c5', 'c8')],
     metrics: [T('locals', 'recomposed'), T('locals', 'readers'), T('locals', 'provided')]
   });
+  /* B6 (v2): cây R → B → (A, C) của ví dụ trong KDoc Applier. */
+  V('insert', {
+    layout: 'tree',
+    nodes: [N('insert', 'r', 0, 0, 'layers', 'ui'), N('insert', 'b', 0, 4, 'square', 'ui'), N('insert', 'a', -3, 8, 'square', 'ui'), N('insert', 'c', 3, 8, 'square', 'ui')],
+    edges: [E('e1', 'r', 'b'), E('e2', 'b', 'a'), E('e3', 'b', 'c')],
+    metrics: [T('insert', 'notifications'), T('insert', 'inserts')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

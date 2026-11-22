@@ -239,3 +239,18 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Cây Composable1–8, phạm vi theo nhánh, nhánh khác nhận giá trị mặc định | Essentials Ch.21 | Ví dụ của sách |
 | Slot API (SlotDemo, cú pháp lambda cuối) | Essentials Ch.22 | Ví dụ của sách |
 | Sim `runtime.locals`: dynamic recompose 2, static recompose 4 | Theo KDoc và tài liệu | selfCheck; nhãn giản lược |
+
+### B6 · Composer ghi nhận, Applier áp dụng (viết lại 2026-11-23)
+
+**Đã đọc:** `Applier.kt` (KDoc insertTopDown/insertBottomUp, AbstractApplier), `Composables.kt` (ComposeNode), `Composer.kt` (Updater.set), `UiApplier.android.kt`, `Layout.kt`, `BasicText.kt` @296313a4; Applier reference.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Recompose trước, applyChanges sau trong cùng frame; lượt bị bỏ không đụng cây | `rt-recomposer-src`, `rt-how` | impl |
+| ComposeNode: startNode, createNode (khi chèn) / useNode, Updater, endNode; factory không bảo đảm gọi tại chỗ | `rt-composenode-src` | impl |
+| Updater.set chỉ apply khi đang chèn hoặc giá trị khác giá trị đã nhớ | `rt-composer-src` (Updater trong Composer.kt) | impl |
+| Applier: current, down/up, insertTopDown/BottomUp (chỉ một), remove, move, clear, apply, onBegin/EndChanges; AbstractApplier dùng Stack | `rt-applier-src`, `rt-applier` | impl / stable |
+| Ví dụ R → B → (A, C): báo tổ tiên TD 5 / BU 3; báo cây con TD 3 / BU 5 | `rt-applier-src` (KDoc) | impl. KDoc dùng từ "exponentially"; site ghi "tăng nhanh hơn nhiều so với số node" |
+| UiApplier bỏ qua insertTopDown, chèn trong insertBottomUp; onEndChanges → owner.onEndApplyChanges | `ui-uiapplier` | android-impl |
+| BasicText (chuỗi đơn giản) → Layout(modifier TextStringSimpleElement) → ReusableComposeNode; CoreText là bản của sách (Kunneth Ch.3) | `ui-layout-src`, Kunneth Ch.3 | impl; ghi chú lệch phiên bản |
+| Sim `runtime.insert`: 4 tổ hợp | Theo KDoc Applier | selfCheck |
