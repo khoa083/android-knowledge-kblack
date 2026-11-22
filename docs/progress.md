@@ -219,4 +219,9 @@ Trạng thái: `chưa / đang / xong`.
   - sim mới `coroutines.jobstate` (tab "Vòng đời Job", cùng tab "Cây Job" cũ);
   - thêm 2 nguồn API.
 - **Kiểm A2 v2:** report 0 lỗi; track-check không thêm vấn đề; routes-check 0 vấn đề.
+- **A5 v2 "Hủy" (2026-11-22):**
+  - nội dung gồm: ôn tập, ba hiệu ứng của `cancel`, `join`/`cancelAndJoin`/hủy nhóm, cơ chế `CancellationException` + `finally` (ví von khớp/không khớp), Cancelling + `NonCancellable`, `invokeOnCompletion`, dừng mã không suspend (`yield`/`isActive`/`ensureActive`), rules (v1), `suspendCancellableCoroutine`, 4 bug, 3 bài tập, tự trả lời;
+  - sim `coroutines.cancel` đặt sau mục "unstoppable" với câu đoán trước;
+  - thêm nguồn `kx-noncancellable`.
+- **Kiểm A5 v2:** report 0 lỗi; track-check không thêm vấn đề; routes-check 0 vấn đề.
 

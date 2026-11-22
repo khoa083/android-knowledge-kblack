@@ -207,3 +207,19 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 | Tên lớp `JobImpl`, `StandaloneCoroutine`, `LazyStandaloneCoroutine` trong `toString` | Deep Dive tr. 96 | impl, đã ghi "có thể khác giữa các phiên bản" |
 
 **Sim mới `coroutines.jobstate`:** pipeline 6 trạng thái, token chạy dọc mũi tên chuyển tiếp. Có toggle lazy và chọn thời điểm hủy (none/active/completing). selfCheck đạt. A2 giờ có 2 tab sim; sim đặt sau mục "states".
+
+### A5 v2 · Hủy (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "Cancellation", trang PDF 107–121. Đọc toàn văn.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Ba hiệu ứng của `cancel()`; nguyên nhân phải là `CancellationException` | Deep Dive tr. 107–108; `kt-cancellation` | API ổn định |
+| Race khi không `join`; `cancelAndJoin`; hủy nhóm bằng `Job()`/`cancelChildren` | Deep Dive tr. 108–111 | API ổn định |
+| Hủy = ném `CancellationException` ở điểm suspend; `finally` chạy | Deep Dive tr. 111–112; `kt-cancellation` | API ổn định |
+| Ở Cancelling: launch bị bỏ qua, suspend ném ngay; `withContext(NonCancellable)` | Deep Dive tr. 112–114; `kx-noncancellable` (URL 200) | API ổn định |
+| `invokeOnCompletion` (cause null/CE/exception; `onCancelling`, `invokeImmediately`; gọi đồng bộ) | Deep Dive tr. 114–116 | API ổn định |
+| `yield` / `isActive` / `ensureActive` | Deep Dive tr. 116–119 | API ổn định |
+| `suspendCancellableCoroutine` + Retrofit | Deep Dive tr. 119–121; `kx-scc` | API ổn định |
+| `runCatching` cũng nuốt `CancellationException` | Suy từ ngữ nghĩa `runCatching` (bắt mọi `Throwable`) | **Suy luận, chưa trích nguồn chính thức** |
+| Bài đoán output (work 0, work 1, caught, after try, done) | Tự suy từ ngữ nghĩa trên | **Chưa chạy thử** |

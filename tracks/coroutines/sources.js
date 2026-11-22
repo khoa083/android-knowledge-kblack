@@ -40,6 +40,8 @@
       'Vòng đời Job, bảng cờ isActive/isCompleted/isCancelled, quan hệ cha–con (A2).', 'The Job lifecycle, the isActive/isCompleted/isCancelled flag table, parent–child relations (A2).'),
     s('kx-jobfn', 'Job() (factory function)', 'https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-job.html', 'JetBrains (kotlinx.coroutines API)', 'stable',
       'Tạo `CompletableJob` ở trạng thái Active; tham số parent (A2).', 'Creates a `CompletableJob` in the Active state; the parent parameter (A2).'),
+    s('kx-noncancellable', 'NonCancellable', 'https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-non-cancellable/', 'JetBrains (kotlinx.coroutines API)', 'stable',
+      'Job không thể hủy, chỉ dùng với `withContext` cho khối cần chạy dù đã bị hủy (A5).', 'A Job that cannot be cancelled, meant only for `withContext` blocks that must run despite cancellation (A5).'),
     s('book-deepdive', 'Kotlin Coroutines: Deep Dive (Marcin Moskała)', 'https://leanpub.com/coroutines', 'Kt. Academy (sách)', 'guideline',
       'Sách nguồn giảng chính của Coroutines v2: bố cục chương và ví dụ màn hình tin tức (U1 theo chương "Why Kotlin Coroutines?").', 'The main teaching source for Coroutines v2: chapter structure and the news-screen example (U1 follows the chapter "Why Kotlin Coroutines?").'),
     s('kt-guide', 'Coroutines guide', 'https://kotlinlang.org/docs/coroutines-guide.html', 'JetBrains (kotlinlang.org)', 'stable',
