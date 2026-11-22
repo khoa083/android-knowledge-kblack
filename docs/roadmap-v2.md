@@ -141,7 +141,7 @@ Chương mới của Phần 1 dùng id mới, chèn trước `a1` trong manifest
 | 13 | **lo** (mới) | Layout: Constraints, single measure pass, custom Layout, intrinsics, SubcomposeLayout | Kunneth Ch.4, Essentials Ch.28–29, Ch.32, layout docs |
 | 14 | **md** (mới) | Modifier: chuỗi, thứ tự, `Modifier.Node` | Tutorials Ch.6, Essentials Ch.24 và Ch.28, modifier docs |
 | 15 | **lz** (mới) | Lazy list bên trong: compose theo nhu cầu, key, contentType, tái sử dụng | Tutorials Ch.4, Essentials Ch.34–37, lists docs |
-| 16 | b8 | Skip, stability, strong skipping, compiler report | stability docs, mã compiler |
+| 16 | b8 | Skip, stability, strong skipping, compiler report; **các annotation của runtime** (yêu cầu người dùng 2026-11-23): `@Stable`, `@Immutable`, `@StableMarker`, `@NonSkippableComposable`, `@NonRestartableComposable`, `@ReadOnlyComposable`, `@DontMemoize`, `@ExplicitGroupsComposable`, `@DisallowComposableCalls`, `@ComposableTarget`… (chỉ dạy annotation có thật trong `compose/runtime` ở commit ghim; mỗi cái: compiler sinh mã gì khác, khi nào dùng, khi nào không) | stability docs, mã compiler, mã runtime |
 | 17 | b9 | Host, semantics, test và accessibility | Kunneth Ch.10, Tutorials Ch.14–15 |
 | 18 | **pf** (mới) | Hiệu năng và debug: đếm recomposition, Layout Inspector, baseline profile | Kunneth Ch.10, performance docs |
 | 19 | b10 | Live: luồng +1 (giữ, cập nhật tham chiếu) | tổng hợp |
