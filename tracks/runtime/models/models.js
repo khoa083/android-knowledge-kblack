@@ -1403,4 +1403,75 @@
       } }]
     });
   })();
+  /* ================= LZ (v2): lazy list compose theo nhu cầu và dùng lại slot (LazyLayout.kt, SubcomposeLayout.kt @296313a4; Lists docs) =================
+     20 mục, viewport vừa 4. same: mọi mục cùng contentType → frame cuộn 1 compose mới (pool rỗng), mục rời màn hình vào pool; frame 2, 3 dùng lại slot.
+     types: mục 0–3 "text", từ mục 4 "image" → slot "text" trong pool không tương thích → luôn compose mới. column: Column + verticalScroll compose cả 20 ngay
+     từ đầu, cuộn không compose thêm. Bỏ qua prefetch. */
+  (function () {
+    var m = 'lazy';
+    var SC = ['same', 'types', 'column'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'same', out = [], t = 0, c = { composed: 0, fresh: 0, reused: 0, pool: 0 }, active = '—', pool = [], op = '—';
+      var snip = sc === 'types' ? 'lazy_types' : sc === 'column' ? 'lazy_column' : 'lazy_same';
+      var type = function (i) { return sc === 'types' ? (i < 4 ? 'text' : 'image') : 'row'; };
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {};
+        c.pool = pool.length;
+        o.metrics = { composed: c.composed, fresh: c.fresh, reused: c.reused, pool: c.pool };
+        o.stateAfter = [{ labelKey: M(m, 'st.active'), value: active }, { labelKey: M(m, 'st.pool'), value: pool.length ? '[' + pool.join(', ') + ']' : '—' }, { labelKey: M(m, 'st.op'), value: op }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: snip, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'recompose', subject: o.activeNodes[o.activeNodes.length - 1] || 'measure', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['data', 'measure'], lines: sc === 'column' ? [1, 2] : [1, 2], kind: 'observe' });
+      if (sc === 'column') {
+        c.composed = 20; c.fresh = 20; active = '0–19'; op = 'new ×20';
+        P('col.first', { type: 'pitfall', activeNodes: ['data', 'measure', 'active'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'runtime' }], lines: [2, 3] });
+        [1, 2, 3].forEach(function (i) {
+          op = 'offset'; P('col.scroll', { activeNodes: ['active'], lines: [1], params: { n: i }, kind: 'layout' });
+        });
+        op = '—';
+        P('end.column', { type: 'pitfall', activeNodes: ['active'], lines: [], kind: 'observe', callouts: [{ kind: 'pitfall', textKey: M(m, 'co.end.column') }] });
+        return out;
+      }
+      c.composed = 4; c.fresh = 4; active = '0–3'; op = 'new ×4';
+      P('first', { activeNodes: ['data', 'measure', 'active'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'runtime' }], lines: [2, 3] });
+      [1, 2, 3].forEach(function (i) {
+        var enter = i + 3, leave = i - 1, fromPool = -1;
+        for (var k = 0; k < pool.length; k++) if (pool[k].split('·')[1] === type(enter)) { fromPool = k; break; }
+        if (fromPool >= 0) {
+          var slot = pool.splice(fromPool, 1)[0];
+          c.reused++; op = 'reuse ' + slot.split('·')[0] + ' → #' + enter;
+        } else { c.fresh++; c.composed++; op = 'new #' + enter; }
+        if (fromPool >= 0) c.composed++;
+        pool.push('#' + leave + '·' + type(leave));
+        active = i + '–' + (i + 3);
+        var reused = fromPool >= 0;
+        P(reused ? 'reuse' : (i === 1 ? 'new1' : 'newType'), { type: reused ? 'mechanism' : (i === 1 ? 'mechanism' : 'pitfall'), activeNodes: reused ? ['measure', 'pool', 'active'] : ['measure', 'pool', 'active'],
+          movingSignals: reused ? [{ edge: 'e3', tok: 'state' }, { edge: 'e4', tok: 'runtime' }] : [{ edge: 'e2', tok: 'runtime' }, { edge: 'e4', tok: 'runtime' }],
+          lines: sc === 'types' ? [5, 7] : [2, 3], params: { enter: enter, leave: leave }, callouts: i === 2 ? [{ kind: reused ? 'mechanism' : 'pitfall', textKey: M(m, reused ? 'co.reuse' : 'co.types') }] : [] });
+      });
+      op = '—';
+      P('end.' + sc, { type: 'mechanism', activeNodes: ['pool'], lines: [], kind: 'observe', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.end.' + sc) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'lazy_same',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'which', type: 'select', labelKey: M(m, 'ctl.which'), get: function (s) { return s.which; }, action: 'which', options: SC.map(function (v) { return { value: v, labelKey: M(m, 'ctl.which.' + v) }; }) }
+      ],
+      init: function () { return { which: 'same' }; },
+      act: function (s, a, v) { return { which: SC.indexOf(v) >= 0 ? v : 'same' }; },
+      steps: steps,
+      selfChecks: [{ name: 'cùng contentType: 3 frame cuộn → 5 compose mới, 2 dùng lại, pool còn 1; khác contentType: 7 mới, 0 dùng lại, pool 3 slot text; Column + verticalScroll: 20 compose từ đầu, cuộn không compose thêm', run: function () {
+        var last = function (w) { return steps({ which: w }).slice(-1)[0].metrics; };
+        var a = last('same'), b = last('types'), col = last('column');
+        return a.fresh === 5 && a.reused === 2 && a.pool === 1 && b.fresh === 7 && b.reused === 0 && b.pool === 3 && col.fresh === 20 && col.reused === 0;
+      } }]
+    });
+  })();
 })();

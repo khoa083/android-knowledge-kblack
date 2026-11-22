@@ -306,3 +306,19 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Ba cách viết modifier; caveat factory @Composable; composed {} không còn khuyên dùng; circle; các loại node; shouldAutoInvalidate; coroutineScope; currentValueOf | `cp-custom-modifiers`, `cp-modifiers-node` | stable |
 | Bug "blink" đổi lớp element làm animation chạy lại | Suy ra từ `ui-nodechain-src` (Replace → detach/attach) | site suy luận từ mã, ví dụ giả định |
 | Sim `runtime.chain`: 4/0/0/0, 3/1/0/0, 3 giữ + 1 chèn, 3 giữ + 1 gỡ + 1 chèn | Theo NodeChain @296313a4 | selfCheck; thứ tự lệnh diff giản lược (simp.2) |
+
+### LZ · Lazy list bên trong (chương mới 2026-11-23)
+
+**Đã đọc:** "Lists and grids" (developer.android.com, 2026-11-23; phần Tips và Paging chỉ qua bản tóm tắt); foundation `LazyLayout.kt`, `LazyLayoutItemContentFactory.kt`, `LazySaveableStateHolder.kt`, `CheckScrollableContainerConstraints.kt`, ui `SubcomposeLayout.kt` (`disposeOrReuseStartingFromIndex`, `takeNodeFromReusables`) @296313a4; Tutorials Ch.4; Essentials Ch.34–37.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Column tạo mọi mục; 1000 ảnh; cuộn Column theo pixel, Lazy theo chỉ số; 4 hàm suspend; stickyHeader + groupBy; firstVisibleItemIndex | Essentials Ch.34, 37 | Ví dụ của sách (bản 1.3: stickyHeader experimental) |
+| Nội dung là LazyListScope.() -> Unit, không phải @Composable; "without needing to recycle" | Tutorials Ch.4 | Sách đơn giản hóa; mã ghim có pool dùng lại |
+| Column compose mọi mục, lazy chỉ mục trong viewport; key theo vị trí mặc định, "stable + unique", kiểu hỗ trợ Bundle; animateItem cần key; contentPadding; derivedStateOf; snapshotFlow | `cp-lists` (nguyên văn) | stable |
+| Tips (0 px, lồng cuộn, nhiều phần tử một item, contentType, đo release) | `cp-lists` (bản tóm tắt) | stable; ghi rõ trên site là bản tóm tắt |
+| LazyLayout là SubcomposeLayout, compose trong bước đo là tín hiệu "đang cần"; LazyLayoutItemReusePolicy giữ 7 slot mỗi contentType (5 + 2 như RecyclerView), areCompatible so contentType | `fd-lazylayout-src` | impl |
+| Slot thôi dùng vào pool ở cuối lượt đo (disposeOrReuseStartingFromIndex); mục mới lấy từ pool (takeNodeFromReusables) | `ui-subcompose-src` | impl |
+| Cache lambda theo key để skip; SaveableStateProvider theo key; chỉ lưu mục đang hiện (TransactionTooLargeException) | `fd-lazycontent-src` | impl |
+| Thông điệp "Vertically scrollable component was measured with an infinity maximum height constraints…" | `fd-scrollcheck-src` | impl |
+| Sim `runtime.lazy`: cùng loại 5 mới/2 dùng lại; khác loại 7/0; Column 20 từ đầu | Theo mã ghim | selfCheck; bỏ qua prefetch (simp.1) |

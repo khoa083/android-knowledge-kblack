@@ -397,4 +397,29 @@
       '}'
     ]);
   });
+  add('lazy_same', [
+    'LazyColumn {',
+    '    items(messages, key = { it.id }) { message ->',
+    '        MessageRow(message)',
+    '    }',
+    '}'
+  ]);
+  add('lazy_types', [
+    'LazyColumn {',
+    '    items(',
+    '        elements,',
+    '        key = { it.id },',
+    { vi: '        contentType = { it.type }          // "text" hoặc "image"', en: '        contentType = { it.type }          // "text" or "image"' },
+    '    ) { e ->',
+    '        if (e.type == "image") ImageRow(e) else TextRow(e)',
+    '    }',
+    '}'
+  ]);
+  add('lazy_column', [
+    'Column(Modifier.verticalScroll(rememberScrollState())) {',
+    { vi: '    messages.forEach { message ->          // ✗ compose CẢ 20 mục ngay từ đầu', en: '    messages.forEach { message ->          // ✗ composes ALL 20 items up front' },
+    '        MessageRow(message)',
+    '    }',
+    '}'
+  ]);
 })();

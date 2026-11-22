@@ -137,6 +137,13 @@
     edges: [E('e1', 'm1', 'm2'), E('e2', 'm2', 'm3'), E('e3', 'm3', 'm4'), E('e4', 'm4', 'layout')],
     metrics: [T('chain', 'reused'), T('chain', 'updated'), T('chain', 'inserted'), T('chain', 'removed')]
   });
+  /* LZ (v2): dữ liệu → khối đo của LazyLayout (SubcomposeLayout) → slot đang hiện; slot rời màn hình vào pool để dùng lại. */
+  V('lazy', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('lazy', 'data', 0, 0, 'list', 'state'), N('lazy', 'measure', 4, 0, 'grid', 'runtime'), N('lazy', 'active', 8, -2, 'layers', 'ui'), N('lazy', 'pool', 8, 4, 'store', 'runtime')],
+    edges: [E('e1', 'data', 'measure'), E('e2', 'measure', 'active'), E('e3', 'pool', 'active'), E('e4', 'active', 'pool')],
+    metrics: [T('lazy', 'composed'), T('lazy', 'fresh'), T('lazy', 'reused'), T('lazy', 'pool')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

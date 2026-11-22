@@ -417,3 +417,9 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `runtime.chain` (không đổi, đổi màu, thêm border có điều kiện, border/shadow khác lớp). 6 nguồn mới (`cp-modifiers`, `cp-custom-modifiers`, `cp-modifiers-node`, `ui-modifier-src`, `ui-nodechain-src`, `ui-mne-src`), đều HTTP 200.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề (sửa một câu quiz có inline code quá dài làm tràn ngang ở 360); routes-check 114 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Tiếp theo:** lz (lazy list bên trong: SubcomposeLayout, key, contentType, tái sử dụng; Tutorials Ch.4, Essentials Ch.34–37, lists docs), rồi b8 (kèm annotation runtime), b9, pf, b10, b0.
+- **Runtime v2 · LZ chương mới (2026-11-23):**
+  - Nội dung (`runtime_v2_lz.py`): Column hay LazyColumn (Essentials Ch.34, Tutorials Ch.4), DSL LazyListScope và stickyHeader, bên trong (LazyLayout = SubcomposeLayout, cache lambda theo key, SaveableStateProvider), dùng lại slot và contentType (đối chiếu "without needing to recycle"/"destroyed" của sách với pool 7 slot mỗi loại ở mã ghim), key, đọc vị trí cuộn bằng derivedStateOf (sửa cách của Essentials Ch.37), mẹo của tài liệu; 3 bug, 3 bài tập, tự trả lời, quiz 4 câu.
+  - Sim mới `runtime.lazy` (cùng contentType, khác contentType, Column + verticalScroll). 4 nguồn mới (`cp-lists`, `fd-lazylayout-src`, `fd-lazycontent-src`, `fd-scrollcheck-src`), đều HTTP 200.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; routes-check 115 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim (sửa chú thích hình cho đúng bố cục ngang).
+  - **Chưa xác minh:** phần Tips của trang Lists chỉ đọc qua bản tóm tắt (site có ghi rõ).
+  - **Tiếp theo:** b8 (skip, stability, strong skipping, compiler report, và các annotation của runtime theo yêu cầu 2026-11-23), rồi b9, pf, b10, b0.
