@@ -373,3 +373,5 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `runtime.records` (A/B snapshot, apply, xung đột, merge); sim `runtime.snapshot` giữ làm tab thứ hai. 5 nguồn mới.
   - **Kiểm:** report 0 lỗi, 123 cảnh báo (bằng mốc cũ); selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
   - **Tiếp theo:** sh (quản lý state: stateless/stateful, hoisting, rememberSaveable, ViewModel), dựa trên Kunneth Ch.5, Ch.7; Tutorials Ch.7; Essentials Ch.42.
+  - **Rà sau B4 (2026-11-23):** goal g1 của b4 sửa thành bước 5 (`applyA`); bug 2 của B2 bỏ hệ quả cụ thể không có nguồn (giờ ghi "không xác định"); goal g1 của B3 viết trung tính (đúng cho cả kịch bản Counters và tab `runtime.keys`); ghi chú ghim commit trong `docs/research/runtime.md` và đầu `models.js` được cập nhật.
+  - **Còn nợ (làm khi viết lại từng chương):** chữ "androidx-main, đọc 2026-11-21" trong nội dung v1 của B0, B5, B6; một dòng trong overview của tab `runtime.compiler` (B2) nói tab đó dùng tên API thật ở commit ghim; rà glossary của track cho các thuật ngữ mới (group, slot, restart scope, Pending, insert table, flow-control group, state record, mutation policy, derived state) ở cả hai ngôn ngữ.

@@ -1,6 +1,6 @@
 /* Model track B: Compose Runtime (thuần, không DOM, không câu chữ; chỉ message key).
    Mọi quy tắc là MÔ HÌNH GIẢNG DẠY (simplified). Nguồn và phiên bản: docs/research/runtime.md
-   (Compose runtime/ui 1.13.0 trong BOM 2026.11.01; Kotlin 2.4.21; chi tiết nội bộ theo how-compose-works.md, androidx-main, đọc 2026-11-21). */
+   (Compose runtime/ui 1.13.0 trong BOM 2026.11.01; Kotlin 2.4.21; chi tiết nội bộ theo how-compose-works.md và mã AndroidX ghim ở androidx-main @296313a4, 2026-11-21; model v1 cũ có thể còn ghi "đọc 2026-11-21"). */
 (function () {
   'use strict';
   var K = 'track.runtime.';

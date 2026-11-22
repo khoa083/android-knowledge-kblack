@@ -173,7 +173,7 @@ def override(o):
       'The Composer stores the composition in the SlotTable: a tree of groups flattened into arrays (5 integers per group) plus an array of slot values. While recomposing, it compares the new group sequence with the old table in order; at the first mismatch it puts the remaining sibling groups into Pending (a hash table by key) to tell deletes, inserts and moves apart. New content is built in an insert table because the main table is read-only during composition.\n'
       'The identity of composable content is the call site plus position. The compiler wraps `if`/`when` in flow-control groups so the group sequence is not ambiguous; in loops, duplicate keys are matched in old order. When list items have state and can be inserted, removed or reordered, use `key(id)` (or `items(key = …)`) so identity follows the data.\n'
       'Internal details follow `how-compose-works.md` pinned at androidx-main commit `296313a4`; the document itself warns that the SlotTable is under development.')
-    o(C + '.goal.g1', 'Đã thấy Pending được tạo ở chỗ lệch đầu tiên', 'Saw Pending created at the first mismatch')
+    o(C + '.goal.g1', 'Đã thấy group đầu tiên mà Composer xử lý khác bảng cũ', 'Saw the first group the Composer handles differently from the old table')
     o(C + '.goal.g2', 'Đã chạy một kịch bản tới cuối', 'Ran one scenario to the end')
     o(C + '.sec.slots.title', 'Đọc, ghi và gap buffer', 'Reading, writing and the gap buffer')
     o(C + '.sec.slots.badge', 'impl')

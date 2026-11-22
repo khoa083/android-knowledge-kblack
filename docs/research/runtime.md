@@ -8,7 +8,7 @@ Mọi URL dưới đây đã đọc trực tiếp ngày 2026-11-21, đều trả
 - Strong skipping bật mặc định từ Kotlin 2.0.20 (nhãn `version`).
 
 ## Chi tiết nội bộ: nguồn và giới hạn
-- `how-compose-works.md`: nhánh **androidx-main**, đường dẫn `compose/runtime/design/how-compose-works.md`, đọc 2026-11-21. Trang không hiện commit hash; vì vậy mọi chi tiết lấy từ đây ghi "androidx-main, đọc 2026-11-21" và gắn `impl`. Bản thân tài liệu cảnh báo SlotTable đang phát triển và có thể mô tả bản cũ.
+- `how-compose-works.md`: nhánh **androidx-main**, đường dẫn `compose/runtime/design/how-compose-works.md`, đọc 2026-11-21. **Cập nhật 2026-11-23:** đã ghim commit `296313a488a01c84ddcb0801d4efee640a14070c` (xem mục "Runtime v2"); nguồn `rt-how` trỏ tới commit đó. Chương v1 chưa viết lại (B0, B5, B6…) còn ghi "androidx-main, đọc 2026-11-21" và sẽ được sửa khi viết lại. Bản thân tài liệu cảnh báo SlotTable đang phát triển và có thể mô tả bản cũ.
 - Lấy từ đó (mức khái niệm, nhãn `impl`): Composer làm positional memoization, phát hiện thay đổi, đánh giá lại tăng dần; SlotTable gồm nhóm (group) và slot lưu trong mảng phẳng dạng gap buffer; compiler thêm tham số `$composer`, gọi start/end group, restart group trả về update scope khi có lần đọc quan sát được; thao tác node liền kề được gộp trước khi gọi Applier.
 - `$changed`: tài liệu nói nằm ngoài phạm vi → **chỉ nhắc tên, không giải thích bit**. Không mô tả layout bộ nhớ chi tiết.
 - Recomposer chạy trong coroutine: reference `Recomposer` có `runRecomposeAndApplyChanges()` là suspend function, chờ composer bị invalidate, recompose, apply; có pause/resume frame clock. Không có nguồn nói dispatcher cụ thể → không nêu.
@@ -31,7 +31,7 @@ Mọi URL dưới đây đã đọc trực tiếp ngày 2026-11-21, đều trả
 | B10 | Chuỗi `+1`: write → (apply) → invalidate scope đã đọc → Recomposer lên lịch → Composer chạy lại, skip con có tham số không đổi → Applier chỉ khi cấu trúc đổi → layout/draw khi cần | tổng hợp các nguồn trên | simplified |
 
 ## Điểm chưa xác minh / cách xử lý
-- Không có commit hash cho how-compose-works → ghi nhánh + ngày đọc.
+- ~~Không có commit hash cho how-compose-works~~ → đã ghim `296313a4` (2026-11-23).
 - mental-model nói composable "có thể" chạy song song nhưng ghi chú hiện chưa chạy song song → nội dung dùng "tài liệu yêu cầu viết như thể có thể chạy song song".
 - Số frame, thời lượng frame: không ghi.
 - Grokking Android (nguồn phụ): không dùng cho khẳng định nào.
