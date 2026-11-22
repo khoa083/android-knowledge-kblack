@@ -71,3 +71,12 @@ Spring trong model: dao động điều hòa tắt dần, khối lượng chuẩ
 | Hiểu lầm ≥ 8, có ví dụ và nguồn | 9 mục |
 
 Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), không sửa `js/core`. Trạng thái lab lưu ở `ADE.animLab.store` nên đổi ngôn ngữ giữ thời điểm/target/spec (đã kiểm). Giảm chuyển động: Phát chuyển tức thời tới trạng thái cuối.
+
+## Animation v2: nguồn đã đối chiếu (2026-11-23)
+
+- Mục lục *Android Animations by Tutorials*, Kunneth Ch.8, Tutorials Ch.12, Essentials Ch.39–41, 50: xem `docs/roadmap-v2.md` mục "Compose Animation v2".
+- Trang `animation/choose` trả 404; trang đúng là `animation/choose-api` (cây quyết định: art-based → AnimatedVectorDrawable/Lottie; vô hạn → rememberInfiniteTransition; layout → AnimatedContent/Crossfade/Pager hoặc navigation enter/exitTransition, AnimatedVisibility/CapturedAnimatedVisibility, animateContentSize, animateItem; nhiều thuộc tính → animate*AsState / updateTransition / Animatable; target định trước → animate*AsState; gesture → Animatable; one-shot → AnimationState/animate).
+- Trang `tooling/layout-inspector` của Compose trả 404 (dùng `tooling/debug`).
+- Thư mục mã ở commit 296313a4: `compose/animation/{animation, animation-core, animation-graphics, …}`; danh sách file `animation-core` và `animation` đã liệt kê (xem roadmap).
+- Câu trong bảng hằng số ở trên còn ghi "androidx-main, đọc 2026-11-21" cho `Easing.kt` và `FloatDecayAnimationSpec.kt`: khi viết c2 v2, đọc lại hai file ở commit ghim và sửa thành tham chiếu commit.
+

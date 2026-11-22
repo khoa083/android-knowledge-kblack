@@ -173,15 +173,37 @@ Thứ tự viết: dc → b2 → b3 → b4 → sh → b5 → ef → … (cuối 
 - `CompositionLocal`; Applier và cây `LayoutNode`; semantics tree.
 - Hiệu năng: layout inspector, đếm số lần recompose, baseline profile.
 
-### Compose Animation v2 (track C mở rộng)
-- Nền tảng: frame clock, `withFrameNanos`, `Animatable`, `AnimationSpec` (tween, spring, keyframes, repeatable), easing.
-- API cao: `animate*AsState`, `updateTransition`, `AnimatedVisibility`, `AnimatedContent`, `Crossfade`, `animateContentSize`.
-- Cử chỉ: `pointerInput`, `draggable`, fling/decay, ngắt và retarget.
-- Shared element transition, navigation animation.
-- Từ *Android Animations by Tutorials*:
-  - View system (property animator, `MotionLayout`, vector drawable);
-  - đối chiếu với Compose.
-- Hiệu năng và a11y: đọc state trong phase draw, reduced motion.
+### Compose Animation v2: dàn chương ĐÃ đối chiếu mục lục sách (2026-11-23)
+
+**Mục lục thật đã đọc:**
+- *Android Animations by Tutorials* (PDF, đọc trang mục lục bằng pdftotext): Phần I View & Property (Ch.1 Value & Object Animators, Ch.2 Animating Custom Views, Ch.3 XML Animations); Phần II Screen Transitions (Ch.4 Activity & Fragment transitions bằng XML, Ch.5 Transition Framework, Ch.6 Element Transitions/shared element); Phần III List & Gesture (Ch.7 Basic List Animations, Ch.8 ItemTouchHelper, Ch.9 Animate Scroll Gestures); Phần IV Ch.10 Jetpack Compose Animations (visibility, content size, state changes). Sách chủ yếu về hệ View; chỉ Ch.10 là Compose.
+- Kunneth Ch.8 Working with Animations: animating single value / multiple value changes, AnimatedVisibility, animating size changes, Crossfade, animation specifications.
+- Jetpack Compose by Tutorials Ch.12 Animating Properties: JoinButton (nền animate), Transition (định nghĩa, nối vào composable), animating composable content (JoinedToast).
+- Jetpack Compose 1.3 Essentials: Ch.39 Visibility Animation (enter/exit, spec và easing, repeat, animateEnterExit cho con, auto-start, crossfade); Ch.40 State-Driven Animation (animate*AsState: rotation, color, Dp; spring; keyframes; kết hợp nhiều animation; Animation Inspector); Ch.41 Canvas; Ch.50 Gestures.
+- Tài liệu developer.android.com (danh mục 2026-11-23): introduction, choose-api (cây quyết định), quick-guide, composables-modifiers, value-based, vectors, advanced, customize, shared-elements (+ customize, common-use-cases, navigation), testing, tooling.
+- Mã ở commit ghim 296313a4: `compose/animation/animation-core` (Animatable, AnimateAsState, AnimationSpec, SpringSimulation, Easing, DecayAnimationSpec, Transition, InfiniteTransition, SuspendAnimation, VectorConverters…) và `compose/animation/animation` (AnimatedVisibility, AnimatedContent, Crossfade, EnterExitTransition, AnimationModifier, SharedTransitionScope, SharedElement…).
+
+**Dàn chương.** Giữ id v1 (c0–c8) để route không đổi; thêm 4 chương mới. Mỗi chương theo khuôn v2 (đoán trước, giảng từng bước, dưới mui xe với mã ghim, sim mới, bug, bài tập, tự trả lời, quiz).
+
+| Thứ tự | Id | Chương | Nguồn chính |
+|---|---|---|---|
+| 1 | c0 | Chọn API (viết lại CUỐI CÙNG, theo cây quyết định choose-api) | choose-api, Kunneth Ch.8 mở đầu |
+| 2 | **vm** (mới) | Trước Compose: ValueAnimator, ObjectAnimator, interpolator, Transition framework, shared element trong View; đối chiếu từng khái niệm với Compose | AAT Ch.1–6 |
+| 3 | c1 | Từ target đến giá trị: animate*AsState, đổi target giữa chừng, label | Kunneth Ch.8, Essentials Ch.40, Tutorials Ch.12, value-based, `AnimateAsState.kt` |
+| 4 | c2 | AnimationSpec: spring, tween/easing, keyframes, repeat, snap, decay, AnimationVector/TwoWayConverter | Essentials 39.4, 40.7–40.8, customize, `AnimationSpec.kt`, `SpringSimulation.kt`, `Easing.kt`; AAT Ch.1 (interpolator) |
+| 5 | c3 | updateTransition: nhiều giá trị theo một state, transitionSpec theo hướng, MutableTransitionState | Kunneth Ch.8, Tutorials Ch.12, value-based, `Transition.kt` |
+| 6 | c4 | AnimatedVisibility, animateEnterExit, AnimatedContent, Crossfade, thời điểm rời composition | Kunneth Ch.8, Essentials Ch.39, AAT Ch.10, composables-modifiers, `AnimatedVisibility.kt`, `AnimatedContent.kt` |
+| 7 | c5 | Kích thước, layout và item: animateContentSize, animateItem, layout vs graphicsLayer | Kunneth Ch.8, AAT Ch.10 và Ch.7 (đối chiếu ItemAnimator), lists docs, `AnimationModifier.kt` |
+| 8 | **if** (mới) | Lặp và vô hạn: repeatable, infiniteRepeatable, rememberInfiniteTransition, InfiniteAnimationPolicy | Essentials 39.5, value-based, `InfiniteTransition.kt`, `InfiniteAnimationPolicy.kt` |
+| 9 | c6 | Animatable và gesture: animateTo/snapTo/animateDecay/stop, mutex, VelocityTracker, fling | advanced, Essentials Ch.50, AAT Ch.9, `Animatable.kt`, `DecayAnimationSpec.kt` |
+| 10 | **se** (mới) | Shared element và chuyển màn hình: SharedTransitionLayout, sharedElement/sharedBounds, navigation | shared-elements docs, AAT Ch.4–6 (đối chiếu View), `SharedTransitionScope.kt` |
+| 11 | **cv** (mới) | Vẽ và vector động: Canvas + animation, AnimatedVectorDrawable | Essentials Ch.41, vectors docs, AAT Ch.2 |
+| 12 | c7 | Frame clock và phase (giữ X1, X3) | Runtime B5, B7, quick-guide (hiệu năng) |
+| 13 | c8 | Kiểm thử, công cụ, giảm chuyển động | testing, tooling, Essentials 40.10, Runtime B9 (đồng hồ ảo) |
+
+Thứ tự viết: c1 → c2 → c3 → c4 → c5 → if → c6 → se → cv → vm → c7 → c8 → c0.
+
+**Việc kỹ thuật trước chương đầu:** `dev/gen/animation_content.py` chưa có cơ chế module v2; thêm vòng `for mod in (...)` với `add/override/SEC_ORDER` giống `runtime_content.py`.
 
 ### UX v2 / UI v2 (track D, E mở rộng)
 - **UX:**
