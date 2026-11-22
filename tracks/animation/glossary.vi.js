@@ -12,5 +12,9 @@ ADE.addGlossary('vi', 'animation', {
   "animated-content": { term: "AnimatedContent", def: "Composable animate việc đổi nội dung theo targetState; phải dùng tham số của content lambda.", chapter: "animation/c4" },
   "target-value": { term: "target value", def: "Giá trị animation đang hướng tới; khác với current value đang hiển thị.", chapter: "animation/c1" },
   "test-clock": { term: "mainClock", def: "Đồng hồ test của ComposeTestRule; tắt autoAdvance để tự tiến thời gian, advanceTimeBy làm tròn lên theo frame.", chapter: "animation/c8" },
-  "graphics-layer": { term: "graphicsLayer", def: "Modifier biến đổi lúc vẽ (scale, translation, alpha…); đọc state trong lambda của nó chỉ ảnh hưởng phase draw.", chapter: "animation/c7" }
+  "graphics-layer": { term: "graphicsLayer", def: "Modifier biến đổi lúc vẽ (scale, translation, alpha…); đọc state trong lambda của nó chỉ ảnh hưởng phase draw.", chapter: "animation/c7" },
+  "animation-vector": { term: "AnimationVector", def: "Vector 1–4 số thực mà mọi AnimationSpec thực sự làm việc trên đó; giá trị kiểu bất kỳ được TwoWayConverter đổi sang vector rồi đổi ngược.", chapter: "animation/c2" },
+  "two-way-converter": { term: "TwoWayConverter", def: "Cặp hàm đổi một kiểu sang AnimationVector và ngược lại; màu dùng bộ chuyển đổi trong không gian Oklab.", chapter: "animation/c2" },
+  "mutable-transition-state": { term: "MutableTransitionState", def: "State của Transition cho phép state đầu khác target, nên animation chạy ngay khi vào composition; có isIdle để biết đã xong.", chapter: "animation/c3" },
+  "current-state": { term: "currentState (Transition)", def: "State hiện tại của Transition: giữ state ban đầu cho tới khi mọi animation con xong, rồi mới bằng targetState.", chapter: "animation/c3" }
 });

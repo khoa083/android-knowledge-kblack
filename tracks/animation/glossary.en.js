@@ -12,5 +12,9 @@ ADE.addGlossary('en', 'animation', {
   "animated-content": { term: "AnimatedContent", def: "A composable that animates content changes by targetState; you must use the content lambda parameter.", chapter: "animation/c4" },
   "target-value": { term: "target value", def: "The value an animation is heading to; different from the current value on screen.", chapter: "animation/c1" },
   "test-clock": { term: "mainClock", def: "The ComposeTestRule test clock; turn off autoAdvance to move time yourself; advanceTimeBy rounds up to frames.", chapter: "animation/c8" },
-  "graphics-layer": { term: "graphicsLayer", def: "A modifier for draw-time transforms (scale, translation, alpha…); reading state in its lambda affects only the draw phase.", chapter: "animation/c7" }
+  "graphics-layer": { term: "graphicsLayer", def: "A modifier for draw-time transforms (scale, translation, alpha…); reading state in its lambda affects only the draw phase.", chapter: "animation/c7" },
+  "animation-vector": { term: "AnimationVector", def: "The 1–4-float vector every AnimationSpec actually works on; a value of any type is turned into a vector by a TwoWayConverter and back.", chapter: "animation/c2" },
+  "two-way-converter": { term: "TwoWayConverter", def: "A pair of functions converting a type to an AnimationVector and back; colours use a converter in the Oklab space.", chapter: "animation/c2" },
+  "mutable-transition-state": { term: "MutableTransitionState", def: "A Transition state allowing an initial state different from the target, so the animation runs on entering composition; isIdle tells when it is done.", chapter: "animation/c3" },
+  "current-state": { term: "currentState (Transition)", def: "A Transition’s current state: it keeps the initial state until every child animation is done, then equals targetState.", chapter: "animation/c3" }
 });

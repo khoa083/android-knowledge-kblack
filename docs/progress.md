@@ -477,3 +477,5 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.exitlife` (hiệu ứng có sẵn, animation tùy biến trên transition, animateFloatAsState ngoài transition). Nguồn mới `an-av-src` (HTTP 200).
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ sạch; đã xem ảnh sim.
   - **Tiếp theo:** c5 (animateContentSize, animateItem, layout vs graphicsLayer; Kunneth Ch.8, AAT Ch.10 và Ch.7, `AnimationModifier.kt`), rồi if, c6, se, cv, vm, c7, c8, c0. Có thể bổ sung sâu thêm cho c4 (AnimatedContent: ContentTransform, SizeTransform, z-order; `AnimatedContent.kt`).
+- **Glossary Animation (2026-11-23):** thêm 4 thuật ngữ song ngữ (AnimationVector, TwoWayConverter, MutableTransitionState, currentState của Transition). Report 0 lỗi, 120 cảnh báo.
+- **Dừng phiên định kỳ 2026-11-23 ở 92% hạn mức 5 giờ.** Tiếp theo: Animation v2 c5 theo `roadmap-v2.md`.
