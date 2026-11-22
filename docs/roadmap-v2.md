@@ -43,7 +43,11 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 
 Thêm track mới theo `E:\AndroidDeepDiveExplorer-Prompts\P-NEW-TRACK.md` và `TRACK-TEMPLATE.md`. Lõi không phải sửa.
 
-## Coroutines v2: dàn chương dự kiến (bám bố cục Deep Dive, kiểm lại với mục lục sách trước khi viết)
+## Coroutines v2: dàn chương (đã đối chiếu mục lục thật của *Kotlin Coroutines: Deep Dive*, 2026-11-22; số trang là trang PDF)
+
+Mục lục sách: Phần 1 (tr. 13–64): Why Kotlin Coroutines? · Sequence builder · How does suspension work? · Coroutines under the hood · Built-in support vs library. Phần 2 (tr. 65–233): Coroutine builders · Coroutine context · Jobs and awaiting children · Cancellation · Exception handling · Coroutine scope functions · Dispatchers · Constructing a coroutine scope · The problem with shared state · Testing. Phần 3 (tr. 234–375): Channel · Select · Hot and cold data sources · Flow introduction · Understanding Flow · Flow building · Flow lifecycle functions · Flow processing · SharedFlow and StateFlow · Testing flow. Phần 4 (tr. 376–449): Common use cases · Recipes · Using coroutines from other languages · Launching coroutines vs. suspending functions · Best practices.
+
+Chương mới của Phần 1 dùng id mới, chèn trước `a1` trong manifest; giữ nguyên id `a0…a9` (cầu nối, lộ trình, tiến độ đã lưu trỏ tới chúng).
 
 **Phần 1: Hiểu coroutine**
 - Vì sao cần coroutine: callback, RxJava, thread.
@@ -82,7 +86,7 @@ Thêm track mới theo `E:\AndroidDeepDiveExplorer-Prompts\P-NEW-TRACK.md` và `
   - `SharedFlow`/`StateFlow`, `stateIn`/`shareIn`;
   - test flow.
 
-**Phần 4: Thực hành Android**
+**Phần 4: Thực hành** (Common use cases, Recipes, Launching vs suspending, Best practices; bỏ "from other languages" trừ phần liên quan Java interop)
 - `viewModelScope`, `lifecycleScope`, `repeatOnLifecycle`.
 - Các bug thường gặp: rò scope, nuốt `CancellationException`, `GlobalScope`, block luồng Main.
 
