@@ -414,6 +414,31 @@ a('cap.size', 'Thẻ cha ở trên; đổi kích thước ảnh hưởng tới l
 a('cap.phaseread', 'Giá trị animation bên trái; ba phase bên phải. Đọc giá trị ở phase nào thì mỗi frame phase đó chạy lại (thẻ nhấn).', 'The animated value on the left; the three phases on the right. Whichever phase reads the value runs again on each animation frame (highlighted card).')
 a('cap.testclock', 'Bài test điều khiển đồng hồ; đồng hồ quyết định animation tiến tới frame nào.', 'The test drives the clock; the clock decides which frame the animation reaches.')
 
+# ---------------- v2 (2026-11-23): module chương dài, cùng khuôn với dev/gen/runtime_content.py ----------------
+# Mỗi module: add(a) (a(k, vi, en=None)), tuỳ chọn override(o) và SEC_ORDER = {chương: [mục…]}.
+import sys
+_here = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, _here)
+def a2(k, vi, en=None): E.append((P + k, vi, vi if en is None else en))
+def o2(k, vi, en=None):
+    k = P + k
+    for i, e in enumerate(E):
+        if e[0] == k: E[i] = (k, vi, vi if en is None else en); return
+    raise KeyError(k)
+for mod in ('animation_v2_c1',):   # thêm module mới vào đây
+    if os.path.exists(os.path.join(_here, mod + '.py')):
+        mm = __import__(mod)
+        mm.add(a2)
+        if hasattr(mm, 'override'): mm.override(o2)
+        for chap, order in getattr(mm, 'SEC_ORDER', {}).items():
+            pre = P + chap + '.sec.'
+            idx = [i for i, e in enumerate(E) if e[0].startswith(pre)]
+            items = [E[i] for i in idx]
+            rank = lambda e: order.index(e[0][len(pre):].split('.')[0]) if e[0][len(pre):].split('.')[0] in order else len(order)
+            items.sort(key=rank)
+            first = idx[0]; sidx = set(idx)
+            E[:] = [e for i, e in enumerate(E) if i not in sidx]
+            E[first:first] = items
+
 keys = [k for k, _, _ in E]; dup = [k for k in set(keys) if keys.count(k) > 1]; assert not dup, dup
 for lang, idx in (('vi', 1), ('en', 2)):
     body = ',\n'.join('  %s: %s' % (json.dumps(e[0]), json.dumps(norm(e[idx]), ensure_ascii=False)) for e in E)

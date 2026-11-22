@@ -32,6 +32,13 @@
     nodes: [N('testclock', 'test', 0, 0, 'check', 'job'), N('testclock', 'clock', 4, 0, 'clock', 'state'), N('testclock', 'anim', 4, 4, 'motion', 'anim')],
     edges: [E('e0', 'test', 'clock'), E('e1', 'clock', 'anim')], metrics: [T('testclock', 'value'), T('testclock', 'clock')]
   });
+  /* C1 (v2): composable → AnimateAsState (remember) → job (coroutine) → Animatable; giá trị quay về composable mỗi frame. */
+  V('aas', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('aas', 'comp', 0, 0, 'layers', 'runtime'), N('aas', 'state', 4, 0, 'store', 'state'), N('aas', 'job', 8, 0, 'job', 'job'), N('aas', 'anim', 12, 0, 'motion', 'anim')],
+    edges: [E('e1', 'comp', 'state'), E('e2', 'state', 'job'), E('e3', 'job', 'anim'), E('e4', 'anim', 'comp')],
+    metrics: [T('aas', 'launched'), T('aas', 'cancelled'), T('aas', 'value')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

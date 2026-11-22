@@ -235,4 +235,72 @@
       return Math.abs(Ph.decayTarget(20, 200, 1)) <= 120 && Math.abs(r.outputs.value) < 0.5;
     } }
   ]);
+  /* ================= C1 (v2): animate*AsState bên trong (AnimateAsState.kt @296313a4) =================
+     Lần đầu: remember tạo AnimateAsState(Animatable(target)), không SideEffect, không animation. Sau đó mỗi lần recompose: SideEffect gọi update();
+     target khác animatable.targetValue → restartAnimation: job cũ bị cancel, coroutineScope.launch(UNDISPATCHED) { animatable.animateTo(target, spec) }.
+     same: target bằng → không làm gì. interrupt: target đổi giữa chừng → job cũ cancel, animateTo mới chạy từ value hiện tại (Animatable giữ velocity). Số là minh họa. */
+  (function () {
+    var m = 'aas';
+    var SC = ['first', 'change', 'interrupt', 'same'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'change', out = [], t = 0, c = { launched: 0, cancelled: 0 }, target = sc === 'same' ? '100' : '0', value = sc === 'same' ? '100' : '0', job = '—';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {};
+        o.metrics = { launched: c.launched, cancelled: c.cancelled, value: value };
+        o.stateAfter = [{ labelKey: M(m, 'st.target'), value: target }, { labelKey: M(m, 'st.value'), value: value }, { labelKey: M(m, 'st.job'), value: job }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'aas_impl', lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 16, kind: o.kind || 'observe', subject: o.activeNodes[o.activeNodes.length - 1] || 'comp', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var frames = function (vals, key) { vals.forEach(function (v) { value = String(v); P(key, { activeNodes: ['anim', 'comp'], movingSignals: [{ edge: 'e4', tok: 'anim' }], lines: [17], kind: 'frame', params: { v: v } }); }); };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['comp'], lines: [1, 2], kind: 'observe' });
+      if (sc === 'first') {
+        P('create', { activeNodes: ['comp', 'state', 'anim'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: [3, 4, 5], kind: 'act', callouts: [{ kind: 'source', textKey: M(m, 'co.noSide') }] });
+        P('read', { activeNodes: ['state', 'comp'], lines: [9], kind: 'observe' });
+        P('end.first', { activeNodes: ['comp'], lines: [], kind: 'settle' });
+        return out;
+      }
+      if (sc === 'same') {
+        P('recomposeSame', { activeNodes: ['comp', 'state'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: [6, 7], kind: 'observe' });
+        P('noop', { activeNodes: ['state'], lines: [11], kind: 'skip', callouts: [{ kind: 'source', textKey: M(m, 'co.same') }] });
+        P('end.same', { activeNodes: ['comp'], lines: [], kind: 'settle' });
+        return out;
+      }
+      target = '100';
+      P('recompose', { activeNodes: ['comp', 'state'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: [6, 7], kind: 'target-change' });
+      c.launched++; job = 'Active';
+      P('launch', { activeNodes: ['state', 'job', 'anim'], movingSignals: [{ edge: 'e2', tok: 'job' }, { edge: 'e3', tok: 'anim' }], lines: [11, 15, 16], kind: 'act', callouts: [{ kind: 'source', textKey: M(m, 'co.launch') }] });
+      if (sc === 'change') {
+        frames([38, 81], 'frame');
+        value = '100'; job = 'Completed';
+        P('settle', { activeNodes: ['anim', 'comp'], lines: [18], kind: 'settle' });
+        P('end.change', { activeNodes: ['comp'], lines: [], kind: 'settle', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.read') }] });
+        return out;
+      }
+      frames([52], 'frame');
+      target = '40'; c.cancelled++; c.launched++; job = 'Active';
+      P('retarget', { type: 'pitfall', activeNodes: ['comp', 'state', 'job'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'error' }], lines: [6, 11, 13, 14, 15, 16], kind: 'interrupt', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.velocity') }] });
+      frames([61, 43], 'frame2');
+      value = '40'; job = 'Completed';
+      P('settle', { activeNodes: ['anim', 'comp'], lines: [18], kind: 'settle' });
+      P('end.interrupt', { activeNodes: ['comp'], lines: [], kind: 'settle' });
+      return out;
+    }
+    reg(m, {
+      codeId: 'aas_impl',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'change' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'lần đầu: không launch; đổi target: 1 job, xong ở 100; đổi target giữa chừng: 2 job, 1 bị cancel, xong ở 40; target không đổi: không launch', run: function () {
+        var last = function (w) { return steps({ which: w }).slice(-1)[0]; };
+        var f = last('first'), c = last('change'), i = last('interrupt'), s = last('same');
+        return f.metrics.launched === 0 && c.metrics.launched === 1 && c.stateAfter[1].value === '100' && i.metrics.launched === 2 && i.metrics.cancelled === 1 && i.stateAfter[1].value === '40' && s.metrics.launched === 0;
+      } }]
+    });
+  })();
 })();

@@ -79,4 +79,25 @@
     'rule.mainClock.advanceTimeBy(150)',
     'rule.onNodeWithTag("box").assertWidthIsEqualTo(...)'
   ]);
+  add('aas_impl', [
+    '@Composable',
+    { vi: 'fun animateFloatAsState(targetValue: Float, /* … */): State<Float> {   // rút gọn từ animateValueAsState', en: 'fun animateFloatAsState(targetValue: Float, /* … */): State<Float> {   // condensed from animateValueAsState' },
+    '    val coroutineScope = rememberCoroutineScope()',
+    '    var updating = true',
+    '    val state = remember { AnimateAsState(targetValue, /* … */, coroutineScope).also { updating = false } }',
+    { vi: '    if (updating) SideEffect {                       // không chạy ở lần đầu', en: '    if (updating) SideEffect {                       // does not run the first time' },
+    '        state.update(targetValue, /* … */) }',
+    '    return state',
+    { vi: '}   // đọc state.value → animatable.value', en: '}   // reading state.value → animatable.value' },
+    '// AnimateAsState.update():',
+    'if (target != animatable.targetValue) restartAnimation(target, spec, isInterrupted)',
+    '// restartAnimation():',
+    'job?.cancel()',
+    'val specToUse = if (animSpec is InterruptionAwareAnimationSpec<T>) /* … */ else animSpec',
+    'job = coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {',
+    '    animatable.animateTo(newTarget, specToUse)',
+    { vi: '    // mỗi frame: animatable.value đổi → ai đọc state.value bị invalidate', en: '    // every frame: animatable.value changes → whoever reads state.value is invalidated' },
+    '    finishedListener?.invoke(animatable.value)',
+    '}'
+  ]);
 })();

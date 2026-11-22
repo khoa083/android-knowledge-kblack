@@ -80,3 +80,14 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 - Thư mục mã ở commit 296313a4: `compose/animation/{animation, animation-core, animation-graphics, …}`; danh sách file `animation-core` và `animation` đã liệt kê (xem roadmap).
 - Câu trong bảng hằng số ở trên còn ghi "androidx-main, đọc 2026-11-21" cho `Easing.kt` và `FloatDecayAnimationSpec.kt`: khi viết c2 v2, đọc lại hai file ở commit ghim và sửa thành tham chiếu commit.
 
+
+### C1 v2 · animate*AsState (2026-11-23)
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| StateChangeDemo đổi màu đột ngột; animateColorAsState; finishedListener; colorDefaultSpring; spring(stiffness = VeryLow) | Kunneth Ch.8 | Ví dụ của sách |
+| animate as state cho rotation, color, Dp | Essentials Ch.40 | Ví dụ của sách |
+| Nền JoinButton animate theo state | Tutorials Ch.12 | Ví dụ của sách |
+| rememberCoroutineScope; remember AnimateAsState(Animatable); SideEffect update() trừ lần đầu ("Avoid calling state.update on initial composition"); update so targetValue; restartAnimation: job?.cancel, InterruptionAwareAnimationSpec, launch(UNDISPATCHED) { animateTo; finishedListener }; KDoc: điều chỉnh về target mới, không hủy được nếu không gỡ khỏi cây | `an-aas-src` (@296313a4) | impl |
+| Bài viết cũ mô tả Channel + LaunchedEffect: không khớp mã ghim | `an-aas-src` | ghi chú lệch |
+| Sim `animation.aas`: 0 / 1 / 2 (1 cancel) / 0 job | Theo mã ghim | selfCheck; số giá trị minh họa |
