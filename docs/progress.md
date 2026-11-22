@@ -252,4 +252,10 @@ Trạng thái: `chưa / đang / xong`.
   - thêm 2 nguồn.
 - **Kiểm:** report 0 lỗi; track-check không thêm vấn đề; routes-check 0 vấn đề.
 - **Còn lại của Phần 2:** Testing (Deep Dive tr. 198–233, 36 trang) → A9 phần 2.
+- **A9 v2 phần 2 "Kiểm thử" (2026-11-22):**
+  - 12 mục mới (kiểm thử cơ bản, thời gian, scheduler/dispatcher/`TestScope`, `runTest`, `backgroundScope`, kiểm structured concurrency, `UnconfinedTestDispatcher`, inject dispatcher, kiểm giữa chừng, inject `TestScope`, `setMain` + rule), 3 bug, 3 bài tập, tự trả lời;
+  - đổi tiêu đề và phần "bản chất" của A9;
+  - thêm nguồn `kx-test`.
+- **Kiểm:** report 0 lỗi; track-check không thêm vấn đề; routes-check 103 route, 0 vấn đề.
+- **PHẦN 2 HOÀN TẤT.** Tiếp theo là Phần 3 (Deep Dive tr. 234–375: Channel, Select, Hot/cold, Flow intro, Understanding Flow, Flow building, Flow lifecycle, Flow processing, SharedFlow/StateFlow, Testing flow) → viết sâu A7 (có thể tách thành nhiều chương: Channel, Flow cơ bản, toán tử, SharedFlow/StateFlow). Sau đó Phần 4 (tr. 376–449) → A8.
 

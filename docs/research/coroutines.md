@@ -301,3 +301,22 @@ Chương mới id `sf`, đặt giữa A6 và A7, dùng lại sim `coroutines.bui
 | `Semaphore` để giới hạn đồng thời | Deep Dive tr. 195–197; `kx-semaphore` (URL 200) | API ổn định |
 | `@Volatile` không làm `++` nguyên tử; `MutableStateFlow.update` so sánh-và-đặt | Kiến thức JVM/kotlinx | **Chưa trích nguồn riêng** (sẽ đối chiếu ở chương StateFlow) |
 | `withContext` lồng với cùng dispatcher 1 luồng không deadlock | Suy từ ngữ nghĩa `withContext` (cùng dispatcher thì không dispatch lại) | **Suy luận; chưa chạy thử** |
+
+### A9 v2 (phần 2) · Kiểm thử coroutine (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "Testing Kotlin Coroutines", trang PDF 198–233. Đọc toàn văn.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Fake/mock; `runBlocking` đủ khi không kiểm thời gian | Deep Dive tr. 198–200 | Khuyến nghị |
+| `TestCoroutineScheduler`, `StandardTestDispatcher` (không tự đẩy thời gian), `advanceUntilIdle`, `advanceTimeBy` + `runCurrent`, `TestScope` | Deep Dive tr. 201–207; `kx-test` (URL 200) | API (từ 1.6; sách ghi lúc đó còn experimental) |
+| `delay` dùng `Delay.scheduleResumeAfterDelay` của dispatcher test | Deep Dive tr. 205 | impl |
+| `runTest`, `currentTime`; `backgroundScope` | Deep Dive tr. 208–213 | API |
+| `currentCoroutineContext()` thay `coroutineContext` trong lambda lồng | Deep Dive tr. 214 | API |
+| `UnconfinedTestDispatcher`; gần `runBlockingTest` cũ | Deep Dive tr. 216–217 | API |
+| Inject dispatcher; `coroutineContext[ContinuationInterceptor]`; `EmptyCoroutineContext` | Deep Dive tr. 218–221 | Mẫu |
+| Kiểm trạng thái giữa chừng; inject `TestScope`; 700 ms ảo | Deep Dive tr. 221–225 | Ví dụ |
+| `setMain`/`resetMain`; "Module with the Main dispatcher is missing"; `MainCoroutineRule`/Extension | Deep Dive tr. 225–232. **Đóng mục còn mở ở A4: nguyên văn thông báo lỗi có trong sách** | API |
+| Trạng thái "experimental" ở phiên bản hiện tại | **Chưa đối chiếu**; nội dung đã ghi "kiểm ở đúng phiên bản bạn dùng" | |
+
+**Phần 2 của Coroutines v2 hoàn tất** (Builders → A3, Context + Dispatchers → A4, Job → A2, Hủy → A5, Exception → A6, Scope functions → SF, Tự dựng scope → A8, Shared state + Testing → A9).
