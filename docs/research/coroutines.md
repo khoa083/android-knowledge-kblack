@@ -180,3 +180,16 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 | Bài đoán output (start, L, A, end) | Tự suy từ ngữ nghĩa dispatch của `runBlocking` (một luồng, con chạy khi cha suspend) | **Chưa chạy thử thật** |
 
 **Cách tích hợp:** viết sâu thêm vào A3, giữ id, sim `coroutines.builders` và mục v1 "when". `SEC_ORDER` trong generator sắp lại thứ tự mục; `override` thay tiêu đề, phần "bản chất" và goal g1.
+
+### A4 v2 · Coroutine context (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "Coroutine context", trang PDF 82–93. Đọc toàn văn.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Context là tập có chỉ mục; mỗi Element cũng là context; key so sánh bằng tham chiếu; `get`, `+`, `minusKey`, `fold`, `EmptyCoroutineContext` | Deep Dive tr. 83–88; `kt-context` | API ổn định |
+| Companion object `Key`; `Job` dùng chung key cho `Job`/`SupervisorJob` | Deep Dive tr. 85–86 | API ổn định |
+| Mặc định chỉ thêm `Dispatchers.Default` (khi không có interceptor) và `CoroutineId` (debug) | Deep Dive tr. 90 | impl, ghi theo sách; **chưa đối chiếu `newCoroutineContext` ở phiên này** |
+| Coroutine luôn tạo Job riêng; `Job` truyền vào làm cha → phá structured concurrency | Deep Dive tr. 90 (Job là ngoại lệ), sẽ đối chiếu ở chương Job | API ổn định |
+| `ThreadLocal.asContextElement` | `kx-asctx` (URL đã kiểm, 200) | API ổn định |
+| Đoán output `[c1]`, `[main]`, `Outer`/`Inner` | Deep Dive tr. 89–92 (output in sẵn trong sách) | Ví dụ của sách |

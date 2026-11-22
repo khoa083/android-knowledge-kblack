@@ -213,4 +213,5 @@ Trạng thái: `chưa / đang / xong`.
   - generator có thêm `override` (ghi đè chuỗi v1) và `SEC_ORDER` (sắp lại thứ tự mục).
 - **Kiểm A3 v2:** report 0 lỗi; track-check 1280 và 360 không thêm vấn đề; routes-check 102 route, 0 vấn đề.
 - **Tiếp theo trong Phần 2:** Context (tr. 82–93) → A4; Job và chờ con (tr. 94–106) → A2; Hủy (tr. 107–121) → A5; Exception (tr. 122–132) → A6; Scope functions (tr. 133–152); Dispatchers (tr. 153–172) → A4; Tự dựng scope (tr. 173–182); Shared state (tr. 183–197) và Testing (tr. 198–233) → A9.
+- **A4 v2 "Coroutine context" (2026-11-22):** viết sâu thêm vào A4, gồm 12 mục: ôn tập, context là gì, tra phần tử, ghép bằng +, minusKey/fold, thừa hưởng và ghi đè, đọc trong hàm suspend, tự tạo phần tử, ctx (v1, dispatcher), 3 bug (`Job()` phá cây, phần tử dùng chung bị race, `ThreadLocal`), 3 bài tập, tự trả lời. Sim đặt sau "ctx". Thêm nguồn `kx-asctx`. Report 0 lỗi; track-check không thêm vấn đề. Phần Dispatchers (tr. 153–172) sẽ thêm vào A4 sau.
 

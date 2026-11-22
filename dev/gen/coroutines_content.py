@@ -26,7 +26,7 @@ def o(k, vi, en=None):
         if e[0] == k: E[i] = (k, vi, vi if en is None else en); return
     raise KeyError(k)
 
-for mod in ('coroutines_v2_part1', 'coroutines_v2_u2', 'coroutines_v2_u3', 'coroutines_v2_u4', 'coroutines_v2_a3'):
+for mod in ('coroutines_v2_part1', 'coroutines_v2_u2', 'coroutines_v2_u3', 'coroutines_v2_u4', 'coroutines_v2_a3', 'coroutines_v2_a4'):
     if os.path.exists(os.path.join(here, mod + '.py')):
         mm = __import__(mod)
         mm.add(a)

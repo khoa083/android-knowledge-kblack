@@ -34,6 +34,8 @@
       '`runBlocking` chạy coroutine mới và chặn luồng hiện tại tới khi xong; không dùng bên trong coroutine (A3).', '`runBlocking` runs a new coroutine and blocks the current thread until it completes; not to be used from inside a coroutine (A3).'),
     s('kx-coroutinescope', 'coroutineScope', 'https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/coroutine-scope.html', 'JetBrains (kotlinx.coroutines API)', 'stable',
       '`coroutineScope` tạo scope trong hàm suspend, chờ mọi con, lỗi ở con hủy các con khác (A3).', '`coroutineScope` creates a scope inside a suspending function, waits for every child, and a failing child cancels the others (A3).'),
+    s('kx-asctx', 'asContextElement', 'https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/as-context-element.html', 'JetBrains (kotlinx.coroutines API)', 'stable',
+      'Bọc `ThreadLocal` thành phần tử context: đặt và khôi phục giá trị mỗi khi coroutine chạy trên một luồng (A4).', 'Wraps a `ThreadLocal` as a context element: sets and restores the value whenever the coroutine runs on a thread (A4).'),
     s('book-deepdive', 'Kotlin Coroutines: Deep Dive (Marcin Moskała)', 'https://leanpub.com/coroutines', 'Kt. Academy (sách)', 'guideline',
       'Sách nguồn giảng chính của Coroutines v2: bố cục chương và ví dụ màn hình tin tức (U1 theo chương "Why Kotlin Coroutines?").', 'The main teaching source for Coroutines v2: chapter structure and the news-screen example (U1 follows the chapter "Why Kotlin Coroutines?").'),
     s('kt-guide', 'Coroutines guide', 'https://kotlinlang.org/docs/coroutines-guide.html', 'JetBrains (kotlinlang.org)', 'stable',

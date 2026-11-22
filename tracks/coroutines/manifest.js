@@ -18,7 +18,7 @@ ADE.registerTrack({
     { id: 'a1', titleKey: 'track.coroutines.a1.title', sims: ['coroutines.suspend'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'a2', titleKey: 'track.coroutines.a2.title', sims: ['coroutines.jobtree'], bridges: ['X4'], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'a3', titleKey: 'track.coroutines.a3.title', sims: ['coroutines.builders'], simAfter: 'async', bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
-    { id: 'a4', titleKey: 'track.coroutines.a4.title', sims: ['coroutines.context'], bridges: ['X3'], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
+    { id: 'a4', titleKey: 'track.coroutines.a4.title', sims: ['coroutines.context'], simAfter: 'ctx', bridges: ['X3'], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'a5', titleKey: 'track.coroutines.a5.title', sims: ['coroutines.cancel'], bridges: ['X4'], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'a6', titleKey: 'track.coroutines.a6.title', sims: ['coroutines.exception'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'a7', titleKey: 'track.coroutines.a7.title', sims: ['coroutines.flowpipe', 'coroutines.hotcold'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
