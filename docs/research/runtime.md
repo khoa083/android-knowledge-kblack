@@ -122,3 +122,24 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Strong skipping so tham số không ổn định theo địa chỉ, mặc định từ Kotlin 2.0.20 | Đã ghi ở B8 (v1); chương B8 v2 sẽ đối chiếu lại | stable / version |
 | Xem mã thật: Tools → Kotlin → Show Kotlin Bytecode → Decompile | Hướng dẫn của site; kết quả tùy phiên bản | version |
 | Sim `runtime.groups`: 3 group / 5 slot (mô hình tài liệu), 4 kịch bản, biến thể giả định | Kịch bản của site, theo mã giả của tài liệu | selfCheck; nhãn giản lược (số slot thật lớn hơn) |
+
+### B3 · SlotTable, thay đổi cấu trúc, identity (viết lại 2026-11-23)
+
+**Đã đọc:**
+- `how-compose-works.md` @296313a4, các mục The Slot Table, Detecting Structural Changes (Deletes, Inserts, Moves), Content Identity, Duplicate keys;
+- "Lifecycle of composables" (`cp-lifecycle`), toàn văn, 2026-11-23.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| SlotTable: cây group trải thành 2 mảng (group, slot), tránh boxing; 6 trường trong 5 số nguyên; không có con trỏ con; Parent/Size thừa nhau nhưng giữ cả hai; số slot = hiệu chỉ số slot | `rt-how` | impl |
+| Bảng ví dụ của tài liệu đảo key 1234/4567 so với ví dụ mã; site đổi lại cho khớp và ghi chú | `rt-how` | Ghi chú của site |
+| SlotReader/SlotWriter: một writer khi không có reader; nhiều reader khi không có writer; gap buffer, index/address, anchor | `rt-how` | impl |
+| Ký hiệu chuỗi group; so tuần tự với bảng cũ khi phát group | `rt-how` | impl |
+| Xóa: Pending (bảng băm theo key) ở chỗ lệch; dời Email về #5; `/G` xóa phần còn lại; index node theo tổng node; gộp thao tác liền kề | `rt-how` | impl |
+| Chèn: insert table riêng vì bảng chính chỉ đọc trong composition; chèn ở #5, node index 1 | `rt-how` | impl |
+| Di chuyển: hiện chỉ `key` sinh ra; runtime tổng quát; ví dụ đảo thứ tự; gộp di chuyển liền kề | `rt-how` | impl |
+| Danh tính = call site; ví dụ Counters/showMiddle; flow-control group quanh `if` | `rt-how` | impl |
+| Ở commit ghim, group của `if`/`when` dùng `startReplaceGroup` | `rt-composer-src` | impl |
+| Key trùng trả theo thứ tự bảng cũ (ví dụ repeat + Text có điều kiện) | `rt-how` | impl |
+| Call site, thứ tự thực thi; thêm cuối dùng lại; chèn đầu/giữa, xóa, đổi chỗ làm recompose và effect chạy lại; `key()` chỉ cần duy nhất trong call site; `LazyColumn items(key)`; ví dụ LoginScreen | `cp-lifecycle` | stable |
+| Sim `runtime.structure`: 5 kịch bản (xóa, chèn, di chuyển, Counters không/có group `if`) | Theo lời mô tả của tài liệu; kịch bản không group là giả định | selfCheck; nhãn giản lược |

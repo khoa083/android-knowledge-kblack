@@ -811,7 +811,7 @@ def o2(k, vi, en=None):
     for i, e in enumerate(E):
         if e[0] == k: E[i] = (k, vi, vi if en is None else en); return
     raise KeyError(k)
-for mod in ('runtime_v2_dc', 'runtime_v2_b2'):   # thêm module mới vào đây
+for mod in ('runtime_v2_dc', 'runtime_v2_b2', 'runtime_v2_b3'):   # thêm module mới vào đây
     if os.path.exists(os.path.join(_here, mod + '.py')):
         mm = __import__(mod)
         mm.add(a2)

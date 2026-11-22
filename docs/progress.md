@@ -363,3 +363,8 @@ Trạng thái: `chưa / đang / xong`.
   - Nguồn mới: `rt-composer-src`, `rt-gapcomposer`, `kt-boolean-or`; `rt-how` trỏ tới commit ghim.
   - Sửa lõi nhỏ: khối đoạn văn v2 có lớp `blk-p` và khoảng cách giữa các khối liền nhau (trước đó các đoạn dính nhau ở mọi chương v2).
   - **Tiếp theo:** b3 (SlotTable, identity, `key()`; phần "Detecting Structural Changes" của `how-compose-works.md`).
+- **Runtime v2 · B3 viết lại (2026-11-23):**
+  - Nội dung (`runtime_v2_b3.py`): SlotTable (5 số nguyên mỗi group, không con trỏ con, số slot), đọc/ghi và gap buffer, chuỗi group, xóa/chèn/di chuyển qua Pending và insert table, flow-control group, key trùng theo thứ tự, danh sách với `key()`/`items(key)`; 3 bug, 3 bài tập, tự trả lời, quiz 4 câu.
+  - Sim mới `runtime.structure` (5 kịch bản theo tài liệu); sim `runtime.keys` giữ làm tab thứ hai.
+  - **Kiểm:** report 0 lỗi (selfCheck PASS); track-check Runtime 1280/360 0 vấn đề; routes-check; đã xem ảnh sim.
+  - **Tiếp theo:** b4 (State và Snapshot).

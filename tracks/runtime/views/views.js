@@ -57,6 +57,15 @@
       E('e5', 'scope', 'caller'), E('e6', 'composer', 'screen')],
     metrics: [T('groups', 'groups'), T('groups', 'slots'), T('groups', 'runs'), T('groups', 'skipped'), T('groups', 'shown')]
   });
+  /* B3 (v2): chuỗi group mới so với bảng cũ; lệch thì Pending (bảng băm theo key), chèn qua insert table, rồi danh sách thay đổi tới Applier. */
+  V('structure', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('structure', 'code', 0, 0, 'chip', 'runtime'), N('structure', 'composer', 4, 0, 'grid', 'runtime'), N('structure', 'old', 8, 0, 'list', 'runtime'),
+      N('structure', 'pending', 4, 4, 'store', 'state'), N('structure', 'insert', 8, 4, 'add', 'runtime'), N('structure', 'changes', 4, 8, 'queue', 'runtime'),
+      N('structure', 'nodes', 8, 8, 'screen', 'ui')],
+    edges: [E('e1', 'code', 'composer'), E('e2', 'composer', 'old'), E('e3', 'composer', 'pending'), E('e4', 'composer', 'insert'), E('e5', 'composer', 'changes'), E('e6', 'changes', 'nodes')],
+    metrics: [T('structure', 'matched'), T('structure', 'moved'), T('structure', 'inserted'), T('structure', 'deleted'), T('structure', 'applier')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

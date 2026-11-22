@@ -151,4 +151,37 @@
       '}'
     ]);
   });
+  add('structPerson', [
+    '@Composable',
+    'fun ShowPerson(person: Person) {',
+    '  Column {',
+    '    ShowName(person.name)',
+    '    if (person.employed) {',
+    '      ShowCompany(person.employer)',
+    '    }',
+    '    ShowEmail(person.email)',
+    '  }',
+    '}'
+  ]);
+  add('structMove', [
+    { vi: '// thực tế chỉ key() tạo ra di chuyển; tài liệu dùng chuỗi group đảo thứ tự để minh họa', en: '// in practice only key() produces moves; the document reverses the group order to illustrate' },
+    '@Composable',
+    'fun Fields(order: List<Field>) {   // [Email, Company, Name]',
+    '  Column {',
+    '    for (f in order) key(f) { ShowField(f) }',
+    '  }',
+    '}'
+  ]);
+  [['structCounters', true], ['structCountersNo', false]].forEach(function (c) {
+    add(c[0], [
+      '@Composable',
+      'fun Counters(showMiddle: Boolean) {',
+      { vi: '  Counter()                 // count = 1', en: '  Counter()                 // count = 1' },
+      c[1] ? { vi: '  if (showMiddle) {         // compiler bọc if trong một group', en: '  if (showMiddle) {         // the compiler wraps the if in a group' } : { vi: '  if (showMiddle) {         // GIẢ ĐỊNH: không có group quanh if', en: '  if (showMiddle) {         // HYPOTHETICAL: no group around the if' },
+      { vi: '    Counter()               // count = 5', en: '    Counter()               // count = 5' },
+      '  }',
+      { vi: '  Counter()                 // count = 9', en: '  Counter()                 // count = 9' },
+      '}'
+    ]);
+  });
 })();

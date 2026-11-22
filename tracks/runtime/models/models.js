@@ -680,4 +680,97 @@
       } }]
     });
   })();
+
+  /* ================= B3 (v2): phát hiện thay đổi cấu trúc theo how-compose-works.md @296313a4 =================
+     Recomposition phát lại chuỗi group và so với bảng cũ. Khớp thì đi tiếp; lệch lần đầu thì các group còn lại của group cha
+     được đưa vào một bảng băm (Pending) theo key; group mới tìm thấy trong Pending → giữ (có thể lên lịch di chuyển);
+     không thấy → chèn vào insert table; hết group (/G) mà Pending còn → xóa. Key trùng được trả theo thứ tự cũ.
+     Kịch bản là các ví dụ ShowPerson và Counters của tài liệu; số thao tác Applier theo mô tả của tài liệu (giản lược). */
+  (function () {
+    var m = 'structure';
+    var SC = ['delete', 'insert', 'move', 'nogroup', 'ifgroup'];
+    // mỗi bước: [khoá thông điệp, node sáng, dòng mã, trạng thái {old, seq, pending, ops, nodes}, thay đổi chỉ số]
+    var DATA = {
+      'delete': { snip: 'structPerson', steps: [
+        ['start', ['code', 'old'], [5], { old: 'Name · Company · Email', seq: 'Name · Email', pending: '—', ops: '—', nodes: 'Text(name) · Text(company) · Text(email)' }, {}],
+        ['matchName', ['composer', 'old'], [4], { pending: '—' }, { matched: 1 }],
+        ['mismatchDel', ['composer', 'old', 'pending'], [8], { pending: 'Company · Email' }, {}],
+        ['foundEmail', ['composer', 'pending'], [8], { pending: 'Company', ops: 'Email ↷ #5' }, { matched: 1 }],
+        ['closeDelete', ['composer', 'pending', 'changes'], [9], { pending: '—', ops: 'Email ↷ #5 · ✗ Company → remove(index = 1, count = 1)' }, { deleted: 1 }],
+        ['apply', ['changes', 'nodes'], [9], { nodes: 'Text(name) · Text(email)' }, { applier: 1 }],
+        ['end.delete', ['nodes'], [], {}, {}]] },
+      'insert': { snip: 'structPerson', steps: [
+        ['start', ['code', 'old'], [5], { old: 'Name · Email', seq: 'Name · Company · Email', pending: '—', ops: '—', nodes: 'Text(name) · Text(email)' }, {}],
+        ['matchName', ['composer', 'old'], [4], {}, { matched: 1 }],
+        ['mismatchIns', ['composer', 'old', 'pending'], [5, 6], { pending: 'Email' }, {}],
+        ['insertCompany', ['composer', 'insert'], [6], { ops: '+ Company (insert table) @ #5 → insert(index = 1)' }, { inserted: 1 }],
+        ['foundEmailFront', ['composer', 'pending'], [8], { pending: '—' }, { matched: 1 }],
+        ['closeNone', ['composer'], [9], {}, {}],
+        ['apply', ['changes', 'nodes'], [9], { nodes: 'Text(name) · Text(company) · Text(email)' }, { applier: 1 }],
+        ['end.insert', ['nodes'], [], {}, {}]] },
+      'move': { snip: 'structMove', steps: [
+        ['start', ['code', 'old'], [4], { old: 'Name · Company · Email', seq: 'Email · Company · Name', pending: '—', ops: '—', nodes: 'Text(name) · Text(company) · Text(email)' }, {}],
+        ['mismatchMove', ['composer', 'old', 'pending'], [4, 5], { pending: 'Name · Company · Email' }, {}],
+        ['moveEmail', ['composer', 'pending', 'changes'], [5], { pending: 'Name · Company', ops: 'Email ↷ #3 → move(2 → 0)' }, { moved: 1 }],
+        ['moveCompany', ['composer', 'pending', 'changes'], [5], { pending: 'Name', ops: 'Email ↷ #3 → move(2 → 0) · Company ↷ #5 → move(2 → 1)' }, { moved: 1 }],
+        ['nameInPlace', ['composer', 'pending'], [5], { pending: '—' }, { matched: 1 }],
+        ['apply', ['changes', 'nodes'], [6], { nodes: 'Text(email) · Text(company) · Text(name)' }, { applier: 2 }],
+        ['end.move', ['nodes'], [], {}, {}]] },
+      'nogroup': { snip: 'structCountersNo', steps: [
+        ['startCounters', ['code', 'old'], [4], { old: 'Counter(1) · Counter(5) · Counter(9)', seq: 'Counter · Counter', pending: '—', ops: '—', nodes: 'count 1 · count 5 · count 9' }, {}],
+        ['matchC1', ['composer', 'old'], [3], {}, { matched: 1 }],
+        ['matchC2wrong', ['composer', 'old'], [7], {}, { matched: 1 }],
+        ['closeDeleteLast', ['composer', 'changes'], [8], { ops: '✗ Counter(9) → remove(index = 2)' }, { deleted: 1 }],
+        ['apply', ['changes', 'nodes'], [8], { nodes: 'count 1 · count 5' }, { applier: 1 }],
+        ['end.nogroup', ['nodes'], [], {}, {}]] },
+      'ifgroup': { snip: 'structCounters', steps: [
+        ['startCounters', ['code', 'old'], [4], { old: 'Counter(1) · <if>{Counter(5)} · Counter(9)', seq: 'Counter · <if>{} · Counter', pending: '—', ops: '—', nodes: 'count 1 · count 5 · count 9' }, {}],
+        ['matchC1', ['composer', 'old'], [3], {}, { matched: 1 }],
+        ['matchIf', ['composer', 'old'], [4], {}, { matched: 1 }],
+        ['ifEmpty', ['composer', 'changes'], [6], { ops: '✗ <if>{Counter(5)} → remove(index = 1)' }, { deleted: 1 }],
+        ['matchC3', ['composer', 'old'], [7], {}, { matched: 1 }],
+        ['apply', ['changes', 'nodes'], [8], { nodes: 'count 1 · count 9' }, { applier: 1 }],
+        ['end.ifgroup', ['nodes'], [], {}, {}]] }
+    };
+    var TYPE = { start: 'scenario', startCounters: 'scenario', matchC2wrong: 'pitfall', closeDeleteLast: 'pitfall', 'end.nogroup': 'pitfall' };
+    var KIND = { start: 'recompose', startCounters: 'recompose', apply: 'apply', insertCompany: 'apply', closeDelete: 'apply', closeDeleteLast: 'apply', ifEmpty: 'apply', moveEmail: 'schedule', moveCompany: 'schedule' };
+    var EDGE = { old: 'e2', pending: 'e3', insert: 'e4', changes: 'e5', nodes: 'e6' };
+    function steps(s) {
+      var d = DATA[s.scenario] || DATA['delete'], out = [], t = 0, cur = {}, met = { matched: 0, moved: 0, inserted: 0, deleted: 0, applier: 0 };
+      d.steps.forEach(function (row) {
+        var key = row[0], st = row[3], inc = row[4];
+        for (var k in st) cur[k] = st[k];
+        for (var j in inc) met[j] += inc[j];
+        var sig = [];
+        row[1].forEach(function (n) { if (EDGE[n]) sig.push({ edge: EDGE[n], tok: n === 'nodes' ? 'ui' : n === 'pending' ? 'state' : 'runtime' }); });
+        out.push({
+          id: key.replace('.', '_') + out.length, type: TYPE[key] || (/^end/.test(key) ? 'mechanism' : 'mechanism'),
+          titleKey: M(m, 's.' + key + '.title'), explainKey: M(m, 's.' + key + '.explain'),
+          activeNodes: row[1], movingSignals: /^end/.test(key) ? [] : sig, params: {},
+          codeHighlight: { snippet: d.snip, lines: row[2] },
+          metrics: { matched: met.matched, moved: met.moved, inserted: met.inserted, deleted: met.deleted, applier: met.applier },
+          stateAfter: ['old', 'seq', 'pending', 'ops', 'nodes'].map(function (k) { return { labelKey: M(m, 'st.' + k), value: cur[k] }; }),
+          callouts: /^end/.test(key) ? [{ kind: TYPE[key] === 'pitfall' ? 'pitfall' : 'mechanism', textKey: M(m, 'co.' + key) }] : key === 'mismatchDel' || key === 'mismatchMove' || key === 'mismatchIns' ? [{ kind: 'mechanism', textKey: M(m, 'co.pending') }] : [],
+          logEvents: [{ t: t += 4, kind: KIND[key] || (/^match|^found|^name/.test(key) ? 'skip' : 'observe'), subject: row[1][row[1].length - 1], detailKey: M(m, 'ev.' + key), params: {} }]
+        });
+      });
+      return out;
+    }
+    reg(m, {
+      codeId: 'structPerson',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'scenario', type: 'select', labelKey: M(m, 'ctl.scenario'), get: function (s) { return s.scenario; }, action: 'scenario', options: SC.map(function (v) { return { value: v, labelKey: M(m, 'ctl.scenario.' + v) }; }) }
+      ],
+      init: function () { return { scenario: 'delete' }; },
+      act: function (s, a, v) { return { scenario: SC.indexOf(v) >= 0 ? v : 'delete' }; },
+      steps: steps,
+      selfChecks: [{ name: 'xóa: 1 remove; chèn: 1 insert; di chuyển: 2 move; không có group <if>: xóa NHẦM Counter cuối (còn 1 · 5); có group <if>: xóa đúng Counter giữa (còn 1 · 9)', run: function () {
+        var last = function (sc) { var x = steps({ scenario: sc }); return x[x.length - 1]; };
+        var nodes = function (sc) { return last(sc).stateAfter[4].value; };
+        return last('delete').metrics.deleted === 1 && last('insert').metrics.inserted === 1 && last('move').metrics.moved === 2 &&
+          nodes('nogroup') === 'count 1 · count 5' && nodes('ifgroup') === 'count 1 · count 9' && last('delete').metrics.applier === 1;
+      } }]
+    });
+  })();
 })();

@@ -11,7 +11,7 @@ ADE.registerTrack({
     { id: 'dc', titleKey: 'track.runtime.dc.title', sims: ['runtime.runs'], simAfter: 'rules', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (Kunneth Ch.2–3, Thinking in Compose)
     { id: 'b1', titleKey: 'track.runtime.b1.title', sims: ['runtime.setcontent'], bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'b2', titleKey: 'track.runtime.b2.title', sims: ['runtime.groups', 'runtime.compiler'], simAfter: 'restart', bridges: [], goals: [{ id: 'g1', step: 5 }, { id: 'g2', step: 'end' }] },   // v2 (how-compose-works.md @296313a4)
-    { id: 'b3', titleKey: 'track.runtime.b3.title', sims: ['runtime.keys'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
+    { id: 'b3', titleKey: 'track.runtime.b3.title', sims: ['runtime.structure', 'runtime.keys'], simAfter: 'identity', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },   // v2 (how-compose-works.md @296313a4, Lifecycle of composables)
     { id: 'b4', titleKey: 'track.runtime.b4.title', sims: ['runtime.snapshot'], bridges: ['X2'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'b5', titleKey: 'track.runtime.b5.title', sims: ['runtime.recomposer'], bridges: ['X3'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'b6', titleKey: 'track.runtime.b6.title', sims: ['runtime.applier'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
