@@ -204,4 +204,28 @@
     { vi: 'val d by vm.savedDraft.collectAsStateWithLifecycle()     // savedStateHandle.getStateFlow("draft", "")', en: 'val d by vm.savedDraft.collectAsStateWithLifecycle()     // savedStateHandle.getStateFlow("draft", "")' },
     { vi: 'val e by vm.storedDraft.collectAsStateWithLifecycle()    // đọc từ DataStore/Room', en: 'val e by vm.storedDraft.collectAsStateWithLifecycle()    // read from DataStore/Room' }
   ]);
+  add('frameLoop', [
+    { vi: '// rút gọn từ Recomposer.runRecomposeAndApplyChanges() @296313a4', en: '// condensed from Recomposer.runRecomposeAndApplyChanges() @296313a4' },
+    { vi: 'while (shouldKeepRecomposing) { awaitWorkAvailable()            // treo khi không có việc', en: 'while (shouldKeepRecomposing) { awaitWorkAvailable()            // suspended while idle' },
+    { vi: '  if (!recordComposerModifications()) continue                  // không có việc theo frame', en: '  if (!recordComposerModifications()) continue                  // no frame work' },
+    { vi: '  parentFrameClock.withFrameNanos { frameTime ->                // Android: Choreographer', en: '  parentFrameClock.withFrameNanos { frameTime ->                // Android: Choreographer' },
+    '    if (hasBroadcastFrameClockAwaiters) {',
+    { vi: '      broadcastFrameClock.sendFrame(frameTime)                  // animation, withFrameNanos trong effect', en: '      broadcastFrameClock.sendFrame(frameTime)                  // animations, withFrameNanos in effects' },
+    '      Snapshot.sendApplyNotifications()',
+    '    }',
+    { vi: '    recordComposerModifications(); /* recompose các composition bị invalidate */', en: '    recordComposerModifications(); /* recompose invalidated compositions */' },
+    '    /* composition.applyChanges() */',
+    '  }',
+    '}'
+  ]);
+  add('frameAnim', [
+    'LaunchedEffect(Unit) {',
+    { vi: '  val start = withFrameNanos { it }                 // chờ frame đầu', en: '  val start = withFrameNanos { it }                 // wait for the first frame' },
+    '  while (true) {',
+    { vi: '    val t = withFrameNanos { it }                   // chạy trong frame của Recomposer', en: '    val t = withFrameNanos { it }                   // runs inside the Recomposer\'s frame' },
+    { vi: '    offset = (t - start) / 1_000_000f * speed       // ghi state', en: '    offset = (t - start) / 1_000_000f * speed       // a state write' },
+    '    if (offset >= target) break',
+    '  }',
+    '}'
+  ]);
 })();

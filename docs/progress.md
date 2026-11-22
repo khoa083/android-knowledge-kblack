@@ -380,3 +380,8 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `runtime.survive` (5 nơi giữ × 4 sự kiện). Nguồn mới `cp-hoisting`, `cp-saving`.
   - **Kiểm:** report 0 lỗi, 121 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
   - **Tiếp theo:** b5 (Recomposer và frame clock).
+- **Runtime v2 · B5 viết lại (2026-11-23):**
+  - Nội dung (`runtime_v2_b5.py`): Recomposer làm gì, vòng lặp chính theo mã ở commit ghim (chờ việc, xin frame, thứ tự animation → recompose → apply), frame clock trên Android (Choreographer, broadcast frame clock cho effect, viewModelScope không có clock), tạm dừng theo lifecycle; 2 bug, 2 bài tập, tự trả lời, quiz 4 câu. Giữ mục cầu nối X3.
+  - Sim mới `runtime.frame` (một lần ghi, animation, vào nền giữa animation); sim `runtime.recomposer` giữ làm tab thứ hai. 3 nguồn mới.
+  - **Kiểm:** report 0 lỗi, 121 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
+  - **Tiếp theo:** ef (side effects và vòng đời: LaunchedEffect, DisposableEffect, SideEffect, rememberUpdatedState, produceState, rememberCoroutineScope), dựa trên Kunneth Ch.7, Tutorials Ch.11, Essentials Ch.33 và trang side-effects.

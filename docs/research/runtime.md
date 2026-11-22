@@ -183,3 +183,21 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Screen UI state / UI element state; business / UI logic; composable, plain state holder, ViewModel làm chủ; tổ tiên chung thấp nhất; không truyền ViewModel xuống; property drilling; caveat MonotonicFrameClock (DrawerState.close) | `cp-hoisting` | stable |
 | Đổi cấu hình, process death do hệ thống, khác người dùng đóng hẳn; giữ tối thiểu input và state điều hướng; rememberSaveable + Saver; giới hạn Bundle, TransactionTooLarge; ViewModel không qua process death → SavedStateHandle; StateRestorationTester | `cp-saving` | stable |
 | Sim `runtime.survive`: 5 nơi giữ × 4 sự kiện | Bảng suy từ `cp-saving` và `and-state` | selfCheck; nhãn giản lược |
+
+### B5 · Recomposer và frame clock (viết lại 2026-11-23)
+
+**Đã đọc:**
+- `Recomposer.kt` @296313a4: `runRecomposeAndApplyChanges`, `awaitWorkAvailable`, `recordComposerModifications`, `hasBroadcastFrameClockAwaiters`, `pause/resumeCompositionFrameClock`;
+- `AndroidUiFrameClock.android.kt` và `WindowRecomposer.android.kt` @296313a4;
+- Recomposer và MonotonicFrameClock reference. Ba sách Compose không có chương về Recomposer.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Vòng lặp: awaitWorkAvailable → recordComposerModifications (không có việc theo frame thì không xin frame) → withFrameNanos | `rt-recomposer-src` | impl |
+| Trong frame: sendFrame cho awaiter + sendApplyNotifications trước; recompose (lặp khi giá trị đọc bởi composition khác đổi); applyChanges | `rt-recomposer-src` | impl |
+| Effect chạy trong context có broadcastFrameClock của Recomposer | `rt-recomposer-src` (recompositionRunner: withContext(broadcastFrameClock)) | impl |
+| withFrameNanos semantics, thời điểm tăng nghiêm ngặt | `rt-frameclock` | stable |
+| Android: Choreographer.postFrameCallback; đặt sau đợt dispatch của AndroidUiDispatcher | `ui-frameclock` | android-impl |
+| Recomposer theo window; clock bắt đầu tạm dừng; ON_START resume; ON_STOP pauseCompositionFrameClock; ON_DESTROY cancel | `ui-windowrecomposer` | android-impl |
+| viewModelScope không có frame clock (DrawerState.close) | `cp-hoisting` | stable |
+| Sim `runtime.frame`: 3 kịch bản | Theo vòng lặp ở commit ghim; số frame animation là giả định | selfCheck; nhãn giản lược |

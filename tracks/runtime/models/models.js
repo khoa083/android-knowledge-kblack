@@ -907,4 +907,85 @@
       } }]
     });
   })();
+
+  /* ================= B5 (v2): vòng lặp của Recomposer theo frame (Recomposer.kt @296313a4) =================
+     while { awaitWorkAvailable(); if (!recordComposerModifications()) continue; parentFrameClock.withFrameNanos { t ->
+       if (có awaiter của broadcastFrameClock) { sendFrame(t); Snapshot.sendApplyNotifications() }  // animation trước
+       recompose các composition bị invalidate (kể cả invalidation vừa sinh trong frame này); applyChanges() } }
+     Android: AndroidUiFrameClock.withFrameNanos = Choreographer.postFrameCallback; WindowRecomposer: ON_STOP → pauseCompositionFrameClock,
+     ON_START → resumeCompositionFrameClock. Số frame của animation là giả định của site. */
+  (function () {
+    var m = 'frame';
+    var SC = ['write', 'anim', 'stopped'];
+    function steps(s) {
+      var sc = SC.indexOf(s.scenario) >= 0 ? s.scenario : 'write', out = [], t = 0;
+      var st = { frames: 0, recomps: 0, animFrames: 0 }, wait = 'awaitWorkAvailable', offset = 0;
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {}; o.params.f = st.frames; o.params.o = offset;
+        o.metrics = { frames: st.frames, recomps: st.recomps, animFrames: st.animFrames };
+        o.stateAfter = [{ labelKey: M(m, 'st.wait'), value: wait }, { labelKey: M(m, 'st.offset'), value: String(offset) }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: o.snip || 'frameLoop', lines: o.lines || [] }; delete o.lines; delete o.snip;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'observe', subject: o.activeNodes[o.activeNodes.length - 1] || 'recomposer', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('idle', { type: 'scenario', activeNodes: ['recomposer'], lines: [2], kind: 'observe' });
+      if (sc === 'write') {
+        wait = '—';
+        P('write', { activeNodes: ['lifecycle', 'recomposer'], movingSignals: [{ edge: 'e5', tok: 'state' }], lines: [2, 3], kind: 'write' });
+        wait = 'withFrameNanos';
+        P('request', { activeNodes: ['recomposer', 'clock', 'choreographer'], movingSignals: [{ edge: 'e1', tok: 'signal' }, { edge: 'e0', tok: 'signal' }], lines: [4], kind: 'schedule' });
+        st.frames++; wait = '—';
+        P('vsync', { activeNodes: ['choreographer', 'clock', 'recomposer'], movingSignals: [{ edge: 'e0r', tok: 'signal' }], lines: [4], kind: 'frame' });
+        st.recomps++;
+        P('recompose', { activeNodes: ['recomposer', 'composition'], movingSignals: [{ edge: 'e3', tok: 'runtime' }], lines: [9], kind: 'recompose' });
+        P('apply', { activeNodes: ['composition', 'applier'], movingSignals: [{ edge: 'e4', tok: 'ui' }], lines: [10], kind: 'apply' });
+        wait = 'awaitWorkAvailable';
+        P('end.write', { activeNodes: ['recomposer'], lines: [2], kind: 'observe', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.end.write') }] });
+        return out;
+      }
+      // animation chạy bằng withFrameNanos trong một effect (ví dụ LaunchedEffect hoặc animate*AsState)
+      wait = 'withFrameNanos';
+      P('animStart', { activeNodes: ['awaiters', 'recomposer', 'clock'], movingSignals: [{ edge: 'e2r', tok: 'anim' }, { edge: 'e1', tok: 'signal' }], lines: [2], snip: 'frameAnim', kind: 'schedule' });
+      var frame = function (n) {
+        st.frames++; st.animFrames++; offset += 8;
+        P(n === 1 ? 'animFrame1' : 'animFrame', { params: { n: n }, activeNodes: ['choreographer', 'recomposer', 'awaiters'], movingSignals: [{ edge: 'e0r', tok: 'signal' }, { edge: 'e2', tok: 'anim' }], lines: [4, 5], snip: 'frameAnim', kind: 'frame',
+          callouts: n === 1 ? [{ kind: 'mechanism', textKey: M(m, 'co.order') }] : [] });
+        st.recomps++;
+        P(n === 1 ? 'sameFrame1' : 'sameFrame', { params: { n: n }, activeNodes: ['recomposer', 'composition', 'applier'], movingSignals: [{ edge: 'e3', tok: 'runtime' }, { edge: 'e4', tok: 'ui' }], lines: [7, 9, 10], kind: 'recompose' });
+      };
+      frame(1); frame(2);
+      if (sc === 'stopped') {
+        wait = 'awaitWorkAvailable';
+        P('stop', { type: 'experiment', activeNodes: ['lifecycle', 'recomposer'], movingSignals: [{ edge: 'e6', tok: 'cancel' }], lines: [5], kind: 'act', callouts: [{ kind: 'android', textKey: M(m, 'co.stop') }] });
+        P('stopped', { activeNodes: ['awaiters'], lines: [4], snip: 'frameAnim', kind: 'skip', skipped: [{ whatKey: M(m, 'sk.frames'), whyKey: M(m, 'sk.paused') }] });
+        wait = 'withFrameNanos';
+        P('start', { activeNodes: ['lifecycle', 'recomposer', 'clock'], movingSignals: [{ edge: 'e6', tok: 'signal' }, { edge: 'e1', tok: 'signal' }], lines: [5], kind: 'resume' });
+        frame(3);
+      }
+      wait = 'awaitWorkAvailable';
+      P('animEnd', { activeNodes: ['awaiters', 'recomposer'], lines: [6], snip: 'frameAnim', kind: 'observe' });
+      P('end.' + sc, { activeNodes: ['recomposer'], lines: [2], kind: 'observe', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.end.' + sc) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'frameLoop',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'scenario', type: 'select', labelKey: M(m, 'ctl.scenario'), get: function (s) { return s.scenario; }, action: 'scenario', options: SC.map(function (v) { return { value: v, labelKey: M(m, 'ctl.scenario.' + v) }; }) }
+      ],
+      init: function () { return { scenario: 'write' }; },
+      act: function (s, a, v) { return { scenario: SC.indexOf(v) >= 0 ? v : 'write' }; },
+      steps: steps,
+      selfChecks: [{ name: 'một lần ghi: 1 frame, 1 recompose; animation: mỗi frame gửi cho animation TRƯỚC rồi recompose trong cùng frame (2 frame, 2 recompose); dừng nền: không frame nào trong lúc ON_STOP, chạy tiếp sau ON_START (3 frame)', run: function () {
+        var last = function (sc) { var x = steps({ scenario: sc }); return x[x.length - 1].metrics; };
+        var w = last('write'), a = last('anim'), p = last('stopped');
+        var order = steps({ scenario: 'anim' }).map(function (x) { return x.titleKey.split('.s.')[1].replace('.title', ''); });
+        return w.frames === 1 && w.recomps === 1 && w.animFrames === 0 && a.frames === 2 && a.recomps === 2 && a.animFrames === 2 && p.frames === 3 &&
+          order.indexOf('animFrame1') >= 0 && order.indexOf('animFrame1') < order.indexOf('sameFrame1');
+      } }]
+    });
+  })();
 })();

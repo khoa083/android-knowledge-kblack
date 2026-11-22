@@ -83,6 +83,16 @@
     edges: [E('e1', 'ui', 'composition'), E('e2', 'ui', 'bundle'), E('e3', 'ui', 'vm'), E('e4', 'vm', 'bundle'), E('e5', 'vm', 'disk')],
     metrics: [T('survive', 'kept'), T('survive', 'lost'), T('survive', 'checked')]
   });
+  /* B5 (v2): Choreographer → frame clock → Recomposer; awaiter của frame clock (animation) chạy trước, rồi recompose và apply; lifecycle tạm dừng clock. */
+  V('frame', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('frame', 'choreographer', 0, 0, 'clock', 'signal'), N('frame', 'clock', 4, 0, 'frame', 'signal'), N('frame', 'recomposer', 8, 0, 'clock', 'runtime'),
+      N('frame', 'awaiters', 8, 4, 'motion', 'anim'), N('frame', 'composition', 12, 0, 'layers', 'runtime'), N('frame', 'applier', 12, 4, 'set', 'ui'),
+      N('frame', 'lifecycle', 4, 4, 'phone', 'ui')],
+    edges: [E('e0', 'clock', 'choreographer'), E('e0r', 'choreographer', 'recomposer'), E('e1', 'recomposer', 'clock'), E('e2', 'recomposer', 'awaiters'), E('e2r', 'awaiters', 'recomposer'),
+      E('e3', 'recomposer', 'composition'), E('e4', 'composition', 'applier'), E('e5', 'lifecycle', 'recomposer'), E('e6', 'lifecycle', 'clock')],
+    metrics: [T('frame', 'frames'), T('frame', 'recomps'), T('frame', 'animFrames')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],
