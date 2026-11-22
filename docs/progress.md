@@ -241,4 +241,9 @@ Trạng thái: `chưa / đang / xong`.
   - thêm 3 nguồn (`kx-dispatchers`, `kt-interceptor`, `ax-vmscope`: mã nguồn AndroidX cho `viewModelScope` dùng `Main.immediate`).
 - **Sửa CSS:** tiêu đề ô hỏi–đáp có mã dài làm tràn ở 360px.
 - **Kiểm:** report 0 lỗi; routes-check 103 route, 0 vấn đề; track-check coroutines (4 cũ), runtime 0, animation 0.
+- **A8 v2 phần 1 "Tự dựng scope" (2026-11-22):**
+  - nội dung gồm: ôn tập, không hiện thực `CoroutineScope`, hàm `CoroutineScope()`, dựng scope ViewModel 4 bước, `viewModelScope`/`lifecycleScope` (bản sách 2.4.0 và bản androidx-main), scope việc phụ và backend, 3 bug, 2 bài tập, tự trả lời;
+  - sim A8 đặt sau mục "scopes" (v1);
+  - thêm nguồn `kx-scopefn`.
+- **Kiểm:** report 0 lỗi; track-check và routes-check như trên.
 

@@ -272,3 +272,17 @@ Chương mới id `sf`, đặt giữa A6 và A7, dùng lại sim `coroutines.bui
 | Lỗi "Module with the Main dispatcher is missing" | Thông báo của kotlinx khi thiếu Main | **Ghi theo trí nhớ, chưa đối chiếu nguyên văn** |
 
 **Sửa lõi CSS:** tiêu đề của khối hỏi–đáp có mã dài làm tràn 3px ở 360px; đã cho `overflow-wrap: anywhere` trong `summary > span`.
+
+### A8 v2 (phần 1) · Tự dựng coroutine scope (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "Constructing a coroutine scope", trang PDF 173–182. Đọc toàn văn.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| `CoroutineScope` là interface một thuộc tính; không nên cho lớp hiện thực nó | Deep Dive tr. 173–174 | Khuyến nghị của tác giả |
+| `CoroutineScope(context)` thêm `Job()` nếu thiếu | Deep Dive tr. 174; `kx-scopefn` (URL 200) | API ổn định |
+| BaseViewModel: Main + SupervisorJob + handler; `cancelChildren` | Deep Dive tr. 175–178 | Mẫu thiết kế |
+| `viewModelScope` = SupervisorJob + Main.immediate; bản 2.4.0 dùng tag | Deep Dive tr. 178–179 (lifecycle 2.4.0); mã nguồn androidx-main `CloseableCoroutineScope.kt` (`ax-vmscope`) | impl, có phiên bản |
+| Scope backend/analytics | Deep Dive tr. 180–182 | Mẫu thiết kế |
+| Scope đã hủy: `launch` tạo coroutine bị hủy ngay, thân không chạy | Suy từ ngữ nghĩa Job (Job đã hủy không làm cha) và `CoroutineStart.DEFAULT` | **Suy luận; chưa chạy thử** |
+| `backgroundScope` của `runTest` | kotlinx-coroutines-test | Sẽ đối chiếu ở chương Testing |

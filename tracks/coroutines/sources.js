@@ -58,6 +58,8 @@
       'Phần tử context chặn continuation; nền tảng của dispatcher (A4).', 'The context element that intercepts continuations; the basis of dispatchers (A4).'),
     s('ax-vmscope', 'AndroidX lifecycle: CloseableCoroutineScope.kt (androidx-main, đọc 2026-11-22)', 'https://github.com/androidx/androidx/blob/androidx-main/lifecycle/lifecycle-viewmodel/src/commonMain/kotlin/androidx/lifecycle/viewmodel/internal/CloseableCoroutineScope.kt', 'Google (AndroidX source)', 'impl',
       'viewModelScope được tạo với Dispatchers.Main.immediate (A4, U1).', 'viewModelScope is created with Dispatchers.Main.immediate (A4, U1).'),
+    s('kx-scopefn', 'CoroutineScope() (factory function)', 'https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-coroutine-scope.html', 'JetBrains (kotlinx.coroutines API)', 'stable',
+      'Tạo scope từ context, thêm Job() nếu context chưa có Job (A8).', 'Creates a scope from a context, adding a Job() if the context has none (A8).'),
     s('book-deepdive', 'Kotlin Coroutines: Deep Dive (Marcin Moskała)', 'https://leanpub.com/coroutines', 'Kt. Academy (sách)', 'guideline',
       'Sách nguồn giảng chính của Coroutines v2: bố cục chương và ví dụ màn hình tin tức (U1 theo chương "Why Kotlin Coroutines?").', 'The main teaching source for Coroutines v2: chapter structure and the news-screen example (U1 follows the chapter "Why Kotlin Coroutines?").'),
     s('kt-guide', 'Coroutines guide', 'https://kotlinlang.org/docs/coroutines-guide.html', 'JetBrains (kotlinlang.org)', 'stable',
