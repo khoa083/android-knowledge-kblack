@@ -114,6 +114,8 @@
       'doWork() là hàm suspend; WorkManager chạy và hủy nó (PR).', 'doWork() is a suspending function; WorkManager runs and cancels it (PR).'),
     s('kt-recipes', 'kotlin-coroutines-recipes (Marcin Moskała)', 'https://github.com/MarcinMoskala/kotlin-coroutines-recipes', 'Tác giả sách (GitHub)', 'stable',
       'Mã và test của các công thức mapAsync, suspendLazy, ConnectionPool, raceOf, retry (PR).', 'Code and tests for the mapAsync, suspendLazy, ConnectionPool, raceOf, retry recipes (PR).'),
+    s('and-crash', 'Crashes (Android vitals)', 'https://developer.android.com/topic/performance/vitals/crash', 'Android Developers', 'stable',
+      'App Java/Kotlin crash khi có exception không được xử lý (PR).', 'A Java/Kotlin app crashes on an unhandled exception (PR).'),
     s('book-deepdive', 'Kotlin Coroutines: Deep Dive (Marcin Moskała)', 'https://leanpub.com/coroutines', 'Kt. Academy (sách)', 'guideline',
       'Sách nguồn giảng chính của Coroutines v2: bố cục chương và ví dụ màn hình tin tức (U1 theo chương "Why Kotlin Coroutines?").', 'The main teaching source for Coroutines v2: chapter structure and the news-screen example (U1 follows the chapter "Why Kotlin Coroutines?").'),
     s('kt-guide', 'Coroutines guide', 'https://kotlinlang.org/docs/coroutines-guide.html', 'JetBrains (kotlinlang.org)', 'stable',

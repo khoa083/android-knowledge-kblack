@@ -165,13 +165,13 @@
   add('lsScope', [
     'class NotificationsSender(',
     '    private val client: NotificationsClient,',
-    '    private val notificationScope: CoroutineScope,   // CoroutineScope(SupervisorJob())',
+    '    private val notificationScope: CoroutineScope,   // CoroutineScope(SupervisorJob() + handler)',
     ') {',
     '    fun sendNotifications(notifications: List<Notification>) {',
     '        for (n in notifications) notificationScope.launch { client.send(n) }',
     '    }',
     '}',
-    '',
+    { vi: 'val handler = CoroutineExceptionHandler { _, e -> log(e) }   // KHÔNG có handler: Android crash app', en: 'val handler = CoroutineExceptionHandler { _, e -> log(e) }   // WITHOUT a handler: Android crashes the app' },
     { vi: 'viewModelScope.launch { sender.sendNotifications(listOf(n1, n2, n3)); println("Tiếp tục") }', en: 'viewModelScope.launch { sender.sendNotifications(listOf(n1, n2, n3)); println("Continue") }' }
   ]);
   add('lsSusp', [
@@ -179,11 +179,11 @@
     '    private val client: NotificationsClient,',
     ') {',
     '    suspend fun sendNotifications(notifications: List<Notification>) = supervisorScope {',
-    '        for (n in notifications) launch { client.send(n) }',
+    '        for (n in notifications) launch(handler) { client.send(n) }',
     '    }',
     '}',
     '',
-    '',
+    { vi: 'val handler = CoroutineExceptionHandler { _, e -> log(e) }   // KHÔNG có handler: Android crash app', en: 'val handler = CoroutineExceptionHandler { _, e -> log(e) }   // WITHOUT a handler: Android crashes the app' },
     { vi: 'viewModelScope.launch { sender.sendNotifications(listOf(n1, n2, n3)); println("Tiếp tục") }', en: 'viewModelScope.launch { sender.sendNotifications(listOf(n1, n2, n3)); println("Continue") }' }
   ]);
   add('full', [

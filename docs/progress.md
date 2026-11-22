@@ -316,3 +316,11 @@ Trạng thái: `chưa / đang / xong`.
 - **Kiểm:** report 0 lỗi; track-check (1280, 360) vẫn 4 vấn đề cũ; routes-check 108 route, 0 vấn đề.
 - **Coroutines v2 đã phủ toàn bộ sách Deep Dive (Phần 1–4).**
 - **Tiếp theo theo `roadmap-v2.md`:** Compose Runtime/Animation v2, rồi UX/UI v2, rồi các track mới. Với mỗi track mới, đọc mục lục thật trước rồi sửa dàn chương nháp.
+- **Sửa sau review (2026-11-22):**
+  - PR/sim `launchsusp`: hai snippet có `CoroutineExceptionHandler`; lời giải thích nêu rõ khi thiếu handler: JVM → `Thread.uncaughtExceptionHandler`, Android → crash app (nguồn `kx-ceh`, `and-crash` mới). Trước đó câu chữ theo cách viết cho backend của sách ("in ra rồi bỏ qua").
+  - Ghi chú lỗi in: chỉ các ví dụ retry cho hàm suspend dùng biến `attempt` sai; ở ví dụ Flow, `attempt` hợp lệ.
+  - Soát khẳng định v1 lỗi thời:
+    - `a4.sec.ctx.p.1` nói "không có số luồng nào được tài liệu bảo đảm", nay sửa theo tài liệu Dispatchers: Default = số nhân (ít nhất 2), IO = 64;
+    - đã kiểm misconceptions (nhãn điều khiển vẫn khớp), A0 (tham chiếu chương vẫn đúng), câu cũ về flatMap ở A7 (đã sửa trước đó);
+    - `estMinutes` của track: 300 → 900 (nội dung khoảng 66 nghìn từ, khoảng 440 phút chỉ để đọc).
+- **Còn nợ (người dùng đã yêu cầu chuyển động cho toàn bộ bài học):** 6 lab tự vẽ (Animation C-labs, UX/UI labs) chưa có chuyển động liên tục. Làm như việc đầu tiên khi viết Animation/UX/UI v2, hoặc sớm hơn nếu người dùng muốn.

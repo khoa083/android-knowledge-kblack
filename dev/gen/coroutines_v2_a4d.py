@@ -7,6 +7,9 @@ SEC_ORDER = {'a4': ['recap', 'what', 'find', 'add', 'minus', 'inherit', 'access'
 
 def override(o):
     o('a4.title', 'CoroutineContext và Dispatcher', 'CoroutineContext and dispatchers')
+    # v1 nói "không có số luồng nào được tài liệu bảo đảm": sai so với tài liệu Dispatchers (sửa 2026-11-22)
+    o('a4.sec.ctx.p.1', 'Các dispatcher thường gặp: Main cho giao diện, IO cho việc chặn như đọc ghi, Default cho tính toán nặng; `Dispatchers.Unconfined` và dispatcher riêng cũng có. Tài liệu kotlinx.coroutines (JVM) nêu giới hạn: Default dùng tối đa số luồng bằng số nhân CPU (ít nhất 2), IO tối đa 64 luồng (hoặc số nhân nếu lớn hơn); chi tiết ở các mục dispatcher bên dưới. Đây là chi tiết hiện thực của phiên bản thư viện, đừng viết logic dựa vào con số đó. [[src:kx-dispatchers]]',
+      'Common dispatchers: Main for the UI, IO for blocking work like reading and writing, Default for heavy computation; there are also `Dispatchers.Unconfined` and custom dispatchers. The kotlinx.coroutines (JVM) docs state the limits: Default uses at most as many threads as CPU cores (at least 2), IO at most 64 threads (or the number of cores if larger); details are in the dispatcher sections below. These are implementation details of the library version, so do not build logic on those numbers. [[src:kx-dispatchers]]')
 
 
 def add(a):

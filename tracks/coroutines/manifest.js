@@ -7,7 +7,7 @@ ADE.registerTrack({
   id: 'coroutines', code: 'A', order: 10, domain: 'engineering',
   accent: '#2F83BE', icon: 'job',
   titleKey: 'track.coroutines.title', summaryKey: 'track.coroutines.summary',
-  level: 'intermediate', estMinutes: 300, status: 'stable',
+  level: 'intermediate', estMinutes: 900, status: 'stable',
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
     { id: 'a0', titleKey: 'track.coroutines.a0.title', sims: ['coroutines.full'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
