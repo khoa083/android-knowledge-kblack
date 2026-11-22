@@ -303,3 +303,9 @@ Trạng thái: `chưa / đang / xong`.
 - **Sửa FB:** câu hỏi dự đoán `onCompletion` thiếu `.collect { println(it) }`.
 - **Kiểm:** report 0 lỗi; track-check (1280, 360) vẫn 4 vấn đề cũ; routes-check 107 route, 0 vấn đề.
 - **Tiếp theo:** Testing flow (Deep Dive tr. PDF 359–375), mở rộng phần testing của A9 (module `a9t`), không tạo chương mới.
+- **A9 thêm phần kiểm thử flow (2026-11-22, module `coroutines_v2_a9f.py`, không tạo chương mới):**
+  - mục mới: `tflow` (toList, currentTime, retry), `tinf` (flow vô hạn: 4 cách), `tconn` (đếm kết nối), `tvm` (ViewModel với MutableSharedFlow), `tfbugs` (2 bug), `tfex` (bài tập debounce + flatMapLatest), quiz q3–q4;
+  - ghi chú bổ sung điều kiện ngầm mà sách bỏ qua (thay Main, đăng ký trước khi emit).
+- **Kiểm:** report 0 lỗi; A9 ở 360px không cuộn ngang.
+- **Phần 3 của Coroutines v2 hoàn tất:** CH, FL, FB, FP, A7 (viết lại), kiểm thử flow trong A9.
+- **Tiếp theo:** Phần 4 (Deep Dive tr. PDF 376–449) → A8.

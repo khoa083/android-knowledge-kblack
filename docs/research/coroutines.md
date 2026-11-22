@@ -384,3 +384,16 @@ Chương mới id `sf`, đặt giữa A6 và A7, dùng lại sim `coroutines.bui
 | Kịch bản màn hình (1,2 / 3,6 / 4,3 / 6,6 / 12,4 / 14,8 s) | Của site, giả định | Minh hoạ |
 
 Sách dùng `Lazily` cho ví dụ ViewModel; site trình bày cả hai và nói rõ nguồn của mỗi bên.
+
+### A9 · Kiểm thử flow (thêm 2026-11-22, module `coroutines_v2_a9f.py`)
+
+**Đã đọc:** Deep Dive "Testing flow" (trang PDF 359–375), toàn văn. Đã kiểm README của Turbine (`test { }`, `testIn(backgroundScope)`, bản 1.2.1) và mã `debounceInternal` (kotlinx.coroutines `flow/operators/Delay.kt`, nhánh master).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Mỗi chức năng một test; fake repository với `flowOf` + `toList`; ghi `currentTime` để bắt hồi quy thời gian; `take(3)` và `catch<Any> { emit(it) }` cho retry | Deep Dive tr. PDF 359–365 | Ví dụ của sách |
+| Flow vô hạn: `backgroundScope`, `take`, gom danh sách, `toListDuring`, Turbine | Deep Dive tr. PDF 366–372; README Turbine | Ví dụ của sách + API |
+| Đếm kết nối bằng `onStart`/`onCompletion` | Deep Dive tr. PDF 372–373 | Ví dụ của sách |
+| Test ViewModel bằng `MutableSharedFlow` làm nguồn | Deep Dive tr. PDF 374–375 | Ví dụ của sách |
+| Điều kiện ngầm của test ViewModel: thay Main, người collect phải đăng ký trước `emit` (replay 0) | `kx-mutablesharedflow` (tryEmit/emit khi không có người collect), mục `tmain` của A9 | **Bổ sung của site**, sách không nêu |
+| `debounce` phát ngay phần tử cuối khi nguồn hoàn tất bình thường | Mã `debounceInternal` (Delay.kt) | impl; dùng cho đáp án bài tập |
