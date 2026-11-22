@@ -74,6 +74,8 @@ Người dùng phản hồi: site gần như không có chuyển động, cảm 
 | Đổi bước mô phỏng | panel giải thích trượt vào theo hướng đi (tới: từ phải, lùi: từ trái) | `--mo-base` 280 ms | biết đang đi tới hay lùi |
 | Chỉ số đổi giá trị | viền nháy + số bật lên một lần | 280–900 ms | chỉ đúng con số vừa đổi |
 | Nhật ký | dòng của bước vừa tới trượt vào, nền nhấn mờ dần | 700 ms | nối bước với sự kiện |
+| Sơ đồ dạng thẻ/isometric (MỌI sơ đồ, lõi tự làm) | token tự chạy từ node đang xử lý cũ sang node mới ở mỗi bước (dọc cạnh nối; ngược chiều nếu cạnh ngược; không có cạnh thì bay theo vòng cung) kể cả khi model không khai báo `movingSignals`; node đang xử lý có quầng viền chạy vòng (`dg-march`, linear, vô hạn) + thở (`dg-breathe`); cạnh nối với node đang xử lý chảy nét đứt liên tục | 0,9–1,8 s, lặp | luôn có chuyển động thấy được, không chỉ đổi chữ (yêu cầu người dùng 2026-11-22) |
+| Sơ đồ lanes (lõi tự làm) | mọi thanh còn chạy tới "bây giờ" có viền chạy; vạch "bây giờ" nhịp sáng; token bay giữa hàng cũ và hàng mới khi việc đang chạy đổi hàng | 1–1,4 s, lặp | |
 | Sơ đồ | lanes: thanh chạy liên tục từ độ dài cũ tới mới, thanh mới mọc ra, vạch "bây giờ" trượt tới, mốc bật lên, chú thích hiện dần (`Scene._laneTween`, kiểu FLIP); thẻ: thẻ vừa đổi trạng thái bật (scale), token chạy dọc cạnh, cạnh đang hoạt động chảy nét đứt, zoom camera | 560 ms ÷ tốc độ | sơ đồ CHUYỂN từ trạng thái cũ sang mới, không nhảy |
 | Mở ô đoán trước / bug / bài tập / tự kiểm | nội dung trượt xuống | 280 ms | thấy phần vừa mở |
 | Nút | đổi nền khi rê, lún nhẹ khi bấm | `--mo-fast` 160 ms | phản hồi thao tác |

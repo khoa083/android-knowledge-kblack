@@ -577,6 +577,22 @@ details.blk > summary::before { display: inline-block; transition: transform var
 /* sơ đồ: thẻ vừa đổi trạng thái bật rõ hơn */
 .scene:not(.still) .node.changed { animation: dg-pop .6s var(--mo-ease) 1; }
 
+/* ---------- sơ đồ: chuyển động liên tục cho MỌI sơ đồ (design-principles §5.1) ----------
+   - node đang xử lý: quầng viền chạy vòng (linear, vô hạn) + "thở" nhẹ;
+   - cạnh nối với node đang xử lý: nét đứt chảy liên tục; cạnh đang có tín hiệu: chảy nhanh hơn (dg-flow);
+   - lanes: thanh hiện tại có viền chạy, vạch "bây giờ" nhịp sáng;
+   - token tự chạy giữa các node ở mỗi bước (diagram.js). Tất cả tắt khi .still / reduced-motion. */
+.halo { fill: none; stroke: var(--focus); stroke-width: 2.2; stroke-dasharray: 10 7; opacity: 0; pointer-events: none; }
+.scene:not(.still) .halo { opacity: .95; animation: dg-march 1.1s linear infinite, dg-breathe 1.8s ease-in-out infinite; }
+@keyframes dg-march { to { stroke-dashoffset: -34; } }
+@keyframes dg-breathe { 0%, 100% { stroke-width: 2.2; } 50% { stroke-width: 3.6; } }
+.edge.near .edge-path, .edge.near line { stroke: var(--ink); }
+.scene:not(.still) .edge.near .edge-path, .scene:not(.still) .edge.near line { stroke-dasharray: 6 6; animation: dg-flow 1.6s linear infinite; }
+.scene:not(.still) .bar-g.live:not(.ghost) .bar { stroke: var(--focus); stroke-width: 2.2; stroke-dasharray: 9 5; animation: dg-march 1s linear infinite; }
+.scene:not(.still) .lane-now { animation: dg-now 1.4s ease-in-out infinite; }
+@keyframes dg-now { 0%, 100% { stroke-width: 1.6; opacity: .75; } 50% { stroke-width: 3.2; opacity: 1; } }
+.token.fly circle { stroke-width: 2.8; }
+
 /* ---------- giảm chuyển động: tôn trọng hệ điều hành, và nút tắt thủ công (.reduced-motion) ---------- */
 .reduced-motion *, .reduced-motion *::before, .reduced-motion *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 @media (prefers-reduced-motion: reduce) {

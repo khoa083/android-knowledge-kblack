@@ -379,6 +379,18 @@
     if (this.layout === 'lanes') return this._renderLanes(step, opts);
     var self = this, v = this.view, active = (step && step.activeNodes) || [], sig = (step && step.movingSignals) || [];
     var changed = changedNodes(step, opts.prev);
+    // Chuyển động bắt buộc cho MỌI sơ đồ (design-principles §5.1): nếu model không khai báo movingSignals,
+    // lõi tự cho token chạy từ node đang xử lý ở bước trước sang node của bước này (dọc cạnh nối nếu có, ngược chiều nếu cạnh ngược, không có cạnh thì bay thẳng).
+    var fly = null;
+    if (!sig.length && step && opts.prev) {
+      var pa = (opts.prev.activeNodes || []).filter(function (x) { return active.indexOf(x) < 0; });
+      var tokOf = function (id) { var n = v.nodes.filter(function (x) { return x.id === id; })[0]; return n && n.tok; };
+      var auto = [];
+      v.edges.forEach(function (e) { if (pa.indexOf(e.from) >= 0 && active.indexOf(e.to) >= 0) auto.push({ edge: e.id, tok: tokOf(e.from), auto: true }); });
+      if (!auto.length) v.edges.forEach(function (e) { if (pa.indexOf(e.to) >= 0 && active.indexOf(e.from) >= 0) auto.push({ edge: e.id, tok: tokOf(e.to), auto: true, reverse: true }); });
+      if (auto.length) sig = auto;
+      else if (pa.length && active.length) fly = { from: pa[0], to: active[0], tok: tokOf(pa[0]) };
+    }
     var activeEdges = {};
     sig.forEach(function (s) { activeEdges[s.edge] = s; });
     var anyActive = active.length > 0;
@@ -401,8 +413,8 @@
     // cạnh
     var arw = 'url(#' + this.uid + '-arw)';
     v.edges.forEach(function (e) {
-      var on = !!activeEdges[e.id], mid;
-      html += '<g class="edge' + (on ? ' active' : '') + (on && activeEdges[e.id].tok ? ' tok-' + activeEdges[e.id].tok : '') + '" data-edge="' + e.id + '"' + (on && activeEdges[e.id].tok ? ' style="--n:var(--tok-' + activeEdges[e.id].tok + ')"' : '') + '>';
+      var on = !!activeEdges[e.id], mid, near = !on && (active.indexOf(e.from) >= 0 || active.indexOf(e.to) >= 0);
+      html += '<g class="edge' + (on ? ' active' : '') + (near ? ' near' : '') + (on && activeEdges[e.id].tok ? ' tok-' + activeEdges[e.id].tok : '') + '" data-edge="' + e.id + '"' + (on && activeEdges[e.id].tok ? ' style="--n:var(--tok-' + activeEdges[e.id].tok + ')"' : '') + '>';
       if (flat) {
         var p = self.edgeGeo[e.id]; if (!p) { html += '</g>'; return; }
         html += '<path class="edge-path" d="' + pathD(p) + '" marker-end="' + arw + '"/>';
@@ -426,6 +438,7 @@
       var cls = 'node' + (flat ? ' flat' : '') + (on ? ' active' : (anyActive ? ' dim' : '')) + (ch ? ' changed' : '') + nsCls;
       var act = v.nodeAction ? ' role="button" tabindex="0" data-fk="node-' + n.id + '" aria-pressed="' + (on ? 'true' : 'false') + '" aria-label="' + ADE.esc(ADE.t('app.nodeAction', { name: ADE.t(n.labelKey) })) + '"' : '';
       html += '<g class="' + cls + (v.nodeAction ? ' clickable' : '') + '" data-node="' + n.id + '"' + act + (nsKey ? ' data-state="' + ADE.esc(nsKey) + '"' : '') + ' style="--n:' + tok + '">';
+      if (on && bx) html += flat ? '<rect class="halo" x="' + (bx.x0 - 7).toFixed(1) + '" y="' + (bx.y0 - 7).toFixed(1) + '" width="' + (bx.x1 - bx.x0 + DEPTH + 14).toFixed(1) + '" height="' + (bx.y1 - bx.y0 + DEPTH + 14).toFixed(1) + '" rx="9"/>' : '<ellipse class="halo" cx="' + bx.cx.toFixed(1) + '" cy="' + (bx.cy + 6).toFixed(1) + '" rx="62" ry="34"/>';
       html += flat ? self._card(n, bx, nsKey, fam, on) : self._isoNode(n, bx, nsKey, fam, on);
       html += '</g>';
     });
@@ -438,6 +451,7 @@
     var anim = !ADE.motionReduced() && !ADE.diagramOnly() && !opts.instant;
     if (!anim) this.svg.classList.add('still'); else this.svg.classList.remove('still');
     sig.forEach(function (s) { self._token(s, anim, opts.speed || 1); });
+    if (fly && anim) { var b0 = this.nodeBox[fly.from], b1 = this.nodeBox[fly.to]; var cy = function (b) { return b.cy != null ? b.cy : (b.y0 + b.y1) / 2; }; if (b0 && b1) this._flyPts([[b0.cx, cy(b0)], [b1.cx, cy(b1)]], fly.tok, opts.speed || 1, true); }
     if (step && step.typing) this._typing(step.typing, anim);
   };
   // node bấm được (view.nodeAction): chuột, Enter, Space → scene.onNode(id)
@@ -497,6 +511,7 @@
       p = [[en.x1, en.y1], [en.x2, en.y2]];
     } else p = this.edgeGeo[s.edge];
     if (!p) return;
+    if (s.reverse) p = p.slice().reverse();
     var g = this.svg.querySelector('.tokens');
     var tok = s.tok ? 'var(--tok-' + s.tok + ')' : 'var(--tok-signal)';
     var c = document.createElementNS(NS, 'g');
@@ -509,6 +524,27 @@
     var tick = function (now) {
       var k = Math.min(1, (now - t0) / dur); place(easeInOut(k));
       if (k < 1) self._tokRaf[idx] = requestAnimationFrame(tick);
+    };
+    place(0); this._tokRaf[idx] = requestAnimationFrame(tick);
+  };
+  // token bay giữa hai điểm (dùng khi không có cạnh nối, và giữa các hàng của lanes); xong thì mờ dần
+  Scene.prototype._flyPts = function (p, tokName, speed, fade) {
+    var self = this, g = this.svg.querySelector('.tokens');
+    if (!g) { g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'tokens'); this.svg.appendChild(g); }
+    var c = document.createElementNS(NS, 'g');
+    c.setAttribute('class', 'token fly'); c.setAttribute('style', '--n:' + (tokName ? 'var(--tok-' + tokName + ')' : 'var(--tok-signal)'));
+    c.innerHTML = '<circle r="7"/><circle r="2.6" class="token-core"/>';
+    g.appendChild(c);
+    var mid = [(p[0][0] + p[1][0]) / 2, Math.min(p[0][1], p[1][1]) - 30];       // vòng cung nhẹ phía trên
+    var place = function (k) {
+      var a = 1 - k, x = a * a * p[0][0] + 2 * a * k * mid[0] + k * k * p[1][0], y = a * a * p[0][1] + 2 * a * k * mid[1] + k * k * p[1][1];
+      c.setAttribute('transform', 'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ')');
+    };
+    var t0 = performance.now(), dur = 900 / speed, idx = this._tokRaf.length;
+    var tick = function (now) {
+      var k = Math.min(1, (now - t0) / dur); place(easeInOut(k));
+      if (k < 1) self._tokRaf[idx] = requestAnimationFrame(tick);
+      else if (fade && c.animate) c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' });
     };
     place(0); this._tokRaf[idx] = requestAnimationFrame(tick);
   };
@@ -582,11 +618,13 @@
     for (var t = 0; t <= tMax + 1e-9; t += stepT) axis += '<path class="lane-tick" d="M' + sx(t).toFixed(1) + ' ' + (top - 8) + 'V' + (H - 30) + '"/><text class="lane-tick-t" x="' + sx(t).toFixed(1) + '" y="' + (top - 14) + '" text-anchor="middle">' + ADE.num(t) + '</text>';
     axis += '<text class="lane-axis" x="' + (LBL + 10) + '" y="' + (top - 32) + '">' + ADE.esc(ADE.t(d.axisKey || 'app.lanes.axis')) + '</text>';
     html += axis + rowsHtml;
-    var anim = !ADE.motionReduced() && !ADE.diagramOnly() && !opts.instant, cur = null, self = this;
+    var anim = !ADE.motionReduced() && !ADE.diagramOnly() && !opts.instant, cur = null, self = this, liveRun = null;
     (d.bars || []).forEach(function (b) {
       var ry = rowY[b.row]; if (ry === undefined) return;
       var x0 = sx(b.from) + 1, x1 = sx(b.to == null ? d.now : b.to) - 1, w = Math.max(3, x1 - x0);
-      html += '<g class="bar-g' + (b.ghost ? ' ghost' : '') + (b.cur ? ' cur' + (anim ? ' grow' : '') : '') + '" data-k="' + ADE.esc(b.row + '|' + b.from + '|' + b.kind + (b.ghost ? '|g' : '')) + '" data-x="' + x0.toFixed(1) + '" data-w="' + w.toFixed(1) + '">' +
+      var live = !b.ghost && b.from <= d.now && (b.to == null || b.to >= d.now - 0.01);
+      if (live && b.kind === 'run' && (!liveRun || ry < liveRun.y)) liveRun = { x: x0 + w, y: ry + 13, row: b.row };
+      html += '<g class="bar-g' + (b.ghost ? ' ghost' : '') + (live ? ' live' : '') + (b.cur ? ' cur' + (anim ? ' grow' : '') : '') + '" data-k="' + ADE.esc(b.row + '|' + b.from + '|' + b.kind + (b.ghost ? '|g' : '')) + '" data-x="' + x0.toFixed(1) + '" data-w="' + w.toFixed(1) + '">' +
         '<rect class="bar bar-' + b.kind + '" x="' + x0.toFixed(1) + '" y="' + (ry + 13) + '" width="' + w.toFixed(1) + '" height="22" rx="2"' + (b.kind === 'block' ? ' style="fill:url(#' + self.uid + '-hatch)"' : '') + '/>';
       if (b.label && w > b.label.length * 7 + 8) html += '<text class="bar-t" x="' + (x0 + 6).toFixed(1) + '" y="' + (ry + 28) + '">' + ADE.esc(b.label) + '</text>';
       html += '</g>';
@@ -614,6 +652,9 @@
     this.svg.innerHTML = '<title>' + ADE.esc(ADE.t(v.titleKey)) + '</title><desc>' + ADE.esc(ADE.t(v.descKey) + (step ? ' — ' + ADE.t(step.titleKey, step.params) : '')) + '</desc>' + html;
     if (!anim) this.svg.classList.add('still'); else this.svg.classList.remove('still');
     this._laneTween(anim, d.now != null ? sx(d.now) : null, opts);
+    var pc = this._laneCur, here = liveRun || cur;
+    if (anim && pc && here && pc.row !== here.row) this._flyPts([[pc.x, pc.y + 11], [here.x, here.y + 11]], null, opts.speed || 1, true);
+    this._laneCur = here ? { x: here.x, y: here.y, row: here.row } : pc;
     this.lastLanes = d;
   };
   Scene.prototype.destroy = function () { this._stop(); };

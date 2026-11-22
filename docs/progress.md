@@ -261,3 +261,16 @@ Trạng thái: `chưa / đang / xong`.
 
 
 - **CH "Channel và select" (chương mới, 2026-11-22):** đọc Deep Dive tr. 235–262; sim mới `coroutines.chan` (5 loại sức chứa, kết quả khớp output của sách, selfCheck đạt); 3 nguồn API; 3 bug, 2 bài tập. Report 0 lỗi.
+- **Chuyển động cho MỌI sơ đồ (2026-11-22, người dùng: "chưa có hoạt cảnh, phải áp dụng cho tất cả sơ đồ và mọi bài"):**
+  - lõi (`js/core/diagram.js`, `styles.css`) tự thêm cho mọi sơ đồ dạng thẻ/isometric của 5 track (và track tương lai):
+    - token tự chạy giữa node cũ và node mới ở mỗi bước (dọc cạnh, ngược chiều, hoặc bay vòng cung), kể cả khi model không khai báo `movingSignals`;
+    - quầng viền chạy vòng quanh node đang xử lý;
+    - cạnh kề chảy nét đứt;
+  - lanes: thanh đang chạy có viền chạy, vạch "bây giờ" nhịp sáng, token bay giữa các hàng.
+- **Kiểm (CDP):**
+  - sau một bước, sơ đồ B6/D2/A2/C3/E7/B0 có 4–7 animation chạy, token di chuyển (tọa độ đổi theo thời gian);
+  - lanes U2/U3/CH/A1 có 2–4 viền chạy + vạch "bây giờ";
+  - reduced-motion: không còn animation;
+  - report 0 lỗi; track-check: coroutines 4 vấn đề cũ, runtime/animation/ux 0.
+- **Chưa phủ:** các "lab" tự vẽ (Animation C-labs, UX/UI labs như SUS, contrast, Fitts) dùng hình riêng, không qua lõi sơ đồ; chưa thêm chuyển động liên tục cho chúng.
+
