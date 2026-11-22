@@ -99,7 +99,56 @@ Chương mới của Phần 1 dùng id mới, chèn trước `a1` trong manifest
 
 > **Chưa đối chiếu mục lục sách.** Viết từ hiểu biết chung về các sách này vì usage tuần gần hết. Trước khi viết một track, phải đọc mục lục thật (`tools/epub_toc.py` cho epub, các trang đầu cho pdf) rồi sửa dàn chương cho khớp.
 
-### Compose Runtime v2 (track B mở rộng)
+### Compose Runtime v2: dàn chương ĐÃ đối chiếu mục lục sách (2026-11-22)
+
+**Nguồn trong kho**, đều là sách thực hành, không có sách về nội bộ Compose:
+- *Android UI Development with Jetpack Compose* (Kunneth):
+  - Ch.2 Declarative paradigm;
+  - Ch.3 Key principles (composable functions, composing/recomposing, modifiers);
+  - Ch.4 Laying out (single measure pass, custom layouts);
+  - Ch.5 State (stateful/stateless, hoisting, config changes);
+  - Ch.7 Tips (persisting state, responsive, side effects);
+  - Ch.9 Interop;
+  - Ch.10 Testing, semantics, debugging.
+- *Jetpack Compose by Tutorials* 2nd: Ch.4 Lists; Ch.6 Modifiers; Ch.7 State; Ch.11 Lifecycle and effects; Ch.13 View compat; Ch.14 UI tests; Ch.15 Accessibility.
+- *Jetpack Compose 1.3 Essentials*:
+  - Ch.18–20 overview, composables, state and recomposition;
+  - Ch.21 CompositionLocal; Ch.22–23 Slot APIs; Ch.24 Modifiers;
+  - Ch.28–29 custom layout modifiers and layouts; Ch.32 IntrinsicSize;
+  - Ch.33 Coroutines and LaunchedEffect; Ch.34–37 Lists, lazy lists, sticky headers.
+
+**Nguồn cơ chế** (thay cho sách nội bộ):
+- tài liệu chính thức developer.android.com: mental model, lifecycle, state, side effects, phases, stability, performance;
+- tài liệu thiết kế AndroidX `compose/runtime/design/how-compose-works.md`;
+- mã nguồn AndroidX: runtime, compiler, ui. Ghi rõ nhánh hoặc phiên bản cho mọi chi tiết nội bộ.
+
+**Dàn chương.** Giữ id v1 để route không đổi, đào sâu tại chỗ. Thêm chương mới:
+
+| Thứ tự | Id | Chương | Nguồn chính |
+|---|---|---|---|
+| 1 | b0 | Bản đồ (cập nhật cuối cùng, sau khi các chương xong) | tổng hợp |
+| 2 | **dc** (mới) | Tư duy khai báo: từ View tới composable; tính chất của composable function (idempotent, không side effect, chạy bất kỳ thứ tự/lần nào) | Kunneth Ch.2–3, Tutorials Ch.1–2, Essentials Ch.18–19, "Thinking in Compose" |
+| 3 | b1 | setContent và host | Kunneth Ch.9 (một phần), mã AndroidX |
+| 4 | b2 | Compiler biến đổi gì: `$composer`, `$changed`, group, restart/skip | how-compose-works.md, mã compiler |
+| 5 | b3 | Identity, SlotTable, `remember`, `key` | how-compose-works.md, lifecycle docs, Essentials Ch.34–36 (key trong list) |
+| 6 | b4 | State và Snapshot: `MutableState`, policy, snapshot isolation, `derivedStateOf`, `snapshotFlow`, state collection | Kunneth Ch.5, Tutorials Ch.7, Essentials Ch.20, Snapshot API, mã runtime |
+| 7 | **sh** (mới) | Quản lý state: stateful/stateless, hoisting, `rememberSaveable`, ViewModel, nguồn sự thật | Kunneth Ch.5, Ch.7; Tutorials Ch.7; Essentials Ch.42 |
+| 8 | b5 | Recomposer và frame clock | how-compose-works.md, mã Recomposer |
+| 9 | **ef** (mới) | Side effects và vòng đời: LaunchedEffect, DisposableEffect, SideEffect, rememberUpdatedState, produceState, rememberCoroutineScope | Kunneth Ch.7, Tutorials Ch.11, Essentials Ch.33, side-effects docs. Nối với A8 của Coroutines |
+| 10 | **cl** (mới) | CompositionLocal và slot API | Essentials Ch.21–23 |
+| 11 | b6 | Composer ghi nhận, Applier áp dụng, LayoutNode | mã runtime/ui |
+| 12 | b7 | Ba phase và hoãn đọc state | phases docs, performance-by-phase |
+| 13 | **lo** (mới) | Layout: Constraints, single measure pass, custom Layout, intrinsics, SubcomposeLayout | Kunneth Ch.4, Essentials Ch.28–29, Ch.32, layout docs |
+| 14 | **md** (mới) | Modifier: chuỗi, thứ tự, `Modifier.Node` | Tutorials Ch.6, Essentials Ch.24 và Ch.28, modifier docs |
+| 15 | **lz** (mới) | Lazy list bên trong: compose theo nhu cầu, key, contentType, tái sử dụng | Tutorials Ch.4, Essentials Ch.34–37, lists docs |
+| 16 | b8 | Skip, stability, strong skipping, compiler report | stability docs, mã compiler |
+| 17 | b9 | Host, semantics, test và accessibility | Kunneth Ch.10, Tutorials Ch.14–15 |
+| 18 | **pf** (mới) | Hiệu năng và debug: đếm recomposition, Layout Inspector, baseline profile | Kunneth Ch.10, performance docs |
+| 19 | b10 | Live: luồng +1 (giữ, cập nhật tham chiếu) | tổng hợp |
+
+Thứ tự viết: dc → b2 → b3 → b4 → sh → b5 → ef → … (cuối cùng là b0).
+
+**Dàn nháp cũ (2026-11-21), giữ để đối chiếu:**
 - Compose là gì ở tầng dưới: compiler plugin, `Composer`, slot table, gap buffer.
 - `@Composable` bị biến đổi thế nào:
   - tham số `$composer` và `$changed`;
