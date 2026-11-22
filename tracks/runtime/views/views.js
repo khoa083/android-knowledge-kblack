@@ -130,6 +130,13 @@
     edges: [E('e1', 'parent', 'k1'), E('e2', 'parent', 'k2'), E('e3', 'parent', 'k3')],
     metrics: [T('measure', 'measured'), T('measure', 'queries'), T('measure', 'height')]
   });
+  /* MD (v2): chuỗi node modifier từ ngoài vào trong, kết thúc ở LayoutNode. */
+  V('chain', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('chain', 'm1', 0, 0, 'square', 'runtime'), N('chain', 'm2', 4, 0, 'square', 'runtime'), N('chain', 'm3', 8, 0, 'square', 'runtime'), N('chain', 'm4', 12, 0, 'square', 'runtime'), N('chain', 'layout', 16, 0, 'grid', 'ui')],
+    edges: [E('e1', 'm1', 'm2'), E('e2', 'm2', 'm3'), E('e3', 'm3', 'm4'), E('e4', 'm4', 'layout')],
+    metrics: [T('chain', 'reused'), T('chain', 'updated'), T('chain', 'inserted'), T('chain', 'removed')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

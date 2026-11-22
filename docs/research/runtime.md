@@ -288,3 +288,21 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Intrinsic hỏi trước khi đo, không đo hai lần; TwoTexts + VerticalDivider; minIntrinsicHeight Row = max con, divider 0; override phải khớp measure | `cp-intrinsics` | stable |
 | SubcomposeLayout: 3 trường hợp dùng; subcompose(slotId) và slotId phải equals giữa các lần đo | `ui-subcompose-src` | impl |
 | Sim `runtime.measure`: cột 3 lần đo; đo hai lần → pitfall; Row không intrinsic → divider 640; IntrinsicSize.Min → 3 hỏi, 3 đo, cao 72 | Theo tài liệu và mã ghim | selfCheck; số px minh họa; thứ tự đo weight trong Row giản lược (simp.2) |
+
+### MD · Modifier: chuỗi, thứ tự, kích thước, Modifier.Node (chương mới 2026-11-23)
+
+**Đã đọc:** "Compose modifiers", "Create custom modifiers", "Migrate from Modifier.composed to Modifier.Node" (bản tóm tắt), "Constraints and modifier order" (developer.android.com, 2026-11-23); `Modifier.kt`, `ModifierNodeElement.kt`, `NodeChain.kt` (`updateFrom`, `actionForModifiers`, `Differ`), foundation `Background.kt`, foundation-layout `Padding.kt` @296313a4; Tutorials Ch.6; Essentials Ch.24.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| size→background→clip cho hình vuông; thêm background vàng sau clip; padding trước size; `modifier` vs `Modifier`; bỏ tham số padding khi đã có modifier | Tutorials Ch.6 | Ví dụ của sách |
+| border/padding đổi thứ tự; tham số modifier là tham số tùy chọn đầu tiên; then; hơn 100 hàm | Essentials Ch.24 | Ví dụ của sách |
+| Thứ tự quan trọng (KDoc); quy ước modifier/fooModifier, modifier mặc định nối sau | `ui-modifier-src` | impl |
+| clickable/padding; không có margin; size/requiredSize/offset/matchParentSize/weight; scope an toàn, parent data modifier; trích và dùng lại, cấp phát mỗi frame với animation; reusableItemModifier | `cp-modifiers` | stable |
+| clip(CircleShape).padding(10).size(100) không tròn; size(100).size(50) → 100 | `cp-constraints-mod` | stable |
+| then trả về CombinedModifier, hoặc this nếu other là Modifier rỗng | `ui-modifier-src` | impl |
+| ModifierNodeElement nhẹ; create/update; equals/hashCode bắt buộc; BackgroundElement so color/brush/alpha/shape | `ui-mne-src` | impl |
+| updateFrom: đường nhanh khi cùng độ dài; equals → reuse, cùng lớp → update, khác → diff Myers (insert attach, remove invalidate+detach, same update nếu khác) | `ui-nodechain-src` | impl |
+| Ba cách viết modifier; caveat factory @Composable; composed {} không còn khuyên dùng; circle; các loại node; shouldAutoInvalidate; coroutineScope; currentValueOf | `cp-custom-modifiers`, `cp-modifiers-node` | stable |
+| Bug "blink" đổi lớp element làm animation chạy lại | Suy ra từ `ui-nodechain-src` (Replace → detach/attach) | site suy luận từ mã, ví dụ giả định |
+| Sim `runtime.chain`: 4/0/0/0, 3/1/0/0, 3 giữ + 1 chèn, 3 giữ + 1 gỡ + 1 chèn | Theo NodeChain @296313a4 | selfCheck; thứ tự lệnh diff giản lược (simp.2) |

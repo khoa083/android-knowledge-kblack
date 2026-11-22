@@ -371,4 +371,30 @@
       '}'
     ]);
   });
+  add('chain_reuse', [
+    '@Composable',
+    { vi: 'fun Dot(color: Color, label: String) {          // chạy lại: tạo chuỗi element MỚI', en: 'fun Dot(color: Color, label: String) {          // re-runs: builds a NEW element chain' },
+    '    Box(',
+    '        Modifier',
+    '            .padding(8.dp)                       // PaddingElement',
+    '            .clip(CircleShape)',
+    '            .background(color)                   // BackgroundElement(color, …)',
+    '            .size(40.dp)',
+    '    ) { Text(label) }',
+    '}'
+  ]);
+  [['chain_insert', 'Modifier'], ['chain_replace', 'Modifier.shadow(4.dp)']].forEach(function (c) {
+    add(c[0], [
+      '@Composable',
+      'fun Dot(color: Color, selected: Boolean) {',
+      '    Box(',
+      '        Modifier',
+      '            .padding(8.dp)',
+      '            .then(if (selected) Modifier.border(2.dp, Color.Black) else ' + c[1] + ')',
+      '            .background(color)',
+      '            .size(40.dp)',
+      '    )',
+      '}'
+    ]);
+  });
 })();

@@ -1324,4 +1324,83 @@
       } }]
     });
   })();
+  /* ================= MD (v2): chuỗi modifier sau recompose được khớp với chuỗi node cũ (NodeChain.updateFrom, actionForModifiers @296313a4) =================
+     equal: element mới bằng (equals) element cũ → dùng lại node, không update. update: cùng lớp, khác dữ liệu (background Red → Blue) → update(node) + tự invalidate.
+     insert: độ dài khác (then(if … else Modifier)) → diff cấu trúc: giữ 3 node, chèn 1 (onAttach). replace: cùng vị trí khác lớp (shadow → border) → bỏ diff tuyến tính,
+     diff phần còn lại: gỡ 1 (onDetach), chèn 1, giữ 2. */
+  (function () {
+    var m = 'chain';
+    var SC = ['equal', 'update', 'insert', 'replace'];
+    var CH = {
+      equal: ['padding · clip · background(Red) · size', 'padding · clip · background(Red) · size'],
+      update: ['padding · clip · background(Red) · size', 'padding · clip · background(Blue) · size'],
+      insert: ['padding · background · size', 'padding · border · background · size'],
+      replace: ['padding · shadow · background · size', 'padding · border · background · size']
+    };
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'equal', out = [], t = 0, c = { reused: 0, updated: 0, inserted: 0, removed: 0 }, act = '—';
+      var snip = sc === 'insert' ? 'chain_insert' : sc === 'replace' ? 'chain_replace' : 'chain_reuse';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {};
+        o.metrics = { reused: c.reused, updated: c.updated, inserted: c.inserted, removed: c.removed };
+        o.stateAfter = [{ labelKey: M(m, 'st.before'), value: CH[sc][0] }, { labelKey: M(m, 'st.after'), value: CH[sc][1] }, { labelKey: M(m, 'st.action'), value: act }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: snip, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'apply', subject: o.activeNodes[o.activeNodes.length - 1] || 'layout', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var EL = { equal: ['PaddingElement', 'clip', 'BackgroundElement', 'SizeElement'], update: ['PaddingElement', 'clip', 'BackgroundElement', 'SizeElement'],
+        insert: ['PaddingElement', 'BorderModifierNodeElement', 'BackgroundElement', 'SizeElement'], replace: ['PaddingElement', 'BorderModifierNodeElement', 'BackgroundElement', 'SizeElement'] }[sc];
+      var LN = sc === 'insert' || sc === 'replace' ? [5, 6, 7, 8] : [5, 6, 7, 8];
+      var edge = function (i) { return i < 4 ? [{ edge: 'e' + i, tok: 'runtime' }] : [{ edge: 'e4', tok: 'runtime' }]; };
+      var reuse = function (i, inDiff) { c.reused++; act = 'Reuse'; P(inDiff ? 'same' : 'reuse', { activeNodes: ['m' + i], movingSignals: edge(i), lines: [LN[i - 1]], params: { i: i, el: EL[i - 1] }, kind: 'skip' }); };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['m1', 'm2', 'm3', 'm4', 'layout'], lines: [5, 6, 7, 8], kind: 'observe' });
+      P('recompose.' + sc, { activeNodes: ['layout'], lines: [2], kind: 'recompose' });
+      if (sc === 'equal' || sc === 'update') {
+        reuse(1); reuse(2);
+        if (sc === 'update') {
+          c.updated++; act = 'Update';
+          P('update', { activeNodes: ['m3'], movingSignals: [{ edge: 'e3', tok: 'state' }], lines: [7], params: { i: 3, el: 'BackgroundElement' }, kind: 'apply', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.update') }] });
+        } else reuse(3);
+        reuse(4);
+      } else if (sc === 'insert') {
+        act = 'diff';
+        P('diff', { type: 'pitfall', activeNodes: ['m1', 'm2', 'm3', 'm4'], lines: [6], params: { a: 3, b: 4 }, kind: 'act', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.diff') }] });
+        reuse(1, true);
+        c.inserted++; act = 'insert';
+        P('insert', { activeNodes: ['m2'], movingSignals: [{ edge: 'e1', tok: 'ui' }], lines: [6], params: { i: 2, el: EL[1] }, kind: 'apply' });
+        reuse(3, true); reuse(4, true);
+      } else {
+        reuse(1);
+        act = 'Replace';
+        P('abort', { type: 'pitfall', activeNodes: ['m2'], movingSignals: [{ edge: 'e1', tok: 'error' }], lines: [6], params: { i: 2 }, kind: 'act' });
+        c.removed++; act = 'remove';
+        P('remove', { type: 'pitfall', activeNodes: ['m2'], lines: [6], params: { i: 2 }, kind: 'apply', callouts: [{ kind: 'pitfall', textKey: M(m, 'co.remove') }] });
+        c.inserted++; act = 'insert';
+        P('insert', { activeNodes: ['m2'], movingSignals: [{ edge: 'e1', tok: 'ui' }], lines: [6], params: { i: 2, el: EL[1] }, kind: 'apply' });
+        reuse(3, true); reuse(4, true);
+      }
+      act = '—';
+      P('end.' + sc, { type: sc === 'replace' ? 'pitfall' : 'mechanism', activeNodes: ['layout'], lines: [], kind: 'observe', callouts: [{ kind: sc === 'replace' ? 'pitfall' : 'mechanism', textKey: M(m, 'co.end.' + sc) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'chain_reuse',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'which', type: 'select', labelKey: M(m, 'ctl.which'), get: function (s) { return s.which; }, action: 'which', options: SC.map(function (v) { return { value: v, labelKey: M(m, 'ctl.which.' + v) }; }) }
+      ],
+      init: function () { return { which: 'equal' }; },
+      act: function (s, a, v) { return { which: SC.indexOf(v) >= 0 ? v : 'equal' }; },
+      steps: steps,
+      selfChecks: [{ name: 'actionForModifiers: equals → dùng lại 4/4; cùng lớp khác dữ liệu → 3 dùng lại + 1 update; thêm border có điều kiện → diff, 3 giữ + 1 chèn; shadow → border cùng vị trí → 3 giữ, 1 gỡ, 1 chèn', run: function () {
+        var last = function (w) { return steps({ which: w }).slice(-1)[0].metrics; };
+        var e = last('equal'), u = last('update'), i = last('insert'), r = last('replace');
+        return e.reused === 4 && e.updated === 0 && u.reused === 3 && u.updated === 1 && i.reused === 3 && i.inserted === 1 && i.removed === 0 &&
+          r.reused === 3 && r.removed === 1 && r.inserted === 1;
+      } }]
+    });
+  })();
 })();
