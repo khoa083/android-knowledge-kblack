@@ -19,9 +19,28 @@ with open(os.path.join(ROOT, 'dev', 'gen', 'coroutines_base.json'), encoding='ut
 # ---------------- v2 ----------------
 here = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, here)
-for mod in ('coroutines_v2_part1', 'coroutines_v2_u2', 'coroutines_v2_u3', 'coroutines_v2_u4'):
+def o(k, vi, en=None):
+    """Ghi đè một chuỗi v1 đã có (giữ vị trí khoá)."""
+    k = P + k
+    for i, e in enumerate(E):
+        if e[0] == k: E[i] = (k, vi, vi if en is None else en); return
+    raise KeyError(k)
+
+for mod in ('coroutines_v2_part1', 'coroutines_v2_u2', 'coroutines_v2_u3', 'coroutines_v2_u4', 'coroutines_v2_a3'):
     if os.path.exists(os.path.join(here, mod + '.py')):
-        __import__(mod).add(a)
+        mm = __import__(mod)
+        mm.add(a)
+        if hasattr(mm, 'override'): mm.override(o)
+        # SEC_ORDER = {'<chương>': ['mục1', 'mục2', ...]}: sắp lại thứ tự các mục (v1 + v2) của chương; giữ vị trí khối khoá đầu tiên
+        for ch, order in getattr(mm, 'SEC_ORDER', {}).items():
+            pre = P + ch + '.sec.'
+            idx = [i for i, e in enumerate(E) if e[0].startswith(pre)]
+            items = [E[i] for i in idx]
+            rank = lambda e: order.index(e[0][len(pre):].split('.')[0]) if e[0][len(pre):].split('.')[0] in order else len(order)
+            items.sort(key=rank)   # sort ổn định: thứ tự trong cùng một mục được giữ
+            first = idx[0]
+            E[:] = [e for i, e in enumerate(E) if i not in set(idx)]
+            E[first:first] = items
 
 # ---------------- ghi file ----------------
 def norm(s): return unicodedata.normalize('NFC', s)

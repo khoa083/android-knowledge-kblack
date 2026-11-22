@@ -163,3 +163,20 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 | `viewModelScope` dùng `Dispatchers.Main.immediate` (U1) | Còn mở. Sẽ trích nguồn AndroidX ở chương Dispatchers / A8 |
 | `CalledFromWrongThreadException` (U1) | Còn mở. Chưa có trang chính thức riêng |
 
+
+### A3 v2 · Coroutine builders (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "Coroutine builders", trang PDF 66–81. Đọc toàn văn; hình sơ đồ tổng quan (tr. 80) chưa xem dạng ảnh.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Builder là cầu nối; `suspend main` cũng được khởi động bằng builder | Deep Dive tr. 66, chú thích 18 | Diễn giải |
+| `launch` trả `Job`; `async` trả `Deferred`, khởi động ngay; `runBlocking` chặn luồng tới khi xong | `kx-launch`, `kx-async`, `kx-runblocking` (URL đã kiểm, 200); Deep Dive tr. 67–74 | API ổn định |
+| Chữ ký `launch`/`async`/`runBlocking` với `CoroutineScope` làm receiver | Deep Dive tr. 76; khớp tài liệu API (mặc định `EmptyCoroutineContext`, `CoroutineStart.DEFAULT`) | API ổn định |
+| Bốn hệ quả của structured concurrency | Deep Dive tr. 77 | Tóm tắt, mỗi ý sẽ có chương riêng |
+| `coroutineScope` tạo scope và chờ con | `kx-coroutinescope`; Deep Dive tr. 79 | API ổn định |
+| Exception trong `async` lộ ra khi `await` | `kt-exceptions` (đã có từ v1) | API ổn định |
+| `runBlocking` trên luồng Main gây đứng hoặc deadlock với `Dispatchers.Main` | Suy ra từ ngữ nghĩa `runBlocking` (chặn luồng) và dispatcher Main | **Suy luận, chưa có trang chính thức trích dẫn riêng** |
+| Bài đoán output (start, L, A, end) | Tự suy từ ngữ nghĩa dispatch của `runBlocking` (một luồng, con chạy khi cha suspend) | **Chưa chạy thử thật** |
+
+**Cách tích hợp:** viết sâu thêm vào A3, giữ id, sim `coroutines.builders` và mục v1 "when". `SEC_ORDER` trong generator sắp lại thứ tự mục; `override` thay tiêu đề, phần "bản chất" và goal g1.

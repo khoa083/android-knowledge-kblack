@@ -206,4 +206,11 @@ Trạng thái: `chưa / đang / xong`.
   - reduced-motion tắt hết, đã kiểm bằng `--reduce` (rv=0, animation none);
   - chưa xem bằng mắt trên trình duyệt thật (headless chỉ kiểm class/animationName).
 - **Sơ đồ lanes chuyển động liên tục (2026-11-22, người dùng: "sơ đồ chỉ nhảy giữa các trạng thái"):** `Scene._laneTween` nhớ vị trí và độ dài từng thanh, mốc, vạch "bây giờ"; bước sau chạy từ hình cũ sang mới (Web Animations, 560 ms ÷ tốc độ). Đã kiểm bằng CDP: 7 animation chạy ở một lần đổi bước của U3. Mục tiêu (goal) của U1–U4 đổi câu chữ cho đúng ở mọi chế độ sim. `next-prompt.md` cập nhật: §5.1 thắng hướng dẫn bổ trợ; bắt buộc nghiên cứu nguồn trước mỗi chương.
+- **Đối chiếu nguồn U1–U4 (2026-11-22):** đã tải mã nguồn stdlib/kotlinx và tài liệu thật. Sửa chi tiết `SequenceBuilderIterator`, chế độ debug, `-Xdebug` (kèm cảnh báo không dùng cho production); bỏ trích dẫn nguyên văn thông báo lỗi chưa xác minh.
+- **Phần 2 bắt đầu: A3 v2 "Coroutine builders" (2026-11-22):**
+  - viết sâu thêm vào A3, gồm 12 mục: ôn tập, cầu nối, launch, runBlocking, async, when (v1), structured concurrency, bức tranh lớn, coroutineScope, 3 bug, 3 bài tập, tự trả lời; sim đặt sau "async";
+  - thêm 4 nguồn API;
+  - generator có thêm `override` (ghi đè chuỗi v1) và `SEC_ORDER` (sắp lại thứ tự mục).
+- **Kiểm A3 v2:** report 0 lỗi; track-check 1280 và 360 không thêm vấn đề; routes-check 102 route, 0 vấn đề.
+- **Tiếp theo trong Phần 2:** Context (tr. 82–93) → A4; Job và chờ con (tr. 94–106) → A2; Hủy (tr. 107–121) → A5; Exception (tr. 122–132) → A6; Scope functions (tr. 133–152); Dispatchers (tr. 153–172) → A4; Tự dựng scope (tr. 173–182); Shared state (tr. 183–197) và Testing (tr. 198–233) → A9.
 
