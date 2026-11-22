@@ -78,6 +78,18 @@
     '    error("Impossible")',
     '}'
   ]);
+  add('jobState', [
+    'val parent = scope.launch(start = if (lazy) CoroutineStart.LAZY else CoroutineStart.DEFAULT) {',
+    { vi: '    launch {                       // con', en: '    launch {                       // child' },
+    '        try { work() }',
+    { vi: '        finally { cleanup() }      // luôn chạy, kể cả khi bị hủy', en: '        finally { cleanup() }      // always runs, also when cancelled' },
+    '    }',
+    { vi: '    // thân của cha chạy xong ở đây → Completing (chờ con)', en: '    // the parent body ends here → Completing (waits for children)' },
+    '}',
+    { vi: 'parent.start()                     // chỉ cần khi lazy: New → Active', en: 'parent.start()                     // only needed when lazy: New → Active' },
+    { vi: 'parent.cancel()                    // → Cancelling → Cancelled', en: 'parent.cancel()                    // → Cancelling → Cancelled' },
+    { vi: 'parent.join()                      // chờ trạng thái cuối', en: 'parent.join()                      // wait for a final state' }
+  ]);
   add('full', [
     'Button(onClick = { viewModel.load() })',
     '',

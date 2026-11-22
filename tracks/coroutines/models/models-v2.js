@@ -211,4 +211,78 @@
       ]
     });
   })();
+
+  /* ================= A2: vòng đời của Job (New → Active → Completing → Completed; Cancelling → Cancelled) =================
+     Một coroutine cha có một con. lazy: bắt đầu ở New, phải start(). cancelAt: 'none' | 'active' (hủy khi đang chạy thân)
+     | 'completing' (hủy khi thân đã xong, đang chờ con). Dải chỉ số: isActive, isCompleted, isCancelled, số con đang chạy.
+     Bảng cờ theo tài liệu Job của kotlinx.coroutines. */
+  (function () {
+    var m = 'jobstate';
+    var FLAGS = { new: [0, 0, 0], active: [1, 0, 0], completing: [1, 0, 0], cancelling: [0, 0, 1], cancelled: [0, 1, 1], completed: [0, 1, 0] };
+    var STATES = ['new', 'active', 'completing', 'completed', 'cancelling', 'cancelled'];
+    function steps(s) {
+      var out = [], seen = {}, kids = 0;
+      var B = function (x) { return M(m, 'v.' + (x ? 'yes' : 'no')); };
+      var push = function (id, state, o) {
+        o = o || {};
+        if (o.kids != null) kids = o.kids;
+        seen[state] = 1;
+        var ns = {};
+        STATES.forEach(function (st) {
+          ns[st] = M(m, 'st.' + (st === state ? (st === 'completed' ? 'completed' : st === 'cancelled' ? 'cancelled' : st === 'cancelling' ? 'cancelling' : 'running') : seen[st] ? 'done' : 'idle'));
+        });
+        var f = FLAGS[state];
+        out.push(step({ id: id, type: o.type || 'mechanism', titleKey: M(m, 's.' + id + '.title'), explainKey: M(m, 's.' + id + '.explain'),
+          activeNodes: [state], movingSignals: o.edge ? [{ edge: o.edge, tok: 'job' }] : [], nodeStates: ns,
+          metrics: { isActive: B(f[0]), isCompleted: B(f[1]), isCancelled: B(f[2]), kids: kids },
+          codeHighlight: { snippet: 'jobState', lines: o.lines || [] },
+          callouts: o.co ? [{ kind: o.co[0], textKey: M(m, 'co.' + o.co[1]) }] : [],
+          logEvents: [{ t: (out.length + 1) * 10, kind: o.kind || 'run', subject: o.subject || 'parent', scope: M(m, 'state.' + state), detailKey: M(m, 'ev.' + id) }] }));
+      };
+      if (s.lazy) {
+        push('createdLazy', 'new', { lines: [1], kind: 'launch', co: ['mechanism', 'lazy'] });
+        push('start', 'active', { lines: [8], edge: 'e1', kind: 'resume' });
+      } else {
+        push('created', 'active', { lines: [1], kind: 'launch' });
+      }
+      push('child', 'active', { lines: [2, 3], kids: 1, kind: 'launch', subject: 'child' });
+      if (s.cancelAt === 'active') {
+        push('cancelActive', 'cancelling', { lines: [9], edge: 'e4', kind: 'cancel', type: 'experiment', co: ['mechanism', 'cancelling'] });
+        push('cleanup', 'cancelling', { lines: [4], kids: 0, kind: 'cancel', subject: 'child', co: ['android', 'finally'] });
+        push('cancelled', 'cancelled', { lines: [9, 10], edge: 'e6', kind: 'complete' });
+        return out;
+      }
+      push('bodyDone', 'completing', { lines: [6], edge: 'e2', kind: 'suspend', co: ['mechanism', 'completing'] });
+      if (s.cancelAt === 'completing') {
+        push('cancelCompleting', 'cancelling', { lines: [9], edge: 'e5', kind: 'cancel', type: 'experiment' });
+        push('cleanup', 'cancelling', { lines: [4], kids: 0, kind: 'cancel', subject: 'child', co: ['android', 'finally'] });
+        push('cancelled', 'cancelled', { lines: [9, 10], edge: 'e6', kind: 'complete' });
+        return out;
+      }
+      push('childDone', 'completing', { lines: [3], kids: 0, kind: 'complete', subject: 'child' });
+      push('completed', 'completed', { lines: [10], edge: 'e3', kind: 'complete', co: ['mechanism', 'join'] });
+      return out;
+    }
+    ADE.registerModel('coroutines.jobstate', {
+      kind: 'discrete', titleKey: M(m, 'title'), overviewKey: M(m, 'overview'), wrapupKey: M(m, 'wrapup'), codeId: 'jobState',
+      simplificationKeys: [M(m, 'simp.1')], controlsHintKey: M(m, 'ctl.hint'),
+      controls: [
+        { id: 'lazy', type: 'toggle', labelKey: M(m, 'ctl.lazy'), get: function (s) { return s.lazy; }, action: 'lazy' },
+        { id: 'cancelAt', type: 'select', labelKey: M(m, 'ctl.cancelAt'), get: function (s) { return s.cancelAt; }, action: 'cancelAt',
+          options: ['none', 'active', 'completing'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.cancelAt.' + v) }; }) }
+      ],
+      init: function () { return { lazy: false, cancelAt: 'none' }; },
+      act: function (s, a, v) { var n = { lazy: s.lazy, cancelAt: s.cancelAt }; if (a === 'lazy') n.lazy = !!v; else n.cancelAt = ['none', 'active', 'completing'].indexOf(v) >= 0 ? v : 'none'; return n; },
+      steps: steps,
+      selfChecks: [
+        { name: 'kết thúc Completed (F,T,F) khi không hủy; Cancelled (F,T,T) khi hủy; lazy bắt đầu ở New (F,F,F)', run: function () {
+          var d = ADE.models['coroutines.jobstate'], Y = M(m, 'v.yes'), N = M(m, 'v.no');
+          var last = function (st) { return st[st.length - 1].metrics; };
+          var a = last(d.steps({ lazy: false, cancelAt: 'none' })), b = last(d.steps({ lazy: false, cancelAt: 'active' })), c = d.steps({ lazy: true, cancelAt: 'completing' });
+          return a.isActive === N && a.isCompleted === Y && a.isCancelled === N && b.isCompleted === Y && b.isCancelled === Y &&
+            c[0].metrics.isActive === N && c[0].metrics.isCompleted === N && last(c).isCancelled === Y;
+        } }
+      ]
+    });
+  })();
 })();

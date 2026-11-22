@@ -147,6 +147,19 @@
     scopeKey: K + 'col.thread', zoom: false
   });
 
+  /* A2: vòng đời Job. Sáu thẻ trạng thái; token chạy dọc mũi tên chuyển trạng thái ở mỗi bước. */
+  V('jobstate', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('jobstate', 'new', 0, 0, 'square', 'job', { col: 0, row: 0 }), N('jobstate', 'active', 0, 0, 'play', 'job', { col: 1, row: 0 }),
+            N('jobstate', 'completing', 0, 0, 'clock', 'job', { col: 2, row: 0 }), N('jobstate', 'completed', 0, 0, 'check', 'job', { col: 3, row: 0 }),
+            N('jobstate', 'cancelling', 0, 0, 'cross', 'job', { col: 2, row: 1 }), N('jobstate', 'cancelled', 0, 0, 'forbidden', 'job', { col: 3, row: 1 })],
+    edges: [E('e1', 'new', 'active', K + 'm.jobstate.e.start'), E('e2', 'active', 'completing', K + 'm.jobstate.e.body'), E('e3', 'completing', 'completed', K + 'm.jobstate.e.kids'),
+            E('e4', 'active', 'cancelling', K + 'm.jobstate.e.cancel'), E('e5', 'completing', 'cancelling', K + 'm.jobstate.e.cancel'), E('e6', 'cancelling', 'cancelled', K + 'm.jobstate.e.clean')],
+    metrics: [{ id: 'isActive', labelKey: K + 'm.jobstate.met.isActive' }, { id: 'isCompleted', labelKey: K + 'm.jobstate.met.isCompleted' },
+              { id: 'isCancelled', labelKey: K + 'm.jobstate.met.isCancelled' }, { id: 'kids', labelKey: K + 'm.jobstate.met.kids' }],
+    scopeKey: K + 'm.jobstate.col.state'
+  });
+
   V('jobtree', {
     layout: 'tree',
     nodes: [N('jobtree', 'root', -2, -2, 'job', 'job'), N('jobtree', 'c1', 0, 4, 'job', 'coroutine'), N('jobtree', 'c2', 2, 2, 'job', 'coroutine'), N('jobtree', 'c3', 4, 0, 'job', 'coroutine'), N('jobtree', 'g', 6, 6, 'job', 'coroutine')],

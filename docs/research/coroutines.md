@@ -193,3 +193,17 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 | Coroutine luôn tạo Job riêng; `Job` truyền vào làm cha → phá structured concurrency | Deep Dive tr. 90 (Job là ngoại lệ), sẽ đối chiếu ở chương Job | API ổn định |
 | `ThreadLocal.asContextElement` | `kx-asctx` (URL đã kiểm, 200) | API ổn định |
 | Đoán output `[c1]`, `[main]`, `Outer`/`Inner` | Deep Dive tr. 89–92 (output in sẵn trong sách) | Ví dụ của sách |
+
+### A2 v2 · Job và chờ con (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "Jobs and awaiting children", trang PDF 94–106. Đọc toàn văn; hình sơ đồ trạng thái (tr. 95) chưa xem dạng ảnh. Sơ đồ trạng thái dựng lại theo phần chữ của sách và tài liệu API `Job`.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Sáu trạng thái và chuyển tiếp; bảng cờ isActive/isCompleted/isCancelled | Deep Dive tr. 95–97; `kx-job` (URL đã kiểm, 200) | API ổn định |
+| Job không được thừa hưởng; Job truyền vào làm cha; `children`, `coroutineContext.job` | Deep Dive tr. 97–99 | API ổn định |
+| `Job()` trả `CompletableJob`; `complete`, `completeExceptionally`, `Job(parent)`; `join` trên `Job()` chờ mãi | Deep Dive tr. 100–105; `kx-jobfn` | API ổn định |
+| Lazy chưa start giữ cha ở Completing | Suy từ quy tắc "cha chờ mọi con" cộng trạng thái New | **Suy luận; chưa chạy thử** |
+| Tên lớp `JobImpl`, `StandaloneCoroutine`, `LazyStandaloneCoroutine` trong `toString` | Deep Dive tr. 96 | impl, đã ghi "có thể khác giữa các phiên bản" |
+
+**Sim mới `coroutines.jobstate`:** pipeline 6 trạng thái, token chạy dọc mũi tên chuyển tiếp. Có toggle lazy và chọn thời điểm hủy (none/active/completing). selfCheck đạt. A2 giờ có 2 tab sim; sim đặt sau mục "states".
