@@ -130,3 +130,20 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 **Sim `coroutines.cont` (mới):** lanes gồm coroutine, luồng main, luồng phụ/scheduler. Có 5 chế độ resume. selfCheck kiểm: thứ tự After trước Resumed, After chạy trên luồng phụ; chế độ never không có After; chế độ now không suspend.
 
 **URL đã kiểm (curl, 2026-11-22):** 10 URL nguồn mới của U1–U3 đều trả về 200. Trang ANR chuyển hướng sang `/topic/performance/issues/anr`, đã cập nhật.
+
+### U4 · Coroutine dưới mui xe + hỗ trợ của ngôn ngữ so với thư viện (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, "Coroutines under the hood" và "Coroutines: built-in support vs library", trang PDF 45–64. Đọc toàn văn; hình minh hoạ bytecode chưa xem dạng ảnh.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| CPS: continuation là tham số cuối; kiểu trả về `Any?` vì có thể trả `COROUTINE_SUSPENDED` | `kt-design` (KEEP); Deep Dive tr. 45–46 | impl, ổn định về mặt thiết kế |
+| State machine với `label`; đặt label trước lời gọi; cất và nạp biến cục bộ; `result` kiểu `Result` | Deep Dive tr. 46–56 (mã giản lược); `kt-design` | impl, giản lược, đã gắn nhãn |
+| Chuỗi continuation thay call stack; ví dụ a/b/c, đáp án 13 Tick | Deep Dive tr. 56–58 (đáp án ở chú thích 16) | impl, giản lược |
+| `BaseContinuationImpl.resumeWith` dùng vòng lặp thay đệ quy | Deep Dive tr. 59–60, trích Kotlin 1.5.30 | impl, có phiên bản |
+| Chi phí suspend thấp | Deep Dive tr. 60–61 | Nhận định của tác giả |
+| Ngôn ngữ (`kotlin.coroutines`) và thư viện (`kotlinx.coroutines`) | Deep Dive tr. 63–64; `kt-design` | API ổn định |
+| Biến không dùng sau điểm suspend không được cất → "optimized out"; `-Xdebug` | kiến thức về compiler Kotlin | **Chưa đối chiếu tài liệu phiên bản**; nội dung đã ghi "kiểm tra đúng phiên bản" |
+| Chế độ debug / `-ea` / khôi phục stack trace | `kx-debug` | API ổn định; **chưa trích nguyên văn điều kiện bật** |
+
+**Sim `coroutines.sm` (mới):** dạng pipeline gồm người gọi, label 0/1/2 và continuation. Dải chỉ số hiện các trường. Có 3 tình huống. selfCheck đạt.

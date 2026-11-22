@@ -151,4 +151,64 @@
       ]
     });
   })();
+
+  /* ================= U4: hàm suspend sau khi biên dịch là một state machine =================
+     printUser(token) có hai điểm suspend (getUserId, getUserName) → ba trạng thái label 0, 1, 2.
+     Trường của PrintUserContinuation hiện ở dải chỉ số: label, userId, result; cùng giá trị printUser trả về và trạng thái luồng.
+     mode: 'suspend' (cả hai lời gọi suspend), 'now' (getUserId có kết quả ngay → không trả COROUTINE_SUSPENDED),
+     'fail' (getUserName resume bằng exception → getOrThrow ném ra → completion nhận Result.failure). */
+  (function () {
+    var m = 'sm';
+    var V = function (k) { return M(m, 'v.' + k); };
+    function steps(s) {
+      var out = [], f = { label: 0, userId: V('none'), result: V('none'), ret: V('none'), th: V('busy') };
+      var push = function (id, o) {
+        for (var k in o.f || {}) f[k] = o.f[k];
+        var ns = { call: M(m, 'st.' + (o.call || 'waiting')), l0: M(m, 'st.' + (o.l0 || 'idle')), l1: M(m, 'st.' + (o.l1 || 'idle')), l2: M(m, 'st.' + (o.l2 || 'idle')), cont: M(m, 'st.label' + f.label) };
+        out.push(step({ id: id, type: o.type || 'mechanism', titleKey: M(m, 's.' + id + '.title'), explainKey: M(m, 's.' + id + '.explain'),
+          activeNodes: o.active, movingSignals: o.sig ? [{ edge: o.sig, tok: 'coroutine' }] : [], nodeStates: ns,
+          metrics: { label: f.label, userId: f.userId, result: f.result, ret: f.ret, th: f.th }, codeHighlight: { snippet: 'smUser', lines: o.lines },
+          callouts: o.co ? [{ kind: o.co[0], textKey: M(m, 'co.' + o.co[1]) }] : [],
+          logEvents: [{ t: out.length + 1, kind: o.kind || 'run', subject: o.subject || 'printUser', scope: M(m, 'scope.' + (f.th === V('free') ? 'free' : 'busy')), detailKey: M(m, 'ev.' + id) }] }));
+      };
+      push('call', { active: ['call', 'cont'], sig: 'e1', lines: [1, 2, 3], kind: 'launch', call: 'waiting', co: ['mechanism', 'wrap'] });
+      push('l0', { active: ['l0'], lines: [6, 7, 8, 9], l0: 'running', f: { label: 1 }, co: ['mechanism', 'labelFirst'] });
+      if (s.mode === 'now') {
+        push('l0now', { active: ['l0', 'l1'], sig: 'e2', lines: [9, 11], l0: 'done', l1: 'running', f: { result: V('okId'), ret: V('none') }, kind: 'resume', co: ['mechanism', 'fallThrough'] });
+      } else {
+        push('susp1', { active: ['l0', 'call'], lines: [10], l0: 'suspended', kind: 'suspend', subject: 'getUserId', f: { ret: V('susp'), th: V('free') }, co: ['mechanism', 'unwind'] });
+        push('resume1', { active: ['cont', 'l1'], sig: 'e2', lines: [2, 4, 5, 13, 14], l0: 'done', l1: 'running', kind: 'resume', f: { result: V('okId'), ret: V('none'), th: V('busy') }, co: ['mechanism', 'reuse'] });
+      }
+      push('l1', { active: ['l1'], lines: [14, 15, 16, 17, 18], l0: 'done', l1: 'running', f: { label: 2, userId: V('id') }, co: ['mechanism', 'store'] });
+      push('susp2', { active: ['l1', 'call'], lines: [19], l0: 'done', l1: 'suspended', kind: 'suspend', subject: 'getUserName', f: { ret: V('susp'), th: V('free') } });
+      if (s.mode === 'fail') {
+        push('resumeFail', { active: ['cont', 'l2'], sig: 'e3', lines: [2, 4, 5, 22, 23], l0: 'done', l1: 'done', l2: 'failed', kind: 'exception', f: { result: V('fail'), ret: V('none'), th: V('busy') }, co: ['pitfall', 'throwHere'] });
+        push('completeFail', { active: ['call'], sig: 'e4', lines: [23], l0: 'done', l1: 'done', l2: 'failed', call: 'failed', kind: 'exception', subject: 'completion', f: { ret: V('thrown') }, co: ['mechanism', 'failUp'] });
+        return out;
+      }
+      push('resume2', { active: ['cont', 'l2'], sig: 'e3', lines: [2, 4, 5, 22, 23, 24, 25], l0: 'done', l1: 'done', l2: 'running', kind: 'resume', f: { result: V('okName'), ret: V('none'), th: V('busy') } });
+      push('ret', { active: ['call'], sig: 'e4', lines: [26], l0: 'done', l1: 'done', l2: 'done', call: 'resumed', kind: 'complete', subject: 'completion', f: { ret: V('unit') }, co: ['mechanism', 'completion'] });
+      return out;
+    }
+    ADE.registerModel('coroutines.sm', {
+      kind: 'discrete', titleKey: M(m, 'title'), overviewKey: M(m, 'overview'), wrapupKey: M(m, 'wrapup'), codeId: 'smUser',
+      simplificationKeys: [M(m, 'simp.1'), M(m, 'simp.2')], controlsHintKey: M(m, 'ctl.hint'),
+      controls: [
+        { id: 'mode', type: 'select', labelKey: M(m, 'ctl.mode'), get: function (s) { return s.mode; }, action: 'mode',
+          options: ['suspend', 'now', 'fail'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.mode.' + v) }; }) }
+      ],
+      init: function () { return { mode: 'suspend' }; },
+      act: function (s, a, v) { return { mode: ['suspend', 'now', 'fail'].indexOf(v) >= 0 ? v : 'suspend' }; },
+      steps: steps,
+      selfChecks: [
+        { name: 'suspend: 2 lần trả COROUTINE_SUSPENDED, label 0→1→2, kết thúc Unit; now: chỉ 1 lần suspend; fail: completion nhận failure', run: function () {
+          var d = ADE.models['coroutines.sm'];
+          var cnt = function (st) { return st.filter(function (x) { return x.metrics.ret === M(m, 'v.susp'); }).length; };
+          var a = d.steps({ mode: 'suspend' }), b = d.steps({ mode: 'now' }), c = d.steps({ mode: 'fail' });
+          return cnt(a) === 2 && cnt(b) === 1 && a[a.length - 1].metrics.ret === M(m, 'v.unit') && a[a.length - 1].metrics.label === 2 &&
+            c[c.length - 1].metrics.ret === M(m, 'v.thrown');
+        } }
+      ]
+    });
+  })();
 })();

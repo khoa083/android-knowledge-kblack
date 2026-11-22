@@ -47,6 +47,37 @@
   add('contThread', ['suspend fun main() {', '    println("Before")', '    suspendCoroutine<Unit> { continuation ->', '        thread {', '            println("Suspended")', '            Thread.sleep(1000)', '            continuation.resume(Unit)', '            println("Resumed")', '        }', '    }', '    println("After")', '}']);
   add('contSched', ['private val executor = Executors.newSingleThreadScheduledExecutor {', '    Thread(it, "scheduler").apply { isDaemon = true }', '}', '', 'suspend fun delay(timeMillis: Long): Unit =', '    suspendCoroutine { cont ->', '        executor.schedule({ cont.resume(Unit) }, timeMillis, TimeUnit.MILLISECONDS)', '    }', '', 'suspend fun main() {', '    println("Before")', '    delay(1000)', '    println("After")', '}']);
   add('contExc', ['class MyException : Throwable("Just an exception")', '', 'suspend fun main() {', '    try {', '        suspendCoroutine<Unit> { cont ->', '            cont.resumeWithException(MyException())', '        }', '    } catch (e: MyException) {', '        println("Caught!")', '    }', '}']);
+  add('smUser', [
+    'fun printUser(token: String, continuation: Continuation<*>): Any {',
+    '    val cont = continuation as? PrintUserContinuation',
+    '        ?: PrintUserContinuation(continuation, token)',
+    '    var result = cont.result',
+    '    var userId = cont.userId',
+    '    if (cont.label == 0) {',
+    '        println("Before")',
+    '        cont.label = 1',
+    '        val res = getUserId(token, cont)',
+    '        if (res == COROUTINE_SUSPENDED) return COROUTINE_SUSPENDED',
+    '        result = Result.success(res)',
+    '    }',
+    '    if (cont.label == 1) {',
+    '        userId = result!!.getOrThrow() as String',
+    '        println("Got userId: $userId")',
+    '        cont.label = 2',
+    '        cont.userId = userId',
+    '        val res = getUserName(userId, cont)',
+    '        if (res == COROUTINE_SUSPENDED) return COROUTINE_SUSPENDED',
+    '        result = Result.success(res)',
+    '    }',
+    '    if (cont.label == 2) {',
+    '        val userName = result!!.getOrThrow() as String',
+    '        println(User(userId as String, userName))',
+    '        println("After")',
+    '        return Unit',
+    '    }',
+    '    error("Impossible")',
+    '}'
+  ]);
   add('full', [
     'Button(onClick = { viewModel.load() })',
     '',

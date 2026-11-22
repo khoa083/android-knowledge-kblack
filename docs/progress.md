@@ -194,4 +194,9 @@ Trạng thái: `chưa / đang / xong`.
 - **Tiếp theo:**
   - U4 "Coroutines under the hood" (Deep Dive tr. 45–62): CPS, state machine với `label`, continuation lồng nhau như call stack; cần sim mới (bước qua `label`, `COROUTINE_SUSPENDED`);
   - U5 "built-in support vs library" (tr. 63–64), có thể gộp vào U4.
+- **U4 "Coroutine dưới mui xe" xong (2026-11-22):**
+  - nội dung gồm: ôn chương trước, ba ý chính, CPS, hàm đơn giản (label, `COROUTINE_SUSPENDED`), biến cục bộ, `printUser`, chuỗi continuation (bài 13 Tick), mã thật và chi phí, ngôn ngữ so với thư viện, 3 bug (bộ nhớ giữ qua điểm suspend, "optimized out", stack trace), 3 bài tập, tự trả lời, quiz 3 câu;
+  - sim mới `coroutines.sm` (state machine, 3 tình huống), đặt sau mục "value";
+  - thêm 2 nguồn; URL đã kiểm (200).
+- **Phần 1 của Coroutines v2 (U1–U4) xong.** Tiếp theo là Phần 2: viết sâu lại A1–A9 theo các chương Deep Dive tr. 65–233.
 

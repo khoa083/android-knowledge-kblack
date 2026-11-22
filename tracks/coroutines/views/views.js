@@ -135,6 +135,18 @@
     }
   });
 
+  /* U4: state machine của printUser. Ba thẻ trạng thái (label 0, 1, 2) theo hàng ngang; thẻ continuation bên dưới hiện label hiện tại;
+     thẻ "người gọi" (completion) bên trái. Dải chỉ số = các trường của continuation + giá trị trả về + trạng thái luồng. */
+  V('sm', {
+    layout: 'pipeline',
+    nodes: [N('sm', 'call', 0, 0, 'job', 'coroutine', { col: 0, row: 0 }), N('sm', 'l0', 0, 0, 'diamond', 'coroutine', { col: 1, row: 0 }), N('sm', 'l1', 0, 0, 'diamond', 'coroutine', { col: 2, row: 0 }),
+            N('sm', 'l2', 0, 0, 'diamond', 'coroutine', { col: 3, row: 0 }), N('sm', 'cont', 0, 0, 'store', 'state', { col: 2, row: 1 })],
+    edges: [E('e1', 'call', 'l0', K + 'm.sm.e.call'), E('e2', 'l0', 'l1', K + 'm.sm.e.l1'), E('e3', 'l1', 'l2', K + 'm.sm.e.l2'), E('e4', 'l2', 'call', K + 'm.sm.e.done')],
+    metrics: [{ id: 'label', labelKey: K + 'm.sm.met.label' }, { id: 'userId', labelKey: K + 'm.sm.met.userId' }, { id: 'result', labelKey: K + 'm.sm.met.result' },
+              { id: 'ret', labelKey: K + 'm.sm.met.ret' }, { id: 'th', labelKey: K + 'm.sm.met.th' }],
+    scopeKey: K + 'col.thread', zoom: false
+  });
+
   V('jobtree', {
     layout: 'tree',
     nodes: [N('jobtree', 'root', -2, -2, 'job', 'job'), N('jobtree', 'c1', 0, 4, 'job', 'coroutine'), N('jobtree', 'c2', 2, 2, 'job', 'coroutine'), N('jobtree', 'c3', 4, 0, 'job', 'coroutine'), N('jobtree', 'g', 6, 6, 'job', 'coroutine')],
