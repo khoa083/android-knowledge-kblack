@@ -178,4 +178,12 @@ Trạng thái: `chưa / đang / xong`.
   - U3 How does suspension work? (tr. 33–44);
   - U4 Coroutines under the hood (tr. 45–62): cần sim mới cho state machine/continuation;
   - sau đó Phần 2 (viết sâu lại A1–A9 theo các chương tr. 65–233).
+- **U2 "Sequence builder" xong (2026-11-22):**
+  - nội dung gồm: ôn chương trước, sequence là gì, theo dõi từng bước nhảy, vì sao cần suspension (có ghi chú impl), dùng thật, giới hạn `@RestrictsSuspension` (2 bug), 3 bài tập, tự trả lời, quiz 3 câu;
+  - sim mới `coroutines.seq` (`tracks/coroutines/models/models-v2.js`, view lanes, đoạn mã `seq` và `seqList`), đặt sau mục "jump";
+  - thêm 2 nguồn.
+- **Kiểm U2:** report 0 lỗi; track-check 1280 và 360 không thêm vấn đề; routes-check 100 route, 0 vấn đề; đã xem ảnh sim ở bước 5.
+- **Nội dung:**
+  - viết trong `dev/gen/coroutines_v2_part1.py` (U1) và `coroutines_v2_u2.py` (U2);
+  - mỗi chương mới nên là một file `coroutines_v2_<id>.py`, thêm tên vào danh sách `mod` trong `coroutines_content.py`.
 

@@ -19,7 +19,7 @@ with open(os.path.join(ROOT, 'dev', 'gen', 'coroutines_base.json'), encoding='ut
 # ---------------- v2 ----------------
 here = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, here)
-for mod in ('coroutines_v2_part1',):
+for mod in ('coroutines_v2_part1', 'coroutines_v2_u2'):
     if os.path.exists(os.path.join(here, mod + '.py')):
         __import__(mod).add(a)
 

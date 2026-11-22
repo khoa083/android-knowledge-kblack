@@ -95,3 +95,19 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 - URL `https://leanpub.com/coroutines` của sách: viết theo trí nhớ, chưa mở lại.
 - URL `and-threads`, `and-nomain`, `and-anr`: chưa mở lại trong phiên này. Đây là các trang chính thức quen thuộc nhưng cần đối chiếu URL đích.
 - Chưa tìm cách giảng khác trên mạng cho chương này.
+
+### U2 · Sequence builder (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "Sequence builder", trang PDF 27–32. Trích bằng `pdftotext -enc UTF-8`, đọc toàn văn.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Sequence tính lười, có thể vô hạn; `sequence { }` + `yield` | `kt-seq`; Deep Dive tr. 27–31 | API ổn định |
+| Thứ tự in xen kẽ; iterator thủ công; Fibonacci; random | Deep Dive tr. 28–31; output đã tự suy ra từ ngữ nghĩa | Ví dụ, đã viết lại |
+| `SequenceScope` có `@RestrictsSuspension`; chỉ được gọi `yield`/`yieldAll` | `kt-restricts`; Deep Dive tr. 32 (chú thích 8) | API ổn định. **Nội dung thông báo lỗi biên dịch ghi theo trí nhớ, chưa chạy thử** |
+| Iterator của `sequence { }` đồng thời là continuation (`SequenceBuilderIterator`) | mã nguồn kotlin-stdlib `SequenceBuilder.kt` (theo hiểu biết, **chưa mở lại file ở phiên này**) | impl, đã gắn nhãn `impl` |
+| Mỗi lần duyệt chạy lại khối; sequence không cache | ngữ nghĩa `Sequence` (`kt-seq`: sequence có thể duyệt nhiều lần, trừ khi bị ràng buộc một lần) | API ổn định |
+
+**Sim `coroutines.seq` (mới):** lanes gồm main, khối sequence và một luồng; trục là thứ tự bước. Có hai bật/tắt: "gọi tới hết" và "Dùng List" (`buildList`). Có selfCheck.
+
+**Chưa xác minh:** URL `kt-restricts` (dạng URL API mới của kotlinlang.org) chưa mở lại.

@@ -72,6 +72,36 @@
     }
   });
 
+  /* U2: sequence builder. Hàng main, hàng khối sequence, hàng luồng duy nhất: thấy luồng thực thi nhảy qua lại ở mỗi next()/yield.
+     Trục ngang là thứ tự bước (không phải thời gian thật). */
+  V('seq', {
+    layout: 'lanes',
+    nodes: [N('seq', 'main', 0, 0, 'job', 'coroutine'), N('seq', 'gen', 0, 4, 'queue', 'coroutine'), N('seq', 'th', 4, 0, 'thread', 'thread')],
+    edges: [], metrics: [{ id: 'val', labelKey: K + 'm.seq.met.val' }, { id: 'out', labelKey: K + 'm.seq.met.out' }], scopeKey: K + 'col.thread',
+    barKeys: { run: K + 'm.seq.bar.run', ready: K + 'm.seq.bar.call', wait: K + 'm.seq.bar.wait' },
+    lanes: function (events, step, opts) {
+      var c = clock(step, opts), L = new Lanes(opts.pos), cur = { main: null, gen: null };
+      var rows = [{ id: 'main', labelKey: K + 'm.seq.n.main', group: K + 'm.seq.lanes.code' }, { id: 'gen', labelKey: K + 'm.seq.n.gen', group: K + 'm.seq.lanes.code' }, { id: 'th', labelKey: K + 'm.seq.n.th', group: K + 'lanes.th' }];
+      var KIND = { run: 'run', call: 'ready', wait: 'wait' };
+      var LBL = { run: '', call: ADE.t(K + 'm.seq.lbl.call'), wait: ADE.t(K + 'm.seq.lbl.wait') };
+      events.forEach(function (x) {
+        var e = x.e, P = e.params || {}, t0 = e.t - 10;
+        [['main', P.m], ['gen', P.g]].forEach(function (rs) {
+          var row = rs[0], st = rs[1];
+          if (st === cur[row]) return;
+          cur[row] = st;
+          if (KIND[st]) L.start(row, t0, KIND[st], LBL[st], x.step); else L.end(row, t0);
+          if (st === 'done') L.mark(row, t0, fam('done'), x.step);
+        });
+        var who = P.m === 'run' ? 'main' : P.g === 'run' ? 'gen' : null;
+        if (who !== cur.th) { cur.th = who; if (who) L.start('th', t0, 'run', ADE.t(K + 'm.seq.n.' + who), x.step); else L.end('th', t0); }
+        if (e.kind === 'suspend' && P.v) L.mark('gen', t0, 'yield(' + P.v + ')', x.step);
+      });
+      L.finish(c.now);
+      return { rows: rows, bars: L.bars, marks: L.marks, tMax: c.tMax, now: c.now, axisKey: K + 'm.seq.axis' };
+    }
+  });
+
   V('jobtree', {
     layout: 'tree',
     nodes: [N('jobtree', 'root', -2, -2, 'job', 'job'), N('jobtree', 'c1', 0, 4, 'job', 'coroutine'), N('jobtree', 'c2', 2, 2, 'job', 'coroutine'), N('jobtree', 'c3', 4, 0, 'job', 'coroutine'), N('jobtree', 'g', 6, 6, 'job', 'coroutine')],

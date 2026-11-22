@@ -2,6 +2,46 @@
    Tên biến bằng tiếng Anh, comment tối thiểu. Số dòng được tham chiếu bởi codeHighlight trong các model. */
 (function () {
   var add = function (id, lines) { ADE.addCode('coroutines', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
+  add('seq', [
+    'val seq = sequence {',
+    '    println("Generating first")',
+    '    yield(1)',
+    '    println("Generating second")',
+    '    yield(2)',
+    '    println("Generating third")',
+    '    yield(3)',
+    '    println("Done")',
+    '}',
+    '',
+    'fun main() {',
+    '    val iterator = seq.iterator()',
+    '    println("Starting")',
+    '    val first = iterator.next()',
+    '    println("First: $first")',
+    '    val second = iterator.next()',
+    '    println("Second: $second")',
+    { vi: '    val third = iterator.next()     // chỉ khi bật "gọi tới hết"', en: '    val third = iterator.next()     // only with "call to the end"' },
+    '    println("Third: $third")',
+    '    println(iterator.hasNext())',
+    '}'
+  ]);
+  add('seqList', [
+    'fun main() {',
+    { vi: '    val list = buildList {          // chạy HẾT khối ngay tại đây', en: '    val list = buildList {          // runs the WHOLE block right here' },
+    '        println("Generating first")',
+    '        add(1)',
+    '        println("Generating second")',
+    '        add(2)',
+    '        println("Generating third")',
+    '        add(3)',
+    '        println("Done")',
+    '    }                                // [1, 2, 3]',
+    '    val iterator = list.iterator()',
+    '    println("Starting")',
+    '    println("First: ${iterator.next()}")',
+    '    println("Second: ${iterator.next()}")',
+    '}'
+  ]);
   add('full', [
     'Button(onClick = { viewModel.load() })',
     '',
