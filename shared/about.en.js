@@ -1,9 +1,11 @@
 /* "About this site" page (English). Structure: shared.about.sec.<id>.title / .p.<n>. */
 ADE.addSharedStrings('en', {
   'shared.about.sec.what.title': 'What this site is and is not',
-  'shared.about.sec.what.p.1': 'Android Deep Dive Explorer is a bilingual Vietnamese–English learning platform made of several tracks, and it works offline. Each track follows one mechanism from cause to effect so that you learn the causal links instead of memorizing lists of APIs or tips.',
+  'shared.about.sec.what.p.1': 'Mobile Deep Dive is a bilingual Vietnamese–English learning platform made of several tracks, and it works offline. Each track follows one mechanism from cause to effect so that you learn the causal links instead of memorizing lists of APIs or tips.',
   'shared.about.sec.what.p.2': 'The simulations are teaching models written in JavaScript. They do not run real Compose or kotlinx.coroutines, they are not a user-research tool, and they are not an accessibility audit tool. Every simulation has a "What this simulation simplifies" panel that says what it leaves out.',
   'shared.about.sec.what.p.3': 'Internal details of one specific version carry a label and name the version or commit. The versions that were cross-checked are listed on the Sources page.',
+  'shared.about.sec.author.title': 'Author',
+  'shared.about.sec.author.p.1': 'Kblack writes and maintains this site for self-study. The source code and other work are on GitHub:',
   'shared.about.sec.labels.title': 'The label system',
   'shared.about.sec.labels.p.1': 'Each important claim carries a label that tells you what it stands on: documented and guaranteed behavior, a detail of one version, a recommendation, or a rule the simulation made up for teaching.',
   'shared.about.label.stable': 'Behavior or an API that official documentation describes and guarantees.',

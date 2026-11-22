@@ -1,8 +1,8 @@
 /* Shared UI strings — English. Same key tree as ui.vi.js (checked by dev/report.html). Stored as NFC. */
 ADE.addUiStrings('en', {
   /* ---- brand, navigation ---- */
-  'app.name': 'ANDROID DEEP DIVE',
-  'app.tagline': 'Understand Android from the inside',
+  'app.name': 'MOBILE DEEP DIVE',
+  'app.tagline': 'Understand Mobile (Android…) from the inside',
   'app.skip': 'Skip to main content',
   'app.home': 'Home',
   'app.catalog': 'Catalog',
@@ -12,6 +12,7 @@ ADE.addUiStrings('en', {
   'app.nav.glossary': 'Glossary',
   'app.nav.sources': 'Sources',
   'app.nav.about': 'About this site',
+  'app.author': 'Author',
   'app.footer': 'A teaching model written in JavaScript. It is not real Compose or kotlinx.coroutines.',
   'app.breadcrumb': 'Breadcrumb',
   'app.language': 'Language',
@@ -51,7 +52,7 @@ ADE.addUiStrings('en', {
   'app.panels': 'Areas',
 
   /* ---- home, catalog ---- */
-  'app.heroTitle': 'Understand Android from the inside',
+  'app.heroTitle': 'Understand Mobile (Android…) from the inside',
   'app.heroLead': 'Each track follows one mechanism from cause to effect: tapping a button, running a coroutine, drawing a frame, reading a screen. You step through it, change the conditions, and watch the diagram, code and event log change together.',
   'app.browseCatalog': 'Browse the catalog',
   'app.openLive': 'Open Live Explorer',

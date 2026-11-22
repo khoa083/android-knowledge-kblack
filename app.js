@@ -187,7 +187,7 @@
   function renderFooter() {
     var f = document.querySelector('.foot'); if (!f) return;
     ui.clear(f);
-    f.appendChild(h('p', null, h('span', { text: ADE.t('app.footer') }), ' ', h('a', { href: href('about'), text: ADE.t('app.nav.about') }), ' · ', h('span', { class: 'ver', text: 'v' + ADE.version })));
+    f.appendChild(h('p', null, h('span', { text: ADE.t('app.footer') }), ' ', h('a', { href: href('about'), text: ADE.t('app.nav.about') }), ' · ', h('span', { class: 'ver', text: 'v' + ADE.version }), ' · ', h('span', { text: ADE.t('app.author') + ': ' }), h('a', { href: 'https://github.com/khoa083', target: '_blank', rel: 'noopener noreferrer', text: 'Kblack' })));
   }
   function lastGuidedHref() {
     var last = ADE.store.get('last', null);
@@ -729,6 +729,7 @@
       var pre = 'shared.about.sec.' + s, tt = ADE.t(pre + '.title');
       var body = h('div', { class: 'pad' });
       ADE.keysUnder(pre + '.p').forEach(function (n) { body.appendChild(para(ADE.t(pre + '.p.' + n))); });
+      if (s === 'author') body.appendChild(h('p', { class: 'prose' }, h('a', { href: 'https://github.com/khoa083', target: '_blank', rel: 'noopener noreferrer', text: 'github.com/khoa083' })));
       if (s === 'labels') {
         var ul = h('ul', { class: 'labels-list' });
         ['stable', 'impl', 'android-impl', 'version', 'experimental', 'guideline', 'simplified', 'normative', 'research', 'ds-guideline', 'author-framework', 'quant-model'].forEach(function (b) {

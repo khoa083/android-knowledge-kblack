@@ -2,8 +2,8 @@
    Cùng cây khoá với ui.en.js (dev/report.html kiểm tra). Lưu ở dạng NFC. */
 ADE.addUiStrings('vi', {
   /* ---- thương hiệu, điều hướng ---- */
-  'app.name': 'ANDROID DEEP DIVE',
-  'app.tagline': 'Hiểu Android từ bên trong',
+  'app.name': 'MOBILE DEEP DIVE',
+  'app.tagline': 'Hiểu Mobile (Android…) từ bên trong',
   'app.skip': 'Bỏ qua, tới nội dung chính',
   'app.home': 'Trang chủ',
   'app.catalog': 'Danh mục',
@@ -13,6 +13,7 @@ ADE.addUiStrings('vi', {
   'app.nav.glossary': 'Thuật ngữ',
   'app.nav.sources': 'Nguồn',
   'app.nav.about': 'Về site này',
+  'app.author': 'Tác giả',
   'app.footer': 'Mô hình giảng dạy chạy bằng JavaScript, không phải Compose hay kotlinx.coroutines thật.',
   'app.breadcrumb': 'Đường dẫn',
   'app.language': 'Ngôn ngữ',
@@ -51,7 +52,7 @@ ADE.addUiStrings('vi', {
   'app.panels': 'Các vùng',
 
   /* ---- trang chủ, catalog ---- */
-  'app.heroTitle': 'Hiểu Android từ bên trong',
+  'app.heroTitle': 'Hiểu Mobile (Android…) từ bên trong',
   'app.heroLead': 'Mỗi track đi theo một cơ chế từ nguyên nhân đến kết quả: bấm một nút, chạy một coroutine, vẽ một khung hình, đọc một màn hình. Bạn bấm từng bước, đổi điều kiện và xem sơ đồ, mã và nhật ký sự kiện cùng thay đổi.',
   'app.browseCatalog': 'Xem danh mục',
   'app.openLive': 'Mở Live Explorer',

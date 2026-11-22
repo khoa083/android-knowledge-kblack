@@ -1,9 +1,11 @@
 /* Trang "Về site này" (tiếng Việt). Cấu trúc: shared.about.sec.<id>.title / .p.<n>. */
 ADE.addSharedStrings('vi', {
   'shared.about.sec.what.title': 'Site này là gì, không là gì',
-  'shared.about.sec.what.p.1': 'Android Deep Dive Explorer là một nền tảng học song ngữ Việt–Anh, chạy offline, gồm nhiều track. Mỗi track đi theo một cơ chế từ nguyên nhân đến kết quả để bạn hiểu quan hệ nhân quả thay vì học thuộc danh sách API hay mẹo.',
+  'shared.about.sec.what.p.1': 'Mobile Deep Dive là một nền tảng học song ngữ Việt–Anh, chạy offline, gồm nhiều track. Mỗi track đi theo một cơ chế từ nguyên nhân đến kết quả để bạn hiểu quan hệ nhân quả thay vì học thuộc danh sách API hay mẹo.',
   'shared.about.sec.what.p.2': 'Các mô phỏng là mô hình giảng dạy viết bằng JavaScript. Chúng không chạy Compose hay kotlinx.coroutines thật, không phải công cụ nghiên cứu người dùng và không phải công cụ kiểm định accessibility. Mỗi mô phỏng có phần "Mô phỏng đang giản lược điều gì" nêu rõ những gì bị bỏ qua.',
   'shared.about.sec.what.p.3': 'Chi tiết nội bộ của một phiên bản cụ thể được gắn nhãn và ghi phiên bản hoặc commit. Phiên bản đã đối chiếu nằm ở trang Nguồn.',
+  'shared.about.sec.author.title': 'Tác giả',
+  'shared.about.sec.author.p.1': 'Site do Kblack viết và duy trì để tự học. Mã nguồn và các tác phẩm khác nằm trên GitHub:',
   'shared.about.sec.labels.title': 'Hệ thống nhãn',
   'shared.about.sec.labels.p.1': 'Mỗi khẳng định quan trọng mang một nhãn cho biết nó đứng trên nền nào: được tài liệu bảo đảm, chi tiết của một phiên bản, khuyến nghị, hay quy tắc do mô phỏng tự đặt.',
   'shared.about.label.stable': 'Hành vi hoặc API được tài liệu chính thức mô tả và bảo đảm.',
