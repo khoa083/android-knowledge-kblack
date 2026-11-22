@@ -351,3 +351,19 @@ Chương mới id `sf`, đặt giữa A6 và A7, dùng lại sim `coroutines.bui
 | `catch` chỉ bắt lỗi phía trên; lỗi trong `collect` không bị bắt; dời vào `onEach` | Deep Dive tr. 310–313 | Nguyên tắc |
 | `flowOn` chỉ đổi context phía trên (ví dụ Name1/Name2/Name3); `launchIn`; mẫu Android | Deep Dive tr. 313–317; `kx-flowon` | API |
 | "Flow invariant is violated" do `SafeCollector` kiểm context | Mã nguồn kotlinx.coroutines, `flow/internal/SafeCollector.common.kt` (nhánh master, đã kiểm 2026-11-22) | impl |
+
+### FP · Xử lý flow (viết 2026-11-22)
+
+**Đã đọc:** Deep Dive "Flow processing" (trang PDF 318–344), toàn văn. Đã kiểm 6 URL API (`kx-stateflow`, `kx-flatmapmerge`, `kx-flatmaplatest`, `kx-zip`, `kx-combine`, `kx-retrywhen`: 200) và mã nguồn `Combine.kt` (200).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| `map`/`filter`/`take`/`drop` và hiện thực `flow { collect { emit } }`; lần theo chuỗi 1–8 | Deep Dive tr. PDF 318–324 | Ví dụ của sách |
+| `merge` không chờ; `zip` ghép một-một, xong khi một flow xong; `combine` thay giá trị, chạy tới khi cả hai xong | Deep Dive tr. PDF 324–329; `kx-zip`, `kx-combine` | Ví dụ của sách; selfCheck của sim `coroutines.combine` khớp output |
+| zip collect flow thứ nhất tuần tự trong coroutine của nó, flow thứ hai trong `produce` rendezvous → flow1 phát ở 400/1400/2400 | Mã nguồn `zipImpl`, kotlinx.coroutines `common/src/flow/internal/Combine.kt` (nhánh master, đã đọc 2026-11-22) | impl; **suy luận thời điểm từ mã, sách chỉ in output** |
+| `fold` terminal, `scan` trung gian, hiện thực `scan` | Deep Dive tr. PDF 329–333 | Ví dụ của sách |
+| flatMapConcat/Merge/Latest, `concurrency` mặc định 16 (`DEFAULT_CONCURRENCY`) | Deep Dive tr. PDF 333–339; `kx-flatmapmerge` | Ví dụ của sách; selfCheck của sim `coroutines.flatmap` khớp output cả 4 chế độ |
+| `retryWhen` giản lược, `retry`, output `12E12E12E12` | Deep Dive tr. PDF 339–342; `kx-retrywhen` | API + ví dụ |
+| `distinctUntilChanged` và biến thể; terminal (`first`, `count`, `reduce`, `fold`) | Deep Dive tr. PDF 342–344 | Ví dụ của sách |
+| Áp `distinctUntilChanged` lên StateFlow không có tác dụng | `kx-stateflow` (đã đọc nguyên văn tài liệu) | API |
+| `scan` là reducer kiểu MVI/UDF; tìm kiếm `debounce` + `flatMapLatest` | Hiểu biết chung về kiến trúc Android | Ghi chú Android, **chưa gắn nguồn chính thức** |

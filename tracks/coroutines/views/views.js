@@ -221,6 +221,42 @@
     }
   });
 
+  /* FP: hàng theo trạng thái trong params.st, đánh dấu theo params.mk. Nhãn ở hàng "out" chỉ hiện cho bước hiện tại (tránh chồng chữ). */
+  function stLanes(m, ids, waitLbl) {
+    return function (events, step, opts) {
+      var c = clock(step, opts), L = new Lanes(opts.pos), cur = {};
+      var rows = ids.concat(['out']).map(function (id) { return { id: id, labelKey: K + 'm.' + m + '.n.' + id, group: K + 'lanes.co' }; });
+      events.forEach(function (x) {
+        var e = x.e, P = e.params || {}, st = P.st || {};
+        ids.forEach(function (r) {
+          var s = st[r] || 'off';
+          if (s === cur[r]) return;
+          cur[r] = s;
+          if (s === 'run') L.start(r, e.t, 'run', '', x.step);
+          else if (s === 'wait') L.start(r, e.t, 'wait', ADE.t(K + 'm.' + m + '.lbl.' + waitLbl), x.step);
+          else L.end(r, e.t);
+        });
+        (P.mk || []).forEach(function (k) { L.mark(k[0], e.t, k[0] === 'out' && x.step !== opts.pos ? '' : k[1], x.step); });
+      });
+      L.finish(c.now);
+      return { rows: rows, bars: L.bars, marks: L.marks, tMax: c.tMax, now: c.now, axisKey: K + 'm.' + m + '.axis' };
+    };
+  }
+  V('combine', {
+    layout: 'lanes',
+    nodes: [N('combine', 'f1', 0, 0, 'queue', 'flow'), N('combine', 'f2', 0, 2, 'queue', 'flow'), N('combine', 'out', 4, 0, 'job', 'coroutine')],
+    edges: [], metrics: [TIME, { id: 'out', labelKey: K + 'm.combine.met.out' }],
+    scopeKey: K + 'm.combine.col', barKeys: { run: K + 'm.combine.bar.run', wait: K + 'm.combine.bar.wait' },
+    lanes: stLanes('combine', ['f1', 'f2'], 'waitPair')
+  });
+  V('flatmap', {
+    layout: 'lanes',
+    nodes: [N('flatmap', 'A', 0, 0, 'queue', 'flow'), N('flatmap', 'B', 0, 2, 'queue', 'flow'), N('flatmap', 'C', 0, 4, 'queue', 'flow'), N('flatmap', 'out', 4, 0, 'job', 'coroutine')],
+    edges: [], metrics: [TIME, { id: 'out', labelKey: K + 'm.flatmap.met.out' }, { id: 'act', labelKey: K + 'm.flatmap.met.act' }],
+    scopeKey: K + 'm.flatmap.col', barKeys: { run: K + 'm.flatmap.bar.run', wait: K + 'm.flatmap.bar.wait' },
+    lanes: stLanes('flatmap', ['A', 'B', 'C'], 'queued')
+  });
+
   /* FB: producer (tải trang) và consumer (kiểm user) theo thời gian của mã. */
   V('paging', {
     layout: 'lanes',

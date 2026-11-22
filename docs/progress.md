@@ -283,3 +283,13 @@ Trạng thái: `chưa / đang / xong`.
   - 3 nguồn API mới: `kx-channelflow`, `kx-callbackflow`, `kx-flowon`.
 - **Kiểm:** report 0 lỗi; track-check (1280, 360) coroutines vẫn 4 vấn đề cũ (a2#1, a8 undo/clear); routes-check 106 route, 0 vấn đề.
 - **Tiếp theo:** chương "Flow processing" (Deep Dive tr. 318–344).
+- **FP "Xử lý flow" (chương mới, 2026-11-22):**
+  - nội dung gồm: map/filter/take/drop và hiện thực; lần theo chuỗi lambda 1–8; fold/scan (reducer); merge/zip/combine; flatMapConcat/Merge/Latest + `concurrency`; retry/retryWhen (phát lại phần tử đầu); distinctUntilChanged + terminal; 3 bug, 2 bài tập, tự trả lời, quiz 3 câu;
+  - 2 sim mới:
+    - `coroutines.flatmap`: concat, merge, merge2, latest; khớp output của sách;
+    - `coroutines.combine`: merge, zip, combine. Thời điểm của zip suy từ mã `zipImpl`: flow1 đứng "chờ cặp".
+  - helper `stLanes` trong `views.js` vẽ hàng từ `params.st`/`params.mk`, dùng lại được cho sim lanes sau;
+  - 7 nguồn mới.
+- **Kiểm:** report 0 lỗi (2 selfCheck mới PASS); track-check (1280, 360) vẫn 4 vấn đề cũ; routes-check 107 route, 0 vấn đề.
+- **Nhắc (người dùng, 2026-11-22):** trước khi viết mỗi track mới, đọc mục lục thật (`tools/epub_toc.py` cho epub, trang đầu cho pdf) rồi sửa dàn chương nháp trong `roadmap-v2.md`.
+- **Tiếp theo:** SharedFlow/StateFlow (Deep Dive tr. PDF 345–358), rồi Testing flow (tr. PDF 359–375).

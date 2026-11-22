@@ -470,4 +470,155 @@
       ]
     });
   })();
+
+  /* ================= FP: gộp hai flow: merge / zip / combine (ví dụ của sách) =================
+     flow1 = flowOf("A","B","C").onEach { delay(400) }, flow2 = flowOf(1,2,3,4).onEach { delay(1000) }.
+     merge và combine collect hai flow ĐỘC LẬP (mỗi flow một coroutine) → flow1 phát ở 400/800/1200.
+     zip collect flow1 TUẦN TỰ trong coroutine của zip; mỗi phần tử chờ receive từ flow2 (produce, rendezvous)
+     → flow1 phát ở 400/1400/2400 (theo zipImpl, kotlinx.coroutines common/src/flow/internal/Combine.kt).
+     params.st: trạng thái từng hàng sau sự kiện (run | wait | done | cancel); params.mk: [[hàng, nhãn]] cần đánh dấu. */
+  (function () {
+    var m = 'combine';
+    function events(mode) {
+      var ev = [], out = 0;
+      var E = function (t, key, f1, f2, o) {
+        o = o || {}; var mk = [];
+        if (o.a != null) mk.push(['f1', o.a]); if (o.b != null) mk.push(['f2', o.b]); if (o.r != null) { mk.push(['out', o.r]); out++; }
+        ev.push({ t: t, key: key, v: o.a != null ? o.a : o.b, r: o.r, st: { f1: f1, f2: f2 }, mk: mk, out: out });
+      };
+      E(0, 'start', 'run', 'run');
+      if (mode === 'merge') {
+        E(400, 'pass', 'run', 'run', { a: 'A', r: 'A' }); E(800, 'pass', 'run', 'run', { a: 'B', r: 'B' });
+        E(1000, 'pass', 'run', 'run', { b: '1', r: '1' }); E(1200, 'pass', 'done', 'run', { a: 'C', r: 'C' });
+        E(2000, 'pass', 'done', 'run', { b: '2', r: '2' }); E(3000, 'pass', 'done', 'run', { b: '3', r: '3' }); E(4000, 'pass', 'done', 'done', { b: '4', r: '4' });
+        E(4000, 'end', 'done', 'done');
+      } else if (mode === 'zip') {
+        E(400, 'zwait', 'wait', 'run', { a: 'A' }); E(1000, 'zpair', 'run', 'run', { b: '1', r: 'A_1' });
+        E(1400, 'zwait', 'wait', 'run', { a: 'B' }); E(2000, 'zpair', 'run', 'run', { b: '2', r: 'B_2' });
+        E(2400, 'zwait', 'wait', 'run', { a: 'C' }); E(3000, 'zpair', 'done', 'run', { b: '3', r: 'C_3' });
+        E(3000, 'zend', 'done', 'cancel');
+      } else {
+        E(400, 'cfirst', 'run', 'run', { a: 'A' }); E(800, 'creplace', 'run', 'run', { a: 'B' });
+        E(1000, 'cpair', 'run', 'run', { b: '1', r: 'B_1' }); E(1200, 'cpair', 'done', 'run', { a: 'C', r: 'C_1' });
+        E(2000, 'cpair', 'done', 'run', { b: '2', r: 'C_2' }); E(3000, 'cpair', 'done', 'run', { b: '3', r: 'C_3' }); E(4000, 'cpair', 'done', 'done', { b: '4', r: 'C_4' });
+        E(4000, 'end', 'done', 'done');
+      }
+      return ev;
+    }
+    var SN = { merge: 'cbMerge', zip: 'cbZip', combine: 'cbCombine' };
+    function steps(s) {
+      var ev = events(s.mode);
+      return ev.map(function (e, i) {
+        var co = null, from = e.mk.length && e.mk[0][0] !== 'out' ? e.mk[0][0] : null;
+        if (e.key === 'zwait' && e.v === 'B') co = ['mechanism', 'zipSeq'];
+        if (e.key === 'zend') co = ['pitfall', 'zipLost'];
+        if (e.key === 'creplace') co = ['mechanism', 'replace'];
+        if (e.key === 'start') co = ['mechanism', 'start.' + s.mode];
+        if (e.key === 'pass' && e.v === '1') co = ['mechanism', 'mergeIndep'];
+        return step({ id: e.key + i, type: e.key === 'zend' ? 'pitfall' : 'mechanism', titleKey: M(m, 's.' + e.key + '.title'), explainKey: M(m, 's.' + e.key + '.explain'),
+          params: { v: e.v, r: e.r, t: e.t }, activeNodes: [e.r != null ? 'out' : (from || 'f1')], nodeStates: {},
+          metrics: { time: e.t, out: e.out },
+          codeHighlight: { snippet: SN[s.mode], lines: e.key === 'start' ? [4] : e.key === 'end' || e.key === 'zend' ? [5] : e.r != null ? (from === 'f1' ? [1, 4, 5] : [2, 4, 5]) : from === 'f1' ? [1] : [2] },
+          callouts: co ? [{ kind: co[0], textKey: M(m, 'co.' + co[1]) }] : [],
+          logEvents: [{ t: e.t, kind: e.r != null ? 'emit' : e.key === 'zend' ? 'cancel' : e.key === 'end' ? 'complete' : e.key === 'start' ? 'launch' : 'suspend', subject: e.r != null ? 'out' : (from || 'f1'),
+            scope: M(m, 'scope.' + s.mode), detailKey: M(m, 'ev.' + e.key), params: { v: e.v, r: e.r, st: { f1: e.st.f1, f2: e.st.f2 }, mk: e.mk.slice() } }] });
+      });
+    }
+    ADE.registerModel('coroutines.combine', {
+      kind: 'discrete', titleKey: M(m, 'title'), overviewKey: M(m, 'overview'), wrapupKey: M(m, 'wrapup'), codeId: 'cbZip',
+      simplificationKeys: [M(m, 'simp.1'), K + 'simp.time'], controlsHintKey: M(m, 'ctl.hint'),
+      controls: [{ id: 'mode', type: 'select', labelKey: M(m, 'ctl.mode'), get: function (s) { return s.mode; }, action: 'mode',
+        options: ['merge', 'zip', 'combine'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.mode.' + v) }; }) }],
+      init: function () { return { mode: 'zip' }; },
+      act: function (s, a, v) { return { mode: SN[v] ? v : 'zip' }; },
+      steps: steps,
+      selfChecks: [
+        { name: 'output khớp sách: zip A_1,B_2,C_3 xong 3000 ms; combine B_1@1000 C_1@1200 C_2 C_3 C_4@4000; merge A,B,1,C,2,3,4', run: function () {
+          var o = function (mode) { return events(mode).filter(function (e) { return e.r != null; }).map(function (e) { return e.r + '@' + e.t; }).join(','); };
+          var z = events('zip');
+          return o('zip') === 'A_1@1000,B_2@2000,C_3@3000' && z[z.length - 1].t === 3000 &&
+            o('combine') === 'B_1@1000,C_1@1200,C_2@2000,C_3@3000,C_4@4000' && o('merge') === 'A@400,B@800,1@1000,C@1200,2@2000,3@3000,4@4000';
+        } }
+      ]
+    });
+  })();
+
+  /* ================= FP: flatMapConcat / flatMapMerge / flatMapMerge(concurrency = 2) / flatMapLatest (ví dụ của sách) =================
+     flowFrom(x) = flowOf(1, 2, 3).onEach { delay(1000) }.map { "${it}_$x" }. Với latest, flow ngoài có onEach { delay(1200) }.
+     params.st: trạng thái flow con A, B, C (off | wait | run | done | cancel); params.mk: [[hàng, nhãn]]. */
+  (function () {
+    var m = 'flatmap';
+    function events(mode) {
+      var ev = [], out = 0, st = { A: 'off', B: 'off', C: 'off' };
+      var E = function (t, key, ch, o) {
+        o = o || {}; Object.keys(ch || {}).forEach(function (k) { st[k] = ch[k]; });
+        var mk = []; if (o.v) { mk.push([o.x, o.v]); mk.push(['out', o.v]); out++; }
+        var act = ['A', 'B', 'C'].filter(function (k) { return st[k] === 'run'; }).length;
+        ev.push({ t: t, key: key, x: o.x, v: o.v, st: { A: st.A, B: st.B, C: st.C }, mk: mk, out: out, act: act });
+      };
+      var emits = function (x, s0) { for (var k = 1; k <= 3; k++) { var c = {}; if (k === 3) c[x] = 'done'; E(s0 + 1000 * k, 'emit', c, { x: x, v: k + '_' + x }); } };
+      if (mode === 'concat') {
+        E(0, 'startQ', { A: 'run', B: 'wait', C: 'wait' }, { x: 'A' }); emits('A', 0);
+        E(3000, 'next', { B: 'run' }, { x: 'B' }); emits('B', 3000);
+        E(6000, 'next', { C: 'run' }, { x: 'C' }); emits('C', 6000);
+        E(9000, 'end');
+      } else if (mode === 'merge') {
+        E(0, 'startAll', { A: 'run', B: 'run', C: 'run' }, { x: 'A' });
+        for (var k = 1; k <= 3; k++) ['A', 'B', 'C'].forEach(function (x) { var c = {}; if (k === 3) c[x] = 'done'; E(1000 * k, 'emit', c, { x: x, v: k + '_' + x }); });
+        E(3000, 'end');
+      } else if (mode === 'merge2') {
+        E(0, 'startQ2', { A: 'run', B: 'run', C: 'wait' }, { x: 'A' });
+        for (var j = 1; j <= 3; j++) ['A', 'B'].forEach(function (x) { var c = {}; if (j === 3) c[x] = 'done'; E(1000 * j, 'emit', c, { x: x, v: j + '_' + x }); });
+        E(3000, 'slot', { C: 'run' }, { x: 'C' }); emits('C', 3000);
+        E(6000, 'end');
+      } else {
+        E(1200, 'outer', { A: 'run' }, { x: 'A' });
+        E(2200, 'emit', {}, { x: 'A', v: '1_A' });
+        E(2400, 'switch', { A: 'cancel', B: 'run' }, { x: 'B' });
+        E(3400, 'emit', {}, { x: 'B', v: '1_B' });
+        E(3600, 'switch', { B: 'cancel', C: 'run' }, { x: 'C' });
+        emits('C', 3600);
+        E(6600, 'end');
+      }
+      return ev;
+    }
+    var SN = { concat: 'fmConcat', merge: 'fmMerge', merge2: 'fmMerge2', latest: 'fmLatest' };
+    function steps(s) {
+      var op = s.mode === 'latest' ? 7 : 6;
+      return events(s.mode).map(function (e, i) {
+        var co = null;
+        if (e.key === 'startQ') co = ['mechanism', 'concat'];
+        if (e.key === 'startAll') co = ['mechanism', 'merge'];
+        if (e.key === 'startQ2' || e.key === 'slot') co = ['mechanism', 'limit'];
+        if (e.key === 'switch' && e.x === 'B') co = ['pitfall', 'latest'];
+        if (e.key === 'end') co = ['mechanism', 'end.' + s.mode];
+        return step({ id: e.key + i, type: e.key === 'switch' ? 'pitfall' : 'mechanism', titleKey: M(m, 's.' + e.key + '.title'), explainKey: M(m, 's.' + e.key + '.explain'),
+          params: { x: e.x, v: e.v, t: e.t }, activeNodes: [e.key === 'emit' ? 'out' : (e.x || 'out')], nodeStates: {},
+          metrics: { time: e.t, out: e.out, act: e.act },
+          codeHighlight: { snippet: SN[s.mode], lines: e.key === 'emit' ? [2, 3, op + 1] : e.key === 'end' ? [op + 1] : e.key === 'outer' ? [6, 7] : [op] },
+          callouts: co ? [{ kind: co[0], textKey: M(m, 'co.' + co[1]) }] : [],
+          logEvents: [{ t: e.t, kind: e.key === 'emit' ? 'emit' : e.key === 'end' ? 'complete' : e.key === 'switch' ? 'cancel' : 'launch', subject: e.key === 'emit' ? e.x : (e.x || 'out'),
+            scope: M(m, 'scope.' + s.mode), detailKey: M(m, 'ev.' + e.key), params: { x: e.x, v: e.v, st: { A: e.st.A, B: e.st.B, C: e.st.C }, mk: e.mk.slice() } }] });
+      });
+    }
+    ADE.registerModel('coroutines.flatmap', {
+      kind: 'discrete', titleKey: M(m, 'title'), overviewKey: M(m, 'overview'), wrapupKey: M(m, 'wrapup'), codeId: 'fmConcat',
+      simplificationKeys: [M(m, 'simp.1'), K + 'simp.time'], controlsHintKey: M(m, 'ctl.hint'),
+      controls: [{ id: 'mode', type: 'select', labelKey: M(m, 'ctl.mode'), get: function (s) { return s.mode; }, action: 'mode',
+        options: ['concat', 'merge', 'merge2', 'latest'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.mode.' + v) }; }) }],
+      init: function () { return { mode: 'concat' }; },
+      act: function (s, a, v) { return { mode: SN[v] ? v : 'concat' }; },
+      steps: steps,
+      selfChecks: [
+        { name: 'output khớp sách: concat xong 9000 ms; merge 1_A,1_B,1_C… xong 3000; merge2 có 1_C ở 4000; latest 1_A@2200 1_B@3400 1_C@4600 3_C@6600', run: function () {
+          var o = function (mode) { return events(mode).filter(function (e) { return e.v; }).map(function (e) { return e.v + '@' + e.t; }).join(','); };
+          var last = function (mode) { var a = events(mode); return a[a.length - 1].t; };
+          return last('concat') === 9000 && o('concat').indexOf('3_A@3000,1_B@4000') >= 0 &&
+            o('merge') === '1_A@1000,1_B@1000,1_C@1000,2_A@2000,2_B@2000,2_C@2000,3_A@3000,3_B@3000,3_C@3000' && last('merge') === 3000 &&
+            o('merge2') === '1_A@1000,1_B@1000,2_A@2000,2_B@2000,3_A@3000,3_B@3000,1_C@4000,2_C@5000,3_C@6000' &&
+            o('latest') === '1_A@2200,1_B@3400,1_C@4600,2_C@5600,3_C@6600';
+        } }
+      ]
+    });
+  })();
 })();

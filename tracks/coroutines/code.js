@@ -146,6 +146,16 @@
     '    delay(1000); it.name == "User3"',
     '}'
   ]);
+  var CB = { cbMerge: ['merge(flow1, flow2)', '    .collect { println(it) }'], cbZip: ['flow1.zip(flow2) { a, b -> "${a}_$b" }', '    .collect { println(it) }'], cbCombine: ['flow1.combine(flow2) { a, b -> "${a}_$b" }', '    .collect { println(it) }'] };
+  Object.keys(CB).forEach(function (id) {
+    add(id, ['val flow1 = flowOf("A", "B", "C").onEach { delay(400) }', 'val flow2 = flowOf(1, 2, 3, 4).onEach { delay(1000) }', ''].concat(CB[id]));
+  });
+  var FM = { fmConcat: ['    .flatMapConcat { flowFrom(it) }'], fmMerge: ['    .flatMapMerge { flowFrom(it) }          // concurrency mặc định 16'], fmMerge2: ['    .flatMapMerge(concurrency = 2) { flowFrom(it) }'],
+    fmLatest: [{ vi: '    .onEach { delay(1200) }               // phần tử ngoài đến cách nhau 1,2 giây', en: '    .onEach { delay(1200) }               // outer elements arrive 1.2 seconds apart' }, '    .flatMapLatest { flowFrom(it) }'] };
+  FM.fmMerge[0] = { vi: '    .flatMapMerge { flowFrom(it) }          // concurrency mặc định 16', en: '    .flatMapMerge { flowFrom(it) }          // default concurrency 16' };
+  Object.keys(FM).forEach(function (id) {
+    add(id, ['fun flowFrom(elem: String) = flowOf(1, 2, 3)', '    .onEach { delay(1000) }', '    .map { "${it}_$elem" }', '', 'flowOf("A", "B", "C")'].concat(FM[id], ['    .collect { println(it) }']));
+  });
   add('full', [
     'Button(onClick = { viewModel.load() })',
     '',
