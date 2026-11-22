@@ -614,7 +614,7 @@
     });
     var H = y + 34;
     // trục thời gian
-    var stepT = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000].filter(function (s) { return tMax / s <= 8; })[0] || 1000, axis = '';
+    var stepT = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000].filter(function (s) { return tMax / s <= 8; })[0] || 1000, axis = '';
     for (var t = 0; t <= tMax + 1e-9; t += stepT) axis += '<path class="lane-tick" d="M' + sx(t).toFixed(1) + ' ' + (top - 8) + 'V' + (H - 30) + '"/><text class="lane-tick-t" x="' + sx(t).toFixed(1) + '" y="' + (top - 14) + '" text-anchor="middle">' + ADE.num(t) + '</text>';
     axis += '<text class="lane-axis" x="' + (LBL + 10) + '" y="' + (top - 32) + '">' + ADE.esc(ADE.t(d.axisKey || 'app.lanes.axis')) + '</text>';
     html += axis + rowsHtml;

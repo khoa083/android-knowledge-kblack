@@ -222,10 +222,10 @@
   });
 
   /* FP: hàng theo trạng thái trong params.st, đánh dấu theo params.mk. Nhãn ở hàng "out" chỉ hiện cho bước hiện tại (tránh chồng chữ). */
-  function stLanes(m, ids, waitLbl) {
+  function stLanes(m, ids, waitLbl, noOut) {
     return function (events, step, opts) {
       var c = clock(step, opts), L = new Lanes(opts.pos), cur = {};
-      var rows = ids.concat(['out']).map(function (id) { return { id: id, labelKey: K + 'm.' + m + '.n.' + id, group: K + 'lanes.co' }; });
+      var rows = (noOut ? ids : ids.concat(['out'])).map(function (id) { return { id: id, labelKey: K + 'm.' + m + '.n.' + id, group: K + 'lanes.co' }; });
       events.forEach(function (x) {
         var e = x.e, P = e.params || {}, st = P.st || {};
         ids.forEach(function (r) {
@@ -255,6 +255,14 @@
     edges: [], metrics: [TIME, { id: 'out', labelKey: K + 'm.flatmap.met.out' }, { id: 'act', labelKey: K + 'm.flatmap.met.act' }],
     scopeKey: K + 'm.flatmap.col', barKeys: { run: K + 'm.flatmap.bar.run', wait: K + 'm.flatmap.bar.wait' },
     lanes: stLanes('flatmap', ['A', 'B', 'C'], 'queued')
+  });
+
+  V('sharein', {
+    layout: 'lanes',
+    nodes: [N('sharein', 'up', 0, 0, 'queue', 'flow'), N('sharein', 's1', 4, 0, 'screen', 'ui'), N('sharein', 's2', 4, 2, 'screen', 'ui'), N('sharein', 's3', 4, 4, 'screen', 'ui')],
+    edges: [], metrics: [TIME, { id: 'subs', labelKey: K + 'm.sharein.met.subs' }, { id: 'runs', labelKey: K + 'm.sharein.met.runs' }, { id: 'emitted', labelKey: K + 'm.sharein.met.emitted' }],
+    scopeKey: K + 'm.sharein.col', barKeys: { run: K + 'm.sharein.bar.run', wait: K + 'm.sharein.bar.wait' },
+    lanes: stLanes('sharein', ['up', 's1', 's2', 's3'], 'idle', true)
   });
 
   /* FB: producer (tải trang) và consumer (kiểm user) theo thời gian của mã. */

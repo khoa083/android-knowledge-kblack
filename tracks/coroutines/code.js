@@ -156,6 +156,12 @@
   Object.keys(FM).forEach(function (id) {
     add(id, ['fun flowFrom(elem: String) = flowOf(1, 2, 3)', '    .onEach { delay(1000) }', '    .map { "${it}_$elem" }', '', 'flowOf("A", "B", "C")'].concat(FM[id], ['    .collect { println(it) }']));
   });
+  var SI = { siEager: 'SharingStarted.Eagerly', siLazy: 'SharingStarted.Lazily', siWs: 'SharingStarted.WhileSubscribed()', siWs5: 'SharingStarted.WhileSubscribed(5_000)' };
+  Object.keys(SI).forEach(function (id) {
+    add(id, ['val ticks = flow { var n = 0; while (true) { delay(1000); emit(++n) } }', '    .onStart { println("Started") }', '    .onCompletion { println("Finished") }',
+      '    .shareIn(scope, ' + SI[id] + ', replay = 1)', '',
+      { vi: 'ticks.collect { render(it) }   // màn hình vào 1,2 s; xoay 3,6 s; vào lại 4,3 s; ra nền 6,6 s; quay lại 12,4 s', en: 'ticks.collect { render(it) }   // screen enters 1.2 s; rotates 3.6 s; re-enters 4.3 s; backgrounded 6.6 s; returns 12.4 s' }]);
+  });
   add('full', [
     'Button(onClick = { viewModel.load() })',
     '',

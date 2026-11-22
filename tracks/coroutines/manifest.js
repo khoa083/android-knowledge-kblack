@@ -26,7 +26,7 @@ ADE.registerTrack({
     { id: 'fl', titleKey: 'track.coroutines.fl.title', sims: ['coroutines.flowcall', 'coroutines.hotcold'], simAfter: 'under', bridges: [], goals: [{ id: 'g1', step: 4 }, { id: 'g2', step: 'end' }] },   // v2 (Deep Dive "Hot and cold", "Flow introduction", "Understanding Flow")
     { id: 'fb', titleKey: 'track.coroutines.fb.title', sims: ['coroutines.paging'], simAfter: 'builders', bridges: [], goals: [{ id: 'g1', step: 5 }, { id: 'g2', step: 'end' }] },   // v2 (Deep Dive "Flow building" + "Flow lifecycle functions")
     { id: 'fp', titleKey: 'track.coroutines.fp.title', sims: ['coroutines.flatmap', 'coroutines.combine'], simAfter: 'flatmap', bridges: [], goals: [{ id: 'g1', step: 5 }, { id: 'g2', step: 'end' }] },   // v2 (Deep Dive "Flow processing")
-    { id: 'a7', titleKey: 'track.coroutines.a7.title', sims: ['coroutines.flowpipe', 'coroutines.hotcold'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
+    { id: 'a7', titleKey: 'track.coroutines.a7.title', sims: ['coroutines.sharein', 'coroutines.hotcold', 'coroutines.flowpipe'], simAfter: 'sharein', bridges: [], goals: [{ id: 'g1', step: 5 }, { id: 'g2', step: 'end' }] },   // v2 (Deep Dive "SharedFlow and StateFlow")
     { id: 'a8', titleKey: 'track.coroutines.a8.title', sims: ['coroutines.lifecycle', 'coroutines.effects'], simAfter: 'scopes', bridges: ['X2'], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'a9', titleKey: 'track.coroutines.a9.title', sims: ['coroutines.race', 'coroutines.vtime'], simAfter: 'lost', bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] }
   ],

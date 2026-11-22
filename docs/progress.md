@@ -293,3 +293,13 @@ Trạng thái: `chưa / đang / xong`.
 - **Kiểm:** report 0 lỗi (2 selfCheck mới PASS); track-check (1280, 360) vẫn 4 vấn đề cũ; routes-check 107 route, 0 vấn đề.
 - **Nhắc (người dùng, 2026-11-22):** trước khi viết mỗi track mới, đọc mục lục thật (`tools/epub_toc.py` cho epub, trang đầu cho pdf) rồi sửa dàn chương nháp trong `roadmap-v2.md`.
 - **Tiếp theo:** SharedFlow/StateFlow (Deep Dive tr. PDF 345–358), rồi Testing flow (tr. PDF 359–375).
+- **A7 viết lại thành "SharedFlow, StateFlow, shareIn và stateIn" (2026-11-22, giữ id `a7`):**
+  - module `coroutines_v2_a7.py`: thêm `add()` + `override()` + `SEC_ORDER`;
+  - mục mới: recap, shared, sharein, stateflow, statein, bugs (3), exercises (2), recall, quiz q4–q5;
+  - hai mục v1 được giữ nhưng đổi tiêu đề và câu chữ: `hot` (người đến muộn, dẫn sang CH) và `ops` (buffer/conflate; bỏ câu cũ "site không mô phỏng flatMap", vì FP đã có);
+  - sim mới `coroutines.sharein` (Eagerly / Lazily / WhileSubscribed() / WhileSubscribed(5000)), đứng đầu ba tab; selfCheck chạy lại ví dụ WhileSubscribed của sách;
+  - `stLanes` nhận thêm tham số `noOut`.
+- **Lõi:** bước tick trục lanes thêm 2000/2500/5000/10000 (trục 15 s trước đây bị dính nhãn).
+- **Sửa FB:** câu hỏi dự đoán `onCompletion` thiếu `.collect { println(it) }`.
+- **Kiểm:** report 0 lỗi; track-check (1280, 360) vẫn 4 vấn đề cũ; routes-check 107 route, 0 vấn đề.
+- **Tiếp theo:** Testing flow (Deep Dive tr. PDF 359–375), mở rộng phần testing của A9 (module `a9t`), không tạo chương mới.

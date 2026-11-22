@@ -621,4 +621,107 @@
       ]
     });
   })();
+
+  /* ================= A7: shareIn và SharingStarted =================
+     upstream = flow { var n = 0; while (true) { delay(1000); emit(++n) } } (mỗi lần khởi động đếm lại từ 1), replay = 1.
+     Kịch bản của site (giả định): màn hình vào lúc 1200 ms, bị xoay (hủy) lúc 3600, màn hình mới vào 4300, app ra nền 6600, quay lại 12400, rời 14800; dừng xem ở 15000.
+     Thứ tự trong cùng một mốc: người nghe rời → hẹn giờ dừng → upstream phát → người nghe vào.
+     Kịch bản thứ hai chỉ dùng cho selfCheck: ví dụ WhileSubscribed() của sách (A..D, replay 0, first() và take(2)). */
+  (function () {
+    var m = 'sharein';
+    var SITE = { values: null, replay: 1, end: 15000, subs: [{ at: 1200, leave: 3600 }, { at: 4300, leave: 6600 }, { at: 12400, leave: 14800 }] };
+    var STOP = { eager: null, lazy: null, ws: 0, ws5: 5000 };
+    function simulate(mode, sc) {
+      sc = sc || SITE;
+      var ev = [], t = 0, up = false, n = 0, nextEmit = null, stopAt = null, runs = 0, emitted = 0, cache = [];
+      var subs = sc.subs.map(function (s) { return { at: s.at, leave: s.leave, take: s.take, on: false, done: false, got: 0 }; });
+      var count = function () { return subs.filter(function (s) { return s.on; }).length; };
+      var snap = function () { var st = { up: up ? (count() ? 'run' : 'wait') : 'off' }; subs.forEach(function (s, i) { st['s' + (i + 1)] = s.on ? 'run' : 'off'; }); return st; };
+      var E = function (key, o) { o = o || {}; ev.push({ t: t, key: key, v: o.v, i: o.i, k: o.k, subs: count(), runs: runs, emitted: emitted, st: snap(), mk: o.mk || [] }); };
+      var start = function () { up = true; n = 0; runs++; nextEmit = t + 1000; stopAt = null; E('start'); };
+      var stop = function () { up = false; nextEmit = null; stopAt = null; E('stop'); };
+      var leave = function (s, i, key) {
+        s.on = false; s.done = true;
+        var last = up && !count();
+        if (last && STOP[mode]) { stopAt = t + STOP[mode]; key = 'unsubTimer'; }
+        E(key, { i: i + 1 });
+        if (last && STOP[mode] === 0) stop();
+      };
+      var join = function (s, i) {
+        s.on = true;
+        var r = cache.length ? cache[cache.length - 1] : null, key = 'sub';
+        if (up && stopAt != null) { stopAt = null; key = 'subKeep'; }
+        E(key, { i: i + 1, v: r, mk: r != null ? [['s' + (i + 1), '↺' + r]] : [] });
+        if (r != null) { s.got++; if (s.take && s.got >= s.take) leave(s, i, 'took'); }
+        if (!up && s.on && (STOP[mode] != null || (mode === 'lazy' && runs === 0))) start();
+      };
+      var emitOne = function () {
+        n++; emitted++; var v = sc.values ? sc.values[n - 1] : n;
+        if (sc.replay) { cache.push(v); if (cache.length > sc.replay) cache.shift(); }
+        var mk = [['up', String(v)]], k = 0;
+        subs.forEach(function (s, i) { if (s.on) { mk.push(['s' + (i + 1), String(v)]); s.got++; k++; } });
+        E(k ? 'emit' : 'emitNone', { v: v, k: k, mk: mk });
+        nextEmit = t + 1000;
+        subs.forEach(function (s, i) { if (s.on && s.take && s.got >= s.take) leave(s, i, 'took'); });
+      };
+      if (mode === 'eager') start();
+      for (var guard = 0; guard < 400; guard++) {
+        var c = [sc.end];
+        if (up && nextEmit != null) c.push(nextEmit);
+        if (stopAt != null) c.push(stopAt);
+        subs.forEach(function (s) { if (!s.on && !s.done) c.push(s.at); if (s.on && s.leave != null) c.push(s.leave); });
+        t = Math.min.apply(null, c);
+        if (t >= sc.end) break;
+        subs.forEach(function (s, i) { if (s.on && s.leave === t) leave(s, i, 'unsub'); });
+        if (stopAt === t) stop();
+        if (up && nextEmit === t) emitOne();
+        subs.forEach(function (s, i) { if (!s.on && !s.done && s.at === t) join(s, i); });
+      }
+      t = sc.end; E('end');
+      return ev;
+    }
+    var SN = { eager: 'siEager', lazy: 'siLazy', ws: 'siWs', ws5: 'siWs5' };
+    var LINES = { start: [2], stop: [3], emit: [1], emitNone: [1], sub: [6], subKeep: [4, 6], unsub: [6], unsubTimer: [4, 6], took: [6], end: [4] };
+    function steps(s) {
+      var seen = {};
+      return simulate(s.mode).map(function (e, i) {
+        var co = null, once = function (k, kind) { if (!seen[k]) { seen[k] = 1; co = [kind, k]; } };
+        if (e.key === 'start' && e.runs > 1) once('restart', 'pitfall');
+        if (e.key === 'emitNone') once('wasted', 'pitfall');
+        if (e.key === 'subKeep') once('keep', 'mechanism');
+        if (e.key === 'unsubTimer') once('timer', 'mechanism');
+        if (e.key === 'stop') once('stopNow', 'mechanism');
+        if (e.key === 'sub' && e.v != null) once('replay', 'mechanism');
+        if (e.key === 'end') co = ['mechanism', 'end.' + s.mode];
+        var who = e.i ? 's' + e.i : 'up';
+        return step({ id: e.key + i, type: e.key === 'emitNone' || (e.key === 'start' && e.runs > 1) ? 'pitfall' : 'mechanism',
+          titleKey: M(m, 's.' + e.key + '.title'), explainKey: M(m, 's.' + e.key + '.explain'), params: { i: e.i, v: e.v, k: e.k, t: e.t },
+          activeNodes: [who], nodeStates: {}, metrics: { time: e.t, subs: e.subs, runs: e.runs, emitted: e.emitted },
+          codeHighlight: { snippet: SN[s.mode], lines: LINES[e.key] || [] },
+          callouts: co ? [{ kind: co[0], textKey: M(m, 'co.' + co[1]) }] : [],
+          logEvents: [{ t: e.t, kind: { start: 'launch', stop: 'cancel', emit: 'emit', emitNone: 'skip', sub: 'collect', subKeep: 'collect', unsub: 'cancel', unsubTimer: 'suspend', took: 'complete', end: 'complete' }[e.key],
+            subject: who, scope: M(m, 'scope.' + s.mode), detailKey: M(m, 'ev.' + e.key), params: { i: e.i, v: e.v, k: e.k, st: JSON.parse(JSON.stringify(e.st)), mk: e.mk.slice() } }] });
+      });
+    }
+    ADE.registerModel('coroutines.sharein', {
+      kind: 'discrete', titleKey: M(m, 'title'), overviewKey: M(m, 'overview'), wrapupKey: M(m, 'wrapup'), codeId: 'siWs5',
+      simplificationKeys: [M(m, 'simp.1'), K + 'simp.time'], controlsHintKey: M(m, 'ctl.hint'),
+      controls: [{ id: 'mode', type: 'select', labelKey: M(m, 'ctl.mode'), get: function (s) { return s.mode; }, action: 'mode',
+        options: ['eager', 'lazy', 'ws', 'ws5'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.mode.' + v) }; }) }],
+      init: function () { return { mode: 'ws5' }; },
+      act: function (s, a, v) { return { mode: SN[v] ? v : 'ws5' }; },
+      steps: steps,
+      selfChecks: [
+        { name: 'ví dụ WhileSubscribed() của sách: Started@3000, A@4000, B@5000, Finished@5000, Started@6000, A@7000, Finished@7000', run: function () {
+          var book = { values: ['A', 'B', 'C', 'D'], replay: 0, end: 8000, subs: [{ at: 3000, take: 1 }, { at: 3000, take: 2 }, { at: 6000, take: 1 }] };
+          var got = simulate('ws', book).filter(function (e) { return /^(start|stop|emit)$/.test(e.key); }).map(function (e) { return e.key + (e.v != null ? ':' + e.v : '') + '@' + e.t; }).join(',');
+          return got === 'start@3000,emit:A@4000,emit:B@5000,stop@5000,start@6000,emit:A@7000,stop@7000';
+        } },
+        { name: 'kịch bản của site: số lần khởi động và số phần tử upstream phát (eager 1/14, lazy 1/13, ws 3/6, ws5 2/12)', run: function () {
+          var r = function (mode) { var a = simulate(mode), l = a[a.length - 1]; return l.runs + '/' + l.emitted; };
+          return r('eager') === '1/14' && r('lazy') === '1/13' && r('ws') === '3/6' && r('ws5') === '2/12';
+        } }
+      ]
+    });
+  })();
 })();

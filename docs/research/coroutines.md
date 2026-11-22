@@ -367,3 +367,20 @@ Chương mới id `sf`, đặt giữa A6 và A7, dùng lại sim `coroutines.bui
 | `distinctUntilChanged` và biến thể; terminal (`first`, `count`, `reduce`, `fold`) | Deep Dive tr. PDF 342–344 | Ví dụ của sách |
 | Áp `distinctUntilChanged` lên StateFlow không có tác dụng | `kx-stateflow` (đã đọc nguyên văn tài liệu) | API |
 | `scan` là reducer kiểu MVI/UDF; tìm kiếm `debounce` + `flatMapLatest` | Hiểu biết chung về kiến trúc Android | Ghi chú Android, **chưa gắn nguồn chính thức** |
+
+### A7 · SharedFlow, StateFlow, shareIn, stateIn (viết lại 2026-11-22, giữ id `a7`)
+
+**Đã đọc:** Deep Dive "SharedFlow and StateFlow" (trang PDF 345–358), toàn văn. Đã kiểm 5 URL mới (`kx-sharein`, `kx-statein`, `kx-whilesubscribed`, `kx-mutablesharedflow`, `and-stateprod`: 200).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| MutableSharedFlow phát cho mọi người collect; không đóng được; `replay`, `replayCache`, `resetReplayCache`; tách SharedFlow/FlowCollector | Deep Dive tr. PDF 345–349 | Ví dụ của sách |
+| `tryEmit` chỉ trả false khi SUSPEND và có người collect; không ai collect thì giá trị bị bỏ (nếu không có replay) | `kx-mutablesharedflow` (tài liệu `tryEmit`, đọc nguyên văn) | API |
+| `shareIn` và Eagerly/Lazily/WhileSubscribed; ví dụ WhileSubscribed (Started/Finished) | Deep Dive tr. PDF 349–353; `kx-sharein`, `kx-whilesubscribed` | Ví dụ của sách; selfCheck của sim `coroutines.sharein` chạy lại ví dụ này và khớp output |
+| `stopTimeoutMillis` mặc định 0, `replayExpirationMillis` mặc định `Long.MAX_VALUE` | `kx-whilesubscribed` (đọc nguyên văn) | API |
+| StateFlow: `value`, giá trị khởi đầu, conflation (X, C, E), so bằng equals | Deep Dive tr. PDF 354–356; `kx-stateflow` | Ví dụ của sách + API |
+| `stateIn` suspend và dạng có `initialValue` | Deep Dive tr. PDF 356–358; `kx-statein` | Ví dụ của sách |
+| `stateIn(viewModelScope, WhileSubscribed(5_000), …)` | `and-stateprod` (tài liệu Android, đọc nguyên văn ví dụ) | Hướng dẫn chính thức. **Lý do "sống qua xoay màn hình" là suy luận của site từ hành vi các chế độ, không trích từ tài liệu** |
+| Kịch bản màn hình (1,2 / 3,6 / 4,3 / 6,6 / 12,4 / 14,8 s) | Của site, giả định | Minh hoạ |
+
+Sách dùng `Lazily` cho ví dụ ViewModel; site trình bày cả hai và nói rõ nguồn của mỗi bên.
