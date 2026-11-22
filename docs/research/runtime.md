@@ -268,3 +268,23 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Tối ưu parallax bằng Modifier.offset { }; lambda có chi phí nhưng đáng; derivedStateOf để lọc | `cp-phases` | stable |
 | Vòng lặp onSizeChanged qua hai frame; mẫu onSizeChanged/onGloballyPositioned | `cp-phases` | stable |
 | Sim `runtime.scroll`: 3/3/3, 0/3/3, 0/0/3, vòng lặp 2 frame | Theo `cp-phases` | selfCheck; nhãn giản lược |
+
+### LO · Layout: constraints, một lượt đo, Layout tùy chỉnh, intrinsic (chương mới 2026-11-23)
+
+**Đã đọc:** "Custom layouts", "Compose layout basics", "Intrinsic measurements in Compose layouts", "Constraints and modifier order" (developer.android.com, toàn văn, 2026-11-23); `MeasurePolicy.kt`, `Measurable.kt`, `Layout.kt`, `SubcomposeLayout.kt`, `MeasurePassDelegate.kt` (`trackMeasurementByParent`), `LayoutNodeLayoutDelegate.kt` (`MeasuredTwiceErrorMessage`), `ui-unit/Constraints.kt` @296313a4; Kunneth Ch.4; Essentials Ch.28, 29, 32.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Ba bước mỗi node; không đo nhiều lượt; Modifier.layout (firstBaselineToTop); Layout (MyBasicColumn); place vs placeRelative, LocalLayoutDirection | `cp-layout-custom` | stable |
+| Một lượt; cha đo trước con nhưng có kích thước/đặt sau; ví dụ Row(Image, Column(Text, Text)); lồng sâu không ảnh hưởng hiệu năng; đo và đặt là hai bước con; BoxWithConstraints | `cp-layout-basics` | stable |
+| Hệ View có thể đo lại nhiều lần; Compose đo một lần, đo lại ném exception; source Column → Layout + MeasurePolicy; SimpleFlexBox; mô tả DefaultIntrinsicMeasurable | Kunneth Ch.4 | Ví dụ của sách (khớp mã ghim) |
+| "2^10 lần" là phép tính minh họa cho giả định mỗi tầng đo hai lần, tài liệu chỉ nói "a lot of work" | `cp-layout-basics` | site tự diễn giải, ghi là giả định |
+| Constraints: 4 giá trị, Infinity = Int.MAX_VALUE, hasBounded*, fixed* | `ui-constraints-src` | impl |
+| 4 loại constraints; fillMaxSize().size(50.dp) → 300×200; wrapContentSize; requiredSize tràn và căn giữa | `cp-constraints-mod` | stable |
+| KDoc MeasurePolicy: không thương lượng; con ngoài constraints bị ép, căn giữa, measuredWidth/Height; định nghĩa 4 intrinsic; mặc định chạy measure với DefaultIntrinsicMeasurable, "best effort" | `ui-measurepolicy-src` | impl |
+| Đo lần hai ném IllegalStateException (thông điệp MeasuredTwiceErrorMessage); đo được trong khối measure hoặc layout | `ui-measure-once` | impl |
+| exampleLayout: tọa độ là độ lệch so với vị trí mặc định; CascadeLayout đo trong khối layout | Essentials Ch.28–29 | Ví dụ của sách |
+| IntrinsicSize Min/Max với Text (từ dài nhất / cả dòng); width(IntrinsicSize.Max) cho Column | Essentials Ch.32 | Ví dụ của sách |
+| Intrinsic hỏi trước khi đo, không đo hai lần; TwoTexts + VerticalDivider; minIntrinsicHeight Row = max con, divider 0; override phải khớp measure | `cp-intrinsics` | stable |
+| SubcomposeLayout: 3 trường hợp dùng; subcompose(slotId) và slotId phải equals giữa các lần đo | `ui-subcompose-src` | impl |
+| Sim `runtime.measure`: cột 3 lần đo; đo hai lần → pitfall; Row không intrinsic → divider 640; IntrinsicSize.Min → 3 hỏi, 3 đo, cao 72 | Theo tài liệu và mã ghim | selfCheck; số px minh họa; thứ tự đo weight trong Row giản lược (simp.2) |

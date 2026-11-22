@@ -336,4 +336,39 @@
     '    )',
     '}'
   ]);
+  add('measure_column', [
+    '@Composable',
+    'fun MyBasicColumn(modifier: Modifier = Modifier, content: @Composable () -> Unit) {',
+    '    Layout(modifier = modifier, content = content) { measurables, constraints ->',
+    { vi: '        val placeables = measurables.map { it.measure(constraints) }   // 1. đo mỗi con MỘT lần', en: '        val placeables = measurables.map { it.measure(constraints) }   // 1. measure each child ONCE' },
+    { vi: '        layout(constraints.maxWidth, constraints.maxHeight) {        // 2. kích thước của chính nó', en: '        layout(constraints.maxWidth, constraints.maxHeight) {        // 2. its own size' },
+    '            var yPosition = 0',
+    '            placeables.forEach { placeable ->',
+    { vi: '                placeable.placeRelative(x = 0, y = yPosition)         // 3. đặt con', en: '                placeable.placeRelative(x = 0, y = yPosition)         // 3. place the children' },
+    '                yPosition += placeable.height',
+    '            }',
+    '        }',
+    '    }',
+    '}'
+  ]);
+  add('measure_twice', [
+    'Layout(content = content) { measurables, constraints ->',
+    '    val first = measurables[0].measure(constraints)',
+    { vi: '    // ✗ "đo thử" lần nữa với constraints khác', en: '    // ✗ a second "trial" measurement with other constraints' },
+    '    val again = measurables[0].measure(constraints.copy(maxWidth = first.width / 2))',
+    '    layout(first.width, first.height) { again.placeRelative(0, 0) }',
+    '}   // IllegalStateException: measure() may not be called multiple times on the same Measurable…'
+  ]);
+  [['measure_nointr', 'Row(modifier = modifier) {'], ['measure_intr', { vi: 'Row(modifier = modifier.height(IntrinsicSize.Min)) {   // ✓ hỏi intrinsic trước', en: 'Row(modifier = modifier.height(IntrinsicSize.Min)) {   // ✓ ask intrinsics first' }]].forEach(function (c) {
+    add(c[0], [
+      '@Composable',
+      'fun TwoTexts(text1: String, text2: String, modifier: Modifier = Modifier) {',
+      typeof c[1] === 'string' ? '    ' + c[1] : { vi: '    ' + c[1].vi, en: '    ' + c[1].en },
+      '        Text(text1, Modifier.weight(1f).padding(start = 4.dp).wrapContentWidth(Alignment.Start))',
+      '        VerticalDivider(color = Color.Black, modifier = Modifier.fillMaxHeight().width(1.dp))',
+      '        Text(text2, Modifier.weight(1f).padding(end = 4.dp).wrapContentWidth(Alignment.End))',
+      '    }',
+      '}'
+    ]);
+  });
 })();

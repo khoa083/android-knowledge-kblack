@@ -123,6 +123,13 @@
     edges: [E('e1', 'state', 'comp'), E('e2', 'state', 'layout'), E('e3', 'state', 'draw'), E('e4', 'comp', 'layout'), E('e5', 'layout', 'draw'), E('e6', 'layout', 'state')],
     metrics: [T('scroll', 'comp'), T('scroll', 'layout'), T('scroll', 'draw'), T('scroll', 'frames')]
   });
+  /* LO (v2): một Layout cha và ba con; cạnh là lời gọi measure/intrinsic từ cha xuống con. */
+  V('measure', {
+    layout: 'tree',
+    nodes: [N('measure', 'parent', 0, 0, 'grid', 'ui'), N('measure', 'k1', -4, 5, 'square', 'ui'), N('measure', 'k2', 0, 5, 'square', 'ui'), N('measure', 'k3', 4, 5, 'square', 'ui')],
+    edges: [E('e1', 'parent', 'k1'), E('e2', 'parent', 'k2'), E('e3', 'parent', 'k3')],
+    metrics: [T('measure', 'measured'), T('measure', 'queries'), T('measure', 'height')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

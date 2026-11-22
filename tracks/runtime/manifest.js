@@ -19,6 +19,7 @@ ADE.registerTrack({
     { id: 'cl', titleKey: 'track.runtime.cl.title', sims: ['runtime.locals'], simAfter: 'kinds', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },   // v2 (Essentials Ch.21–22, compositionlocal docs, CompositionLocal.kt @296313a4)
     { id: 'b6', titleKey: 'track.runtime.b6.title', sims: ['runtime.insert', 'runtime.applier'], simAfter: 'order', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'b7', titleKey: 'track.runtime.b7.title', sims: ['runtime.scroll', 'runtime.phases'], simAfter: 'optimize', bridges: ['X1'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'lo', titleKey: 'track.runtime.lo.title', sims: ['runtime.measure'], simAfter: 'custom', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (Kunneth Ch.4, Essentials Ch.28–29, 32, layouts docs, MeasurePolicy.kt @296313a4)
     { id: 'b8', titleKey: 'track.runtime.b8.title', sims: ['runtime.skip'], bridges: ['X2'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'b9', titleKey: 'track.runtime.b9.title', sims: ['runtime.semantics'], bridges: ['X6'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'b10', titleKey: 'track.runtime.b10.title', sims: ['runtime.counter'], bridges: ['X1'], goals: [{ id: 'g1', step: 4 }, { id: 'g2', step: 'end' }] }

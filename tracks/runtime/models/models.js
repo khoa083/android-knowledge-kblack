@@ -1239,4 +1239,89 @@
       } }]
     });
   })();
+  /* ================= LO (v2): một lượt layout của Layout tùy chỉnh (Custom layouts, Intrinsic measurements docs, 2026-11-23; MeasurePolicy.kt, Measurable.kt, LayoutNodeLayoutDelegate.kt @296313a4) =================
+     col: MyBasicColumn đo mỗi con một lần rồi đặt theo y. twice: đo cùng một Measurable hai lần → IllegalStateException (MeasuredTwiceErrorMessage).
+     nointr: Row(Text, VerticalDivider.fillMaxHeight, Text) → divider cao bằng maxHeight. intr: Row.height(IntrinsicSize.Min) hỏi minIntrinsicHeight
+     trước (48, 0, 72) rồi đo mỗi con một lần với chiều cao cố định 72. Số px là minh họa (cha cho 0..360 × 0..640). */
+  (function () {
+    var m = 'measure';
+    var CASES = ['col', 'twice', 'nointr', 'intr'];
+    function steps(s) {
+      var cs = CASES.indexOf(s.which) >= 0 ? s.which : 'col', out = [], t = 0, c = { measured: 0, queries: 0, height: '—' }, cons = '0..360 × 0..640', last = '—', pos = '—';
+      var snip = cs === 'col' ? 'measure_column' : cs === 'twice' ? 'measure_twice' : cs === 'nointr' ? 'measure_nointr' : 'measure_intr';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {};
+        o.metrics = { measured: c.measured, queries: c.queries, height: c.height };
+        o.stateAfter = [{ labelKey: M(m, 'st.cons'), value: cons }, { labelKey: M(m, 'st.last'), value: last }, { labelKey: M(m, 'st.pos'), value: pos }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: snip, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'layout', subject: o.activeNodes[o.activeNodes.length - 1] || 'parent', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var meas = function (key, node, size, lines, extra) {
+        c.measured++; last = size;
+        var o = { activeNodes: ['parent', node], movingSignals: [{ edge: 'e' + node.slice(1), tok: 'ui' }], lines: lines };
+        for (var k in (extra || {})) o[k] = extra[k];
+        P(key, o);
+      };
+      if (cs === 'col') {
+        P('col.intro', { type: 'scenario', activeNodes: ['parent'], lines: [3], kind: 'observe' });
+        meas('col.m1', 'k1', '360×40', [4]); meas('col.m2', 'k2', '360×40', [4]); meas('col.m3', 'k3', '360×60', [4]);
+        c.height = 640;
+        P('col.size', { activeNodes: ['parent'], lines: [5], kind: 'act' });
+        pos = 'y = 0, 40, 80';
+        P('col.place', { activeNodes: ['parent', 'k1', 'k2', 'k3'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'state' }, { edge: 'e3', tok: 'state' }], lines: [7, 8, 9] });
+        P('col.end', { activeNodes: ['parent'], lines: [], kind: 'observe', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.single') }] });
+        return out;
+      }
+      if (cs === 'twice') {
+        P('tw.intro', { type: 'scenario', activeNodes: ['parent'], lines: [1], kind: 'observe' });
+        meas('tw.m1', 'k1', '360×40', [2]);
+        c.measured++;
+        P('tw.again', { type: 'pitfall', activeNodes: ['parent', 'k1'], movingSignals: [{ edge: 'e1', tok: 'error' }], lines: [4, 6], kind: 'layout', callouts: [{ kind: 'pitfall', textKey: M(m, 'co.twice') }] });
+        P('tw.end', { type: 'pitfall', activeNodes: ['parent'], lines: [6], kind: 'observe' });
+        return out;
+      }
+      var tx = cs === 'intr';
+      P((tx ? 'in' : 'no') + '.intro', { type: 'scenario', activeNodes: ['parent'], lines: [3], kind: 'observe' });
+      if (tx) {
+        [['q1', 'k1', '48', [4]], ['q2', 'k2', '0', [5]], ['q3', 'k3', '72', [6]]].forEach(function (q) {
+          c.queries++; last = 'minIntrinsicHeight = ' + q[2];
+          P('in.' + q[0], { activeNodes: ['parent', q[1]], movingSignals: [{ edge: 'e' + q[1].slice(1), tok: 'state' }], lines: q[3], kind: 'act' });
+        });
+        cons = '0..360 × 72';
+        P('in.fixed', { activeNodes: ['parent'], lines: [3], kind: 'act' });
+      }
+      var h = tx ? 72 : 640;
+      meas((tx ? 'in' : 'no') + '.m1', 'k1', '179×48', [4]);
+      meas((tx ? 'in' : 'no') + '.m2', 'k2', '1×' + h, [5], tx ? { callouts: [{ kind: 'mechanism', textKey: M(m, 'co.noTwice') }] } : { type: 'pitfall' });
+      meas((tx ? 'in' : 'no') + '.m3', 'k3', '179×72', [6]);
+      c.height = h;
+      P((tx ? 'in' : 'no') + '.size', { activeNodes: ['parent'], lines: [3], kind: 'act' });
+      pos = 'x = 0, 179, 180';
+      P((tx ? 'in' : 'no') + '.place', { activeNodes: ['parent', 'k1', 'k2', 'k3'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'state' }, { edge: 'e3', tok: 'state' }], lines: [] });
+      P((tx ? 'in' : 'no') + '.end', { type: tx ? 'mechanism' : 'pitfall', activeNodes: ['parent', 'k2'], lines: tx ? [3] : [5], kind: 'observe', callouts: [{ kind: tx ? 'mechanism' : 'pitfall', textKey: M(m, 'co.' + (tx ? 'intr' : 'nointr')) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'measure_column',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'which', type: 'select', labelKey: M(m, 'ctl.which'), get: function (s) { return s.which; }, action: 'which', options: CASES.map(function (v) { return { value: v, labelKey: M(m, 'ctl.which.' + v) }; }) }
+      ],
+      init: function () { return { which: 'col' }; },
+      act: function (s, a, v) { return { which: CASES.indexOf(v) >= 0 ? v : 'col' }; },
+      steps: steps,
+      selfChecks: [{ name: 'mỗi con đo đúng một lần: cột 3 lần đo, cao 640; đo lại cùng Measurable → bước pitfall; Row không intrinsic → divider 1×640; Row IntrinsicSize.Min → 3 lần hỏi, 3 lần đo, cao 72 = max(48, 0, 72)', run: function () {
+        var last = function (w) { var x = steps({ which: w }); return x[x.length - 1]; };
+        var a = last('col'), b = steps({ which: 'twice' }), n = last('nointr'), i = last('intr');
+        var div = function (w) { return steps({ which: w }).filter(function (x) { return /_m2|m2/.test(x.id); })[0].stateAfter[1].value; };
+        return a.metrics.measured === 3 && a.metrics.height === 640 && b[2].type === 'pitfall' && b[2].metrics.measured === 2 &&
+          n.metrics.height === 640 && n.metrics.queries === 0 && div('nointr') === '1×640' &&
+          i.metrics.queries === 3 && i.metrics.measured === 3 && i.metrics.height === 72 && div('intr') === '1×72';
+      } }]
+    });
+  })();
 })();
