@@ -228,4 +228,43 @@
     '  }',
     '}'
   ]);
+  add('effCounter', [
+    { vi: '// biến thể LaunchedEffectDemo của Kunneth (Ch.7): thêm DisposableEffect và SideEffect cùng chỗ', en: '// a variant of Kunneth\'s LaunchedEffectDemo (Ch.7): DisposableEffect and SideEffect added alongside' },
+    'var clickCount by rememberSaveable { mutableStateOf(0) }',
+    'var counter by rememberSaveable { mutableStateOf(0) }',
+    { vi: 'Button(onClick = { clickCount += 1 }) { Text("Start / Restart") }', en: 'Button(onClick = { clickCount += 1 }) { Text("Start / Restart") }' },
+    'Button(onClick = { clickCount = 0 }) { Text("Stop") }',
+    { vi: 'if (clickCount > 0) {                          // nhánh rời composition khi Stop', en: 'if (clickCount > 0) {                          // the branch leaves composition on Stop' },
+    '    DisposableEffect(clickCount) {',
+    '        println("init $clickCount")',
+    '        onDispose { println("dispose $clickCount") }',
+    '    }',
+    '    LaunchedEffect(clickCount) {',
+    { vi: '        counter = 0                            // coroutine mới bắt đầu lại từ 0', en: '        counter = 0                            // a new coroutine starts again from 0' },
+    '        while (isActive) {',
+    '            counter += 1; delay(1000)',
+    '        }',
+    '    }',
+    '}',
+    { vi: 'SideEffect { analytics.setUserProperty("counter", counter) }   // sau mỗi lượt recompose thành công', en: 'SideEffect { analytics.setUserProperty("counter", counter) }   // after every successful recomposition' }
+  ]);
+  add('effStale', [
+    '@Composable',
+    'fun LandingScreen(onTimeout: () -> Unit) {',
+    '    LaunchedEffect(true) {',
+    '        delay(3000)',
+    { vi: '        onTimeout()            // ✗ lambda bị bắt lúc launch, có thể đã cũ', en: '        onTimeout()            // ✗ the lambda captured at launch, possibly stale' },
+    '    }',
+    '}'
+  ]);
+  add('effUpdated', [
+    '@Composable',
+    'fun LandingScreen(onTimeout: () -> Unit) {',
+    { vi: '    val currentOnTimeout by rememberUpdatedState(onTimeout)   // luôn là lambda mới nhất', en: '    val currentOnTimeout by rememberUpdatedState(onTimeout)   // always the latest lambda' },
+    '    LaunchedEffect(true) {',
+    '        delay(3000)',
+    '        currentOnTimeout()     // ✓',
+    '    }',
+    '}'
+  ]);
 })();

@@ -201,3 +201,23 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Recomposer theo window; clock bắt đầu tạm dừng; ON_START resume; ON_STOP pauseCompositionFrameClock; ON_DESTROY cancel | `ui-windowrecomposer` | android-impl |
 | viewModelScope không có frame clock (DrawerState.close) | `cp-hoisting` | stable |
 | Sim `runtime.frame`: 3 kịch bản | Theo vòng lặp ở commit ghim; số frame animation là giả định | selfCheck; nhãn giản lược |
+
+### EF · Side effect và vòng đời (chương mới, 2026-11-23)
+
+**Đã đọc:**
+- "Side-effects in Compose" (`and-effects`), toàn văn;
+- `Effects.kt`, `RememberObserver.kt` @296313a4;
+- Kunneth Ch.7 (mục Understanding side effects), Tutorials Ch.11 (rememberCoroutineScope, Effects in Compose, Migrate Effects).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Định nghĩa side effect và effect; dùng trong môi trường biết vòng đời; đừng lạm dụng, giữ UDF | `and-effects` | stable |
+| LaunchedEffect: launch khi vào, hủy khi rời, khởi động lại khi key đổi; LaunchedEffect(true) đáng ngờ như while(true) | `and-effects` | stable |
+| LaunchedEffect(key) = remember(key) { LaunchedEffectImpl }; launch ở onRemembered, hủy ở onForgotten/onAbandoned; không key là lỗi | `rt-effects-src` | impl |
+| onRemembered/onForgotten trên apply thread; onAbandoned khi không được remember thành công | `rt-remember-observer` | impl |
+| KDoc: không dùng LaunchedEffect để launch việc theo callback qua MutableState làm key; dùng rememberCoroutineScope | `rt-effects-src` | impl |
+| rememberCoroutineScope; quy tắc key; rememberUpdatedState (LandingScreen); DisposableEffect + lifecycle observer, onDispose bắt buộc; SideEffect sau mỗi lượt thành công; produceState conflate, awaitDispose, đặt tên chữ thường | `and-effects` | stable |
+| SideEffect = recordSideEffect | `rt-effects-src` | impl |
+| LaunchedEffectDemo (Start/Restart/Stop), log init/dispose của DisposableEffect | Kunneth Ch.7 | Ví dụ của sách; sim là biến thể (ghi trong simp.2) |
+| Cẩm nang chuyển đổi onActive/onCommit → effect hiện tại | Tutorials Ch.11 | Lịch sử (API cũ) |
+| Sim `runtime.effects`: bộ đếm, hẹn giờ có/không rememberUpdatedState | Theo `and-effects` và Effects.kt | selfCheck; nhãn giản lược |

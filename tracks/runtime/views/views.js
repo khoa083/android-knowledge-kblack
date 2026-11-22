@@ -93,6 +93,14 @@
       E('e3', 'recomposer', 'composition'), E('e4', 'composition', 'applier'), E('e5', 'lifecycle', 'recomposer'), E('e6', 'lifecycle', 'clock')],
     metrics: [T('frame', 'frames'), T('frame', 'recomps'), T('frame', 'animFrames')]
   });
+  /* EF (v2): cú bấm/cha → composition → object được remember (LaunchedEffectImpl, DisposableEffect) → coroutine; SideEffect sau mỗi lượt. */
+  V('effects', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('effects', 'tap', 0, 0, 'phone', 'ui'), N('effects', 'composition', 4, 0, 'layers', 'runtime'), N('effects', 'remembered', 8, 0, 'store', 'runtime'),
+      N('effects', 'job', 12, 0, 'job', 'coroutine'), N('effects', 'side', 8, 4, 'spark', 'signal')],
+    edges: [E('e1', 'tap', 'composition'), E('e2', 'composition', 'remembered'), E('e3', 'remembered', 'job'), E('e4', 'composition', 'side'), E('e5', 'job', 'composition')],
+    metrics: [T('effects', 'launched'), T('effects', 'cancelled'), T('effects', 'disposed'), T('effects', 'side')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

@@ -988,4 +988,78 @@
       } }]
     });
   })();
+
+  /* ================= EF (v2): vòng đời của effect (Effects.kt, RememberObserver.kt @296313a4; Kunneth Ch.7; side-effects docs) =================
+     LaunchedEffect(key) = remember(key) { LaunchedEffectImpl }: onRemembered (sau khi composition được apply) → launch;
+     key đổi → object cũ bị forgotten (cancel), object mới remembered (launch); rời composition → onForgotten → cancel.
+     DisposableEffect: key đổi → onDispose cũ rồi chạy effect mới; rời composition → onDispose. SideEffect chạy sau mỗi lần recompose thành công.
+     Kịch bản counter là biến thể của LaunchedEffectDemo (Kunneth Ch.7): DisposableEffect đặt cùng nhánh if với LaunchedEffect. */
+  (function () {
+    var m = 'effects';
+    var SC = ['counter', 'timeoutStale', 'timeoutUpdated'];
+    function steps(s) {
+      var sc = SC.indexOf(s.scenario) >= 0 ? s.scenario : 'counter', out = [], t = 0;
+      var st = { launched: 0, cancelled: 0, disposed: 0, side: 0 }, job = '—', counter = 0, log = [], clicks = 0, called = '—';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {}; o.params.c = counter; o.params.k = clicks;
+        o.metrics = { launched: st.launched, cancelled: st.cancelled, disposed: st.disposed, side: st.side };
+        o.stateAfter = sc === 'counter'
+          ? [{ labelKey: M(m, 'st.clicks'), value: String(clicks) }, { labelKey: M(m, 'st.job'), value: job }, { labelKey: M(m, 'st.counter'), value: String(counter) }, { labelKey: M(m, 'st.log'), value: log.length ? log.slice(-3).join(' · ') : '—' }]
+          : [{ labelKey: M(m, 'st.job'), value: job }, { labelKey: M(m, 'st.lambda'), value: o.lambda || 'goHomeA' }, { labelKey: M(m, 'st.called'), value: called }];
+        delete o.lambda;
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: sc === 'counter' ? 'effCounter' : sc === 'timeoutStale' ? 'effStale' : 'effUpdated', lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'observe', subject: o.activeNodes[o.activeNodes.length - 1] || 'composition', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      if (sc === 'counter') {
+        st.side++;
+        P('cInit', { type: 'scenario', activeNodes: ['composition', 'side'], movingSignals: [{ edge: 'e4', tok: 'signal' }], lines: [2, 3, 18], kind: 'recompose' });
+        clicks = 1; st.side++; st.launched++; job = '#1'; log.push('init 1');
+        P('cStart', { activeNodes: ['tap', 'composition', 'remembered', 'job'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'runtime' }, { edge: 'e3', tok: 'job' }], lines: [4, 6, 7, 8, 11], kind: 'act',
+          callouts: [{ kind: 'mechanism', textKey: M(m, 'co.remembered') }] });
+        counter = 1; st.side++;
+        P('cTick', { activeNodes: ['job', 'composition', 'side'], movingSignals: [{ edge: 'e5', tok: 'state' }, { edge: 'e4', tok: 'signal' }], lines: [13, 14], kind: 'write' });
+        counter = 2; st.side++;
+        P('cTick2', { activeNodes: ['job', 'composition', 'side'], movingSignals: [{ edge: 'e5', tok: 'state' }], lines: [13, 14], kind: 'write' });
+        clicks = 2; st.side++; st.cancelled++; st.disposed++; st.launched++; job = '#2'; counter = 0; log.push('dispose 1'); log.push('init 2');
+        P('cRestart', { activeNodes: ['tap', 'remembered', 'job'], movingSignals: [{ edge: 'e3', tok: 'cancel' }, { edge: 'e3', tok: 'job' }], lines: [4, 7, 8, 9, 11], kind: 'act',
+          callouts: [{ kind: 'mechanism', textKey: M(m, 'co.restart') }] });
+        counter = 1; st.side++;
+        P('cTick3', { activeNodes: ['job', 'composition'], movingSignals: [{ edge: 'e5', tok: 'state' }], lines: [13, 14], kind: 'write' });
+        clicks = 0; st.side++; st.cancelled++; st.disposed++; job = '—'; log.push('dispose 2');
+        P('cStop', { type: 'pitfall', activeNodes: ['tap', 'remembered', 'job'], movingSignals: [{ edge: 'e3', tok: 'cancel' }], lines: [5, 6, 9], kind: 'skip',
+          callouts: [{ kind: 'mechanism', textKey: M(m, 'co.leave') }] });
+        P('end.counter', { activeNodes: ['composition'], lines: [], kind: 'observe', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.end.counter') }] });
+        return out;
+      }
+      var upd = sc === 'timeoutUpdated';
+      st.launched++; job = 'delay(3000)';
+      P('tInit', { type: 'scenario', activeNodes: ['composition', 'remembered', 'job'], movingSignals: [{ edge: 'e2', tok: 'runtime' }, { edge: 'e3', tok: 'job' }], lines: upd ? [2, 3, 4] : [2, 3], kind: 'schedule' });
+      P('tChange', { activeNodes: ['tap', 'composition'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: upd ? [2] : [2], kind: 'recompose', lambda: 'goHomeB',
+        callouts: [{ kind: 'mechanism', textKey: M(m, 'co.noRestart') }] });
+      called = upd ? 'goHomeB' : 'goHomeA'; job = '—';
+      P(upd ? 'tFireOk' : 'tFireStale', { type: upd ? 'mechanism' : 'pitfall', activeNodes: ['job', 'tap'], movingSignals: [{ edge: 'e5', tok: upd ? 'state' : 'error' }], lines: upd ? [5, 6] : [4, 5], kind: 'act', lambda: 'goHomeB' });
+      P('end.' + sc, { type: upd ? 'mechanism' : 'pitfall', activeNodes: ['composition'], lines: [], kind: 'observe', lambda: 'goHomeB', callouts: [{ kind: upd ? 'mechanism' : 'pitfall', textKey: M(m, 'co.end.' + sc) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'effCounter',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'scenario', type: 'select', labelKey: M(m, 'ctl.scenario'), get: function (s) { return s.scenario; }, action: 'scenario', options: SC.map(function (v) { return { value: v, labelKey: M(m, 'ctl.scenario.' + v) }; }) }
+      ],
+      init: function () { return { scenario: 'counter' }; },
+      act: function (s, a, v) { return { scenario: SC.indexOf(v) >= 0 ? v : 'counter' }; },
+      steps: steps,
+      selfChecks: [{ name: 'counter: 2 coroutine được launch, cả 2 bị cancel (đổi key, rời composition), onDispose 2 lần, SideEffect chạy sau mỗi lượt (7); timeout: không có rememberUpdatedState thì gọi lambda cũ goHomeA, có thì gọi goHomeB, effect không restart', run: function () {
+        var last = function (sc) { var x = steps({ scenario: sc }); return x[x.length - 1]; };
+        var c = last('counter').metrics, a = last('timeoutStale'), b = last('timeoutUpdated');
+        return c.launched === 2 && c.cancelled === 2 && c.disposed === 2 && c.side === 7 && a.metrics.launched === 1 && a.metrics.cancelled === 0 &&
+          a.stateAfter[2].value === 'goHomeA' && b.stateAfter[2].value === 'goHomeB';
+      } }]
+    });
+  })();
 })();

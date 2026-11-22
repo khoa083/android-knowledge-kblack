@@ -385,3 +385,8 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `runtime.frame` (một lần ghi, animation, vào nền giữa animation); sim `runtime.recomposer` giữ làm tab thứ hai. 3 nguồn mới.
   - **Kiểm:** report 0 lỗi, 121 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
   - **Tiếp theo:** ef (side effects và vòng đời: LaunchedEffect, DisposableEffect, SideEffect, rememberUpdatedState, produceState, rememberCoroutineScope), dựa trên Kunneth Ch.7, Tutorials Ch.11, Essentials Ch.33 và trang side-effects.
+- **Runtime v2 · EF chương mới (2026-11-23):**
+  - Nội dung (`runtime_v2_ef.py`): effect là gì, LaunchedEffect (ví dụ Kunneth, cơ chế remember + RememberObserver ở commit ghim), rememberCoroutineScope, key và rememberUpdatedState, DisposableEffect, SideEffect, produceState, ghi chú lịch sử onActive/onCommit (Tutorials Ch.11); 3 bug, 3 bài tập, tự trả lời, quiz 4 câu.
+  - Sim mới `runtime.effects` (bộ đếm Start/Restart/Stop; hẹn giờ có/không rememberUpdatedState). Nguồn mới `rt-effects-src`, `rt-remember-observer`.
+  - **Kiểm:** report 0 lỗi, 121 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
+  - **Tiếp theo:** cl (CompositionLocal), rồi b6, b7, lo, md, lz, b8, b9, pf, b10, b0 theo `roadmap-v2.md`.
