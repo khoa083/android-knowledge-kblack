@@ -61,8 +61,30 @@ Nếu font đầu stack không đủ dấu, đưa font đủ dấu lên trước
 
 ## 5. Chuyển động và truy cập
 
-- [ ] Chuyển động chỉ để giải thích thứ tự, quan hệ, dữ liệu; không trang trí.
+- [ ] Chuyển động phải có mục đích: giải thích thứ tự, quan hệ, dữ liệu, **hoặc giữ mạch nhìn khi chuyển cảnh** (người học biết cái gì vừa xuất hiện, vừa đổi, đi về hướng nào). Không lặp vô hạn để trang trí. (Sửa 2026-11-22 theo yêu cầu người dùng: site trước đó gần như tĩnh; xem §5.1.)
 - [ ] `prefers-reduced-motion` + nút tắt thủ công (class `.reduced-motion`): zoom camera và gõ chữ **tắt hẳn**; animation dừng hoặc chuyển tức thời; Play chạy từng bước. Có nút "Chỉ sơ đồ / không zoom".
+### 5.1 Chuyển cảnh và chuyển động bắt buộc (thêm 2026-11-22)
+
+Người dùng phản hồi: site gần như không có chuyển động, cảm giác thiếu sinh động. Từ nay, mọi trang và mọi mô phỏng **phải có** các chuyển động dưới đây. Đã làm trong lõi (`styles.css` khối "chuyển cảnh", `js/core/ui.js`, `app.js` `reveal`), track mới tự có.
+
+| Chỗ | Chuyển động | Thời lượng | Mục đích |
+|---|---|---|---|
+| Vào trang (mọi route) | các khối đầu trang trượt lên + rõ dần, lần lượt cách nhau 40 ms | `--mo-slow` 420 ms | biết trang mới đã mở, mắt đi từ trên xuống |
+| Mục của chương | hiện dần (trượt lên) khi cuộn tới | 420 ms | nhịp đọc theo từng mục |
+| Đổi bước mô phỏng | panel giải thích trượt vào theo hướng đi (tới: từ phải, lùi: từ trái) | `--mo-base` 280 ms | biết đang đi tới hay lùi |
+| Chỉ số đổi giá trị | viền nháy + số bật lên một lần | 280–900 ms | chỉ đúng con số vừa đổi |
+| Nhật ký | dòng của bước vừa tới trượt vào, nền nhấn mờ dần | 700 ms | nối bước với sự kiện |
+| Sơ đồ | thẻ vừa đổi trạng thái bật (scale), token chạy dọc cạnh, cạnh đang hoạt động chảy nét đứt, zoom camera (`iso`/phẳng), thanh lanes dài ra | sẵn có | một chuyển động chính mỗi bước |
+| Mở ô đoán trước / bug / bài tập / tự kiểm | nội dung trượt xuống | 280 ms | thấy phần vừa mở |
+| Nút | đổi nền khi rê, lún nhẹ khi bấm | `--mo-fast` 160 ms | phản hồi thao tác |
+
+Quy tắc:
+- Chỉ animate `transform` và `opacity` (trừ nháy viền); dùng biến `--mo-*` và `--mo-ease`, không đặt thời lượng riêng lẻ.
+- Trạng thái cuối luôn là trạng thái tĩnh đầy đủ. Tắt animation không làm mất nội dung.
+- `prefers-reduced-motion` hoặc nút "Chuyển động" tắt → mọi chuyển cảnh tắt (khối CSS reduced-motion sẵn có); `reveal` không ẩn gì.
+- Mỗi bước mô phỏng: một chuyển động chính trên sơ đồ, cộng chuyển cảnh panel. Không thêm hiệu ứng thứ ba cạnh tranh sự chú ý.
+- Track hoặc view mới có thể thêm chuyển động riêng cho sơ đồ, nhưng phải theo các quy tắc trên và kiểm cả hai chế độ chuyển động.
+
 - [ ] Tab/Shift+Tab qua mọi điều khiển; Enter/Space kích hoạt; focus ring rõ (cam đậm/vàng, 2px + offset 2px, ≥ 3:1).
 - [ ] Phím tắt mô phỏng (`←` `→` `Space` `R`, `1–9`, `[ ]`, `?`, `Ctrl+K` hoặc `/`) **bỏ qua** khi focus ở `button`, `input`, `select`, `textarea` hoặc slider; ghi chú trên giao diện bằng cả hai ngôn ngữ.
 - [ ] Vùng chạm ≥ 44×44 CSS px. Không cuộn ngang ở 360px.

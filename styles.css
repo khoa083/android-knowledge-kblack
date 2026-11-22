@@ -344,7 +344,7 @@ progress { accent-color: var(--brand); height: 8px; width: 90px; vertical-align:
 /* thành phần vừa đổi trạng thái: vòng nhấn + nhịp một lần */
 .node.changed .card-face, .node.changed .iso-top { stroke: var(--focus); stroke-width: 3; }
 .scene:not(.still) .node.changed { animation: dg-pop .5s ease-out 1; transform-box: fill-box; transform-origin: center; }
-@keyframes dg-pop { 0% { transform: scale(.94); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
+@keyframes dg-pop { 0% { transform: scale(.9); } 55% { transform: scale(1.07); } 100% { transform: scale(1); } }
 .edge-path { fill: none; stroke: var(--line-strong); stroke-width: 1.8; stroke-dasharray: 6 5; }
 .edge.active .edge-path { stroke: var(--n, var(--ink)); stroke-width: 3; stroke-dasharray: none; }
 .scene:not(.still) .edge.active .edge-path { stroke-dasharray: 10 6; animation: dg-flow .7s linear infinite; }
@@ -535,6 +535,43 @@ dialog.dlg::backdrop { background: rgba(5, 14, 11, .55); }
   .btn, .sel, .seg-b, .tab, .rowbtn, .steplink, .chip.btn { min-height: 44px; }
   .btn.icon, .seg-b { min-width: 44px; }
 }
+
+/* ---------- chuyển cảnh và chuyển động giao diện (docs/design-principles.md §5.1) ----------
+   Thời lượng: --mo-fast 160ms (nút, nháy), --mo-base 280ms (panel, khối), --mo-slow 420ms (vào trang). Chỉ dùng transform/opacity.
+   Khối reduced-motion phía dưới tắt toàn bộ; trạng thái cuối luôn là trạng thái tĩnh nên tắt animation không mất nội dung. */
+:root { --mo-fast: 160ms; --mo-base: 280ms; --mo-slow: 420ms; --mo-ease: cubic-bezier(.2, .7, .2, 1); }
+/* vào trang: tiêu đề và các khối đầu trượt lên lần lượt */
+.page > * { animation: mo-rise var(--mo-slow) var(--mo-ease) both; }
+.page > :nth-child(2) { animation-delay: 40ms; } .page > :nth-child(3) { animation-delay: 80ms; } .page > :nth-child(4) { animation-delay: 120ms; }
+.page > :nth-child(5) { animation-delay: 160ms; } .page > :nth-child(n+6) { animation-delay: 200ms; }
+@keyframes mo-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+/* mục nội dung hiện dần khi cuộn tới (app.js reveal) */
+.rv:not(.in) { opacity: 0; transform: translateY(16px); }
+.rv { transition: opacity var(--mo-slow) var(--mo-ease), transform var(--mo-slow) var(--mo-ease); }
+.rv.in { opacity: 1; transform: none; }
+/* đổi bước: panel giải thích trượt theo hướng đi */
+.side-body[data-dir="fwd"] > * { animation: mo-in-r var(--mo-base) var(--mo-ease) both; }
+.side-body[data-dir="back"] > * { animation: mo-in-l var(--mo-base) var(--mo-ease) both; }
+.side-body[data-dir] > :nth-child(2) { animation-delay: 60ms; }
+@keyframes mo-in-r { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+@keyframes mo-in-l { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
+/* chỉ số vừa đổi: nháy viền + số bật lên một lần */
+.metric.changed { animation: mo-flash 900ms ease-out 1; }
+.metric.changed .metric-v { display: inline-block; animation: mo-pop var(--mo-base) var(--mo-ease) 1; }
+@keyframes mo-flash { 0% { box-shadow: 0 0 0 0 var(--focus); border-color: var(--focus); } 100% { box-shadow: 0 0 0 6px transparent; } }
+@keyframes mo-pop { 0% { transform: translateY(6px); opacity: .2; } 100% { transform: none; opacity: 1; } }
+/* dòng nhật ký của bước vừa tới: trượt vào + nền nhấn mờ dần */
+tr.ev.fresh { animation: mo-row 700ms var(--mo-ease) 1; }
+@keyframes mo-row { 0% { transform: translateX(-12px); opacity: 0; background: var(--paper-3); } 40% { opacity: 1; transform: none; } 100% { background: transparent; } }
+/* mở ô đoán trước / bug / bài tập / tự kiểm: nội dung trượt xuống */
+details[open] > .blk-a, details[open] > .qa-a { animation: mo-drop var(--mo-base) var(--mo-ease) both; }
+@keyframes mo-drop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+details.blk > summary::before { display: inline-block; transition: transform var(--mo-fast) ease; }
+/* nút: phản hồi khi rê và khi bấm */
+.btn { transition: background-color var(--mo-fast) ease, border-color var(--mo-fast) ease, transform var(--mo-fast) ease; }
+.btn:active { transform: translateY(1px) scale(.985); }
+/* sơ đồ: thẻ vừa đổi trạng thái bật rõ hơn */
+.scene:not(.still) .node.changed { animation: dg-pop .6s var(--mo-ease) 1; }
 
 /* ---------- giảm chuyển động: tôn trọng hệ điều hành, và nút tắt thủ công (.reduced-motion) ---------- */
 .reduced-motion *, .reduced-motion *::before, .reduced-motion *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

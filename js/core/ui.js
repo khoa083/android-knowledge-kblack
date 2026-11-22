@@ -230,16 +230,18 @@
       canvasTabs.appendChild(ui.tabs([{ id: 'diagram', label: ADE.t('app.diagram'), icon: 'layers' }, { id: 'timeline', label: ADE.t('app.timeline'), icon: 'list' }], vs.canvasTab, function (id) { vs.canvasTab = id; renderCanvasTabs(); applyCanvasTab(); refreshCanvas(); }, ADE.t('app.views')));
     }
     function applyCanvasTab() { diagramBox.hidden = vs.canvasTab !== 'diagram'; timelineBox.hidden = vs.canvasTab !== 'timeline'; }
+    var prevVals = null;   // giá trị chỉ số lần vẽ trước: chỉ số nào đổi thì nháy một lần (chuyển cảnh, tắt khi reduced-motion)
     function renderMetrics() {
       ui.clear(metrics);
       var list = vw.metrics || [];
       metrics.hidden = !list.length;
       var vals = disc ? S.metricsAt() : {};
       list.forEach(function (m) {
-        var v = vals[m.id], known = v !== undefined && v !== null;
-        metrics.appendChild(h('div', { class: 'metric' + (known ? '' : ' unknown') }, h('span', { class: 'metric-l', text: ADE.t(m.labelKey) }),
+        var v = vals[m.id], known = v !== undefined && v !== null, changed = prevVals && known && prevVals[m.id] !== v;
+        metrics.appendChild(h('div', { class: 'metric' + (known ? '' : ' unknown') + (changed ? ' changed' : '') }, h('span', { class: 'metric-l', text: ADE.t(m.labelKey) }),
           h('b', { class: 'metric-v', 'aria-label': known ? null : ADE.t('app.unknownValue') }, known ? (typeof v === 'number' ? ADE.num(v) : ADE.t(String(v))) : '?')));
       });
+      prevVals = vals;
     }
     function refreshCanvas(animate) {
       if (!disc) return;
@@ -383,7 +385,7 @@
       evs.forEach(function (x, i) {
         var e = x.e, nd = vw.nodes.filter(function (n) { return n.id === e.subject; })[0];
         var cur = x.step === S.pos;
-        var tr = h('tr', { class: 'ev' + (cur ? ' current' : ''), 'aria-current': cur ? 'step' : null, onclick: function () { S.goto(x.step); } });
+        var tr = h('tr', { class: 'ev' + (cur ? ' current' : '') + (cur && freshRows ? ' fresh' : ''), 'aria-current': cur ? 'step' : null, onclick: function () { S.goto(x.step); } });
         var tds = {
           '#': h('td', { class: 'c-#', 'data-label': ADE.t('app.col.n') }, h('button', { type: 'button', 'data-fk': 'row-' + i, class: 'rowbtn', 'aria-label': ADE.t('app.gotoStep', { n: x.step }), onclick: function (ev) { ev.stopPropagation(); S.goto(x.step); } }, (cur ? '▶ ' : '') + ADE.num(i + 1))),
           t: h('td', { class: 'c-t', 'data-label': ADE.t('app.col.t'), text: e.t === undefined ? '—' : ADE.num(e.t) }),
@@ -407,11 +409,14 @@
     }
     all(false);
 
-    var lastPos = S.pos;
+    var lastPos = S.pos, freshRows = false;
     offs.push(S.on(function (e) {
       if (e.type === 'play' || e.type === 'pause' || e.type === 'speed') { bar.update(); return; }
       if (e.type === 'replay') { refreshCanvas(true); return; }
       if (e.type === 'frame') { bar.update(); return; }
+      // chuyển cảnh theo hướng: tới → panel trượt từ phải, lùi → từ trái (CSS; reduced-motion tắt hết)
+      var dir = disc && S.pos !== lastPos ? (S.pos > lastPos ? 'fwd' : 'back') : '';
+      sideBody.setAttribute('data-dir', dir); freshRows = !!dir;
       ui.withFocus(function () {
         renderMetrics(); renderSide(); renderLog(); refreshCanvas(); bar.update();
         if (e.type === 'act' || e.type === 'reset') renderSandbox();

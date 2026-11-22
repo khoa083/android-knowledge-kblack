@@ -55,6 +55,18 @@
   function href(p) { return '#/' + ADE.lang + '/' + (p || ''); }
   function setTitle(s) { document.title = ADE.stripSentinel((s ? s + ' · ' : '') + ADE.t('app.name')); }
   function para(str, cls) { return h('p', { class: cls || 'prose', html: ADE.markup(str) }); }
+  /* chuyển cảnh: mục nội dung hiện dần (trượt lên + rõ dần) khi cuộn tới. Chỉ bật khi không giảm chuyển động;
+     không có IntersectionObserver hoặc reduced-motion thì mọi thứ hiện ngay. */
+  function reveal(scope) {
+    if (ADE.motionReduced() || !window.IntersectionObserver) return;
+    var items = [].slice.call(scope.querySelectorAll('.panel.sec, .panel.quiz, .bridges, .ch-nav'));
+    if (!items.length) return;
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    items.forEach(function (el) { el.classList.add('rv'); io.observe(el); });
+    window.addEventListener('beforeprint', function () { items.forEach(function (el) { el.classList.add('in'); }); }, { once: true });
+  }
   function lines(key, cls) { return ADE.t(key).split('\n').map(function (l) { return para(l, cls); }); }
   /* khối nội dung v2 trong một mục: key `<mục>.b.<n>.<trường>`; trường quyết định loại khối (docs/core-api.md §2.1) */
   function block(k) {
@@ -594,6 +606,7 @@
       });
       wrap.appendChild(h('section', { class: 'bridges' }, h('h2', { class: 'caps sec-h', text: ADE.t('app.bridges') }), bl));
     }
+    reveal(wrap);
     // 6. chương trước / sau
     var prev = t.chapters[i - 1], next = t.chapters[i + 1];
     wrap.appendChild(h('nav', { class: 'ch-nav', 'aria-label': ADE.t('app.chapterNav') },

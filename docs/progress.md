@@ -199,4 +199,10 @@ Trạng thái: `chưa / đang / xong`.
   - sim mới `coroutines.sm` (state machine, 3 tình huống), đặt sau mục "value";
   - thêm 2 nguồn; URL đã kiểm (200).
 - **Phần 1 của Coroutines v2 (U1–U4) xong.** Tiếp theo là Phần 2: viết sâu lại A1–A9 theo các chương Deep Dive tr. 65–233.
+- **Chuyển cảnh và chuyển động (2026-11-22, theo phản hồi người dùng "không thấy animation, thiếu sinh động"):**
+  - nguyên nhân: quy tắc cũ "chuyển động chỉ để giải thích, không trang trí" nên chỉ có vài hiệu ứng nhỏ trong sơ đồ; cài đặt animation của Windows ở mặc định (bật);
+  - đã thêm vào lõi: vào trang (trượt lên lần lượt), mục chương hiện dần khi cuộn, panel trượt theo hướng khi đổi bước, chỉ số đổi thì nháy, dòng log mới trượt vào, ô mở trượt xuống, nút có phản hồi, thẻ sơ đồ bật rõ hơn;
+  - quy tắc mới ở `docs/design-principles.md` §5.1;
+  - reduced-motion tắt hết, đã kiểm bằng `--reduce` (rv=0, animation none);
+  - chưa xem bằng mắt trên trình duyệt thật (headless chỉ kiểm class/animationName).
 

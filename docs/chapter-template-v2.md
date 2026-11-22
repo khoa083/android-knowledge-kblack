@@ -54,7 +54,8 @@
   - có chú giải.
 - **Chuyển động:**
   - mỗi bước chỉ một chuyển động chính, cộng tối đa một tín hiệu phụ;
-  - tắt chuyển động vẫn hiểu được.
+  - tắt chuyển động vẫn hiểu được;
+  - chuyển cảnh trang/bước/chỉ số/log do lõi lo, xem `docs/design-principles.md` §5.1. Sim mới phải dùng `movingSignals` hoặc `nodeStates` thay đổi giữa các bước để sơ đồ có chuyển động thật, không chỉ đổi chữ.
 
 ## Nguồn nghiên cứu về cách học
 
