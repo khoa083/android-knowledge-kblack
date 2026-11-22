@@ -128,4 +128,18 @@
       { vi: '// transition.currentState chỉ đổi khi MỌI con xong; transition.isRunning', en: '// transition.currentState only changes when EVERY child is done; transition.isRunning' }
     ]);
   });
+  [['exit_builtin', '    Card { Text("Banner") }', '    // (không có animation tùy biến)', '    // (no custom animation)'],
+   ['exit_custom', '    val bg by transition.animateColor(transitionSpec = { tween(500) }, label = "bg") {', '        if (it == EnterExitState.Visible) Teal else Gray }   // thuộc transition: được chờ', '        if (it == EnterExitState.Visible) Teal else Gray }   // part of the transition: waited for'],
+   ['exit_outside', '    val scale by animateFloatAsState(if (visible) 1f else 0.5f, tween(500))', '    // ✗ KHÔNG thuộc transition: không ai chờ', '    // ✗ NOT part of the transition: nobody waits']
+  ].forEach(function (c) {
+    add(c[0], [
+      'AnimatedVisibility(',
+      '    visible = visible,',
+      '    exit = fadeOut() + shrinkOut()',
+      ') {',
+      c[1],
+      { vi: c[2], en: c[3] },
+      '}'
+    ]);
+  });
 })();

@@ -53,6 +53,13 @@
     edges: [E('e0', 'state', 'transition'), E('e1', 'transition', 'alpha'), E('e2', 'transition', 'color'), E('e3', 'transition', 'height')],
     metrics: [T('segment', 'running'), T('segment', 'ms')]
   });
+  /* C4 (v2): cờ visible → AnimatedVisibility → nội dung trong composition → bị gỡ. */
+  V('exitlife', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('exitlife', 'flag', 0, 0, 'target', 'state'), N('exitlife', 'av', 4, 0, 'motion', 'anim'), N('exitlife', 'content', 8, -2, 'square', 'ui'), N('exitlife', 'gone', 8, 3, 'remove', 'runtime')],
+    edges: [E('e1', 'flag', 'av'), E('e2', 'av', 'content'), E('e3', 'av', 'gone')],
+    metrics: [T('exitlife', 'ms'), T('exitlife', 'inComp')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

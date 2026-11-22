@@ -472,3 +472,8 @@ Trạng thái: `chưa / đang / xong`.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ sạch; đã xem ảnh sim.
   - **Tiếp theo:** c4 (AnimatedVisibility, animateEnterExit, AnimatedContent, Crossfade; Kunneth Ch.8, Essentials Ch.39, AAT Ch.10, `AnimatedVisibility.kt`, `AnimatedContent.kt`), rồi c5, if, c6, se, cv, vm, c7, c8, c0 theo `roadmap-v2.md`.
   - **Còn nợ (Animation):** goal g1 của c1/c2/c3 ở bước 2 chỉ đúng với tab sim mới; tab lab (compute) không có bước nên goal đó chỉ đạt qua tab đầu.
+- **Animation v2 · C4 viết lại (2026-11-23):**
+  - Nội dung (`animation_v2_c4.py`, giữ mục v1 `vis` và sim `animation.visibility`): ẩn không phải gỡ ngay (KDoc ở commit ghim: chờ mọi animation enter/exit, gỡ và dispose sau exit, kết hợp chạy cùng lúc), animateEnterExit và auto-start (Essentials Ch.39), AnimatedContent/Crossfade và luật dùng tham số lambda; 2 bug, 1 bài tập, tự trả lời, quiz thêm q3. Bản gọn hơn các chương trước vì hạn mức sắp hết.
+  - Sim mới `animation.exitlife` (hiệu ứng có sẵn, animation tùy biến trên transition, animateFloatAsState ngoài transition). Nguồn mới `an-av-src` (HTTP 200).
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ sạch; đã xem ảnh sim.
+  - **Tiếp theo:** c5 (animateContentSize, animateItem, layout vs graphicsLayer; Kunneth Ch.8, AAT Ch.10 và Ch.7, `AnimationModifier.kt`), rồi if, c6, se, cv, vm, c7, c8, c0. Có thể bổ sung sâu thêm cho c4 (AnimatedContent: ContentTransform, SizeTransform, z-order; `AnimatedContent.kt`).

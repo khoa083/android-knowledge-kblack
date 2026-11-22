@@ -418,4 +418,58 @@
       } }]
     });
   })();
+  /* ================= C4 (v2): khi nào nội dung rời composition (AnimatedVisibility.kt @296313a4) =================
+     builtin: visible → false: fadeOut + shrinkOut chạy (300 ms minh họa); nội dung còn trong composition tới khi xong rồi bị gỡ.
+     custom: thêm animation tùy biến trên transition của AnimatedVisibilityScope (500 ms) → AnimatedVisibility chờ cả nó rồi mới gỡ.
+     outside: animateFloatAsState trong content (500 ms) KHÔNG thuộc Transition → nội dung bị gỡ ở 300 ms, animation đó bị cắt. */
+  (function () {
+    var m = 'exitlife';
+    var SC = ['builtin', 'custom', 'outside'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'builtin', out = [], ms = 0, inComp = 'true', vis = 'true', run = '—';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {};
+        o.metrics = { ms: ms, inComp: inComp === 'true' ? 1 : 0 };
+        o.stateAfter = [{ labelKey: M(m, 'st.visible'), value: vis }, { labelKey: M(m, 'st.inComp'), value: inComp }, { labelKey: M(m, 'st.running'), value: run }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'exit_' + sc, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: ms, kind: o.kind || 'frame', subject: o.activeNodes[o.activeNodes.length - 1] || 'content', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['flag', 'av', 'content'], lines: [1, 2], kind: 'observe' });
+      vis = 'false'; run = sc === 'builtin' ? 'fadeOut + shrinkOut' : sc === 'custom' ? 'fadeOut + shrinkOut + custom' : 'fadeOut + shrinkOut | animateFloatAsState';
+      P('hide', { activeNodes: ['flag', 'av', 'content'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'anim' }], lines: [1, 3], kind: 'target-change', callouts: [{ kind: 'source', textKey: M(m, 'co.stillThere') }] });
+      ms = 150;
+      P('mid', { activeNodes: ['av', 'content'], movingSignals: [{ edge: 'e2', tok: 'anim' }], lines: [3], kind: 'frame' });
+      ms = 300;
+      if (sc === 'custom') {
+        run = 'custom';
+        P('waitCustom', { activeNodes: ['av', 'content'], movingSignals: [{ edge: 'e2', tok: 'anim' }], lines: [5, 6], kind: 'frame', callouts: [{ kind: 'source', textKey: M(m, 'co.waitAll') }] });
+        ms = 500;
+      }
+      if (sc === 'outside') {
+        inComp = 'false'; run = '—';
+        P('cut', { type: 'pitfall', activeNodes: ['av', 'gone'], movingSignals: [{ edge: 'e3', tok: 'error' }], lines: [5, 6], kind: 'interrupt', callouts: [{ kind: 'pitfall', textKey: M(m, 'co.outside') }] });
+      } else {
+        inComp = 'false'; run = '—';
+        P('removed', { activeNodes: ['av', 'gone'], movingSignals: [{ edge: 'e3', tok: 'runtime' }], lines: [3], kind: 'settle' });
+      }
+      P('end.' + sc, { type: sc === 'outside' ? 'pitfall' : 'mechanism', activeNodes: ['gone'], lines: [], kind: 'settle', callouts: [{ kind: sc === 'outside' ? 'pitfall' : 'mechanism', textKey: M(m, 'co.end.' + sc) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'exit_builtin',
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'builtin' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'nội dung còn trong composition suốt exit; built-in: gỡ ở 300 ms; custom (500 ms) thuộc transition: gỡ ở 500 ms; animation ngoài transition: nội dung bị gỡ ở 300 ms dù animation đó chưa xong', run: function () {
+        var last = function (w) { var x = steps({ which: w }); return x[x.length - 2]; };
+        var mid = steps({ which: 'builtin' })[2];
+        return mid.stateAfter[1].value === 'true' && last('builtin').metrics.ms === 300 && last('custom').metrics.ms === 500 && last('outside').metrics.ms === 300 && last('outside').type === 'pitfall';
+      } }]
+    });
+  })();
 })();

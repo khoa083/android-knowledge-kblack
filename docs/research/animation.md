@@ -112,3 +112,13 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 | JoinButton bốn thuộc tính, updateTransition + animateColor(tween(600)) | Tutorials Ch.12 | Ví dụ của sách |
 | borderWidth/degrees; isRunning, segment, currentState | Kunneth Ch.8 | Ví dụ của sách |
 | Sim `animation.segment`: currentState đổi ở 400 ms; đổi ý thì không bao giờ là Expanded; Mutable chạy ngay | Theo KDoc | selfCheck; mốc thời gian minh họa |
+
+### C4 v2 · AnimatedVisibility, AnimatedContent (2026-11-23)
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Mặc định fadeIn+expandIn / fadeOut+shrinkOut; kết hợp bằng + chạy cùng lúc; chờ mọi animation enter/exit (kể cả tùy biến trên scope.transition); gỡ và dispose sau exit; Layout riêng lấy kích thước lớn nhất; Row/Column có mặc định riêng; MutableTransitionState để làm việc sau exit | `an-av-src` (@296313a4) | impl |
+| Animation ngoài Transition không được theo dõi; AnimatedContent phải dùng tham số lambda | `an-composables` | stable |
+| AnimatedVisibility, slide, Crossfade | Kunneth Ch.8 | Ví dụ của sách |
+| animateEnterExit cho con, auto-start | Essentials Ch.39 | Ví dụ của sách |
+| Sim `animation.exitlife`: gỡ ở 300 / 500 ms; bản "outside" bị cắt ở 300 ms | Theo KDoc và tài liệu | selfCheck; mốc minh họa |
