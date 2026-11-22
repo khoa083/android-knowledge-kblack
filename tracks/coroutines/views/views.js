@@ -160,6 +160,39 @@
     scopeKey: K + 'm.jobstate.col.state'
   });
 
+  /* CH: producer, buffer của channel, consumer theo thời gian (ms của mã). Thanh "buffer" ghi số phần tử đang nằm trong channel. */
+  V('chan', {
+    layout: 'lanes',
+    nodes: [N('chan', 'prod', 0, 0, 'job', 'coroutine'), N('chan', 'chan', 4, 0, 'queue', 'flow'), N('chan', 'cons', 8, 0, 'job', 'coroutine')],
+    edges: [], metrics: [TIME, { id: 'n', labelKey: K + 'm.chan.met.n' }, { id: 'sent', labelKey: K + 'm.chan.met.sent' }, { id: 'recv', labelKey: K + 'm.chan.met.recv' }, { id: 'dropped', labelKey: K + 'm.chan.met.dropped' }],
+    scopeKey: K + 'm.chan.col.mode',
+    barKeys: { run: K + 'm.chan.bar.run', wait: K + 'm.chan.bar.wait', ready: K + 'm.chan.bar.ready' },
+    lanes: function (events, step, opts) {
+      var c = clock(step, opts), L = new Lanes(opts.pos), cur = { prod: null, chan: null, cons: null };
+      var rows = [{ id: 'prod', labelKey: K + 'm.chan.n.prod', group: K + 'lanes.co' }, { id: 'chan', labelKey: K + 'm.chan.n.chan', group: K + 'm.chan.lanes.ch' }, { id: 'cons', labelKey: K + 'm.chan.n.cons', group: K + 'lanes.co' }];
+      var LB = function (k) { return ADE.t(K + 'm.chan.lbl.' + k); };
+      events.forEach(function (x) {
+        var e = x.e, P = e.params || {}, t0 = e.t;
+        var want = {
+          prod: P.p === 'suspended' ? ['wait', LB('suspended')] : P.p === 'done' ? null : ['run', ''],
+          chan: P.n > 0 ? ['ready', String(P.n)] : null,
+          cons: P.c === 'waiting' ? ['wait', LB('waiting')] : P.c === 'delay' ? (t0 < 1000 && e.kind !== 'collect' ? ['run', LB('start')] : ['run', LB('process')]) : null
+        };
+        ['prod', 'chan', 'cons'].forEach(function (row) {
+          var w = want[row], sig = w ? w.join('|') : '';
+          if (sig === cur[row]) return;
+          cur[row] = sig;
+          if (w) L.start(row, t0, w[0], w[1], x.step); else L.end(row, t0);
+        });
+        if (e.kind === 'collect') L.mark('cons', t0, String(P.v), x.step);
+        if (e.kind === 'skip') L.mark('chan', t0, '✕' + P.v, x.step);
+        if (e.kind === 'complete' && e.subject === 'prod') L.mark('prod', t0, 'close', x.step);
+      });
+      L.finish(c.now);
+      return { rows: rows, bars: L.bars, marks: L.marks, tMax: Math.max(c.tMax, 1000), now: c.now, axisKey: K + 'm.chan.axis' };
+    }
+  });
+
   V('jobtree', {
     layout: 'tree',
     nodes: [N('jobtree', 'root', -2, -2, 'job', 'job'), N('jobtree', 'c1', 0, 4, 'job', 'coroutine'), N('jobtree', 'c2', 2, 2, 'job', 'coroutine'), N('jobtree', 'c3', 4, 0, 'job', 'coroutine'), N('jobtree', 'g', 6, 6, 'job', 'coroutine')],

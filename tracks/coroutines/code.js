@@ -90,6 +90,22 @@
     { vi: 'parent.cancel()                    // → Cancelling → Cancelled', en: 'parent.cancel()                    // → Cancelling → Cancelled' },
     { vi: 'parent.join()                      // chờ trạng thái cuối', en: 'parent.join()                      // wait for a final state' }
   ]);
+  add('chanCap', [
+    'suspend fun main(): Unit = coroutineScope {',
+    { vi: '    val channel = produce(capacity = CAP) {   // CAP: RENDEZVOUS | 3 | UNLIMITED | CONFLATED | (2, DROP_OLDEST)', en: '    val channel = produce(capacity = CAP) {   // CAP: RENDEZVOUS | 3 | UNLIMITED | CONFLATED | (2, DROP_OLDEST)' },
+    '        repeat(5) { index ->',
+    '            send(index * 2)',
+    '            delay(100)',
+    '            println("Sent")',
+    '        }',
+    { vi: '    }                                          // produce đóng channel khi khối kết thúc', en: '    }                                          // produce closes the channel when the block ends' },
+    '    delay(1000)',
+    '    for (element in channel) {',
+    '        println(element)',
+    '        delay(1000)',
+    '    }',
+    '}'
+  ]);
   add('full', [
     'Button(onClick = { viewModel.load() })',
     '',

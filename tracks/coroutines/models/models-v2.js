@@ -285,4 +285,83 @@
       ]
     });
   })();
+
+  /* ================= CH: Channel và sức chứa (theo chương "Channel" của Deep Dive) =================
+     Producer: repeat(5) { send(index * 2); delay(100); println("Sent") } rồi đóng (produce). Consumer: delay(1000); với mỗi phần tử: println; delay(1000).
+     mode: rendezvous (0) | buffered (3) | unlimited | conflated (1, thay phần tử cũ) | dropOldest (2, bỏ phần tử cũ nhất).
+     Mô phỏng sự kiện rời rạc theo ms (thời gian của mã, minh hoạ); thứ tự xử lý trong cùng một mốc: producer trước, consumer sau. */
+  (function () {
+    var m = 'chan';
+    var CAP = { rendezvous: 0, buffered: 3, unlimited: 1e9, conflated: 1, dropOldest: 2 };
+    function simulate(mode) {
+      var cap = CAP[mode], buf = [], ev = [], t = 0, closed = false, sent = 0, recv = 0, dropped = 0;
+      var P = { i: 0, at: 0, st: 'ready', pending: null }, Cn = { at: 1000, st: 'delay' };
+      var E = function (kind, who, key, v) { ev.push({ t: t, kind: kind, who: who, key: key, v: v, n: buf.length, p: P.st, c: Cn.st, sent: sent, recv: recv, dropped: dropped }); };
+      var got = function (v) { recv++; Cn.st = 'delay'; Cn.at = t + 1000; E('collect', 'cons', 'got', v); };
+      var trySend = function (v) {
+        if (Cn.st === 'waiting' && buf.length === 0) { sent++; P.st = 'delay'; P.at = t + 100; got(v); return; }
+        if (mode === 'conflated' && buf.length >= 1) { dropped++; E('skip', 'chan', 'replaced', buf[0]); buf = []; }
+        if (mode === 'dropOldest' && buf.length >= cap) { dropped++; E('skip', 'chan', 'droppedOld', buf.shift()); }
+        if (buf.length < cap) { buf.push(v); sent++; P.st = 'delay'; P.at = t + 100; E('emit', 'prod', 'buffered', v); }
+        else { P.st = 'suspended'; P.pending = v; E('suspend', 'prod', 'full', v); }
+      };
+      var tryReceive = function () {
+        if (buf.length) {
+          var v = buf.shift(); got(v);
+          if (P.st === 'suspended') { buf.push(P.pending); sent++; var pv = P.pending; P.st = 'delay'; P.at = t + 100; E('resume', 'prod', 'resumed', pv); }
+          return;
+        }
+        if (P.st === 'suspended') { var w = P.pending; sent++; P.st = 'delay'; P.at = t + 100; E('resume', 'prod', 'handover', w); got(w); return; }
+        if (closed) { Cn.st = 'done'; E('complete', 'cons', 'end'); return; }
+        E('run', 'cons', 'waiting');
+      };
+      for (var guard = 0; guard < 400; guard++) {
+        var times = [];
+        if (P.st === 'ready' || P.st === 'delay') times.push(P.at);
+        if (Cn.st === 'delay') times.push(Cn.at);
+        if (!times.length) break;
+        t = Math.min.apply(null, times);
+        if (P.st === 'delay' && P.at === t) {
+          E('run', 'prod', 'sentLine'); P.i++;
+          if (P.i >= 5) { P.st = 'done'; closed = true; E('complete', 'prod', 'closed'); if (Cn.st === 'waiting' && !buf.length) { Cn.st = 'done'; E('complete', 'cons', 'end'); } }
+          else P.st = 'ready';
+        }
+        if (P.st === 'ready' && P.at <= t) trySend(P.i * 2);
+        if (Cn.st === 'delay' && Cn.at === t) { Cn.st = 'waiting'; tryReceive(); }
+      }
+      return ev;
+    }
+    var LINES = { buffered: [4], full: [4], resumed: [4], handover: [4], sentLine: [6], closed: [8], got: [10, 11], waiting: [10], end: [10], replaced: [2, 4], droppedOld: [2, 4] };
+    function steps(s) {
+      return simulate(s.mode).map(function (e, i) {
+        var co = null;
+        if (e.key === 'full') co = ['mechanism', s.mode === 'rendezvous' ? 'rendezvous' : 'full'];
+        if (e.key === 'replaced') co = ['pitfall', 'conflated'];
+        if (e.key === 'droppedOld') co = ['pitfall', 'dropOldest'];
+        if (e.key === 'closed') co = ['mechanism', 'produce'];
+        return step({ id: e.key + i, type: e.kind === 'skip' ? 'pitfall' : 'mechanism', titleKey: M(m, 's.' + e.key + '.title'), explainKey: M(m, 's.' + e.key + '.explain'), params: { v: e.v, n: e.n, t: e.t },
+          activeNodes: [e.who], nodeStates: {}, metrics: { time: e.t, n: e.n, sent: e.sent, recv: e.recv, dropped: e.dropped },
+          codeHighlight: { snippet: 'chanCap', lines: LINES[e.key] || [] }, callouts: co ? [{ kind: co[0], textKey: M(m, 'co.' + co[1]) }] : [],
+          logEvents: [{ t: e.t, kind: e.kind, subject: e.who, scope: M(m, 'scope.' + s.mode), detailKey: M(m, 'ev.' + e.key), params: { v: e.v, n: e.n, p: e.p, c: e.c } }] });
+      });
+    }
+    ADE.registerModel('coroutines.chan', {
+      kind: 'discrete', titleKey: M(m, 'title'), overviewKey: M(m, 'overview'), wrapupKey: M(m, 'wrapup'), codeId: 'chanCap',
+      simplificationKeys: [M(m, 'simp.1'), K + 'simp.time'], controlsHintKey: M(m, 'ctl.hint'),
+      controls: [{ id: 'mode', type: 'select', labelKey: M(m, 'ctl.mode'), get: function (s) { return s.mode; }, action: 'mode',
+        options: ['rendezvous', 'buffered', 'unlimited', 'conflated', 'dropOldest'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.mode.' + v) }; }) }],
+      init: function () { return { mode: 'rendezvous' }; },
+      act: function (s, a, v) { return { mode: CAP[v] !== undefined ? v : 'rendezvous' }; },
+      steps: steps,
+      selfChecks: [
+        { name: 'nhận đúng theo sách: rendezvous 0,2,4,6,8; conflated chỉ 8; dropOldest 6,8; buffered có 3 lần Sent trước khi nhận 0', run: function () {
+          var got = function (mode) { return simulate(mode).filter(function (e) { return e.key === 'got'; }).map(function (e) { return e.v; }).join(','); };
+          var b = simulate('buffered'), firstGot = 0, sentBefore = 0;
+          b.some(function (e, i) { if (e.key === 'got') { firstGot = i; return true; } return false; });
+          b.slice(0, firstGot).forEach(function (e) { if (e.key === 'sentLine') sentBefore++; });
+          return got('rendezvous') === '0,2,4,6,8' && got('unlimited') === '0,2,4,6,8' && got('conflated') === '8' && got('dropOldest') === '6,8' && sentBefore === 3;
+        } }
+      ]
+    });
+  })();
 })();

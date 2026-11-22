@@ -259,3 +259,5 @@ Trạng thái: `chưa / đang / xong`.
 - **Kiểm:** report 0 lỗi; track-check không thêm vấn đề; routes-check 103 route, 0 vấn đề.
 - **PHẦN 2 HOÀN TẤT.** Tiếp theo là Phần 3 (Deep Dive tr. 234–375: Channel, Select, Hot/cold, Flow intro, Understanding Flow, Flow building, Flow lifecycle, Flow processing, SharedFlow/StateFlow, Testing flow) → viết sâu A7 (có thể tách thành nhiều chương: Channel, Flow cơ bản, toán tử, SharedFlow/StateFlow). Sau đó Phần 4 (tr. 376–449) → A8.
 
+
+- **CH "Channel và select" (chương mới, 2026-11-22):** đọc Deep Dive tr. 235–262; sim mới `coroutines.chan` (5 loại sức chứa, kết quả khớp output của sách, selfCheck đạt); 3 nguồn API; 3 bug, 2 bài tập. Report 0 lỗi.
