@@ -28,7 +28,8 @@ ADE.registerTrack({
     { id: 'fp', titleKey: 'track.coroutines.fp.title', sims: ['coroutines.flatmap', 'coroutines.combine'], simAfter: 'flatmap', bridges: [], goals: [{ id: 'g1', step: 5 }, { id: 'g2', step: 'end' }] },   // v2 (Deep Dive "Flow processing")
     { id: 'a7', titleKey: 'track.coroutines.a7.title', sims: ['coroutines.sharein', 'coroutines.hotcold', 'coroutines.flowpipe'], simAfter: 'sharein', bridges: [], goals: [{ id: 'g1', step: 5 }, { id: 'g2', step: 'end' }] },   // v2 (Deep Dive "SharedFlow and StateFlow")
     { id: 'a8', titleKey: 'track.coroutines.a8.title', sims: ['coroutines.lifecycle', 'coroutines.effects'], simAfter: 'scopes', bridges: ['X2'], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
-    { id: 'a9', titleKey: 'track.coroutines.a9.title', sims: ['coroutines.race', 'coroutines.vtime'], simAfter: 'lost', bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] }
+    { id: 'a9', titleKey: 'track.coroutines.a9.title', sims: ['coroutines.race', 'coroutines.vtime'], simAfter: 'lost', bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
+    { id: 'pr', titleKey: 'track.coroutines.pr.title', sims: ['coroutines.launchsusp'], simAfter: 'launchsusp', bridges: [], goals: [{ id: 'g1', step: 5 }, { id: 'g2', step: 'end' }] },   // v2 (Deep Dive Phần 4: use cases, recipes, Java, launching vs suspending, best practices)
   ],
   presets: [
     { id: 'coroutines-full-example', model: 'coroutines.full', titleKey: 'track.coroutines.preset.full' },

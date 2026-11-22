@@ -724,4 +724,75 @@
       ]
     });
   })();
+
+  /* ================= PR: hàm thường launch trên scope ngoài, hay hàm suspend (Deep Dive "Launching coroutines vs. suspending functions") =================
+     sendNotifications(n1, n2, n3); gửi mất 1000 / 2000 / 1500 ms (giả định). mode: scope (notificationScope có SupervisorJob) | susp (supervisorScope).
+     ev: none | fail (n2 ném lỗi ở 800 ms) | cancel (coroutine của người gọi bị hủy ở 1200 ms).
+     params.st: c (người gọi) ∈ run | wait | cancel | done; n1..n3 ∈ run | done | fail | cancel. */
+  (function () {
+    var m = 'launchsusp';
+    function events(mode, evt) {
+      var ev = [], st = { c: mode === 'scope' ? 'run' : 'wait', n1: 'run', n2: 'run', n3: 'run' }, alive = { n1: 1, n2: 1, n3: 1 }, nDone = 0, nLost = 0, back = mode === 'scope' ? 0 : -1;
+      var E = function (t, key, o) { o = o || {}; ev.push({ t: t, key: key, n: o.n, st: JSON.parse(JSON.stringify(st)), mk: o.mk || [], done: nDone, lost: nLost, back: back }); };
+      E(0, mode === 'scope' ? 'callScope' : 'callSusp');
+      var plan = [{ t: 1000, k: 'done', n: 'n1' }, { t: 1500, k: 'done', n: 'n3' }, evt === 'fail' ? { t: 800, k: 'fail', n: 'n2' } : { t: 2000, k: 'done', n: 'n2' }];
+      if (evt === 'cancel') plan.push({ t: 1200, k: 'cancel' });
+      plan.sort(function (x, y) { return x.t - y.t; });
+      var last = 0;
+      plan.forEach(function (p) {
+        if (p.n && !alive[p.n]) return;
+        last = p.t;
+        if (p.k === 'done') { delete alive[p.n]; st[p.n] = 'done'; nDone++; E(p.t, 'done', { n: p.n, mk: [[p.n, '✓']] }); }
+        else if (p.k === 'fail') { delete alive[p.n]; st[p.n] = 'fail'; nLost++; E(p.t, mode === 'scope' ? 'failScope' : 'failSusp', { n: p.n, mk: [[p.n, '✕']] }); }
+        else {
+          st.c = 'cancel';
+          if (mode === 'scope') E(p.t, 'cancelScope', { mk: [['c', '⊘']] });
+          else { var mk = [['c', '⊘']]; Object.keys(alive).forEach(function (n) { st[n] = 'cancel'; nLost++; mk.push([n, '⊘']); }); alive = {}; E(p.t, 'cancelSusp', { mk: mk }); }
+        }
+        if (mode === 'susp' && st.c === 'wait' && !Object.keys(alive).length) { st.c = 'run'; back = p.t; E(p.t, 'resume', { mk: [['c', '→']] }); }
+      });
+      E(last, 'end');
+      return ev;
+    }
+    var LINES = { scope: { callScope: [10, 5, 6], done: [6], failScope: [6], cancelScope: [10], end: [] },
+      susp: { callSusp: [10, 4, 5], done: [5], failSusp: [4, 5], cancelSusp: [10, 4], resume: [10], end: [] } };
+    function steps(s) {
+      return events(s.mode, s.ev).map(function (e, i) {
+        var co = null;
+        if (e.key === 'callScope') co = ['mechanism', 'scopeReturns'];
+        if (e.key === 'callSusp') co = ['mechanism', 'suspWaits'];
+        if (e.key === 'failScope') co = ['pitfall', 'failScope'];
+        if (e.key === 'failSusp') co = ['mechanism', 'failSusp'];
+        if (e.key === 'cancelScope') co = ['pitfall', 'cancelScope'];
+        if (e.key === 'cancelSusp') co = ['mechanism', 'cancelSusp'];
+        var who = e.n || 'c';
+        return step({ id: e.key + i, type: /fail|cancel/.test(e.key) ? 'pitfall' : 'mechanism', titleKey: M(m, 's.' + e.key + '.title'), explainKey: M(m, 's.' + e.key + '.explain'),
+          params: { n: e.n ? e.n.slice(1) : null, t: e.t }, activeNodes: [who], nodeStates: {}, metrics: { time: e.t, done: e.done, lost: e.lost, back: e.back },
+          codeHighlight: { snippet: s.mode === 'scope' ? 'lsScope' : 'lsSusp', lines: LINES[s.mode][e.key] || [] },
+          callouts: co ? [{ kind: co[0], textKey: M(m, 'co.' + co[1]) }] : [],
+          logEvents: [{ t: e.t, kind: { callScope: 'launch', callSusp: 'suspend', done: 'complete', failScope: 'exception', failSusp: 'exception', cancelScope: 'cancel', cancelSusp: 'cancel', resume: 'resume', end: 'complete' }[e.key],
+            subject: who, scope: M(m, 'scope.' + s.mode), detailKey: M(m, 'ev.' + e.key), params: { n: e.n ? e.n.slice(1) : null, st: e.st, mk: e.mk.slice() } }] });
+      });
+    }
+    ADE.registerModel('coroutines.launchsusp', {
+      kind: 'discrete', titleKey: M(m, 'title'), overviewKey: M(m, 'overview'), wrapupKey: M(m, 'wrapup'), codeId: 'lsSusp',
+      simplificationKeys: [M(m, 'simp.1'), K + 'simp.time'], controlsHintKey: M(m, 'ctl.hint'),
+      controls: [
+        { id: 'mode', type: 'select', labelKey: M(m, 'ctl.mode'), get: function (s) { return s.mode; }, action: 'mode', options: ['scope', 'susp'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.mode.' + v) }; }) },
+        { id: 'ev', type: 'select', labelKey: M(m, 'ctl.ev'), get: function (s) { return s.ev; }, action: 'ev', options: ['none', 'fail', 'cancel'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.ev.' + v) }; }) }],
+      init: function () { return { mode: 'susp', ev: 'none' }; },
+      act: function (s, a, v) {
+        if (a === 'mode') return { mode: v === 'scope' ? 'scope' : 'susp', ev: s.ev };
+        return { mode: s.mode, ev: ['none', 'fail', 'cancel'].indexOf(v) >= 0 ? v : 'none' };
+      },
+      steps: steps,
+      selfChecks: [
+        { name: 'scope: người gọi đi tiếp ở 0 ms và bị hủy không kéo theo việc gửi; suspend: chờ tới 2000 ms (1500 khi n2 lỗi), bị hủy ở 1200 thì hủy n2, n3', run: function () {
+          var last = function (mo, e) { var a = events(mo, e); return a[a.length - 1]; };
+          return last('scope', 'none').back === 0 && last('scope', 'cancel').done === 3 && last('susp', 'none').back === 2000 &&
+            last('susp', 'fail').back === 1500 && last('susp', 'cancel').lost === 2 && last('susp', 'cancel').done === 1;
+        } }
+      ]
+    });
+  })();
 })();

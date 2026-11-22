@@ -397,3 +397,19 @@ Sách dùng `Lazily` cho ví dụ ViewModel; site trình bày cả hai và nói 
 | Test ViewModel bằng `MutableSharedFlow` làm nguồn | Deep Dive tr. PDF 374–375 | Ví dụ của sách |
 | Điều kiện ngầm của test ViewModel: thay Main, người collect phải đăng ký trước `emit` (replay 0) | `kx-mutablesharedflow` (tryEmit/emit khi không có người collect), mục `tmain` của A9 | **Bổ sung của site**, sách không nêu |
 | `debounce` phát ngay phần tử cuối khi nguồn hoàn tất bình thường | Mã `debounceInternal` (Delay.kt) | impl; dùng cho đáp án bài tập |
+
+### PR · Coroutines trong thực tế (viết 2026-11-22, chương mới cuối track)
+
+**Đã đọc:** Deep Dive Phần 4 (trang PDF 377–449), toàn văn: "Common use cases", "Recipes", "Using coroutines from other languages" (chỉ dùng phần Java/JVM theo `roadmap-v2.md`), "Launching coroutines vs. suspending functions", "Best practices". Đã kiểm 6 URL mới (`kx-suspendcancellable`, `kx-limitedparallelism`, `kx-future`, `kx-awaitall`, `and-coroutineworker`, `kt-recipes`: 200).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Ba tầng; Retrofit/Room; `suspendCancellableCoroutine` với 3 kiểu trả về; `withContext(IO)`; IO 64 luồng; `limitedParallelism` | Deep Dive tr. PDF 377–383; `kx-suspendcancellable`, `kx-dispatchers`, `kx-limitedparallelism` | Ví dụ của sách + API |
+| Domain: `coroutineScope`/`async`, `awaitAll`, `supervisorScope`, `withTimeoutOrNull`; Flow trong domain | Deep Dive tr. PDF 384–390 | Ví dụ của sách |
+| Trình bày: `CoroutineWorker`, scope tự tạo với SupervisorJob + handler, `runBlocking` chỉ cho main/test | Deep Dive tr. PDF 390–398; `and-coroutineworker` | Ví dụ của sách |
+| `launchOnStarted` của sách là hàm tự viết; tương đương AndroidX là `repeatOnLifecycle` | `and-co-lifecycle` | **Ghi chú của site** |
+| Recipes: mapAsync, suspendLazy, ConnectionPool, raceOf, retryWhen | Deep Dive tr. PDF 402–416; `kt-recipes` | Ví dụ của sách |
+| Lỗi in trong sách: `maxOf` thay vì `minOf` ở backoff; biến `attempt` không tồn tại; `retry` đơn giản bắt cả CancellationException; output `suspendLazy` in thừa một "(1 sec)" | Đối chiếu logic của chính đoạn mã | **Site đã sửa trong nội dung**, có ghi chú |
+| Java: `runBlocking` bọc chặn, `future { }`, gọi `BuildersKt.runBlocking` từ Java | Deep Dive tr. PDF 418–426; `kx-future` | Ví dụ của sách |
+| Launching vs suspending (chờ, lỗi, hủy, context); mẫu lai `eventsScope.launch` | Deep Dive tr. PDF 430–433 | Ví dụ của sách; sim `coroutines.launchsusp` (thời lượng giả định), selfCheck kiểm 6 tổ hợp |
+| Best practices (15 mục) | Deep Dive tr. PDF 434–449; `kx-awaitall` | Hướng dẫn của tác giả |

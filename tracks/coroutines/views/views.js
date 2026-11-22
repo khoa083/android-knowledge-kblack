@@ -265,6 +265,14 @@
     lanes: stLanes('sharein', ['up', 's1', 's2', 's3'], 'idle', true)
   });
 
+  V('launchsusp', {
+    layout: 'lanes',
+    nodes: [N('launchsusp', 'c', 0, 0, 'job', 'coroutine'), N('launchsusp', 'n1', 4, 0, 'queue', 'coroutine'), N('launchsusp', 'n2', 4, 2, 'queue', 'coroutine'), N('launchsusp', 'n3', 4, 4, 'queue', 'coroutine')],
+    edges: [], metrics: [TIME, { id: 'done', labelKey: K + 'm.launchsusp.met.done' }, { id: 'lost', labelKey: K + 'm.launchsusp.met.lost' }],
+    scopeKey: K + 'm.launchsusp.col', barKeys: { run: K + 'm.launchsusp.bar.run', wait: K + 'm.launchsusp.bar.wait' },
+    lanes: stLanes('launchsusp', ['c', 'n1', 'n2', 'n3'], 'waitKids', true)
+  });
+
   /* FB: producer (tải trang) và consumer (kiểm user) theo thời gian của mã. */
   V('paging', {
     layout: 'lanes',

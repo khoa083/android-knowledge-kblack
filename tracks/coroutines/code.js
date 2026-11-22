@@ -162,6 +162,30 @@
       '    .shareIn(scope, ' + SI[id] + ', replay = 1)', '',
       { vi: 'ticks.collect { render(it) }   // màn hình vào 1,2 s; xoay 3,6 s; vào lại 4,3 s; ra nền 6,6 s; quay lại 12,4 s', en: 'ticks.collect { render(it) }   // screen enters 1.2 s; rotates 3.6 s; re-enters 4.3 s; backgrounded 6.6 s; returns 12.4 s' }]);
   });
+  add('lsScope', [
+    'class NotificationsSender(',
+    '    private val client: NotificationsClient,',
+    '    private val notificationScope: CoroutineScope,   // CoroutineScope(SupervisorJob())',
+    ') {',
+    '    fun sendNotifications(notifications: List<Notification>) {',
+    '        for (n in notifications) notificationScope.launch { client.send(n) }',
+    '    }',
+    '}',
+    '',
+    { vi: 'viewModelScope.launch { sender.sendNotifications(listOf(n1, n2, n3)); println("Tiếp tục") }', en: 'viewModelScope.launch { sender.sendNotifications(listOf(n1, n2, n3)); println("Continue") }' }
+  ]);
+  add('lsSusp', [
+    'class NotificationsSender(',
+    '    private val client: NotificationsClient,',
+    ') {',
+    '    suspend fun sendNotifications(notifications: List<Notification>) = supervisorScope {',
+    '        for (n in notifications) launch { client.send(n) }',
+    '    }',
+    '}',
+    '',
+    '',
+    { vi: 'viewModelScope.launch { sender.sendNotifications(listOf(n1, n2, n3)); println("Tiếp tục") }', en: 'viewModelScope.launch { sender.sendNotifications(listOf(n1, n2, n3)); println("Continue") }' }
+  ]);
   add('full', [
     'Button(onClick = { viewModel.load() })',
     '',

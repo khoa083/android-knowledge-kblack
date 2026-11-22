@@ -309,3 +309,10 @@ Trạng thái: `chưa / đang / xong`.
 - **Kiểm:** report 0 lỗi; A9 ở 360px không cuộn ngang.
 - **Phần 3 của Coroutines v2 hoàn tất:** CH, FL, FB, FP, A7 (viết lại), kiểm thử flow trong A9.
 - **Tiếp theo:** Phần 4 (Deep Dive tr. PDF 376–449) → A8.
+- **PR "Coroutines trong thực tế" (chương mới, cuối track, 2026-11-22):**
+  - nội dung gồm: tầng dữ liệu (callback, hàm chặn, IO/limitedParallelism, Flow); tầng domain (song song, độc lập, timeout); tầng trình bày (CoroutineWorker, scope tự tạo, runBlocking, collect Flow); launch hay suspend; recipes (sửa 3 lỗi in trong sách); Java interop; 15 best practices có lý do; 3 bug, 2 bài tập, tự trả lời, quiz 3 câu;
+  - sim mới `coroutines.launchsusp`: 2 kiểu hàm × 3 sự cố, selfCheck.
+- **Sửa A9:** chú thích `app.cash.turbine` bị routes-check coi là lộ khoá; đổi thành "thư viện của Cash App".
+- **Kiểm:** report 0 lỗi; track-check (1280, 360) vẫn 4 vấn đề cũ; routes-check 108 route, 0 vấn đề.
+- **Coroutines v2 đã phủ toàn bộ sách Deep Dive (Phần 1–4).**
+- **Tiếp theo theo `roadmap-v2.md`:** Compose Runtime/Animation v2, rồi UX/UI v2, rồi các track mới. Với mỗi track mới, đọc mục lục thật trước rồi sửa dàn chương nháp.
