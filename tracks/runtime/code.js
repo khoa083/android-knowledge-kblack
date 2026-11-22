@@ -267,4 +267,19 @@
     '    }',
     '}'
   ]);
+  [['localsDyn', false], ['localsStatic', true]].forEach(function (c) {
+    add(c[0], [
+      c[1] ? 'val LocalColor = staticCompositionLocalOf { Peach }' : 'val LocalColor = compositionLocalOf { Peach }',
+      '@Composable fun C1() {',
+      '    var dark by remember { mutableStateOf(false) }',
+      '    Switch(checked = dark, onCheckedChange = { dark = it })',
+      '    C2()                                                   // C2 → C4 → C6',
+      '    CompositionLocalProvider(LocalColor provides if (dark) Brown else Peach) {',
+      '        C3()                                               // C3 → C5 → C7, C8',
+      '    }',
+      '}',
+      '@Composable fun C8() { Text("8", Modifier.background(LocalColor.current)) }',
+      { vi: '@Composable fun C6() { Text("6", Modifier.background(LocalColor.current)) }   // nhánh khác: giá trị mặc định', en: '@Composable fun C6() { Text("6", Modifier.background(LocalColor.current)) }   // other branch: the default' }
+    ]);
+  });
 })();

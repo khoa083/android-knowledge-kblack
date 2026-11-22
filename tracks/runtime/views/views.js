@@ -101,6 +101,14 @@
     edges: [E('e1', 'tap', 'composition'), E('e2', 'composition', 'remembered'), E('e3', 'remembered', 'job'), E('e4', 'composition', 'side'), E('e5', 'job', 'composition')],
     metrics: [T('effects', 'launched'), T('effects', 'cancelled'), T('effects', 'disposed'), T('effects', 'side')]
   });
+  /* CL (v2): cây composable của ví dụ Essentials Ch.21 với một CompositionLocalProvider. */
+  V('locals', {
+    layout: 'tree',
+    nodes: [N('locals', 'c1', 0, 2, 'layers', 'runtime'), N('locals', 'c2', 4, -2, 'square', 'runtime'), N('locals', 'c4', 8, -2, 'square', 'runtime'), N('locals', 'c6', 12, -2, 'square', 'ui'),
+      N('locals', 'prov', 4, 5, 'store', 'state'), N('locals', 'c3', 8, 5, 'square', 'ui'), N('locals', 'c5', 12, 5, 'square', 'runtime'), N('locals', 'c7', 16, 3, 'square', 'runtime'), N('locals', 'c8', 16, 7, 'square', 'ui')],
+    edges: [E('e0', 'c1', 'c2'), E('e0b', 'c2', 'c4'), E('e0c', 'c4', 'c6'), E('e1', 'c1', 'prov'), E('e2', 'prov', 'c3'), E('e3', 'c3', 'c5'), E('e4', 'c5', 'c7'), E('e5', 'c5', 'c8')],
+    metrics: [T('locals', 'recomposed'), T('locals', 'readers'), T('locals', 'provided')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

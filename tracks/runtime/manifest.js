@@ -16,6 +16,7 @@ ADE.registerTrack({
     { id: 'sh', titleKey: 'track.runtime.sh.title', sims: ['runtime.survive'], simAfter: 'survive', bridges: [], goals: [{ id: 'g1', step: 7 }, { id: 'g2', step: 'end' }] },   // v2 (Kunneth Ch.5, Tutorials Ch.7, Essentials Ch.20, state-hoisting, state-saving)
     { id: 'b5', titleKey: 'track.runtime.b5.title', sims: ['runtime.frame', 'runtime.recomposer'], simAfter: 'pause', bridges: ['X3'], goals: [{ id: 'g1', step: 4 }, { id: 'g2', step: 'end' }] },
     { id: 'ef', titleKey: 'track.runtime.ef.title', sims: ['runtime.effects'], simAfter: 'keys', bridges: [], goals: [{ id: 'g1', step: 5 }, { id: 'g2', step: 'end' }] },   // v2 (Kunneth Ch.7, Tutorials Ch.11, side-effects docs, Effects.kt @296313a4)
+    { id: 'cl', titleKey: 'track.runtime.cl.title', sims: ['runtime.locals'], simAfter: 'kinds', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },   // v2 (Essentials Ch.21–22, compositionlocal docs, CompositionLocal.kt @296313a4)
     { id: 'b6', titleKey: 'track.runtime.b6.title', sims: ['runtime.applier'], bridges: [], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'b7', titleKey: 'track.runtime.b7.title', sims: ['runtime.phases'], bridges: ['X1'], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'b8', titleKey: 'track.runtime.b8.title', sims: ['runtime.skip'], bridges: ['X2'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },

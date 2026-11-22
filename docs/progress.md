@@ -390,3 +390,8 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `runtime.effects` (bộ đếm Start/Restart/Stop; hẹn giờ có/không rememberUpdatedState). Nguồn mới `rt-effects-src`, `rt-remember-observer`.
   - **Kiểm:** report 0 lỗi, 121 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
   - **Tiếp theo:** cl (CompositionLocal), rồi b6, b7, lo, md, lz, b8, b9, pf, b10, b0 theo `roadmap-v2.md`.
+- **Runtime v2 · CL chương mới (2026-11-23):**
+  - Nội dung (`runtime_v2_cl.py`): vì sao có CompositionLocal (Essentials Ch.21), cung cấp và đọc, compositionLocalOf vs static (KDoc ở commit ghim; ghi rõ chỗ sách dùng static cho màu), khi nào nên/không, slot API (Essentials Ch.22); 2 bug, 2 bài tập, tự trả lời, quiz 4 câu.
+  - Sim mới `runtime.locals` (cây C1–C8, dynamic vs static). Nguồn mới `cp-compositionlocal`, `rt-local-src`.
+  - **Kiểm:** report 0 lỗi, 121 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim (sửa chú thích hướng cây).
+  - **Tiếp theo:** b6 (Composer ghi nhận, Applier áp dụng), rồi b7, lo, md, lz, b8, b9, pf, b10, b0.

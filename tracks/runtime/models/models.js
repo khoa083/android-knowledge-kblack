@@ -1062,4 +1062,55 @@
       } }]
     });
   })();
+
+  /* ================= CL (v2): CompositionLocal, đổi giá trị được cung cấp (CompositionLocal.kt @296313a4; compositionlocal docs) =================
+     Cây theo ví dụ Essentials Ch.21: C1 → C2 → C4 → C6; C1 → Provider(LocalColor) → C3 → C5 → (C7, C8). C3 và C8 đọc LocalColor.current; C6 đọc nhưng ở nhánh khác.
+     compositionLocalOf: đổi giá trị → chỉ nơi đọc .current bị invalidate. staticCompositionLocalOf: không theo dõi lần đọc → toàn bộ content của provider recompose. */
+  (function () {
+    var m = 'locals';
+    var CONTENT = ['c3', 'c5', 'c7', 'c8'], READERS = ['c3', 'c8'];
+    function steps(s) {
+      var stat = s.kind === 'static', out = [], t = 0, rec = 0, col = 'Peach';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {}; o.metrics = { recomposed: rec, readers: READERS.length, provided: col };
+        o.stateAfter = [{ labelKey: M(m, 'st.provided'), value: col }, { labelKey: M(m, 'st.c8'), value: col }, { labelKey: M(m, 'st.c6'), value: 'Peach' }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: stat ? 'localsStatic' : 'localsDyn', lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'observe', subject: o.activeNodes[o.activeNodes.length - 1] || 'c1', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('first', { type: 'scenario', activeNodes: ['c1', 'prov', 'c3', 'c8', 'c6'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'state' }], lines: [1, 6, 7, 10, 11], kind: 'recompose' });
+      col = 'Brown';
+      P('toggle', { activeNodes: ['c1', 'prov'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: [3, 4, 6], kind: 'write' });
+      if (stat) {
+        rec = CONTENT.length;
+        P('staticAll', { type: 'pitfall', activeNodes: ['prov'].concat(CONTENT), movingSignals: [{ edge: 'e2', tok: 'runtime' }, { edge: 'e3', tok: 'runtime' }, { edge: 'e4', tok: 'runtime' }, { edge: 'e5', tok: 'runtime' }], lines: [1, 6, 7], kind: 'recompose',
+          callouts: [{ kind: 'mechanism', textKey: M(m, 'co.static') }] });
+      } else {
+        rec = READERS.length;
+        P('dynReaders', { activeNodes: ['prov', 'c3', 'c8'], movingSignals: [{ edge: 'e2', tok: 'state' }, { edge: 'e5', tok: 'state' }], lines: [1, 10], kind: 'recompose',
+          callouts: [{ kind: 'mechanism', textKey: M(m, 'co.dynamic') }] });
+      }
+      P('other', { activeNodes: ['c2', 'c4', 'c6'], lines: [5, 11], kind: 'skip', skipped: [{ whatKey: M(m, 'sk.branch'), whyKey: M(m, 'sk.notInside') }] });
+      P('end.' + (stat ? 'static' : 'dynamic'), { activeNodes: stat ? CONTENT : READERS, lines: [], kind: 'observe', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.end.' + (stat ? 'static' : 'dynamic')) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'localsDyn',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'kind', type: 'select', labelKey: M(m, 'ctl.kind'), get: function (s) { return s.kind; }, action: 'kind', options: ['dynamic', 'static'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.kind.' + v) }; }) }
+      ],
+      init: function () { return { kind: 'dynamic' }; },
+      act: function (s, a, v) { return { kind: v === 'static' ? 'static' : 'dynamic' }; },
+      steps: steps,
+      selfChecks: [{ name: 'compositionLocalOf: đổi giá trị chỉ recompose 2 nơi đọc (C3, C8); staticCompositionLocalOf: recompose cả 4 composable trong content; C6 ở nhánh khác luôn thấy giá trị mặc định', run: function () {
+        var last = function (k) { var x = steps({ kind: k }); return x[x.length - 1]; };
+        var d = last('dynamic'), st = last('static');
+        return d.metrics.recomposed === 2 && st.metrics.recomposed === 4 && d.stateAfter[2].value === 'Peach' && d.stateAfter[1].value === 'Brown';
+      } }]
+    });
+  })();
 })();

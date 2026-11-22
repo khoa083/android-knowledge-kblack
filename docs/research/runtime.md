@@ -221,3 +221,21 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | LaunchedEffectDemo (Start/Restart/Stop), log init/dispose của DisposableEffect | Kunneth Ch.7 | Ví dụ của sách; sim là biến thể (ghi trong simp.2) |
 | Cẩm nang chuyển đổi onActive/onCommit → effect hiện tại | Tutorials Ch.11 | Lịch sử (API cũ) |
 | Sim `runtime.effects`: bộ đếm, hẹn giờ có/không rememberUpdatedState | Theo `and-effects` và Effects.kt | selfCheck; nhãn giản lược |
+
+### CL · CompositionLocal và slot API (chương mới, 2026-11-23)
+
+**Đã đọc:**
+- "Locally scoped data with CompositionLocal" (`cp-compositionlocal`), toàn văn, 2026-11-23;
+- `CompositionLocal.kt` @296313a4 (KDoc của compositionLocalOf/staticCompositionLocalOf);
+- Essentials Ch.21 (CompLocalDemo) và Ch.22 (slot API).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Truyền ngầm theo cây; Composition khác cây UI; MaterialTheme dùng 3 CompositionLocal; nhà cung cấp gần nhất; LocalContext; tiền tố Local | `cp-compositionlocal` | stable |
+| compositionLocalOf chỉ invalidate nơi đọc; static không theo dõi, recompose cả content | `cp-compositionlocal`, `rt-local-src` | stable |
+| KDoc: static cho Context/font loader; màu/theme có thể đổi hoặc animate → compositionLocalOf | `rt-local-src` | impl. Essentials dùng static cho màu: ghi là lựa chọn của sách |
+| Liên hệ getter skipping (`!providersInvalid`) | `rt-gapcomposer` | impl |
+| Nhược điểm, hai điều kiện (mặc định tốt, gắn với cây); không đặt ViewModel; thay thế: tham số, đảo điều khiển, content lambda | `cp-compositionlocal` | stable |
+| Cây Composable1–8, phạm vi theo nhánh, nhánh khác nhận giá trị mặc định | Essentials Ch.21 | Ví dụ của sách |
+| Slot API (SlotDemo, cú pháp lambda cuối) | Essentials Ch.22 | Ví dụ của sách |
+| Sim `runtime.locals`: dynamic recompose 2, static recompose 4 | Theo KDoc và tài liệu | selfCheck; nhãn giản lược |
