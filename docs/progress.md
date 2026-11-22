@@ -357,3 +357,9 @@ Trạng thái: `chưa / đang / xong`.
     - report 0 lỗi; track-check ở 1280 và 360: Runtime, Animation, UX, UI 0 vấn đề, Coroutines chỉ còn 4 mục cũ đã biết (a2#1 undo/clear, a8 undo); 0 lỗi console; routes-check 109 route, 0 vấn đề, không cuộn ngang ở 360;
     - labMotion: khi đổi màu trong lab token editor, chỉ các literal hex bị đổi mới nhấp nháy (trước đây cả dòng); lab Animation không có token nào bị đánh dấu.
   - **Tiếp theo:** b2 (compiler).
+- **Runtime v2 · B2 viết lại (2026-11-23):**
+  - Nội dung (`runtime_v2_b2.py`): vì sao cần compiler plugin (liên hệ `suspend`/CPS ở U4), nhớ theo vị trí, group và hai luật slot, skip (getter `skipping` thật), vì sao `changed()` phải chạy mọi lượt (`||` của Kotlin có short-circuit, `or` thì không), restart (scope bị invalidate thì không skip; cha skip vẫn restart con), mã thật khác mã giả (tên API ở commit ghim, `$changed`, `$default`, `sourceInformation`, scope trong slot, GapComposer/LinkComposer), 3 bug, 3 bài tập, tự trả lời, quiz 4 câu.
+  - Sim mới `runtime.groups`: B(person) → A(…); 4 kịch bản giữa hai lượt (không đổi, Person mới, field là `mutableStateOf`, `var` thường sửa tại chỗ → UI cũ), cùng biến thể mã giả định (`changed()` trong điều kiện short-circuit). Sim cũ `runtime.compiler` giữ làm tab thứ hai.
+  - Nguồn mới: `rt-composer-src`, `rt-gapcomposer`, `kt-boolean-or`; `rt-how` trỏ tới commit ghim.
+  - Sửa lõi nhỏ: khối đoạn văn v2 có lớp `blk-p` và khoảng cách giữa các khối liền nhau (trước đó các đoạn dính nhau ở mọi chương v2).
+  - **Tiếp theo:** b3 (SlotTable, identity, `key()`; phần "Detecting Structural Changes" của `how-compose-works.md`).

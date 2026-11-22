@@ -92,3 +92,33 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Năm điều: skip, lạc quan/hủy, chạy thường xuyên, song song, thứ tự bất kỳ; ví dụ SharedPrefsToggle, ListWithBug, ButtonRow | `cp-mental` | stable |
 | HIỆN TẠI composable không chạy song song; Compose chạy trên luồng main | `cp-mental` (hai ghi chú "Note") | stable. **Sách (Kunneth) viết "có thể xảy ra song song": site sửa theo tài liệu** |
 | Sim `runtime.runs`: 11/5/4 lần | Kịch bản của site (2 frame animation, một lần hủy, là giả định) | selfCheck; nhãn giản lược |
+
+### B2 · Compiler transform: $composer, group, changed(), skip, restart (viết lại 2026-11-23)
+
+**Đã đọc:**
+- `how-compose-works.md` @296313a4, toàn văn: Purpose of the Composer, Positional Memoization, Slot Table, Compiler Plugin, Skipping, Restarting, `$changed`.
+- `Composer.kt`, `GapComposer.kt`, `RecomposeScopeImpl.kt`, `ComposeRuntimeFlags.kt` @296313a4: phần skipping, changed/changedInstance, startRestartGroup/addRecomposeScope, endRestartGroup, skipToGroupEnd/recomposeToGroupEnd.
+- Ba sách Compose trong kho không có chương về nội bộ compiler.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Composer có ba việc: ghi vị trí (remember, tham số), phát hiện thay đổi, tính lại từng phần | `rt-how` | impl |
+| Composer là tham số ẩn của mọi hàm `@Composable`; lời gọi do plugin chèn | `rt-how` | impl |
+| Nhớ theo vị trí; ví dụ A/B: 2 Data lần đầu, 0 lần gọi lambda khi recompose | `rt-how` | impl |
+| Luật slot: số slot của group cố định khi cập nhật; slot có điều kiện cần group có điều kiện; group con đã chèn thì cha không thêm slot | `rt-how` | impl |
+| `key` của group do compiler tính từ vị trí trong mã nguồn | `rt-composer-src` (KDoc `startReplaceableGroup`, `startRestartGroup`) | impl |
+| `startReplaceGroup` thay `startReplaceableGroup` (cũ, chỉ để tương thích); `startMovableGroup` cho `key()` | `rt-composer-src` | impl |
+| `skipping` = !inserting && !reusing && !providersInvalid && requiresRecompose == false && !forciblyRecompose; KDoc nêu ví dụ `staticCompositionLocalOf` | `rt-gapcomposer`, `rt-composer-src` | impl |
+| `changed(v)`: `nextSlot() != v` → ghi và trả true; `changedInstance` dùng `!==` | `rt-gapcomposer` | impl |
+| Mẫu `||` không short-circuit: `changed()` gọi vào `val` trước `if` | `rt-how` | impl |
+| `Boolean.or` không short-circuit | `kt-boolean-or` | stable |
+| `startRestartGroup` → `addRecomposeScope`: scope lưu vào một slot của group; `requiresRecompose = invalidation != null \|\| forcedRecompose` | `rt-gapcomposer` | impl |
+| `endRestartGroup()` trả null khi không có lần đọc quan sát được (impl: `scope.used \|\| forceRecomposeScopes`, và scope không bị skip) | `rt-how`, `rt-gapcomposer` | impl |
+| Mã của B không được giả định gì về `Person` ngoài khai báo kiểu (module khác có thể đổi) | `rt-how` | impl |
+| `skipToEndGroup` restart con bị invalidate trước khi trả về; impl `skipToGroupEnd` → `recomposeToGroupEnd` khi còn invalidation | `rt-how`, `rt-gapcomposer` | impl |
+| Tên thật: `skipToGroupEnd`; lambda `updateScope` nhận `(Composer, Int)` | `rt-composer-src` | impl |
+| Hai cài đặt Composer: GapComposer (mặc định), LinkComposer sau cờ `isLinkBufferComposerEnabled` (mặc định false) | `ComposeRuntimeFlags.kt` @296313a4 | impl, version |
+| `$changed`: chỉ nêu tên và mục đích; tài liệu nói nằm ngoài phạm vi | `rt-how` | impl |
+| Strong skipping so tham số không ổn định theo địa chỉ, mặc định từ Kotlin 2.0.20 | Đã ghi ở B8 (v1); chương B8 v2 sẽ đối chiếu lại | stable / version |
+| Xem mã thật: Tools → Kotlin → Show Kotlin Bytecode → Decompile | Hướng dẫn của site; kết quả tùy phiên bản | version |
+| Sim `runtime.groups`: 3 group / 5 slot (mô hình tài liệu), 4 kịch bản, biến thể giả định | Kịch bản của site, theo mã giả của tài liệu | selfCheck; nhãn giản lược (số slot thật lớn hơn) |

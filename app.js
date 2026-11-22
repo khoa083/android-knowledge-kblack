@@ -93,7 +93,7 @@
       box.appendChild(reveal('sol', 'app.blk.solution', null, paras('sol').concat(has('solkt') ? [codeEl('solkt', 'kotlin')] : [])));
       return box;
     }
-    if (has('p')) return h('div', null, paras('p'));
+    if (has('p')) return h('div', { class: 'blk-p' }, paras('p'));
     return null;
   }
   function levelChip(t) { return h('span', { class: 'chip' }, icon('chevr', { size: 12 }), h('span', { text: ADE.t('app.level.' + t.level) })); }

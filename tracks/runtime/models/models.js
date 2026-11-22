@@ -576,4 +576,108 @@
       } }]
     });
   })();
+
+  /* ================= B2 (v2): group, slot, changed(), skip và restart theo how-compose-works.md @296313a4 =================
+     B(person) gọi A(person.givenName), A(person.familyName). Lượt 1 là composition đầu (chèn group, ghi slot); lượt 2 là
+     recomposition sau một thay đổi do người dùng chọn. Tên hàm theo tài liệu (skipToEndGroup); bản thật ở commit ghim là
+     skipToGroupEnd, startReplaceGroup… (ghi trong chương). `skipping` theo getter của GapComposer @296313a4:
+     !inserting && !reusing && !providersInvalid && currentRecomposeScope?.requiresRecompose == false && !forciblyRecompose.
+     hypo = mã GIẢ ĐỊNH (compiler không sinh): changed() nằm trong điều kiện short-circuit → số slot của group B thay đổi giữa các lượt. */
+  (function () {
+    var m = 'groups';
+    var CHG = ['none', 'newPerson', 'stateField', 'plainVar'];
+    function steps(s) {
+      var out = [], t = 0, hypo = !!s.hypo, ch = s.change;
+      var st = { groups: 0, slots: 0, runs: 0, skipped: 0, shown: '' }, slotB = [], slotA1 = [], slotA2 = [];
+      var snip = hypo ? 'grpHypo' : 'grp';
+      var slotsVal = function () {
+        var f = function (a) { return '[' + a.join(', ') + ']'; };
+        return 'B ' + f(slotB) + (slotA1.length ? ' · A₁ ' + f(slotA1) : '') + (slotA2.length ? ' · A₂ ' + f(slotA2) : '');
+      };
+      var P = function (id, o) {
+        o.metrics = { groups: st.groups, slots: st.slots, runs: st.runs, skipped: st.skipped, shown: st.shown || '—' };
+        o.params = o.params || {}; o.params.shown = st.shown || '—'; o.params.slots = st.slots; o.params.groups = st.groups;
+        o.codeHighlight = { snippet: snip, lines: o.lines || [] }; delete o.lines;
+        o.stateAfter = (o.stateAfter || []).concat([{ labelKey: M(m, 'st.slots'), value: slotsVal() }]);
+        var key = o.key || id; delete o.key;
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        (o.logEvents || []).forEach(function (e) { e.detailKey = M(m, 'ev.' + key); });
+        out.push(S(m, id + out.length, o));
+      };
+      var L = function (kind, subject) { return [{ t: t += 4, kind: kind, subject: subject }]; };
+      // ---- lượt 1: composition đầu (inserting = true → skipping = false) ----
+      st.groups = 1;
+      P('f.startB', { type: 'scenario', activeNodes: ['caller', 'code', 'composer', 'groups'], movingSignals: [{ edge: 'e1', tok: 'runtime' }, { edge: 'e2', tok: 'runtime' }], lines: [3],
+        callouts: [{ kind: 'mechanism', textKey: M(m, 'co.names') }], logEvents: L('recompose', 'composer') });
+      if (hypo) {
+        P('f.changedB', { key: 'f.hypoB', type: 'pitfall', activeNodes: ['composer'], lines: [4, 5], callouts: [{ kind: 'pitfall', textKey: M(m, 'co.hypo') }], logEvents: L('observe', 'composer') });
+      } else {
+        slotB = ['Person(Ana, Le)']; st.slots = 1;
+        P('f.changedB', { activeNodes: ['composer', 'slots'], movingSignals: [{ edge: 'e3', tok: 'state' }], lines: [4, 5], logEvents: L('write', 'slots') });
+      }
+      st.groups = 2; slotA1 = ['Data#1', '"Ana"']; st.slots += 2; st.shown = 'Ana';
+      P('f.A1', { activeNodes: ['code', 'composer', 'groups', 'slots', 'screen'], movingSignals: [{ edge: 'e3', tok: 'state' }, { edge: 'e6', tok: 'ui' }], lines: [6, 14, 15, 16, 17, 19],
+        changes: [{ op: 'add', textKey: M(m, 'ch.text1') }], logEvents: L('apply', 'screen') });
+      st.groups = 3; slotA2 = ['Data#2', '"Le"']; st.slots += 2; st.shown = 'Ana Le';
+      P('f.A2', { activeNodes: ['code', 'composer', 'groups', 'slots', 'screen'], movingSignals: [{ edge: 'e6', tok: 'ui' }], lines: [7, 14, 15, 16, 17, 19],
+        changes: [{ op: 'add', textKey: M(m, 'ch.text2') }], logEvents: L('apply', 'screen') });
+      var reads = ch === 'stateField';
+      P('f.endB', { key: reads ? 'f.endScope' : 'f.endNull', activeNodes: ['composer', 'scope'], movingSignals: reads ? [{ edge: 'e4', tok: 'state' }] : [], lines: [11],
+        stateAfter: [{ labelKey: M(m, 'st.scope'), valueKey: M(m, reads ? 'val.scope' : 'val.null') }], logEvents: L(reads ? 'observe' : 'skip', 'scope') });
+      // ---- sự kiện giữa hai lượt ----
+      P('ev', { key: 'ev.' + ch, type: ch === 'plainVar' ? 'pitfall' : 'mechanism', activeNodes: ch === 'stateField' ? ['scope', 'caller'] : ['caller'],
+        movingSignals: ch === 'stateField' ? [{ edge: 'e5', tok: 'state' }] : [{ edge: 'e0', tok: 'runtime' }], lines: ch === 'stateField' ? [11] : [2],
+        logEvents: L(ch === 'stateField' ? 'invalidate' : ch === 'plainVar' ? 'write' : 'schedule', ch === 'stateField' ? 'scope' : 'caller') });
+      // ---- lượt 2: recomposition ----
+      var changedB = ch === 'newPerson', forced = ch === 'stateField', skippingB = !forced;
+      P('r.startB', { activeNodes: ['code', 'composer', 'groups'], movingSignals: [{ edge: 'e1', tok: 'runtime' }], lines: [3],
+        params: { skipping: String(skippingB) }, logEvents: L('recompose', 'composer') });
+      if (hypo && skippingB) {   // skipping = true → lần này changed() ĐƯỢC gọi, nhưng lượt 1 không ghi slot nào cho nó
+        P('r.hypo', { type: 'pitfall', activeNodes: ['composer', 'slots'], lines: [5], callouts: [{ kind: 'pitfall', textKey: M(m, 'co.hypoEnd') }], logEvents: L('observe', 'slots') });
+        P('end', { key: 'end.hypo', type: 'pitfall', activeNodes: ['slots'], lines: [4, 5], logEvents: L('observe', 'slots') });
+        return out;
+      }
+      if (changedB && !hypo) slotB = ['Person(Bo, Le)'];
+      P('r.changedB', { key: 'r.changedB.' + ch, activeNodes: ['composer', 'slots'], movingSignals: [{ edge: 'e3', tok: 'state' }], lines: [4, 5],
+        stateAfter: [hypo ? { labelKey: M(m, 'st.changed'), valueKey: M(m, 'val.notCalled') } : { labelKey: M(m, 'st.changed'), value: String(changedB) }, { labelKey: M(m, 'st.skipping'), value: String(skippingB) }],
+        callouts: hypo ? [{ kind: 'pitfall', textKey: M(m, 'co.hypoLucky') }] : forced ? [{ kind: 'mechanism', textKey: M(m, 'co.forced') }] : ch === 'plainVar' ? [{ kind: 'pitfall', textKey: M(m, 'co.plainVar') }] : [],
+        logEvents: L(changedB || forced ? 'recompose' : 'skip', 'composer') });
+      if (changedB || forced) {
+        st.runs++;   // thân B chạy
+        slotA1 = ['Data#1', '"Bo"']; st.runs++; st.shown = 'Bo Le';
+        P('r.A1', { activeNodes: ['code', 'composer', 'slots', 'screen'], movingSignals: [{ edge: 'e3', tok: 'state' }, { edge: 'e6', tok: 'ui' }], lines: [6, 15, 16, 17],
+          changes: [{ op: 'set', textKey: M(m, 'ch.text1b') }], callouts: [{ kind: 'mechanism', textKey: M(m, 'co.remember') }], logEvents: L('apply', 'screen') });
+        st.skipped++;
+        P('r.A2', { activeNodes: ['composer', 'groups'], lines: [7, 16, 18], skipped: [{ whatKey: M(m, 'sk.a2'), whyKey: M(m, 'sk.same') }], logEvents: L('skip', 'composer') });
+      } else {
+        st.skipped++;
+        P('r.skipB', { activeNodes: ['composer', 'groups'], lines: [8, 9], skipped: [{ whatKey: M(m, 'sk.b'), whyKey: M(m, ch === 'plainVar' ? 'sk.sameRef' : 'sk.same') }],
+          callouts: [{ kind: 'mechanism', textKey: M(m, 'co.children') }], logEvents: L('skip', 'composer') });
+      }
+      P('r.endB', { key: reads ? 'r.endScope' : 'r.endNull', activeNodes: ['composer', 'scope'], lines: [11],
+        stateAfter: [{ labelKey: M(m, 'st.scope'), valueKey: M(m, reads ? 'val.scope' : 'val.null') }], logEvents: L(reads ? 'observe' : 'skip', 'scope') });
+      P('end', { key: 'end.' + ch, type: ch === 'plainVar' ? 'pitfall' : 'mechanism', activeNodes: ['screen'],
+        callouts: [{ kind: ch === 'plainVar' ? 'pitfall' : 'mechanism', textKey: M(m, 'co.end.' + ch) }], logEvents: L('apply', 'screen') });
+      return out;
+    }
+    reg(m, {
+      codeId: 'grp',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'change', type: 'select', labelKey: M(m, 'ctl.change'), get: function (s) { return s.change; }, action: 'change', options: CHG.map(function (v) { return { value: v, labelKey: M(m, 'ctl.change.' + v) }; }) },
+        { id: 'hypo', type: 'toggle', labelKey: M(m, 'ctl.hypo'), get: function (s) { return s.hypo; }, action: 'hypo' }
+      ],
+      init: function () { return { change: 'stateField', hypo: false }; },
+      act: function (s, a, v) { var n = { change: s.change, hypo: s.hypo }; if (a === 'change') n.change = CHG.indexOf(v) >= 0 ? v : 'none'; else n.hypo = !!v; return n; },
+      steps: steps,
+      selfChecks: [{ name: 'composition đầu: 3 group, 5 slot; lượt 2: newPerson/stateField chạy B + A₁ và skip A₂ (hiện "Bo Le"), none/plainVar skip B (plainVar vẫn hiện "Ana Le"); giả định: B không có slot', run: function () {
+        var last = function (c, h) { var x = steps({ change: c, hypo: h }); return x[x.length - 1].metrics; };
+        var first = steps({ change: 'none', hypo: false })[3].metrics;
+        var n = last('none'), np = last('newPerson'), sf = last('stateField'), pv = last('plainVar'), hy = steps({ change: 'none', hypo: true });
+        return first.groups === 3 && first.slots === 5 && n.runs === 0 && n.skipped === 1 && n.shown === 'Ana Le' &&
+          np.runs === 2 && np.skipped === 1 && np.shown === 'Bo Le' && sf.runs === 2 && sf.shown === 'Bo Le' &&
+          pv.runs === 0 && pv.shown === 'Ana Le' && hy[3].metrics.slots === 4 && hy[hy.length - 1].titleKey === M(m, 's.end.hypo.title');
+      } }]
+    });
+  })();
 })();

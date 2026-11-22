@@ -126,4 +126,29 @@
       '}'
     ]);
   });
+  [['grp', false], ['grpHypo', true]].forEach(function (c) {
+    var hypo = c[1];
+    add(c[0], [
+      { vi: '// mã giả theo how-compose-works.md (tên hàm theo tài liệu); mã compiler thật khác', en: '// pseudo-code after how-compose-works.md (doc names); real compiler output differs' },
+      'fun B(person: Person, $composer: Composer) {',
+      '  $composer.startRestartGroup(4567)',
+      hypo ? { vi: '  // ✗ GIẢ ĐỊNH: bỏ "val changed", gọi changed() trong điều kiện', en: '  // ✗ HYPOTHETICAL: no "val changed", changed() inside the condition' } : '  val changed = $composer.changed(person)',
+      hypo ? '  if (!$composer.skipping || $composer.changed(person)) {' : '  if (changed || !$composer.skipping) {',
+      '    A(person.givenName, $composer)',
+      '    A(person.familyName, $composer)',
+      '  } else {',
+      '    $composer.skipToEndGroup()',
+      '  }',
+      '  $composer.endRestartGroup()?.updateScope { c -> B(person, c) }',
+      '}',
+      'fun A(text: String, $composer: Composer) {',
+      '  $composer.startGroup(1234)',
+      '  val data = remember($composer) { Data() }',
+      '  val changed = $composer.changed(text)',
+      '  if (changed || !$composer.skipping) Text(text, $composer)',
+      '  else $composer.skipToEndGroup()',
+      '  $composer.endGroup()',
+      '}'
+    ]);
+  });
 })();

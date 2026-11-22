@@ -47,6 +47,16 @@
     edges: [E('e0', 'tap', 'state'), E('e1', 'state', 'recomposer'), E('e2', 'recomposer', 'body'), E('e3', 'body', 'screen'), E('e4', 'body', 'effect'), E('e5', 'tap', 'effect')],
     metrics: [T('runs', 'taps'), T('runs', 'runs'), T('runs', 'effects'), T('runs', 'shown')]
   });
+  /* B2 (v2): mã đã biến đổi gọi Composer; Composer ghi group và slot, giữ restart scope, phát node ra màn hình. */
+  V('groups', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('groups', 'caller', 0, 0, 'clock', 'runtime'), N('groups', 'code', 4, 0, 'chip', 'runtime'), N('groups', 'composer', 8, 0, 'grid', 'runtime'),
+      N('groups', 'scope', 0, 4, 'refresh', 'state'), N('groups', 'groups', 4, 4, 'list', 'runtime'), N('groups', 'slots', 8, 4, 'store', 'state'),
+      N('groups', 'screen', 8, 8, 'screen', 'ui')],
+    edges: [E('e0', 'caller', 'code'), E('e1', 'code', 'composer'), E('e2', 'composer', 'groups'), E('e3', 'composer', 'slots'), E('e4', 'composer', 'scope'),
+      E('e5', 'scope', 'caller'), E('e6', 'composer', 'screen')],
+    metrics: [T('groups', 'groups'), T('groups', 'slots'), T('groups', 'runs'), T('groups', 'skipped'), T('groups', 'shown')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],
