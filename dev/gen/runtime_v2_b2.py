@@ -208,6 +208,8 @@ def add(a):
 
 
 def override(o):
+    o('m.compiler.overview', 'Hàm `Greeting(name)` sau khi compiler biến đổi, viết ở dạng mã giả. Bật/tắt "tham số đổi" và "hàm có đọc state" để thấy hai nhánh. Khác tab đầu, tab này dùng tên API thật ở commit ghim (`skipToGroupEnd`, lambda `updateScope` nhận `(Composer, Int)`).',
+      'The `Greeting(name)` function after the compiler transform, written as pseudo-code. Toggle "parameter changed" and "reads state" to see both branches. Unlike the first tab, this one uses the real API names at the pinned commit (`skipToGroupEnd`, an `updateScope` lambda taking `(Composer, Int)`).')
     C = 'b2'
     o(C + '.title', 'Compiler transform: $composer, group, changed(), skip và restart', 'The compiler transform: $composer, groups, changed(), skipping and restarting')
     o(C + '.essence',

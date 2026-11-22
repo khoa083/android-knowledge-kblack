@@ -14,5 +14,15 @@ ADE.addGlossary('vi', 'runtime', {
   "compose-phases": { term: "Compose phases", def: "Ba phase Composition, Layout, Drawing; phase đọc state là phase cần chạy lại.", chapter: "runtime/b7" },
   "semantics-tree": { term: "semantics tree", def: "Cây song song mô tả ý nghĩa của phần tử UI, dùng cho dịch vụ trợ năng và kiểm thử.", chapter: "runtime/b9" },
   "compose-view": { term: "ComposeView", def: "View của Android chứa nội dung Compose; composition ban đầu khi gắn window hoặc createComposition().", chapter: "runtime/b1" },
-  "composition-local": { term: "CompositionLocal", def: "Dữ liệu được truyền ngầm xuống theo cây composition, ví dụ theme.", chapter: "runtime/b0" }
+  "composition-local": { term: "CompositionLocal", def: "Dữ liệu được truyền ngầm xuống theo cây composition, ví dụ theme.", chapter: "runtime/cl" },
+  "group": { term: "group", def: "Đơn vị vị trí mà mã do compiler sinh mở và đóng quanh thân composable (startGroup/endGroup); các group lồng nhau tạo thành cây giống cây gọi.", chapter: "runtime/b2" },
+  "slot": { term: "slot", def: "Ô giá trị gắn với một group trong SlotTable, giữ kết quả remember hoặc giá trị tham số cho changed(); số slot của một group không đổi giữa các lượt.", chapter: "runtime/b2" },
+  "positional-memoization": { term: "nhớ theo vị trí", def: "Nhớ kết quả theo tham số VÀ vị trí của lời gọi trong cây gọi; cùng dòng mã ở hai vị trí có hai ô nhớ khác nhau.", chapter: "runtime/b2" },
+  "insert-table": { term: "insert table", def: "SlotTable phụ mà Composer ghi nội dung mới vào trong lúc composition (bảng chính chỉ đọc), rồi lên lịch chèn khi áp thay đổi.", chapter: "runtime/b3" },
+  "flow-control-group": { term: "flow-control group", def: "Group compiler thêm quanh if, when, vòng lặp để chuỗi group không nhầm khi một nhánh xuất hiện hay biến mất.", chapter: "runtime/b3" },
+  "state-record": { term: "state record", def: "Một phiên bản giá trị của state object gắn với id snapshot đã ghi nó; snapshot đọc record hợp lệ có id lớn nhất.", chapter: "runtime/b4" },
+  "mutation-policy": { term: "mutation policy", def: "SnapshotMutationPolicy: quyết định giá trị mới có là thay đổi (equivalent) và cách gộp xung đột giữa snapshot (merge).", chapter: "runtime/b4" },
+  "derived-state": { term: "derived state", def: "State tạo bằng derivedStateOf, lưu cache kết quả tính từ state khác; scope đọc nó chỉ chạy lại khi kết quả đổi.", chapter: "runtime/b4" },
+  "state-hoisting": { term: "state hoisting", def: "Dời state lên người gọi (hoặc cao hơn) để composable thành stateless; state đi xuống, sự kiện đi lên.", chapter: "runtime/sh" },
+  "side-effect": { term: "side effect", def: "Thay đổi trạng thái của app ngoài phạm vi một composable; chạy qua Effect API (LaunchedEffect, DisposableEffect, SideEffect) để theo vòng đời.", chapter: "runtime/ef" }
 });

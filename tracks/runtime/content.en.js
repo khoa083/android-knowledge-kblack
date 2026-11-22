@@ -152,7 +152,7 @@ ADE.addTrackStrings('runtime', 'en', {
   "track.runtime.m.setcontent.co.eagerIgnored": "`createComposition()` is called before attaching, so turning off \"create on attach\" does not change when the initial composition happens.",
   "track.runtime.m.setcontent.co.host": "`ComposeView` is an Android View; this host part is labelled [[badge:android-impl]]. [[src:rt-composeview]]",
   "track.runtime.m.compiler.title": "Restart groups and the skip check (pseudo-code)",
-  "track.runtime.m.compiler.overview": "The `Greeting(name)` function after the compiler transform, written as pseudo-code. Toggle \"parameter changed\" and \"reads state\" to see both branches.",
+  "track.runtime.m.compiler.overview": "The `Greeting(name)` function after the compiler transform, written as pseudo-code. Toggle \"parameter changed\" and \"reads state\" to see both branches. Unlike the first tab, this one uses the real API names at the pinned commit (`skipToGroupEnd`, an `updateScope` lambda taking `(Composer, Int)`).",
   "track.runtime.m.compiler.wrapup": "The generated code wraps the body in a group, asks the Composer whether it can skip, and registers how to run again when the function reads state. This is a conceptual picture, not guaranteed compiler output.",
   "track.runtime.m.compiler.simp.1": "The pseudo-code leaves out the bits of `$changed`, real group keys and many other compiler branches.",
   "track.runtime.m.compiler.simp.2": "Do not call `currentComposer`, `changed()` or internal APIs in an app: they depend on where the Composer currently is.",

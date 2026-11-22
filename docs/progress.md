@@ -405,3 +405,5 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `runtime.scroll` (đọc ở composition/placement/draw qua 3 frame; vòng lặp hai frame); sim `runtime.phases` giữ làm tab thứ hai.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; đã xem ảnh sim.
   - **Tiếp theo:** lo (layout tùy chỉnh và modifier), rồi md, lz, b8, b9, pf, b10, b0.
+- **Dọn nợ Runtime v2 (2026-11-23):** glossary Runtime thêm 10 thuật ngữ song ngữ (group, slot, nhớ theo vị trí, insert table, flow-control group, state record, mutation policy, derived state, state hoisting, side effect; `frame-clock` đã có ở Coroutines nên không thêm), `composition-local` trỏ sang chương CL; overview tab `runtime.compiler` (B2) ghi rõ dùng tên API thật ở commit ghim. Report 0 lỗi, 120 cảnh báo; routes-check 112 route 0 vấn đề.
+  - **Còn nợ:** chữ "androidx-main, đọc 2026-11-21" trong v1 của B0 (sẽ sửa khi viết lại B0).

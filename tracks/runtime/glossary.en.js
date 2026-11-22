@@ -14,5 +14,15 @@ ADE.addGlossary('en', 'runtime', {
   "compose-phases": { term: "Compose phases", def: "The three phases Composition, Layout and Drawing; the phase that reads a state is the one that must run again.", chapter: "runtime/b7" },
   "semantics-tree": { term: "semantics tree", def: "A parallel tree describing what UI elements mean, used by accessibility services and testing.", chapter: "runtime/b9" },
   "compose-view": { term: "ComposeView", def: "An Android View that hosts Compose content; initial composition on attach or createComposition().", chapter: "runtime/b1" },
-  "composition-local": { term: "CompositionLocal", def: "Data passed implicitly down the composition tree, such as a theme.", chapter: "runtime/b0" }
+  "composition-local": { term: "CompositionLocal", def: "Data passed implicitly down the composition tree, such as a theme.", chapter: "runtime/cl" },
+  "group": { term: "group", def: "The unit of position that compiler-generated code opens and closes around a composable body (startGroup/endGroup); nested groups form a tree mirroring the call tree.", chapter: "runtime/b2" },
+  "slot": { term: "slot", def: "A value cell attached to a group in the SlotTable, holding a remember result or a parameter value for changed(); a group's slot count does not change between passes.", chapter: "runtime/b2" },
+  "positional-memoization": { term: "positional memoization", def: "Remembering results by parameters AND the call's position in the call tree; the same line of code at two positions gets two different memory cells.", chapter: "runtime/b2" },
+  "insert-table": { term: "insert table", def: "A side SlotTable the Composer writes new content into during composition (the main table is read-only), then schedules for insertion when changes are applied.", chapter: "runtime/b3" },
+  "flow-control-group": { term: "flow-control group", def: "A group the compiler adds around if, when and loops so the group sequence stays unambiguous when a branch appears or disappears.", chapter: "runtime/b3" },
+  "state-record": { term: "state record", def: "One version of a state object's value tied to the id of the snapshot that wrote it; a snapshot reads the valid record with the highest id.", chapter: "runtime/b4" },
+  "mutation-policy": { term: "mutation policy", def: "SnapshotMutationPolicy: decides whether a new value is a change (equivalent) and how conflicts between snapshots are merged (merge).", chapter: "runtime/b4" },
+  "derived-state": { term: "derived state", def: "State created with derivedStateOf that caches a result computed from other state; scopes reading it re-run only when the result changes.", chapter: "runtime/b4" },
+  "state-hoisting": { term: "state hoisting", def: "Moving state up to the caller (or higher) to make a composable stateless; state flows down, events flow up.", chapter: "runtime/sh" },
+  "side-effect": { term: "side effect", def: "A change to app state outside a composable's scope; run through the Effect APIs (LaunchedEffect, DisposableEffect, SideEffect) to follow the lifecycle.", chapter: "runtime/ef" }
 });

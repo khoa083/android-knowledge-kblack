@@ -152,7 +152,7 @@ ADE.addTrackStrings('runtime', 'vi', {
   "track.runtime.m.setcontent.co.eagerIgnored": "`createComposition()` được gọi trước khi gắn, nên việc tắt \"tạo khi gắn window\" không ảnh hưởng thời điểm composition ban đầu.",
   "track.runtime.m.setcontent.co.host": "`ComposeView` là View của Android; phần host này gắn nhãn [[badge:android-impl]]. [[src:rt-composeview]]",
   "track.runtime.m.compiler.title": "Restart group và điều kiện skip (mã giả)",
-  "track.runtime.m.compiler.overview": "Hàm `Greeting(name)` sau khi compiler biến đổi, viết ở dạng mã giả. Bật/tắt \"tham số đổi\" và \"hàm có đọc state\" để thấy hai nhánh.",
+  "track.runtime.m.compiler.overview": "Hàm `Greeting(name)` sau khi compiler biến đổi, viết ở dạng mã giả. Bật/tắt \"tham số đổi\" và \"hàm có đọc state\" để thấy hai nhánh. Khác tab đầu, tab này dùng tên API thật ở commit ghim (`skipToGroupEnd`, lambda `updateScope` nhận `(Composer, Int)`).",
   "track.runtime.m.compiler.wrapup": "Mã sinh ra bọc thân hàm trong group, hỏi Composer có thể skip không, và đăng ký cách chạy lại khi hàm có đọc state. Đây là hình dung khái niệm, không phải mã compiler bảo đảm.",
   "track.runtime.m.compiler.simp.1": "Mã giả bỏ qua bit của `$changed`, key thật của group và nhiều nhánh khác của compiler.",
   "track.runtime.m.compiler.simp.2": "Không gọi `currentComposer`, `changed()` hay API nội bộ trong ứng dụng: chúng phụ thuộc vị trí Composer đang duyệt.",
