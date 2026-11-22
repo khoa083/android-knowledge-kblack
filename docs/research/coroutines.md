@@ -223,3 +223,18 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 | `suspendCancellableCoroutine` + Retrofit | Deep Dive tr. 119–121; `kx-scc` | API ổn định |
 | `runCatching` cũng nuốt `CancellationException` | Suy từ ngữ nghĩa `runCatching` (bắt mọi `Throwable`) | **Suy luận, chưa trích nguồn chính thức** |
 | Bài đoán output (work 0, work 1, caught, after try, done) | Tự suy từ ngữ nghĩa trên | **Chưa chạy thử** |
+
+### A6 v2 · Exception (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "Exception handling", trang PDF 122–132. Đọc toàn văn; hình minh hoạ lan truyền chưa xem dạng ảnh.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Lan truyền hai chiều; `runBlocking` ném lại lỗi | Deep Dive tr. 122–123; `kt-exceptions` | API ổn định |
+| `try/catch` quanh `launch` vô dụng | Deep Dive tr. 123–124 | API ổn định |
+| `SupervisorJob`: chỉ bảo vệ con trực tiếp; lỗi khi truyền vào một `launch` | Deep Dive tr. 124–127; `kx-supervisorjob` (URL 200) | API ổn định |
+| `supervisorScope`; `withContext(SupervisorJob())` sai | Deep Dive tr. 127–129; `kx-supervisorscope` | API ổn định |
+| `await` ném lại exception của `async` | Deep Dive tr. 130 | API ổn định |
+| `CancellationException` không lan lên cha | Deep Dive tr. 131 | API ổn định |
+| CEH không chặn lan truyền; chỉ dùng ở gốc hoặc con trực tiếp của supervisor; không dùng cho `async` | Deep Dive tr. 131–132 (phần đầu); `kx-ceh`, `kt-exceptions` (phần "chỉ ở gốc") | API ổn định |
+| Bài đoán output supervisorScope (lỗi, Will be printed, Done) | Output in sẵn trong sách tr. 128 | Ví dụ của sách |

@@ -224,4 +224,9 @@ Trạng thái: `chưa / đang / xong`.
   - sim `coroutines.cancel` đặt sau mục "unstoppable" với câu đoán trước;
   - thêm nguồn `kx-noncancellable`.
 - **Kiểm A5 v2:** report 0 lỗi; track-check không thêm vấn đề; routes-check 0 vấn đề.
+- **A6 v2 "Exception" (2026-11-22):**
+  - nội dung gồm: ôn tập, lan truyền hai chiều, `try/catch` quanh `launch` vô dụng (ví von dây leo núi), `SupervisorJob` (lỗi hay gặp với một con), `supervisorScope` và bẫy `withContext(SupervisorJob())`, `async`/`await`, `CancellationException` không lan lên cha, CEH, rules (v1), 3 bug, 3 bài tập (bài 3 dùng sim), tự trả lời;
+  - sim đặt sau mục "ceh";
+  - thêm 3 nguồn API.
+- **Kiểm A6 v2:** report 0 lỗi; track-check không thêm vấn đề; routes-check 0 vấn đề.
 
