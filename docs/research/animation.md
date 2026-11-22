@@ -91,3 +91,15 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 | rememberCoroutineScope; remember AnimateAsState(Animatable); SideEffect update() trừ lần đầu ("Avoid calling state.update on initial composition"); update so targetValue; restartAnimation: job?.cancel, InterruptionAwareAnimationSpec, launch(UNDISPATCHED) { animateTo; finishedListener }; KDoc: điều chỉnh về target mới, không hủy được nếu không gỡ khỏi cây | `an-aas-src` (@296313a4) | impl |
 | Bài viết cũ mô tả Channel + LaunchedEffect: không khớp mã ghim | `an-aas-src` | ghi chú lệch |
 | Sim `animation.aas`: 0 / 1 / 2 (1 cancel) / 0 job | Theo mã ghim | selfCheck; số giá trị minh họa |
+
+### C2 v2 · AnimationSpec (2026-11-23)
+
+Đọc lại ở commit ghim 296313a4: `AnimationSpec.kt`, `Easing.kt`, `FloatDecayAnimationSpec.kt`, `SpringSimulation.kt`, `VectorConverters.kt`, `ColorVectorConverter.kt`. URL `an-easing-src`, `an-decay-src` chuyển từ `refs/heads/androidx-main` sang commit ghim (giá trị không đổi: cubic-bezier (0.4, 0, 0.2, 1)…, `ExponentialDecayFriction = -4.2f`, frictionMultiplier 1, absVelocityThreshold 0.1).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| AnimationSpec chỉ có vectorize(converter); FiniteAnimationSpec; tween 300/0/FastOutSlowIn; spring NoBouncy/StiffnessMedium; keyframes LinearEasing mặc định, ArcMode | `an-spec-src` | impl |
+| Converter: Float/Int/Dp 1D, Offset/Size/DpOffset 2D, Rect 4D | `an-vectorconv-src` | impl |
+| Màu → Oklab, AnimationVector4D(alpha, L, a, b), kẹp khi đổi ngược | `an-colorconv-src` | impl |
+| Oklab của đỏ ≈ (.628, .225, .126), trắng (1, 0, 0); FastOutSlowIn(0.5) ≈ 0.776 | Tính bằng công thức chuẩn (site tự tính) | ghi rõ trong simp |
+| Spec/easing, spring, keyframes trong ví dụ | Essentials Ch.39–40, Kunneth Ch.8 | Ví dụ của sách |

@@ -39,6 +39,13 @@
     edges: [E('e1', 'comp', 'state'), E('e2', 'state', 'job'), E('e3', 'job', 'anim'), E('e4', 'anim', 'comp')],
     metrics: [T('aas', 'launched'), T('aas', 'cancelled'), T('aas', 'value')]
   });
+  /* C2 (v2): giá trị → converter → AnimationVector ← VectorizedAnimationSpec; rồi quay lại kiểu giá trị. */
+  V('vector', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('vector', 'value', 0, 0, 'target', 'state'), N('vector', 'conv', 4, 0, 'set', 'runtime'), N('vector', 'vec', 8, 0, 'grid', 'anim'), N('vector', 'spec', 12, 0, 'motion', 'anim')],
+    edges: [E('e1', 'value', 'conv'), E('e2', 'conv', 'vec'), E('e3', 'spec', 'vec'), E('e4', 'vec', 'value')],
+    metrics: [T('vector', 'dim')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

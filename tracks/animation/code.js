@@ -100,4 +100,18 @@
     '    finishedListener?.invoke(animatable.value)',
     '}'
   ]);
+  [['vector_dp', 'Dp', 'animateDpAsState(if (big) 100.dp else 0.dp, tween(300))', 'Dp.VectorConverter                       // Dp ↔ AnimationVector1D'],
+   ['vector_offset', 'Offset', 'animateOffsetAsState(if (moved) Offset(100f, 40f) else Offset.Zero, spring())', 'Offset.VectorConverter                   // Offset ↔ AnimationVector2D'],
+   ['vector_color', 'Color', 'animateColorAsState(if (on) Color.White else Color.Red, tween(300))', 'Color.VectorConverter(colorSpace)        // Color ↔ AnimationVector4D (Oklab)'],
+   ['vector_keyframes', 'Float', 'animateFloatAsState(if (go) 100f else 0f, keyframes { durationMillis = 300; 80f at 100; 60f at 200 })', 'Float.VectorConverter                    // Float ↔ AnimationVector1D']
+  ].forEach(function (c) {
+    add(c[0], [
+      { vi: '// ' + c[1] + ': kiểu giá trị bạn animate', en: '// ' + c[1] + ': the value type you animate' },
+      c[2],
+      c[3],
+      'val vSpec = spec.vectorize(converter)    // AnimationSpec<T> → VectorizedAnimationSpec<V>',
+      { vi: 'val v = vSpec.getValueFromNanos(t, start, end, velocity)   // tính từng thành phần của vector', en: 'val v = vSpec.getValueFromNanos(t, start, end, velocity)   // computes each vector component' },
+      { vi: 'val value = converter.convertFromVector(v)                  // trở lại kiểu ' + c[1], en: 'val value = converter.convertFromVector(v)                  // back to ' + c[1] }
+    ]);
+  });
 })();

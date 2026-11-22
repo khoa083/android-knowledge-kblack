@@ -424,7 +424,7 @@ def o2(k, vi, en=None):
     for i, e in enumerate(E):
         if e[0] == k: E[i] = (k, vi, vi if en is None else en); return
     raise KeyError(k)
-for mod in ('animation_v2_c1',):   # thêm module mới vào đây
+for mod in ('animation_v2_c1', 'animation_v2_c2'):   # thêm module mới vào đây
     if os.path.exists(os.path.join(_here, mod + '.py')):
         mm = __import__(mod)
         mm.add(a2)

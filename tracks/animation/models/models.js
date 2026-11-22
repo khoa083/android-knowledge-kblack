@@ -303,4 +303,59 @@
       } }]
     });
   })();
+  /* ================= C2 (v2): spec làm việc trên AnimationVector (AnimationSpec.kt, VectorConverters.kt, ColorVectorConverter.kt, Easing.kt @296313a4) =================
+     dp: Dp → AnimationVector1D, tween 300 ms FastOutSlowIn; tại 150 ms fraction ≈ 0.776 → 77.6 dp.
+     offset: Offset → AnimationVector2D, spring: mỗi thành phần chạy riêng (số minh họa 60, 24).
+     color: Color → AnimationVector4D(alpha, L, a, b) trong Oklab; Red (L .628, a .225, b .126) → White (1, 0, 0); tween tại 150 ms → (1, .917, .050, .028).
+     keyframes: 0f@0, 80f@100, 60f@200, kết thúc 100f@300, LinearEasing giữa các mốc → tại 150 ms = 70. */
+  (function () {
+    var m = 'vector';
+    var SC = ['dp', 'offset', 'color', 'keyframes'];
+    var D = {
+      dp: { from: '0.dp', to: '100.dp', vFrom: '[0]', vTo: '[100]', dim: 1, spec: 'tween(300, FastOutSlowInEasing)', vMid: '[77.6]', mid: '77.6.dp' },
+      offset: { from: 'Offset(0, 0)', to: 'Offset(100, 40)', vFrom: '[0, 0]', vTo: '[100, 40]', dim: 2, spec: 'spring()', vMid: '[60, 24]', mid: 'Offset(60, 24)' },
+      color: { from: 'Color.Red', to: 'Color.White', vFrom: '[1, .628, .225, .126]', vTo: '[1, 1, 0, 0]', dim: 4, spec: 'tween(300, FastOutSlowInEasing)', vMid: '[1, .917, .050, .028]', mid: 'Oklab → sRGB' },
+      keyframes: { from: '0f', to: '100f', vFrom: '[0]', vTo: '[100]', dim: 1, spec: 'keyframes { 80f at 100; 60f at 200 }', vMid: '[70]', mid: '70f' }
+    };
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'dp', d = D[sc], out = [], t = 0, val = d.from, vec = '—', spec = '—';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {};
+        o.metrics = { dim: d.dim };
+        o.stateAfter = [{ labelKey: M(m, 'st.value'), value: val }, { labelKey: M(m, 'st.vector'), value: vec }, { labelKey: M(m, 'st.spec'), value: spec }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'vector_' + sc, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 50, kind: o.kind || 'observe', subject: o.activeNodes[o.activeNodes.length - 1] || 'value', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['value'], lines: [1, 2], kind: 'target-change' });
+      vec = d.vFrom + ' → ' + d.vTo;
+      P('convert.' + sc, { activeNodes: ['value', 'conv', 'vec'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'state' }], lines: [3], kind: 'act', callouts: sc === 'color' ? [{ kind: 'source', textKey: M(m, 'co.oklab') }] : [] });
+      spec = d.spec;
+      P('vectorize', { activeNodes: ['spec', 'vec'], movingSignals: [{ edge: 'e3', tok: 'anim' }], lines: [4], kind: 'act', params: { n: d.dim }, callouts: [{ kind: 'source', textKey: M(m, 'co.vectorize') }] });
+      vec = d.vMid;
+      P('frame.' + sc, { activeNodes: ['spec', 'vec'], movingSignals: [{ edge: 'e3', tok: 'anim' }], lines: [5], kind: 'frame' });
+      val = d.mid;
+      P('back.' + sc, { activeNodes: ['vec', 'conv', 'value'], movingSignals: [{ edge: 'e4', tok: 'anim' }], lines: [6], kind: 'frame' });
+      val = d.to; vec = d.vTo;
+      P('end.' + sc, { activeNodes: ['value'], lines: [], kind: 'settle', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.end.' + sc) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'vector_dp',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'dp' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'Dp → 1D, Offset → 2D, Color → 4D (Oklab); FastOutSlowIn(0.5) ≈ 0.776 nên Dp ở 150 ms ≈ 77.6; keyframes tuyến tính giữa 80@100 và 60@200 cho 70 ở 150 ms', run: function () {
+        var bez = function (p1, p2, u) { return 3 * (1 - u) * (1 - u) * u * p1 + 3 * (1 - u) * u * u * p2 + u * u * u; };
+        var lo = 0, hi = 1; for (var i = 0; i < 60; i++) { var mid = (lo + hi) / 2; if (bez(0.4, 0.2, mid) < 0.5) lo = mid; else hi = mid; }
+        var y = bez(0, 1, lo), kf = 80 + (60 - 80) * (150 - 100) / 100;
+        return Math.abs(y - 0.776) < 0.002 && kf === 70 && D.dp.dim === 1 && D.offset.dim === 2 && D.color.dim === 4 && steps({ which: 'color' }).length === 6;
+      } }]
+    });
+  })();
 })();

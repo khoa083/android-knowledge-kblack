@@ -461,3 +461,8 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.aas` (lần đầu, đổi target, đổi giữa chừng, target không đổi). Nguồn mới `an-aas-src` (HTTP 200).
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Tiếp theo:** c2 (AnimationSpec; đọc lại `Easing.kt`, `FloatDecayAnimationSpec.kt`, `SpringSimulation.kt` ở commit ghim, sửa ghi chú "đọc 2026-11-21" trong research).
+- **Animation v2 · C2 viết lại (2026-11-23):**
+  - Nội dung (`animation_v2_c2.py`, giữ mục v1 `spring`, `more` và lab `animation.spec`): spec là gì (Kunneth, Essentials), easing là cubic-bezier (cách tính fraction), dưới mui xe AnimationVector/TwoWayConverter/vectorize, màu trong Oklab; 2 bug, 2 bài tập, tự trả lời, quiz thêm q3, q4. Sửa hai chỗ "androidx-main, đọc 2026-11-21" (c2 spring.p.2, lab.simp.2) thành tham chiếu commit ghim; URL nguồn easing/decay giờ ghim commit.
+  - Sim mới `animation.vector` (Dp/tween, Offset/spring, Color/Oklab, Float/keyframes). 3 nguồn mới, đều HTTP 200.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ sạch; đã xem ảnh sim.
+  - **Tiếp theo:** c3 (updateTransition; Kunneth Ch.8 multiple values, Tutorials Ch.12 transition, `Transition.kt`).
