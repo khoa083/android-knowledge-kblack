@@ -1,4 +1,4 @@
-/* Nội dung track Kotlin Coroutines (tiếng Việt). Khoá: track.coroutines.*. Cùng cây khoá với content.en.js. */
+/* Nội dung track Kotlin Coroutines (tiếng Việt). SINH TỰ ĐỘNG từ dev/gen/coroutines_content.py: sửa ở đó rồi chạy lại. Cùng cây khoá với content.en.js. */
 ADE.addTrackStrings('coroutines', 'vi', {
   "track.coroutines.title": "Kotlin Coroutines Explorer",
   "track.coroutines.summary": "Coroutine suspend và resume ra sao, tổ chức thành cây Job, bị hủy, báo lỗi và phát dữ liệu bằng Flow thế nào.",
