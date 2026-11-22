@@ -151,6 +151,13 @@
     edges: [E('e1', 'screen', 'badge'), E('e2', 'state', 'badge'), E('e3', 'state', 'screen')],
     metrics: [T('annot', 'screen'), T('annot', 'badge'), T('annot', 'changed')]
   });
+  /* B9 (v2): cây UI → cây semantics → TalkBack và framework kiểm thử. */
+  V('focus', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('focus', 'ui', 0, 0, 'list', 'ui'), N('focus', 'sem', 4, 0, 'eye', 'ui'), N('focus', 'a11y', 8, -2, 'phone', 'signal'), N('focus', 'test', 8, 4, 'check', 'job')],
+    edges: [E('e1', 'ui', 'sem'), E('e2', 'sem', 'a11y'), E('e3', 'sem', 'test')],
+    metrics: [T('focus', 'nodes'), T('focus', 'stops'), T('focus', 'actions')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

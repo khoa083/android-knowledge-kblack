@@ -432,3 +432,9 @@ Trạng thái: `chưa / đang / xong`.
   - **Tiếp theo:** b9 (host, semantics, test, accessibility: Kunneth Ch.10, Tutorials Ch.14–15), rồi pf, b10, b0.
   - **Rà sau B8 (2026-11-23):** goal g1 của B8 viết trung tính (đúng cho cả tab `runtime.annot` và `runtime.skip`); bỏ khẳng định "nơi gọi hàm @ReadOnlyComposable không có group" (mã compiler chỉ cho thấy cờ `withGroups` của phạm vi gọi, chưa đủ để khẳng định); bổ sung luật lambda vào đoạn `shouldBeRestartable`.
   - **Còn nợ:** goal g1 của B2, B4, B5, B6, B7 mô tả bước của tab thứ nhất; kiểm lại xem có đúng ở tab thứ hai không (B3 đã làm trung tính). Một số giá trị `stateAfter` của LZ/MD là từ tiếng Anh ngắn (`new ×4`, `reuse`, `insert`), nên đổi sang ký hiệu hoặc tên API khi sửa các file này.
+- **Runtime v2 · B9 viết lại (2026-11-23):**
+  - Nội dung (`runtime_v2_b9.py`, override + SEC_ORDER, giữ mục v1 `sem`): cây semantics, gộp và luật "con tự gộp đứng riêng", xóa/ghi đè/ẩn semantics, accessibility thực hành theo Tutorials Ch.15, kiểm thử UI theo Kunneth Ch.10 (rule, finder/action/assertion, testTag, thuộc tính semantics riêng), đồng bộ và đồng hồ ảo của test, debug (Layout Inspector, ghi chú phần InspectorInfo của sách dựa trên composed đã cũ); 3 bug, 3 bài tập, tự trả lời, quiz thêm q3, q4.
+  - Sim mới `runtime.focus` (Row thường, Row.clickable, clickable + customActions); sim `runtime.semantics` giữ làm tab thứ hai. 4 nguồn mới, đều HTTP 200.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; routes-check 115 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
+  - **Chưa dùng:** *Android Accessibility by Tutorials* (PDF) cho B9; có thể bổ sung khi làm lại track UI (E10).
+  - **Tiếp theo:** pf (hiệu năng và debug: đếm recomposition, Layout Inspector, composition tracing, baseline profile), rồi b10, b0.

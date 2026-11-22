@@ -1539,4 +1539,58 @@
       } }]
     });
   })();
+  /* ================= B9 (v2): một hàng bài viết qua cây semantics (Merging and clearing, Semantics docs, 2026-11-23; Tutorials Ch.15) =================
+     plain: Row thường → cây unmerged 5 node (thumbnail, title, meta, IconButton, icon của nút), TalkBack dừng 4 lần.
+     merge: Row.clickable gộp thumbnail + 2 Text; IconButton tự gộp nên KHÔNG bị gộp vào cha → 2 điểm dừng.
+     clear: Row.clickable + customActions, IconButton.clearAndSetSemantics {} → 1 điểm dừng, 1 custom action. Số điểm dừng là mô hình giản lược. */
+  (function () {
+    var m = 'focus';
+    var SC = ['plain', 'merge', 'clear'];
+    var DATA = {
+      plain: { nodes: 5, stops: 4, actions: 0, found: 'Text("Compose phases")' },
+      merge: { nodes: 6, stops: 2, actions: 0, found: 'Row: Text = [Compose phases, 5 min read]' },
+      clear: { nodes: 4, stops: 1, actions: 1, found: 'Row: Text = [Compose phases, 5 min read]' }
+    };
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'plain', d = DATA[sc], out = [], t = 0, c = { nodes: 0, stops: 0, actions: 0 }, found = '—';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {};
+        o.metrics = { nodes: c.nodes, stops: c.stops, actions: c.actions };
+        o.stateAfter = [{ labelKey: M(m, 'st.nodes'), value: String(c.nodes) }, { labelKey: M(m, 'st.stops'), value: c.stops ? String(c.stops) : '—' }, { labelKey: M(m, 'st.found'), value: found }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'focus_' + sc, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'observe', subject: o.activeNodes[o.activeNodes.length - 1] || 'ui', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['ui'], lines: [3, 4, 5, 6], kind: 'apply' });
+      c.nodes = d.nodes;
+      P('tree.' + sc, { activeNodes: ['ui', 'sem'], movingSignals: [{ edge: 'e1', tok: 'ui' }], lines: sc === 'clear' ? [3, 6] : [4, 5, 6], kind: 'apply' });
+      c.actions = d.actions;
+      P('rule.' + sc, { type: sc === 'plain' ? 'pitfall' : 'mechanism', activeNodes: ['sem'], lines: sc === 'plain' ? [3] : [3, 6], kind: 'act',
+        callouts: [{ kind: 'source', textKey: M(m, 'co.rule.' + sc) }] });
+      c.stops = d.stops;
+      P('walk.' + sc, { type: sc === 'plain' ? 'pitfall' : 'mechanism', activeNodes: ['sem', 'a11y'], movingSignals: [{ edge: 'e2', tok: 'ui' }], lines: [], params: { n: d.stops }, kind: 'observe' });
+      found = d.found;
+      P('find.' + sc, { activeNodes: ['sem', 'test'], movingSignals: [{ edge: 'e3', tok: 'job' }], lines: [5], kind: 'observe', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.find') }] });
+      P('end.' + sc, { type: sc === 'plain' ? 'pitfall' : 'mechanism', activeNodes: ['a11y', 'test'], lines: [], kind: 'observe', callouts: [{ kind: sc === 'plain' ? 'pitfall' : 'mechanism', textKey: M(m, 'co.end.' + sc) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'focus_plain',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'which', type: 'select', labelKey: M(m, 'ctl.which'), get: function (s) { return s.which; }, action: 'which', options: SC.map(function (v) { return { value: v, labelKey: M(m, 'ctl.which.' + v) }; }) }
+      ],
+      init: function () { return { which: 'plain' }; },
+      act: function (s, a, v) { return { which: SC.indexOf(v) >= 0 ? v : 'plain' }; },
+      steps: steps,
+      selfChecks: [{ name: 'Row thường: 4 điểm dừng; Row.clickable gộp con nhưng IconButton tự gộp nên tách riêng: 2 điểm dừng; clearAndSetSemantics + customActions: 1 điểm dừng, 1 custom action; test mặc định tìm thấy node đã gộp khi Row gộp', run: function () {
+        var last = function (w) { return steps({ which: w }).slice(-1)[0]; };
+        var a = last('plain'), b = last('merge'), c = last('clear');
+        return a.metrics.stops === 4 && b.metrics.stops === 2 && c.metrics.stops === 1 && c.metrics.actions === 1 && a.stateAfter[2].value.indexOf('Text(') === 0 && b.stateAfter[2].value.indexOf('Row') === 0;
+      } }]
+    });
+  })();
 })();

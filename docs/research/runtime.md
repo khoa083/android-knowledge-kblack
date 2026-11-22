@@ -342,3 +342,17 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Cờ StrongSkipping/IntrinsicRemember/OptimizeNonSkippingGroups mặc định true | `kt-compose-plugin` | impl |
 | `@ComposeCompilerApi` dùng trên Composer.skipping/inserting/ScopeUpdateScope | `rt-composer-src` (grep) | impl; KDoc trống, site mô tả theo nơi dùng |
 | Sim `runtime.annot`: none 1/1/1, NS badge 2, NR screen 2 badge 2, scope Screen | Theo mã compiler | selfCheck; giản lược tên hàm Composer (simp.1, simp.2) |
+
+### B9 · Semantics, accessibility và kiểm thử UI (viết lại 2026-11-23)
+
+**Đã đọc:** "Semantics in Compose", "Merging and clearing", "Test your Compose layout", "Testing APIs", "Synchronize your tests" (developer.android.com, toàn văn, 2026-11-23); Kunneth Ch.10; Tutorials Ch.15 (Ch.14 chưa đọc kỹ); chưa dùng *Android Accessibility by Tutorials* (PDF) cho chương này.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Cây semantics song song, chỉ ý nghĩa; mỗi node là phần tử nhận focus; composable không đặt semantics thì không có node; component tự điền; ví dụ lịch, Switch | `cp-semantics` | stable |
+| mergeDescendants; clickable/toggleable/ListItem tự gộp; trợ năng đọc unmerged, test đọc merged; printToLog, useUnmergedTree | `cp-semantics`, `cp-testing-apis` | stable |
+| mergePolicy theo thuộc tính; cha không gộp được con tự gộp; ví dụ hàng bài viết + BookmarkButton; clearAndSetSemantics (mọi bên dùng, thứ tự modifier, AI agent); hideFromAccessibility | `cp-merging` | stable |
+| Đồng bộ trước action/assertion; đồng hồ ảo; MainTestClock; autoAdvance; waitForIdle; waitUntil; idling resource; CountDownLatch | `cp-testing-sync` | stable |
+| createComposeRule/AndroidComposeTestRule, ui-test-manifest, instrumented test, finder/action/assertion, testTag, custom semantics property (và lời khuyên đừng làm bẩn cây), Layout Inspector, debug modifier, InspectorInfo (dựa trên composed, đã cũ) | Kunneth Ch.10 | Ví dụ của sách; ghi chỗ cũ |
+| 48dp, contentDescription, onClickLabel, clearAndSetSemantics + custom actions, heading, stateDescription; TalkBack khác theo thiết bị | Tutorials Ch.15 | Ví dụ của sách |
+| Sim `runtime.focus`: 4 / 2 / 1 điểm dừng; node unmerged 5 / 6 / 4 | Theo luật gộp của tài liệu | selfCheck; số điểm dừng là mô hình (simp.1) |

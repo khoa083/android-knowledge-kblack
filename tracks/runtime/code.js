@@ -437,4 +437,22 @@
       '}'
     ]);
   });
+  [['focus_plain', 'Row {', '        IconButton(onClick = onBookmark) {'],
+   ['focus_merge', { vi: 'Row(Modifier.clickable(onClick = onOpen)) {          // gộp con cháu', en: 'Row(Modifier.clickable(onClick = onOpen)) {          // merges descendants' }, { vi: '        IconButton(onClick = onBookmark) {             // tự gộp: không bị gộp vào Row', en: '        IconButton(onClick = onBookmark) {             // merges itself: not merged into Row' }],
+   ['focus_clear', 'Row(Modifier.clickable(onClick = onOpen).semantics { customActions = listOf(CustomAccessibilityAction("Add to bookmarks") { onBookmark(); true }) }) {', '        IconButton(onClick = onBookmark, Modifier.clearAndSetSemantics { }) {']
+  ].forEach(function (c) {
+    var row = typeof c[1] === 'string' ? '    ' + c[1] : { vi: '    ' + c[1].vi, en: '    ' + c[1].en };
+    add(c[0], [
+      '@Composable',
+      'fun ArticleRow(onOpen: () -> Unit, onBookmark: () -> Unit) {',
+      row,
+      '        Icon(painterResource(R.drawable.thumb), contentDescription = "Article thumbnail")',
+      '        Column { Text("Compose phases"); Text("5 min read") }',
+      typeof c[2] === 'string' ? c[2] : c[2],
+      '            Icon(Icons.Default.Bookmark, contentDescription = "Bookmark")',
+      '        }',
+      '    }',
+      '}'
+    ]);
+  });
 })();
