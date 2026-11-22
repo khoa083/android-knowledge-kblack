@@ -68,3 +68,27 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Release notes không là nguồn duy nhất; Grokking chỉ bổ trợ | `rt-releases` chỉ dùng cho phiên bản (B0); Grokking không dùng |
 
 **Đã xử lý 2026-11-21:** mỗi khối của sơ đồ B0 bấm được (chuột, Enter, Space; `role=button`, `aria-pressed`, nhãn "Chọn {tên}") qua `view.nodeAction: 'focus'` trong lõi; ô chọn "Thành phần" vẫn giữ làm cách thứ hai. (Trước đó là lệch spec có chủ ý vì lời nhắc tác vụ tự động cấm sửa `js/core`.)
+
+## Runtime v2 (từ 2026-11-22)
+
+**Ghim phiên bản cho chi tiết nội bộ:**
+- AndroidX `androidx-main` tại commit **`296313a488a01c84ddcb0801d4efee640a14070c`** (21/11/2026), lấy từ `+log/androidx-main?format=JSON`.
+- `how-compose-works.md` đọc toàn văn tại đúng commit đó.
+- Phiên bản thư viện vẫn là Compose 1.13.0 (BOM 2026.11.01), Kotlin 2.4.21.
+
+### DC · Tư duy khai báo và luật của thân composable
+
+**Đã đọc:**
+- Kunneth Ch.2 (trang PDF 42–61) và Ch.3 (trang PDF 62–86, phần composable functions và composing/recomposing);
+- "Thinking in Compose" (`cp-mental`), toàn văn, 2026-11-22.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Hệ View: inflate thành cây đối tượng, setter, view binding; ví dụ Hello View; hạn chế kế thừa (Button/ImageButton, padding/margin) | Kunneth Ch.2 | Ví dụ của sách |
+| Hai rủi ro của cập nhật thủ công (quên một nơi; cập nhật node vừa bị gỡ) | `cp-mental` | stable |
+| Khai báo: tạo lại khái niệm cả màn hình, chỉ áp thay đổi cần thiết; Compose chọn phần cần chạy | `cp-mental` | stable |
+| Composable trả `Unit` (ví dụ `println`); chuỗi Text → BasicText → CoreText → Layout → ReusableComposeNode; node có MeasurePolicy, LayoutDirection, Density, Modifier | Kunneth Ch.3 | Theo phiên bản Compose của sách; **ghi rõ trong nội dung, sẽ đối chiếu lại ở B6** |
+| `currentComposer` là nội bộ, không gọi | `rt-pkg` | stable |
+| Năm điều: skip, lạc quan/hủy, chạy thường xuyên, song song, thứ tự bất kỳ; ví dụ SharedPrefsToggle, ListWithBug, ButtonRow | `cp-mental` | stable |
+| HIỆN TẠI composable không chạy song song; Compose chạy trên luồng main | `cp-mental` (hai ghi chú "Note") | stable. **Sách (Kunneth) viết "có thể xảy ra song song": site sửa theo tài liệu** |
+| Sim `runtime.runs`: 11/5/4 lần | Kịch bản của site (2 frame animation, một lần hủy, là giả định) | selfCheck; nhãn giản lược |

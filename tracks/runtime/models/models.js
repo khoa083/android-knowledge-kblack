@@ -516,4 +516,64 @@
       ]
     });
   })();
+
+  /* ================= DC (v2): thân composable chạy bao nhiêu lần? (Thinking in Compose: fast, idempotent, side-effect free) =================
+     Kịch bản của site: Counter(count) có side effect `sentCount++` đặt TRONG THÂN hoặc TRONG CALLBACK onClick.
+     Có animation (Modifier.scale đọc giá trị animate trong composition) thì mỗi lần bấm thân chạy thêm 2 frame (giả định).
+     Lần bấm 3 và 4 sát nhau: recomposition cho count = 3 bị hủy và chạy lại với count = 4. Tài liệu nói Compose CÓ THỂ hủy
+     recomposition ("optimistic"); site minh hoạ hệ quả, không khẳng định thời điểm cụ thể của runtime. */
+  (function () {
+    var m = 'runs';
+    function steps(s) {
+      var out = [], t = 0, st = { taps: 0, runs: 0, fx: 0, shown: 0 }, inBody = s.where === 'body';
+      var snap = function () { return { taps: st.taps, runs: st.runs, effects: st.fx, shown: st.shown }; };
+      var body = function (count, cancelled) { st.runs++; if (inBody) st.fx++; if (!cancelled) st.shown = count; };
+      var P = function (id, o) { o.metrics = snap(); o.params = o.params || {}; o.params.count = o.params.count != null ? o.params.count : st.shown; o.params.runs = st.runs; o.params.fx = st.fx;
+        o.titleKey = M(m, 's.' + id + '.title'); o.explainKey = M(m, 's.' + id + '.explain'); (o.logEvents || []).forEach(function (e) { e.detailKey = M(m, 'ev.' + id); e.params = e.params || o.params; });
+        out.push(S(m, id + out.length, o)); };
+      var L = function (kind, subject, extra) { var e = { t: t += 4, kind: kind, subject: subject }; for (var k in extra || {}) e[k] = extra[k]; return [e]; };
+      var lines = function (a) { return { snippet: 'runs' + (inBody ? 'Body' : 'Cb') + (s.anim ? 'Anim' : ''), lines: a }; };
+      body(0);
+      P('first', { type: 'scenario', activeNodes: ['body'], affected: inBody ? ['effect'] : [], codeHighlight: lines(inBody ? [3, 4] : [3]),
+        callouts: inBody ? [{ kind: 'pitfall', textKey: M(m, 'co.firstBody') }] : [], logEvents: L('recompose', 'body') });
+      function tap(n, fast) {
+        st.taps++; if (!inBody) st.fx++;
+        P(fast ? 'tapFast' : 'tap', { params: { n: n }, activeNodes: ['tap'], affected: inBody ? [] : ['effect'], codeHighlight: lines([7]), logEvents: L('act', 'tap', { params: { n: n } }) });
+        P('write', { params: { n: n }, activeNodes: ['state', 'recomposer'], codeHighlight: lines([7]), logEvents: L('invalidate', 'recomposer', { params: { n: n } }) });
+      }
+      function recompose(n) {
+        body(n);
+        P('recompose', { params: { count: n }, activeNodes: ['body'], affected: inBody ? ['effect', 'screen'] : ['screen'], codeHighlight: lines(inBody ? [3, 4, 9] : [3, 9]), logEvents: L('recompose', 'body', { params: { count: n } }) });
+        if (s.anim) { body(n); body(n);
+          P('anim', { params: { count: n }, activeNodes: ['body'], affected: inBody ? ['effect'] : [], codeHighlight: lines([5, 8]), callouts: n === 1 ? [{ kind: 'mechanism', textKey: M(m, 'co.anim') }] : [], logEvents: L('frame', 'body') }); }
+      }
+      tap(1); recompose(1);
+      tap(2); recompose(2);
+      tap(3, false);
+      body(3, true);
+      P('start3', { params: { count: 3 }, activeNodes: ['body'], affected: inBody ? ['effect'] : [], codeHighlight: lines(inBody ? [3, 4] : [3]), logEvents: L('recompose', 'body', { params: { count: 3 } }) });
+      st.taps++; if (!inBody) st.fx++;
+      P('cancel', { type: 'pitfall', params: { n: 4 }, activeNodes: ['tap', 'recomposer'], codeHighlight: lines([7]), callouts: [{ kind: inBody ? 'pitfall' : 'mechanism', textKey: M(m, inBody ? 'co.cancelBody' : 'co.cancelCb') }],
+        logEvents: L('cancel', 'recomposer', { params: { n: 4 } }) });
+      recompose(4);
+      P('end', { activeNodes: ['screen'], callouts: [{ kind: inBody ? 'pitfall' : 'mechanism', textKey: M(m, 'co.end.' + s.where) }], logEvents: L('complete', 'screen') });
+      return out;
+    }
+    reg(m, {
+      codeId: 'runsBodyAnim',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'where', type: 'select', labelKey: M(m, 'ctl.where'), get: function (s) { return s.where; }, action: 'where', options: ['body', 'callback'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.where.' + v) }; }) },
+        { id: 'anim', type: 'toggle', labelKey: M(m, 'ctl.anim'), get: function (s) { return s.anim; }, action: 'anim' }
+      ],
+      init: function () { return { where: 'body', anim: true }; },
+      act: function (s, a, v) { var n = { where: s.where, anim: s.anim }; if (a === 'where') n.where = v === 'callback' ? 'callback' : 'body'; else n.anim = !!v; return n; },
+      steps: steps,
+      selfChecks: [{ name: 'side effect trong thân đếm theo số lần thân chạy (11 với animation, 5 không), trong callback đếm theo số lần bấm (4)', run: function () {
+        var last = function (w, a) { var x = steps({ where: w, anim: a }); return x[x.length - 1].metrics; };
+        var b = last('body', true), b0 = last('body', false), c = last('callback', true);
+        return b.taps === 4 && b.runs === 11 && b.effects === 11 && b0.runs === 5 && b0.effects === 5 && c.effects === 4 && c.runs === 11 && b.shown === 4;
+      } }]
+    });
+  })();
 })();

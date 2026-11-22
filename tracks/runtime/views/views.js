@@ -39,6 +39,14 @@
   V('applier', mix({ layout: 'pipeline' }, pick(['composer', 'slots', 'applier', 'uitree'], ['e4', 'e6', 'e7'], { slots: { col: 1, row: 0 }, applier: { col: 1, row: 1 }, uitree: { col: 2, row: 1 }, composer: { row: 0.5 } }), { metrics: [T('applier', 'calls')] }));
   V('counter', mix({ layout: 'cycle', zoom: false }, pick(['uitree', 'snapshot', 'recomposer', 'composition', 'composer', 'slots', 'applier', 'phases'], ['e9', 'e5', 'e1', 'e11', 'e4', 'e6', 'e7', 'e8']), { metrics: [T('counter', 'count'), T('counter', 'recomposed'), T('counter', 'skipped')] }));
   var N = function (m, id, x, y, icon, tok) { return { id: id, x: x, y: y, icon: icon, tok: tok, labelKey: K + 'm.' + m + '.n.' + id }; };
+  /* DC (v2): người dùng bấm → state → Recomposer → thân composable → màn hình; side effect đi từ thân hoặc từ callback. */
+  V('runs', {
+    layout: 'cycle', zoom: false,
+    nodes: [N('runs', 'tap', 0, 0, 'phone', 'ui'), N('runs', 'state', 4, 0, 'frame', 'state'), N('runs', 'recomposer', 8, 0, 'clock', 'runtime'),
+      N('runs', 'body', 8, 4, 'chip', 'runtime'), N('runs', 'screen', 4, 4, 'screen', 'ui'), N('runs', 'effect', 0, 4, 'store', 'error')],
+    edges: [E('e0', 'tap', 'state'), E('e1', 'state', 'recomposer'), E('e2', 'recomposer', 'body'), E('e3', 'body', 'screen'), E('e4', 'body', 'effect'), E('e5', 'tap', 'effect')],
+    metrics: [T('runs', 'taps'), T('runs', 'runs'), T('runs', 'effects'), T('runs', 'shown')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

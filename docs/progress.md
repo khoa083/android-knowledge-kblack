@@ -335,3 +335,12 @@ Trạng thái: `chưa / đang / xong`.
   - Play của lab Animation: giá trị tăng đều, không bị đè;
   - `--reduce`: 0 animation;
   - track-check UX/UI/Animation 0 vấn đề, 0 lỗi console; routes-check 108 route 0 vấn đề; report 0 lỗi.
+- **Runtime v2 bắt đầu (2026-11-22):**
+  - **Dàn chương** đã đối chiếu mục lục thật của 3 sách (Kunneth, Compose by Tutorials, Essentials), ghi ở `roadmap-v2.md`. Không có sách về nội bộ Compose, nên cơ chế lấy từ tài liệu chính thức, `how-compose-works.md` và mã AndroidX, ghim commit `296313a4`.
+  - **Generator:** `runtime_content.py` có hook module v2 (`runtime_v2_*.py`, cùng khuôn với Coroutines); tái tạo đúng từng byte khi chưa có module.
+  - **Chương mới DC "Tư duy khai báo"** (Kunneth Ch.2–3, Thinking in Compose):
+    - nội dung: hệ View, khai báo, emit node, năm điều về thân composable, nơi đặt side effect, 3 bug, 2 bài tập, tự trả lời, quiz;
+    - sim `runtime.runs`: đếm số lần bấm, số lần thân chạy, số lần side effect chạy; side effect đặt trong thân hoặc trong callback, có hoặc không có animation; có một lượt bị hủy;
+    - 3 nguồn sách mới.
+  - **Kiểm:** report 0 lỗi (selfCheck PASS); track-check Runtime (1280, 360) 0 vấn đề; routes-check 109 route, 0 vấn đề.
+  - **Tiếp theo:** b2 (compiler: `$composer`, group, `changed`, restart group), dựa trên `how-compose-works.md` @296313a4.

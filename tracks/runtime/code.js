@@ -111,4 +111,19 @@
     '  }',
     '}'
   ]);
+  [['runsBody', true, true], ['runsBodyAnim', true, true], ['runsCb', false, false], ['runsCbAnim', false, true]].forEach(function (c) {
+    var body = c[1], anim = /Anim$/.test(c[0]);
+    add(c[0], [
+      { vi: 'var sentCount = 0                       // biến dùng chung bên ngoài (ví dụ bộ đếm analytics)', en: 'var sentCount = 0                       // shared state outside (e.g. an analytics counter)' },
+      '@Composable',
+      'fun Counter(count: Int, onIncrement: () -> Unit) {',
+      body ? { vi: '    sentCount++                          // ✗ side effect TRONG THÂN', en: '    sentCount++                          // ✗ a side effect IN THE BODY' } : { vi: '    // thân chỉ mô tả UI, không ghi gì ra ngoài', en: '    // the body only describes UI, writes nothing outside' },
+      anim ? '    val scale by animateFloatAsState(if (count % 2 == 0) 1f else 1.2f)' : { vi: '    val scale = 1f                        // (không có animation)', en: '    val scale = 1f                        // (no animation)' },
+      '    Button(',
+      body ? '        onClick = { onIncrement() },' : { vi: '        onClick = { sentCount++; onIncrement() },   // ✓ side effect trong callback', en: '        onClick = { sentCount++; onIncrement() },   // ✓ the side effect in a callback' },
+      anim ? { vi: '        modifier = Modifier.scale(scale)     // đọc giá trị animation ngay trong composition', en: '        modifier = Modifier.scale(scale)     // reads the animated value during composition' } : '        modifier = Modifier.scale(scale)',
+      '    ) { Text("Count: $count") }',
+      '}'
+    ]);
+  });
 })();

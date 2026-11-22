@@ -28,6 +28,12 @@
       'Bật mặc định từ Kotlin 2.0.20; unstable so bằng ===; memoize lambda (B8, B10).', 'On by default since Kotlin 2.0.20; unstable compared with ===; lambda memoization (B8, B10).'),
     s('cp-semantics', 'Semantics in Compose', 'https://developer.android.com/develop/ui/compose/accessibility/semantics', 'Android Developers', 'stable',
       'Semantics tree song song; merged và unmerged; ai dùng cây nào (B9).', 'The parallel semantics tree; merged and unmerged; who uses which tree (B9).'),
+    s('book-kunneth', 'Android UI Development with Jetpack Compose (Thomas Kunneth, Packt), mã mẫu', 'https://github.com/PacktPublishing/Android-UI-Development-with-Jetpack-Compose', 'Packt (sách)', 'guideline',
+      'Sách giảng chính của Runtime v2: Ch.2–3 tư duy khai báo, composable, recomposition (DC); Ch.4–5, 7, 9, 10 cho các chương sau. Viết theo phiên bản Compose cũ hơn: chi tiết nội bộ được đối chiếu lại với tài liệu hiện tại.', 'Main teaching book for Runtime v2: Ch.2–3 declarative thinking, composables, recomposition (DC); Ch.4–5, 7, 9, 10 for later chapters. Written against an older Compose version: internals are re-checked against current docs.'),
+    s('book-compose-tut', 'Jetpack Compose by Tutorials, 2nd edition (Kodeco)', 'https://www.kodeco.com/books/jetpack-compose-by-tutorials', 'Kodeco (sách)', 'guideline',
+      'Ch.4 lists, Ch.6 modifiers, Ch.7 state, Ch.11 lifecycle/effects, Ch.13–15 interop, UI test, accessibility.', 'Ch.4 lists, Ch.6 modifiers, Ch.7 state, Ch.11 lifecycle/effects, Ch.13–15 interop, UI tests, accessibility.'),
+    s('book-compose-ess', 'Jetpack Compose 1.3 Essentials (Neil Smyth, Payload Media)', 'https://www.ebookfrenzy.com/', 'Payload Media (sách)', 'guideline',
+      'Theo Compose 1.3 (lịch sử): CompositionLocal, slot API, custom layout, IntrinsicSize, lazy list. Không bê hành vi phiên bản cũ sang hiện tại.', 'Targets Compose 1.3 (historical): CompositionLocal, slot APIs, custom layouts, IntrinsicSize, lazy lists. Old-version behaviour is not carried over to today.'),
     s('rt-releases', 'Compose Runtime releases', 'https://developer.android.com/jetpack/androidx/releases/compose-runtime', 'Android Developers', 'version',
       'Chỉ dùng để xác định phiên bản (1.13.0 trong BOM 2026.11.01).', 'Used only to pin the version (1.13.0 in BOM 2026.11.01).')
   ]);
