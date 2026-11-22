@@ -114,4 +114,18 @@
       { vi: 'val value = converter.convertFromVector(v)                  // trở lại kiểu ' + c[1], en: 'val value = converter.convertFromVector(v)                  // back to ' + c[1] }
     ]);
   });
+  [['seg_update', 'enum class CardState { Collapsed, Expanded }', 'val transition = updateTransition(targetState = cardState, label = "card")'],
+   ['seg_mutable', 'val state = remember { MutableTransitionState(CardState.Collapsed).apply { targetState = CardState.Expanded } }', 'val transition = rememberTransition(state, label = "card")']
+  ].forEach(function (c) {
+    add(c[0], [
+      c[1],
+      c[2],
+      'val color by transition.animateColor(transitionSpec = { tween(300) }, label = "color") { if (it == Expanded) Teal else Gray }',
+      'val height by transition.animateDp(transitionSpec = {',
+      '    if (Collapsed isTransitioningTo Expanded) spring(stiffness = Spring.StiffnessLow) else tween(300)',
+      '}, label = "height") { if (it == Expanded) 200.dp else 64.dp }',
+      'val alpha by transition.animateFloat(transitionSpec = { tween(150) }, label = "alpha") { if (it == Expanded) 1f else 0f }',
+      { vi: '// transition.currentState chỉ đổi khi MỌI con xong; transition.isRunning', en: '// transition.currentState only changes when EVERY child is done; transition.isRunning' }
+    ]);
+  });
 })();

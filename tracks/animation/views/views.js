@@ -46,6 +46,13 @@
     edges: [E('e1', 'value', 'conv'), E('e2', 'conv', 'vec'), E('e3', 'spec', 'vec'), E('e4', 'vec', 'value')],
     metrics: [T('vector', 'dim')]
   });
+  /* C3 (v2): state → Transition → ba con (alpha, color, height), mỗi con có spec riêng. */
+  V('segment', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('segment', 'state', 0, 0, 'frame', 'state'), N('segment', 'transition', 4, 0, 'motion', 'anim'), N('segment', 'alpha', 8, -4, 'eye', 'anim'), N('segment', 'color', 8, 0, 'spark', 'anim'), N('segment', 'height', 8, 4, 'grid', 'anim')],
+    edges: [E('e0', 'state', 'transition'), E('e1', 'transition', 'alpha'), E('e2', 'transition', 'color'), E('e3', 'transition', 'height')],
+    metrics: [T('segment', 'running'), T('segment', 'ms')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

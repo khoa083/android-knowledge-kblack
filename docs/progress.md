@@ -466,3 +466,9 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.vector` (Dp/tween, Offset/spring, Color/Oklab, Float/keyframes). 3 nguồn mới, đều HTTP 200.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ sạch; đã xem ảnh sim.
   - **Tiếp theo:** c3 (updateTransition; Kunneth Ch.8 multiple values, Tutorials Ch.12 transition, `Transition.kt`).
+- **Animation v2 · C3 viết lại (2026-11-23):**
+  - Nội dung (`animation_v2_c3.py`, giữ mục v1 `t` và sim `animation.transition`): vì sao cần Transition (JoinButton của Tutorials Ch.12, Kunneth Ch.8), dưới mui xe ở commit ghim (animateTo, currentState, isRunning, chạy lại khi đích con đổi), transitionSpec theo hướng (isTransitioningTo, chỉ FiniteAnimationSpec), MutableTransitionState; 2 bug, 2 bài tập, tự trả lời, quiz thêm q3, q4.
+  - Sim mới `animation.segment` (mở rộng, đổi ý giữa chừng, MutableTransitionState). Nguồn mới `an-transition-src` (HTTP 200).
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ sạch; đã xem ảnh sim.
+  - **Tiếp theo:** c4 (AnimatedVisibility, animateEnterExit, AnimatedContent, Crossfade; Kunneth Ch.8, Essentials Ch.39, AAT Ch.10, `AnimatedVisibility.kt`, `AnimatedContent.kt`), rồi c5, if, c6, se, cv, vm, c7, c8, c0 theo `roadmap-v2.md`.
+  - **Còn nợ (Animation):** goal g1 của c1/c2/c3 ở bước 2 chỉ đúng với tab sim mới; tab lab (compute) không có bước nên goal đó chỉ đạt qua tab đầu.

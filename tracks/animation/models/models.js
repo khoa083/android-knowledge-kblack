@@ -358,4 +358,64 @@
       } }]
     });
   })();
+  /* ================= C3 (v2): một Transition, nhiều con, currentState (Transition.kt @296313a4) =================
+     expand: Collapsed → Expanded; con: alpha tween 150, color tween 300, height spring (~400 ms, minh họa). currentState giữ Collapsed tới khi MỌI con xong.
+     reverse: tại 150 ms target đổi về Collapsed; các con đổi hướng; currentState vẫn Collapsed, xong thì isRunning = false.
+     mutable: MutableTransitionState(Collapsed).apply { targetState = Expanded } → chạy ngay khi vào composition (updateTransition thì không). */
+  (function () {
+    var m = 'segment';
+    var SC = ['expand', 'reverse', 'mutable'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'expand', out = [], t = 0, run = 0, ms = 0, cur = 'Collapsed', tgt = 'Collapsed', running = 'false';
+      var snip = sc === 'mutable' ? 'seg_mutable' : 'seg_update';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {};
+        o.metrics = { running: run, ms: ms };
+        o.stateAfter = [{ labelKey: M(m, 'st.target'), value: tgt }, { labelKey: M(m, 'st.current'), value: cur }, { labelKey: M(m, 'st.running'), value: running }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: snip, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t = ms, kind: o.kind || 'frame', subject: o.activeNodes[o.activeNodes.length - 1] || 'state', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var kids = [{ edge: 'e1', tok: 'anim' }, { edge: 'e2', tok: 'anim' }, { edge: 'e3', tok: 'anim' }];
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['state', 'transition'], lines: [1, 2], kind: 'observe' });
+      tgt = 'Expanded'; run = 3; running = 'true';
+      P(sc === 'mutable' ? 'enter' : 'target', { activeNodes: ['state', 'transition', 'alpha', 'color', 'height'], movingSignals: [{ edge: 'e0', tok: 'state' }].concat(kids), lines: sc === 'mutable' ? [1, 2] : [2], kind: 'target-change',
+        callouts: sc === 'mutable' ? [{ kind: 'source', textKey: M(m, 'co.mutable') }] : [] });
+      if (sc === 'reverse') {
+        ms = 150; tgt = 'Collapsed';
+        P('reverse', { type: 'pitfall', activeNodes: ['state', 'transition', 'alpha', 'color', 'height'], movingSignals: [{ edge: 'e0', tok: 'error' }].concat(kids), lines: [2], kind: 'interrupt', callouts: [{ kind: 'source', textKey: M(m, 'co.adjust') }] });
+        ms = 300; run = 1;
+        P('rev.mostDone', { activeNodes: ['transition', 'height'], movingSignals: [{ edge: 'e3', tok: 'anim' }], lines: [5, 6], kind: 'frame' });
+        ms = 450; run = 0; running = 'false';
+        P('rev.done', { activeNodes: ['transition', 'state'], lines: [8], kind: 'settle' });
+        P('end.reverse', { activeNodes: ['state'], lines: [], kind: 'settle' });
+        return out;
+      }
+      ms = 150; run = 2;
+      P('alphaDone', { activeNodes: ['transition', 'alpha'], movingSignals: [{ edge: 'e1', tok: 'anim' }], lines: [7, 8], kind: 'settle', callouts: [{ kind: 'source', textKey: M(m, 'co.current') }] });
+      ms = 300; run = 1;
+      P('colorDone', { activeNodes: ['transition', 'color'], movingSignals: [{ edge: 'e2', tok: 'anim' }], lines: [3], kind: 'settle' });
+      ms = 400; run = 0; cur = 'Expanded'; running = 'false';
+      P('allDone', { activeNodes: ['transition', 'height', 'state'], movingSignals: [{ edge: 'e3', tok: 'anim' }], lines: [4, 5, 6, 8], kind: 'settle' });
+      P('end.' + sc, { activeNodes: ['state'], lines: [], kind: 'settle', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.end.' + sc) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'seg_update',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'expand' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'currentState giữ Collapsed tới khi cả ba con xong (400 ms) rồi thành Expanded; đổi hướng giữa chừng: currentState vẫn Collapsed và cuối cùng isRunning = false; MutableTransitionState chạy ngay khi vào composition', run: function () {
+        var x = steps({ which: 'expand' }), r = steps({ which: 'reverse' }), mu = steps({ which: 'mutable' });
+        var byId = function (arr, p) { return arr.filter(function (o) { return o.id.indexOf(p) === 0; })[0]; };
+        return byId(x, 'colorDone').stateAfter[1].value === 'Collapsed' && byId(x, 'allDone').stateAfter[1].value === 'Expanded' &&
+          r[r.length - 1].stateAfter[1].value === 'Collapsed' && r[r.length - 1].stateAfter[2].value === 'false' && mu[1].metrics.running === 3;
+      } }]
+    });
+  })();
 })();

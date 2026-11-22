@@ -103,3 +103,12 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 | Màu → Oklab, AnimationVector4D(alpha, L, a, b), kẹp khi đổi ngược | `an-colorconv-src` | impl |
 | Oklab của đỏ ≈ (.628, .225, .126), trắng (1, 0, 0); FastOutSlowIn(0.5) ≈ 0.776 | Tính bằng công thức chuẩn (site tự tính) | ghi rõ trong simp |
 | Spec/easing, spring, keyframes trong ví dụ | Essentials Ch.39–40, Kunneth Ch.8 | Ví dụ của sách |
+
+### C3 v2 · updateTransition (2026-11-23)
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| updateTransition = remember Transition + animateTo(target) mỗi lần chạy + DisposableEffect; con mặc định spring, chỉ FiniteAnimationSpec; currentState là initialState tới khi xong; adjust course khi target đổi; chạy lại nếu đích của con đổi; MutableTransitionState cho state đầu khác target, phải remember | `an-transition-src` (@296313a4) | impl |
+| JoinButton bốn thuộc tính, updateTransition + animateColor(tween(600)) | Tutorials Ch.12 | Ví dụ của sách |
+| borderWidth/degrees; isRunning, segment, currentState | Kunneth Ch.8 | Ví dụ của sách |
+| Sim `animation.segment`: currentState đổi ở 400 ms; đổi ý thì không bao giờ là Expanded; Mutable chạy ngay | Theo KDoc | selfCheck; mốc thời gian minh họa |
