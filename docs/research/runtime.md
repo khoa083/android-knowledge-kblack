@@ -356,3 +356,16 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | createComposeRule/AndroidComposeTestRule, ui-test-manifest, instrumented test, finder/action/assertion, testTag, custom semantics property (và lời khuyên đừng làm bẩn cây), Layout Inspector, debug modifier, InspectorInfo (dựa trên composed, đã cũ) | Kunneth Ch.10 | Ví dụ của sách; ghi chỗ cũ |
 | 48dp, contentDescription, onClickLabel, clearAndSetSemantics + custom actions, heading, stateDescription; TalkBack khác theo thiết bị | Tutorials Ch.15 | Ví dụ của sách |
 | Sim `runtime.focus`: 4 / 2 / 1 điểm dừng; node unmerged 5 / 6 / 4 | Theo luật gộp của tài liệu | selfCheck; số điểm dừng là mô hình (simp.1) |
+
+### PF · Hiệu năng và debug (chương mới 2026-11-23)
+
+**Đã đọc:** "Compose performance", "Follow best practices", "Composition tracing", "Baseline Profiles", "Debug your Compose UI", "Tools for performance" (developer.android.com, toàn văn, 2026-11-23; trang `tooling/layout-inspector` trả 404 nên đọc `tooling/debug`). Kunneth Ch.10 cho Layout Inspector. Chưa đọc mã `ComputedState.kt` (site ghi rõ).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Debug có chi phí; release + R8; Baseline Profile; Compose 1.9.0 bằng View về jank cuộn | `cp-performance` | stable |
+| ~30% từ lần mở đầu; AOT khi cài; profile của Compose chỉ cho thư viện; Macrobenchmark | `cp-baseline` | stable |
+| remember + phản ví dụ; luật key/contentType chi tiết; derivedStateOf vs computedStateOf (1.13); không dùng state đọc bên trong làm key; Jetsnack ba bước; drawBehind; BadComposable | `cp-bestpractices` | stable |
+| Composition tracing, phiên bản tối thiểu, profileable; recomposition tracing 1.13.0+, tốn hơn | `cp-tracing` | stable |
+| Cột composition/skip, Show Recomposition Counts, API 29+, Compose 1.2.0+, gradient, META-INF; số đếm không thay benchmark | `cp-tooling-debug` | stable |
+| Sim `runtime.perf`: 4 / 1 / vòng lặp | Theo `cp-bestpractices` | selfCheck; giản lược (simp.1, simp.2) |

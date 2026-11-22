@@ -438,3 +438,9 @@ Trạng thái: `chưa / đang / xong`.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; routes-check 115 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Chưa dùng:** *Android Accessibility by Tutorials* (PDF) cho B9; có thể bổ sung khi làm lại track UI (E10).
   - **Tiếp theo:** pf (hiệu năng và debug: đếm recomposition, Layout Inspector, composition tracing, baseline profile), rồi b10, b0.
+- **Runtime v2 · PF chương mới (2026-11-23):**
+  - Nội dung (`runtime_v2_pf.py`): đo cho đúng (release, R8, Baseline Profile ~30%), remember phép tính đắt và luật key/contentType chi tiết, derivedStateOf và computedStateOf (Compose 1.13), hoãn lần đọc (ví dụ Jetsnack ba bước), không ghi ngược, công cụ (Layout Inspector đếm recompose/skip, composition tracing, recomposition tracing, Macrobenchmark) và quy trình gợi ý; 3 bug, 2 bài tập, tự trả lời, quiz 4 câu. Manifest đặt PF giữa b9 và b10.
+  - Sim mới `runtime.perf` (đọc thẳng, derivedStateOf, ghi ngược). 5 nguồn mới, đều HTTP 200.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim (sửa chú thích bố cục).
+  - **Chưa xác minh:** cơ chế bên trong của `computedStateOf` (chưa đọc `ComputedState.kt`).
+  - **Tiếp theo:** b10 (Live: luồng +1, cập nhật tham chiếu tới các chương mới), rồi b0 (bản đồ; sửa câu "androidx-main, đọc 2026-11-21").

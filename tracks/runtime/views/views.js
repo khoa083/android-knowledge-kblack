@@ -158,6 +158,13 @@
     edges: [E('e1', 'ui', 'sem'), E('e2', 'sem', 'a11y'), E('e3', 'sem', 'test')],
     metrics: [T('focus', 'nodes'), T('focus', 'stops'), T('focus', 'actions')]
   });
+  /* PF (v2): state cuộn/count → màn hình; derivedStateOf đứng giữa lọc thay đổi; mũi tên ngược là ghi ngược. */
+  V('perf', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('perf', 'state', 0, 0, 'frame', 'state'), N('perf', 'derived', 4, 4, 'set', 'runtime'), N('perf', 'screen', 8, 0, 'layers', 'runtime')],
+    edges: [E('e1', 'state', 'screen'), E('e2', 'screen', 'state'), E('e3', 'state', 'derived'), E('e4', 'derived', 'screen')],
+    metrics: [T('perf', 'recomposed'), T('perf', 'value')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],

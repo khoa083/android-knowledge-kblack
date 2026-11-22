@@ -455,4 +455,31 @@
       '}'
     ]);
   });
+  add('perf_direct', [
+    'val listState = rememberLazyListState()',
+    'LazyColumn(state = listState) { /* … */ }',
+    '',
+    '',
+    { vi: 'val showButton = listState.firstVisibleItemIndex > 0      // ✗ đọc trong composition', en: 'val showButton = listState.firstVisibleItemIndex > 0      // ✗ read in composition' },
+    'AnimatedVisibility(visible = showButton) { ScrollToTopButton() }'
+  ]);
+  add('perf_derived', [
+    'val listState = rememberLazyListState()',
+    'LazyColumn(state = listState) { /* … */ }',
+    '',
+    '',
+    { vi: 'val showButton by remember {                               // ✓ chỉ đổi khi Boolean đổi', en: 'val showButton by remember {                               // ✓ changes only when the Boolean does' },
+    '    derivedStateOf { listState.firstVisibleItemIndex > 0 } }',
+    'AnimatedVisibility(visible = showButton) { ScrollToTopButton() }'
+  ]);
+  add('perf_backwards', [
+    '@Composable',
+    'fun BadComposable() {',
+    '    var count by remember { mutableIntStateOf(0) }',
+    { vi: '    Button(onClick = { count++ }) { Text("Recompose") }      // ghi trong sự kiện: đúng', en: '    Button(onClick = { count++ }) { Text("Recompose") }      // write in an event: fine' },
+    '',
+    { vi: '    Text("$count")                                           // đọc count', en: '    Text("$count")                                           // reads count' },
+    { vi: '    count++                                                  // ✗ ghi ngược: ghi state vừa đọc', en: '    count++                                                  // ✗ backwards write: writes state just read' },
+    '}'
+  ]);
 })();

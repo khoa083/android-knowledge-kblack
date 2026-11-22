@@ -1593,4 +1593,64 @@
       } }]
     });
   })();
+  /* ================= PF (v2): đếm recomposition cho ba cách viết (Performance best practices, đọc 2026-11-23) =================
+     direct: đọc listState.firstVisibleItemIndex trong composition → mỗi lần index đổi (0→1→2→3→4) Screen recompose: 4.
+     derived: remember { derivedStateOf { index > 0 } } → chỉ lần Boolean đổi (lần 1) mới recompose: 1.
+     backwards: count++ ngay trong thân composable sau khi đã đọc count → mỗi lượt recompose lại ghi state đã đọc → vòng lặp không dừng. */
+  (function () {
+    var m = 'perf';
+    var SC = ['direct', 'derived', 'backwards'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'direct', out = [], t = 0, rec = 0, val = 0, show = 'false';
+      var snip = 'perf_' + sc;
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {};
+        o.metrics = { recomposed: rec, value: val };
+        o.stateAfter = sc === 'backwards' ? [{ labelKey: M(m, 'st.count'), value: String(val) }, { labelKey: M(m, 'st.rec'), value: String(rec) }]
+          : [{ labelKey: M(m, 'st.index'), value: String(val) }, { labelKey: M(m, 'st.show'), value: show }, { labelKey: M(m, 'st.rec'), value: String(rec) }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: snip, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'recompose', subject: o.activeNodes[o.activeNodes.length - 1] || 'screen', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['state', 'screen'], lines: sc === 'backwards' ? [2, 6, 7] : [1, 5], kind: 'observe' });
+      [1, 2, 3, 4].forEach(function (i) {
+        if (sc === 'backwards') {
+          val = i; rec++;
+          P(i === 1 ? 'bw.first' : 'bw.loop', { type: i === 1 ? 'mechanism' : 'pitfall', activeNodes: ['state', 'screen'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: i === 1 ? 'state' : 'error' }],
+            lines: i === 1 ? [4] : [6, 7], params: { n: i }, kind: i === 1 ? 'write' : 'recompose', callouts: i === 2 ? [{ kind: 'pitfall', textKey: M(m, 'co.backwards') }] : [] });
+          return;
+        }
+        val = i;
+        var flips = show === 'false';
+        show = 'true';
+        if (sc === 'direct' || flips) {
+          rec++;
+          P(sc === 'direct' ? 'd.scroll' : 'v.flip', { type: sc === 'direct' && i > 1 ? 'pitfall' : 'mechanism', activeNodes: ['state', 'screen'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: sc === 'direct' ? [5] : [5, 6], params: { n: i } });
+        } else {
+          P('v.same', { activeNodes: ['state', 'derived'], movingSignals: [{ edge: 'e3', tok: 'state' }], lines: [6], params: { n: i }, kind: 'skip',
+            callouts: i === 2 ? [{ kind: 'mechanism', textKey: M(m, 'co.derived') }] : [] });
+        }
+      });
+      P('end.' + sc, { type: sc === 'derived' ? 'mechanism' : 'pitfall', activeNodes: ['screen'], lines: [], kind: 'observe', callouts: [{ kind: sc === 'derived' ? 'mechanism' : 'pitfall', textKey: M(m, 'co.end.' + sc) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'perf_direct',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'which', type: 'select', labelKey: M(m, 'ctl.which'), get: function (s) { return s.which; }, action: 'which', options: SC.map(function (v) { return { value: v, labelKey: M(m, 'ctl.which.' + v) }; }) }
+      ],
+      init: function () { return { which: 'direct' }; },
+      act: function (s, a, v) { return { which: SC.indexOf(v) >= 0 ? v : 'direct' }; },
+      steps: steps,
+      selfChecks: [{ name: 'đọc thẳng firstVisibleItemIndex: 4 recompose cho 4 lần đổi; derivedStateOf: 1 recompose; backwards write: recompose tăng mãi (4 sau 4 frame) và count bằng số lượt', run: function () {
+        var last = function (w) { return steps({ which: w }).slice(-1)[0].metrics; };
+        var a = last('direct'), b = last('derived'), c = last('backwards');
+        return a.recomposed === 4 && b.recomposed === 1 && c.recomposed === 4 && c.value === 4;
+      } }]
+    });
+  })();
 })();
