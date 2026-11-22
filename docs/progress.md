@@ -430,3 +430,5 @@ Trạng thái: `chưa / đang / xong`.
   - Glossary Runtime thêm 9 thuật ngữ song ngữ: constraints, đo một lượt, intrinsic measurement, SubcomposeLayout, Modifier.Node, contentType, restartable/skippable, @Stable/@Immutable, compiler report.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; routes-check 115 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim (sửa chú thích hình cho đúng bố cục cây).
   - **Tiếp theo:** b9 (host, semantics, test, accessibility: Kunneth Ch.10, Tutorials Ch.14–15), rồi pf, b10, b0.
+  - **Rà sau B8 (2026-11-23):** goal g1 của B8 viết trung tính (đúng cho cả tab `runtime.annot` và `runtime.skip`); bỏ khẳng định "nơi gọi hàm @ReadOnlyComposable không có group" (mã compiler chỉ cho thấy cờ `withGroups` của phạm vi gọi, chưa đủ để khẳng định); bổ sung luật lambda vào đoạn `shouldBeRestartable`.
+  - **Còn nợ:** goal g1 của B2, B4, B5, B6, B7 mô tả bước của tab thứ nhất; kiểm lại xem có đúng ở tab thứ hai không (B3 đã làm trung tính). Một số giá trị `stateAfter` của LZ/MD là từ tiếng Anh ngắn (`new ×4`, `reuse`, `insert`), nên đổi sang ký hiệu hoặc tên API khi sửa các file này.
