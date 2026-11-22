@@ -396,6 +396,7 @@ progress { accent-color: var(--brand); height: 8px; width: 90px; vertical-align:
 .blk > summary, .blk > p:first-child { padding: 8px 10px; margin: 0; }
 details.blk > summary { cursor: pointer; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; min-height: 32px; }
 details.blk > summary { list-style: none; }
+details.blk > summary > span, .blk > p > span { min-width: 0; overflow-wrap: anywhere; }
 details.blk > summary::-webkit-details-marker { display: none; }
 details.blk > summary::before { content: '▸'; font-weight: 800; }
 details.blk[open] > summary::before { content: '▾'; }

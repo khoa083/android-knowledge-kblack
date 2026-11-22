@@ -255,3 +255,20 @@ Cầu nối X2: nội dung đầy đủ ở A8 `sec.bridge` (vi/en); `shared/bri
 | Bug "withTimeout im lặng trong launch" | Suy ra từ ngữ nghĩa `CancellationException` (tr. 149) | Suy luận, khớp ví dụ của sách |
 
 Chương mới id `sf`, đặt giữa A6 và A7, dùng lại sim `coroutines.builders` (đặt sau mục "cs"). Đã sửa câu dẫn sim ở SF và A3 cho khớp nhãn điều khiển thật.
+
+### A4 v2 (phần 2) · Dispatchers (viết 2026-11-22)
+
+**Đã đọc:** *Kotlin Coroutines: Deep Dive*, chương "Dispatchers", trang PDF 153–172. Đọc toàn văn. Mục Project Loom (JVM 19+, không áp dụng cho Android) chỉ nhắc qua, không viết thành mục.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Default = số nhân (tối thiểu 2); `runBlocking` tự đặt dispatcher | Deep Dive tr. 153–154; `kx-dispatchers` | API ổn định |
+| IO giới hạn 64 hoặc số nhân (lấy số lớn hơn); dùng chung pool với Default; `IO.limitedParallelism` có giới hạn độc lập, không bị chặn ở 64 | Deep Dive tr. 156–160; **đã đối chiếu nguyên văn tài liệu API `Dispatchers.IO`** ("64 threads or the number of cores (whichever is larger)"; ví dụ 64 + 100 + 60) | API ổn định |
+| `limitedParallelism` có từ 1.6; executor dispatcher phải `close()` | Deep Dive tr. 154, 161–162 | API ổn định |
+| Unconfined; `Main.immediate` | Deep Dive tr. 166–168 | API ổn định |
+| `viewModelScope` dùng `Dispatchers.Main.immediate` | **mã nguồn AndroidX** `lifecycle-viewmodel/.../internal/CloseableCoroutineScope.kt` (androidx-main, đọc 2026-11-22; dòng 61) → nguồn `ax-vmscope`. **Đóng mục còn mở của U1** | impl, có nguồn |
+| `ContinuationInterceptor`, `DispatchedContinuation` | Deep Dive tr. 168–170; `kt-interceptor` | Interface ổn định; `DispatchedContinuation` là impl |
+| Bảng đo hiệu năng | Deep Dive tr. 170–172 | Số đo của tác giả; chỉ dùng các nhận xét, không chép bảng |
+| Lỗi "Module with the Main dispatcher is missing" | Thông báo của kotlinx khi thiếu Main | **Ghi theo trí nhớ, chưa đối chiếu nguyên văn** |
+
+**Sửa lõi CSS:** tiêu đề của khối hỏi–đáp có mã dài làm tràn 3px ở 360px; đã cho `overflow-wrap: anywhere` trong `summary > span`.

@@ -235,4 +235,10 @@ Trạng thái: `chưa / đang / xong`.
   - thêm 2 nguồn API.
 - **Kiểm SF:** report 0 lỗi; track-check không thêm vấn đề; routes-check 103 route, 0 vấn đề.
 - **Phần 2 còn lại:** Dispatchers (tr. 153–172) → A4; Tự dựng scope (tr. 173–182); Shared state (tr. 183–197) và Testing (tr. 198–233) → A9. Sau đó Phần 3 (Channel, Flow → A7) và Phần 4 (→ A8).
+- **A4 v2 phần Dispatchers (2026-11-22):**
+  - 10 mục mới (Default, Main, IO dùng chung pool, `IO.limitedParallelism`, một luồng, Unconfined, `Main.immediate`, `ContinuationInterceptor`, chọn theo loại việc) + 3 bug + 2 bài tập;
+  - `SEC_ORDER` ghép với phần Context;
+  - thêm 3 nguồn (`kx-dispatchers`, `kt-interceptor`, `ax-vmscope`: mã nguồn AndroidX cho `viewModelScope` dùng `Main.immediate`).
+- **Sửa CSS:** tiêu đề ô hỏi–đáp có mã dài làm tràn ở 360px.
+- **Kiểm:** report 0 lỗi; routes-check 103 route, 0 vấn đề; track-check coroutines (4 cũ), runtime 0, animation 0.
 
