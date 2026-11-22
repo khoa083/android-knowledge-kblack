@@ -63,3 +63,9 @@ Thư mục `E:\AndroidDeepDiveExplorer-Prompts\` chứa toàn bộ đặc tả. 
   - Design: không bịa số liệu; "định luật" là heuristic có giới hạn; framework của tác giả phải ghi tên tác giả; công thức có ví dụ kiểm chứng; dữ liệu đo trong sandbox không gửi đi đâu.
 - **Nguồn:** nguồn chính thức hoặc chuẩn luôn thắng khi có mâu thuẫn. **Cập nhật 2026-11-21 (quyết định của người dùng):** site chỉ dùng cá nhân để tự học, nên tận dụng tối đa sách trong `E:\AndroidBooks` làm nguồn giảng dạy chính (chi tiết, đầy đủ, không rút gọn). Vẫn không ghi đường dẫn file cục bộ lên site. Lộ trình: `docs/roadmap-v2.md`.
 - Chỉ ghi file trong thư mục này.
+
+## Git (quyết định của người dùng, 2026-11-22)
+
+- Commit bằng danh tính đã đặt trong `git config` của repo này (`khoa083`). Không thêm dòng `Co-Authored-By: Claude …` hay bất kỳ dòng ghi công Claude/Anthropic nào vào commit message hay PR.
+- Sau mỗi commit (chương đã xong và kiểm sạch), **push luôn** lên `origin main` (https://github.com/khoa083/android-knowledge-kblack). Không force push trừ khi người dùng yêu cầu.
+- Chỉ `git add` đúng các file đã sửa, không `git add -A`.
