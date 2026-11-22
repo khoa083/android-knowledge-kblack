@@ -444,3 +444,7 @@ Trạng thái: `chưa / đang / xong`.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Runtime 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim (sửa chú thích bố cục).
   - **Chưa xác minh:** cơ chế bên trong của `computedStateOf` (chưa đọc `ComputedState.kt`).
   - **Tiếp theo:** b10 (Live: luồng +1, cập nhật tham chiếu tới các chương mới), rồi b0 (bản đồ; sửa câu "androidx-main, đọc 2026-11-21").
+- **Runtime v2 · B10 viết lại (2026-11-23):**
+  - Nội dung (`runtime_v2_b10.py`, override + SEC_ORDER, giữ mục v1 `flow` và sim `runtime.counter` theo lộ trình): tám bước, mỗi bước nối với chương và tên API thật (setter MutableState, GlobalSnapshotManager, restart scope, Recomposer/frame clock, Composer/SlotTable, skip/strong skipping, UiApplier, phase, semantics), hai biến thể của sim, những gì tám bước bỏ qua (gom ghi, bỏ lượt, tạm dừng, lazy, NodeChain, effect), 3 bug định vị theo bước, 2 bài tập, tự trả lời, quiz thêm q3, q4. Không có sim mới (lộ trình ghi "giữ").
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check Runtime 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ vi/en sạch.
+  - **Tiếp theo:** b0 (bản đồ toàn cảnh, viết cuối; sửa câu "androidx-main, đọc 2026-11-21").

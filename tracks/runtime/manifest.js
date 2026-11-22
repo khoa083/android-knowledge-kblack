@@ -25,7 +25,7 @@ ADE.registerTrack({
     { id: 'b8', titleKey: 'track.runtime.b8.title', sims: ['runtime.annot', 'runtime.skip'], simAfter: 'annotations', bridges: ['X2'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },   // v2 (stability docs, runtime annotations @296313a4, Compose compiler Kotlin v2.4.21)
     { id: 'b9', titleKey: 'track.runtime.b9.title', sims: ['runtime.focus', 'runtime.semantics'], simAfter: 'merge', bridges: ['X6'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (Kunneth Ch.10, Tutorials Ch.14–15, semantics/merging/testing docs)
     { id: 'pf', titleKey: 'track.runtime.pf.title', sims: ['runtime.perf'], simAfter: 'derive', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (performance docs, best practices, tracing, baseline profiles)
-    { id: 'b10', titleKey: 'track.runtime.b10.title', sims: ['runtime.counter'], bridges: ['X1'], goals: [{ id: 'g1', step: 4 }, { id: 'g2', step: 'end' }] }
+    { id: 'b10', titleKey: 'track.runtime.b10.title', sims: ['runtime.counter'], simAfter: 'flow', bridges: ['X1'], goals: [{ id: 'g1', step: 4 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'runtime-counter', model: 'runtime.counter', titleKey: 'track.runtime.preset.counter' },
