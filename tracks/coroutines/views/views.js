@@ -221,6 +221,37 @@
     }
   });
 
+  /* FB: producer (tải trang) và consumer (kiểm user) theo thời gian của mã. */
+  V('paging', {
+    layout: 'lanes',
+    nodes: [N('paging', 'prod', 0, 0, 'queue', 'flow'), N('paging', 'cons', 4, 0, 'job', 'coroutine')],
+    edges: [], metrics: [TIME, { id: 'pages', labelKey: K + 'm.paging.met.pages' }, { id: 'checked', labelKey: K + 'm.paging.met.checked' }],
+    scopeKey: K + 'm.paging.col', barKeys: { run: K + 'm.paging.bar.run', wait: K + 'm.paging.bar.wait' },
+    lanes: function (events, step, opts) {
+      var c = clock(step, opts), L = new Lanes(opts.pos), cur = { prod: null, cons: null };
+      var rows = [{ id: 'prod', labelKey: K + 'm.paging.n.prod', group: K + 'lanes.co' }, { id: 'cons', labelKey: K + 'm.paging.n.cons', group: K + 'lanes.co' }];
+      var T = function (k, p) { return ADE.t(K + 'm.paging.lbl.' + k, p); };
+      events.forEach(function (x) {
+        var e = x.e, P = e.params || {}, t0 = e.t;
+        var want = {
+          prod: P.p === 'fetch' ? ['run', T('page', { n: P.page != null ? P.page : '' }) + '|' + t0] : P.p === 'wait' ? ['wait', T('waitEmit')] : null,
+          cons: P.c === 'check' ? ['run', T('check', { n: P.u }) + '|' + t0] : P.c === 'wait' ? ['wait', T('waitItem')] : null
+        };
+        ['prod', 'cons'].forEach(function (row) {
+          var w = want[row], sig = w ? w.join('|') : '';
+          if (row === 'prod' && P.page == null && P.p === 'fetch') return;   // sự kiện của consumer: producer giữ nguyên thanh đang tải
+          if (row === 'cons' && P.u == null && P.c === 'check') return;
+          if (sig === cur[row]) return;
+          cur[row] = sig;
+          if (w) L.start(row, t0, w[0], w[1].split('|')[0], x.step, w[0] === 'run' ? t0 + 1000 : null); else L.end(row, t0);
+        });
+        if (e.kind === 'complete') L.mark('cons', t0, 'User3', x.step);
+      });
+      L.finish(c.now);
+      return { rows: rows, bars: L.bars, marks: L.marks, tMax: Math.max(c.tMax, 6000), now: c.now, axisKey: K + 'm.paging.axis' };
+    }
+  });
+
   V('jobtree', {
     layout: 'tree',
     nodes: [N('jobtree', 'root', -2, -2, 'job', 'job'), N('jobtree', 'c1', 0, 4, 'job', 'coroutine'), N('jobtree', 'c2', 2, 2, 'job', 'coroutine'), N('jobtree', 'c3', 4, 0, 'job', 'coroutine'), N('jobtree', 'g', 6, 6, 'job', 'coroutine')],

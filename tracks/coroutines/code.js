@@ -120,6 +120,32 @@
     { vi: '    .collect { println(it) }           // terminal: khởi động mọi thứ', en: '    .collect { println(it) }           // terminal: starts everything' },
     { vi: '// collect chỉ trả về khi builder chạy xong', en: '// collect returns only when the builder has finished' }
   ]);
+  add('pagingFlow', [
+    'fun allUsersFlow(api: UserApi): Flow<User> = flow {',
+    '    var page = 0',
+    '    do {',
+    '        val users = api.takePage(page++)      // 1000 ms',
+    '        emitAll(users.asFlow())',
+    '    } while (!users.isNullOrEmpty())',
+    '}',
+    '',
+    'val user = allUsersFlow(api).first {',
+    { vi: '    delay(1000); it.name == "User3"         // kiểm mỗi user 1000 ms', en: '    delay(1000); it.name == "User3"         // checking each user takes 1000 ms' },
+    { vi: '}                                          // first hủy flow khi tìm thấy', en: '}                                          // first cancels the flow once found' }
+  ]);
+  add('pagingCh', [
+    'fun allUsersFlow(api: UserApi): Flow<User> = channelFlow {',
+    '    var page = 0',
+    '    do {',
+    { vi: '        val users = api.takePage(page++)      // 1000 ms, chạy song song với consumer', en: '        val users = api.takePage(page++)      // 1000 ms, runs concurrently with the consumer' },
+    '        users.forEach { send(it) }',
+    '    } while (!users.isNullOrEmpty())',
+    '}',
+    '',
+    'val user = allUsersFlow(api).first {',
+    '    delay(1000); it.name == "User3"',
+    '}'
+  ]);
   add('full', [
     'Button(onClick = { viewModel.load() })',
     '',

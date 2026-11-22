@@ -336,3 +336,18 @@ Chương mới id `sf`, đặt giữa A6 và A7, dùng lại sim `coroutines.bui
 | Sequence chặn luồng, Flow thì không (ví dụ "Processing") | Deep Dive tr. 272–275 | Ví dụ của sách |
 | Dựng Flow từ lambda; `map`/`filter`/`onEach`/`onStart` | Deep Dive tr. 283–291; `kt-flow` | impl giản lược; bản thật có `SafeCollector` (**chưa trích mã nguồn ở phiên này**) |
 | Flow đồng bộ; trạng thái chung trong và ngoài bước flow | Deep Dive tr. 291–294 | Nguyên tắc |
+
+### FB · Tạo flow và vòng đời (viết 2026-11-22)
+
+**Đã đọc:** Deep Dive "Flow building" (tr. 295–306) và "Flow lifecycle functions" (tr. 307–317), toàn văn. Đã kiểm 3 URL API (`kx-channelflow`, `kx-callbackflow`, `kx-flowon`: 200).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| `flowOf`, `emptyFlow`, `asFlow` (collection, sequence, hàm suspend), Reactive Streams | Deep Dive tr. 295–298 | API |
+| Phân trang: `flow` xong sau 6 s với 2 trang, `channelFlow` xong sau 5 s với 5 trang | Deep Dive tr. 300–303 (output in trong sách) | Ví dụ của sách; selfCheck của sim `coroutines.paging` khớp |
+| `channelFlow` chạy trên `ProducerScope`, `launch` bên trong, `send` | Deep Dive tr. 302–304; `kx-channelflow` | API |
+| `callbackFlow` ném IllegalStateException nếu khối kết thúc mà channel chưa đóng, nên phải `awaitClose` | `kx-callbackflow` (đã đọc nguyên văn tài liệu) ; Deep Dive tr. 304–306 | API |
+| `onEach`/`onStart`/`onCompletion` (cả khi hủy)/`onEmpty` | Deep Dive tr. 307–310 | API + ví dụ của sách |
+| `catch` chỉ bắt lỗi phía trên; lỗi trong `collect` không bị bắt; dời vào `onEach` | Deep Dive tr. 310–313 | Nguyên tắc |
+| `flowOn` chỉ đổi context phía trên (ví dụ Name1/Name2/Name3); `launchIn`; mẫu Android | Deep Dive tr. 313–317; `kx-flowon` | API |
+| "Flow invariant is violated" do `SafeCollector` kiểm context | Mã nguồn kotlinx.coroutines, `flow/internal/SafeCollector.common.kt` (nhánh master, đã kiểm 2026-11-22) | impl |

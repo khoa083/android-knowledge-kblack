@@ -338,6 +338,60 @@
     });
   })();
 
+  /* ================= FB: flow (lười) và channelFlow (tải trước) cho dữ liệu phân trang =================
+     Ví dụ của Deep Dive: FakeUserApi 3 user/trang, takePage mất 1000 ms; first { kiểm 1000 ms; tìm User3 }.
+     flow: trang kế chỉ tải khi cần → xong ở 6000 ms, 2 lần gọi mạng. channelFlow: producer chạy song song, tải tiếp
+     trong lúc consumer kiểm → xong ở 5000 ms, 5 lần gọi mạng. params: p (prod: fetch|wait|idle|cancel), c (cons: check|wait|done). */
+  (function () {
+    var m = 'paging';
+    function events(mode) {
+      var ev = [], pages = 0, checked = 0;
+      var E = function (t, key, p, c, o) { o = o || {}; if (o.page != null) pages = o.page + 1; if (o.u != null) checked = o.u + 1; ev.push({ t: t, key: key, p: p, c: c, page: o.page, u: o.u, pages: pages, checked: checked }); };
+      if (mode === 'flow') {
+        E(0, 'fetch', 'fetch', 'wait', { page: 0 });
+        E(1000, 'check', 'wait', 'check', { u: 0 });
+        E(2000, 'check', 'wait', 'check', { u: 1 });
+        E(3000, 'check', 'wait', 'check', { u: 2 });
+        E(4000, 'fetchLazy', 'fetch', 'wait', { page: 1 });
+        E(5000, 'check', 'wait', 'check', { u: 3 });
+        E(6000, 'found', 'cancel', 'done');
+      } else {
+        E(0, 'fetch', 'fetch', 'wait', { page: 0 });
+        for (var i = 0; i < 4; i++) { E(1000 * (i + 1), 'check', 'fetch', 'check', { u: i }); E(1000 * (i + 1), 'prefetch', 'fetch', 'check', { page: i + 1 }); }
+        E(5000, 'found', 'cancel', 'done');
+      }
+      return ev;
+    }
+    function steps(s) {
+      return events(s.mode).map(function (e, i) {
+        var co = null;
+        if (e.key === 'fetchLazy') co = ['mechanism', 'lazy'];
+        if (e.key === 'prefetch' && e.page === 1) co = ['mechanism', 'prefetch'];
+        if (e.key === 'found') co = [s.mode === 'flow' ? 'mechanism' : 'pitfall', s.mode === 'flow' ? 'foundFlow' : 'foundCh'];
+        return step({ id: e.key + i, type: e.key === 'found' ? 'experiment' : 'mechanism', titleKey: M(m, 's.' + e.key + '.title'), explainKey: M(m, 's.' + e.key + '.explain'),
+          params: { page: e.page, u: e.u, t: e.t }, activeNodes: [e.key === 'check' ? 'cons' : 'prod'], nodeStates: {},
+          metrics: { time: e.t, pages: e.pages, checked: e.checked }, codeHighlight: { snippet: s.mode === 'flow' ? 'pagingFlow' : 'pagingCh', lines: e.key === 'check' ? [9, 10] : e.key === 'found' ? [11] : [3, 4, 5] },
+          callouts: co ? [{ kind: co[0], textKey: M(m, 'co.' + co[1]) }] : [],
+          logEvents: [{ t: e.t, kind: e.key === 'check' ? 'collect' : e.key === 'found' ? 'complete' : 'emit', subject: e.key === 'check' || e.key === 'found' ? 'cons' : 'prod', scope: M(m, 'scope.' + s.mode), detailKey: M(m, 'ev.' + e.key), params: { page: e.page, u: e.u, p: e.p, c: e.c } }] });
+      });
+    }
+    ADE.registerModel('coroutines.paging', {
+      kind: 'discrete', titleKey: M(m, 'title'), overviewKey: M(m, 'overview'), wrapupKey: M(m, 'wrapup'), codeId: 'pagingFlow',
+      simplificationKeys: [M(m, 'simp.1'), K + 'simp.time'], controlsHintKey: M(m, 'ctl.hint'),
+      controls: [{ id: 'mode', type: 'select', labelKey: M(m, 'ctl.mode'), get: function (s) { return s.mode; }, action: 'mode',
+        options: ['flow', 'channelFlow'].map(function (v) { return { value: v, labelKey: M(m, 'ctl.mode.' + v) }; }) }],
+      init: function () { return { mode: 'flow' }; },
+      act: function (s, a, v) { return { mode: v === 'channelFlow' ? 'channelFlow' : 'flow' }; },
+      steps: steps,
+      selfChecks: [
+        { name: 'flow: xong 6000 ms, 2 trang; channelFlow: xong 5000 ms, 5 trang (khớp output của sách)', run: function () {
+          var a = events('flow'), b = events('channelFlow'), la = a[a.length - 1], lb = b[b.length - 1];
+          return la.t === 6000 && la.pages === 2 && lb.t === 5000 && lb.pages === 5;
+        } }
+      ]
+    });
+  })();
+
   /* ================= CH: Channel và sức chứa (theo chương "Channel" của Deep Dive) =================
      Producer: repeat(5) { send(index * 2); delay(100); println("Sent") } rồi đóng (produce). Consumer: delay(1000); với mỗi phần tử: println; delay(1000).
      mode: rendezvous (0) | buffered (3) | unlimited | conflated (1, thay phần tử cũ) | dropOldest (2, bỏ phần tử cũ nhất).

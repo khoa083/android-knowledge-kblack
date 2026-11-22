@@ -277,4 +277,9 @@ Trạng thái: `chưa / đang / xong`.
   - nội dung gồm: nóng/lạnh, vì sao cần Flow, đặc điểm và tên gọi, tự dựng Flow từ lambda qua 5 bước, toán tử là `flow { collect { … } }`, trạng thái chung, 3 bug, 2 bài tập, tự trả lời, quiz 3 câu;
   - sim mới `coroutines.flowcall` (lanes ba tầng collect/map/builder, có toggle "collect 2 lần"), cộng tab `hotcold` cũ.
 - **Kiểm:** report 0 lỗi; track-check và routes như trên.
-
+- **FB "Tạo flow và vòng đời" (chương mới, 2026-11-22):**
+  - nội dung gồm: flowOf/asFlow/Reactive Streams, `flow` và `channelFlow` (lười và tải trước), `callbackFlow` + `awaitClose`, vòng đời (onEach/onStart/onCompletion/onEmpty), `catch` phía trên, `flowOn`/`launchIn` + mẫu Android, 3 bug, 2 bài tập, tự trả lời, quiz 3 câu;
+  - sim mới `coroutines.paging` (lanes producer/consumer, chọn `flow` hoặc `channelFlow`; khớp output sách 6000 ms/2 trang và 5000 ms/5 trang);
+  - 3 nguồn API mới: `kx-channelflow`, `kx-callbackflow`, `kx-flowon`.
+- **Kiểm:** report 0 lỗi; track-check (1280, 360) coroutines vẫn 4 vấn đề cũ (a2#1, a8 undo/clear); routes-check 106 route, 0 vấn đề.
+- **Tiếp theo:** chương "Flow processing" (Deep Dive tr. 318–344).
