@@ -24,5 +24,14 @@ ADE.addGlossary('en', 'runtime', {
   "mutation-policy": { term: "mutation policy", def: "SnapshotMutationPolicy: decides whether a new value is a change (equivalent) and how conflicts between snapshots are merged (merge).", chapter: "runtime/b4" },
   "derived-state": { term: "derived state", def: "State created with derivedStateOf that caches a result computed from other state; scopes reading it re-run only when the result changes.", chapter: "runtime/b4" },
   "state-hoisting": { term: "state hoisting", def: "Moving state up to the caller (or higher) to make a composable stateless; state flows down, events flow up.", chapter: "runtime/sh" },
-  "side-effect": { term: "side effect", def: "A change to app state outside a composable's scope; run through the Effect APIs (LaunchedEffect, DisposableEffect, SideEffect) to follow the lifecycle.", chapter: "runtime/ef" }
+  "side-effect": { term: "side effect", def: "A change to app state outside a composable's scope; run through the Effect APIs (LaunchedEffect, DisposableEffect, SideEffect) to follow the lifecycle.", chapter: "runtime/ef" },
+  "constraints": { term: "Constraints", def: "The min..max range for width and height a parent passes down when measuring a child; the child must choose a size within it.", chapter: "runtime/lo" },
+  "single-pass-measurement": { term: "single-pass measurement", def: "Compose’s layout rule: each child may be measured only once per pass; measuring again throws IllegalStateException.", chapter: "runtime/lo" },
+  "intrinsic-measurement": { term: "intrinsic measurement", def: "A query for a child’s minimum/maximum size before measuring it (IntrinsicSize.Min/Max); not a second measurement.", chapter: "runtime/lo" },
+  "subcompose-layout": { term: "SubcomposeLayout", def: "A layout that composes child content during the measure step; the basis of BoxWithConstraints and lazy lists.", chapter: "runtime/lo" },
+  "modifier-node": { term: "Modifier.Node", def: "A long-lived object on a LayoutNode that implements a modifier’s behaviour; the element (ModifierNodeElement), new on each recomposition, only creates or updates it.", chapter: "runtime/md" },
+  "content-type": { term: "contentType", def: "The kind of a lazy-list item; a pooled slot is only reused for an item with the same contentType.", chapter: "runtime/lz" },
+  "restartable": { term: "restartable / skippable", def: "Restartable: a composable with a restart group, a scope where recomposition can start again. Skippable: it can be skipped when every argument equals the previous one.", chapter: "runtime/b8" },
+  "stable-marker": { term: "@Stable / @Immutable", def: "Annotations (marked @StableMarker) promising the compiler a type is stable or immutable; not verified, and violating them makes behaviour undefined.", chapter: "runtime/b8" },
+  "compiler-report": { term: "compiler report", def: "Files produced by the Compose compiler (classes.txt, composables.txt, composables.csv) showing class stability and whether composables are restartable/skippable.", chapter: "runtime/b8" }
 });

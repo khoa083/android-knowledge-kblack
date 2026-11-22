@@ -322,3 +322,23 @@ Không có sách riêng về Compose Runtime; chỉ dẫn chiếu Kotlin (delega
 | Cache lambda theo key để skip; SaveableStateProvider theo key; chỉ lưu mục đang hiện (TransactionTooLargeException) | `fd-lazycontent-src` | impl |
 | Thông điệp "Vertically scrollable component was measured with an infinity maximum height constraints…" | `fd-scrollcheck-src` | impl |
 | Sim `runtime.lazy`: cùng loại 5 mới/2 dùng lại; khác loại 7/0; Column 20 từ đầu | Theo mã ghim | selfCheck; bỏ qua prefetch (simp.1) |
+
+### B8 · Skip, stability, strong skipping và annotation của runtime (viết lại 2026-11-23)
+
+**Đã đọc:** "Stability in Compose", "Diagnose stability issues", "Fix stability issues", "Strong skipping mode" (developer.android.com, toàn văn, 2026-11-23). Liệt kê `compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/?format=JSON` và `compose/runtime/runtime-annotation/...` ở commit ghim; đọc KDoc của từng file annotation. Compose compiler ĐÃ CHUYỂN sang repo JetBrains/kotlin (README của `compose/compiler` ở commit ghim nói vậy); đọc ở tag `v2.4.21`: `ComposableFunctionBodyTransformer.kt`, `AbstractComposeLowering.kt`, `ComposerLambdaMemoization.kt`, `ComposePlugin.kt`. Sách trong kho gần như không nói về stability/annotation (Kunneth Ch.3 chỉ nhắc `skippableUpdate`).
+
+**Annotation có thật ở commit ghim:** runtime-annotation: `Stable`, `Immutable`, `StableMarker`, `annotation/FrequentlyChangingValue`, `RememberInComposition`, `DoNotRetain`. runtime: `Composable`, `ComposableTarget`, `ComposableOpenTarget`, `ComposableTargetMarker`, `ComposableInferredTarget` (+ `...Constraints`), `ComposeCompilerApi`, `DisallowComposableCalls`, `DontMemoize`, `ExplicitGroupsComposable`, `NoLiveLiterals`, `NonRestartableComposable`, `NonSkippableComposable`, `ReadOnlyComposable` (cùng `ExperimentalComposeApi`, `InternalComposeApi`, `TestOnly`, `CheckResult`… là annotation opt-in/công cụ, site không dạy).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Immutable/stable/unstable; restartable/skippable; equals vs ===; Kotlin 2.0.20 | `cp-stability`, `cp-strong` | stable |
+| Layout Inspector, compiler report (composeCompiler, ba file, dòng mẫu), unstable chưa chắc là vấn đề | `cp-stability-diagnose` | stable |
+| Thứ tự sửa, cái giá collection bất biến, @Stable/@Immutable cho lớp nhỏ, file cấu hình (1.5.5, stabilityConfigurationFile), nhiều module, không phải composable nào cũng nên skip | `cp-stability-fix` | stable |
+| Lambda tự remember với key capture; @DontMemoize; @NonSkippableComposable | `cp-strong` | stable |
+| KDoc của từng annotation (ba điều kiện stable, Immutable mạnh hơn val, hành vi không xác định, ReadOnly/ExplicitGroups, target, DisallowComposableCalls, NoLiveLiterals, lint annotations) | `rt-annotations-src`, `rt-stable-src` | impl |
+| shouldBeRestartable (inline, NonRestartable, ExplicitGroups, non-Unit, open…) | `kt-compose-lowering` | impl (Kotlin 2.4.21) |
+| Non-restartable không gọi changed; group bao thân bỏ khi ReadOnly/ExplicitGroups/OptimizeNonSkippingGroups; canSkip = !hasNonSkippableAnnotation; nơi gọi ReadOnly không group | `kt-compose-body` | impl (Kotlin 2.4.21) |
+| Điều kiện không memoize lambda | `kt-compose-memo` | impl |
+| Cờ StrongSkipping/IntrinsicRemember/OptimizeNonSkippingGroups mặc định true | `kt-compose-plugin` | impl |
+| `@ComposeCompilerApi` dùng trên Composer.skipping/inserting/ScopeUpdateScope | `rt-composer-src` (grep) | impl; KDoc trống, site mô tả theo nơi dùng |
+| Sim `runtime.annot`: none 1/1/1, NS badge 2, NR screen 2 badge 2, scope Screen | Theo mã compiler | selfCheck; giản lược tên hàm Composer (simp.1, simp.2) |

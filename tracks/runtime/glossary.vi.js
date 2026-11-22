@@ -24,5 +24,14 @@ ADE.addGlossary('vi', 'runtime', {
   "mutation-policy": { term: "mutation policy", def: "SnapshotMutationPolicy: quyết định giá trị mới có là thay đổi (equivalent) và cách gộp xung đột giữa snapshot (merge).", chapter: "runtime/b4" },
   "derived-state": { term: "derived state", def: "State tạo bằng derivedStateOf, lưu cache kết quả tính từ state khác; scope đọc nó chỉ chạy lại khi kết quả đổi.", chapter: "runtime/b4" },
   "state-hoisting": { term: "state hoisting", def: "Dời state lên người gọi (hoặc cao hơn) để composable thành stateless; state đi xuống, sự kiện đi lên.", chapter: "runtime/sh" },
-  "side-effect": { term: "side effect", def: "Thay đổi trạng thái của app ngoài phạm vi một composable; chạy qua Effect API (LaunchedEffect, DisposableEffect, SideEffect) để theo vòng đời.", chapter: "runtime/ef" }
+  "side-effect": { term: "side effect", def: "Thay đổi trạng thái của app ngoài phạm vi một composable; chạy qua Effect API (LaunchedEffect, DisposableEffect, SideEffect) để theo vòng đời.", chapter: "runtime/ef" },
+  "constraints": { term: "Constraints", def: "Khoảng min..max cho chiều rộng và chiều cao mà cha truyền xuống khi đo con; con phải chọn kích thước trong khoảng đó.", chapter: "runtime/lo" },
+  "single-pass-measurement": { term: "đo một lượt", def: "Luật layout của Compose: mỗi con chỉ được đo một lần trong một lượt; đo lại ném IllegalStateException.", chapter: "runtime/lo" },
+  "intrinsic-measurement": { term: "intrinsic measurement", def: "Câu hỏi về kích thước tối thiểu/tối đa của con trước khi đo (IntrinsicSize.Min/Max); không phải lần đo thứ hai.", chapter: "runtime/lo" },
+  "subcompose-layout": { term: "SubcomposeLayout", def: "Layout cho phép compose nội dung con ngay trong bước đo; nền của BoxWithConstraints và lazy list.", chapter: "runtime/lo" },
+  "modifier-node": { term: "Modifier.Node", def: "Đối tượng sống lâu trên LayoutNode thực hiện hành vi của một modifier; element (ModifierNodeElement) tạo mới mỗi lần recompose chỉ tạo hoặc cập nhật nó.", chapter: "runtime/md" },
+  "content-type": { term: "contentType", def: "Loại của một mục trong lazy list; slot trong pool chỉ được dùng lại cho mục cùng contentType.", chapter: "runtime/lz" },
+  "restartable": { term: "restartable / skippable", def: "Restartable: composable có restart group, là scope để recomposition bắt đầu lại. Skippable: bỏ qua được khi mọi tham số bằng lần trước.", chapter: "runtime/b8" },
+  "stable-marker": { term: "@Stable / @Immutable", def: "Annotation (được đánh dấu @StableMarker) hứa với compiler rằng kiểu stable hoặc bất biến; không được kiểm chứng, vi phạm thì hành vi không xác định.", chapter: "runtime/b8" },
+  "compiler-report": { term: "compiler report", def: "File do Compose compiler sinh (classes.txt, composables.txt, composables.csv) cho biết stability của lớp và tính restartable/skippable của composable.", chapter: "runtime/b8" }
 });

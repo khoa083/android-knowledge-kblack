@@ -1474,4 +1474,69 @@
       } }]
     });
   })();
+  /* ================= B8 (v2): annotation đổi mã compiler sinh ra thế nào (ComposableFunctionBodyTransformer.kt, AbstractComposeLowering.kt,
+     Kotlin v2.4.21; KDoc NonSkippableComposable/NonRestartableComposable @296313a4) =================
+     Screen(title) gọi Badge(count = 3); Badge đọc blinkState. Sự kiện 1: title đổi → Screen chạy lại, Badge nhận tham số y hệt. Sự kiện 2: blinkState đổi.
+     none: Badge có restart group, so $changed → skip ở sự kiện 1; sự kiện 2 chỉ Badge chạy lại. NS: restart group nhưng không có nhánh skip → chạy ở cả hai.
+     NR: không restart group, không gọi changed(); lần đọc blinkState thuộc scope của Screen → sự kiện 2 chạy lại Screen (và Badge). */
+  (function () {
+    var m = 'annot';
+    var SC = ['none', 'ns', 'nr'];
+    var GEN = { none: 'startRestartGroup · changed(count) · skipToGroupEnd', ns: 'startRestartGroup', nr: '—' };
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'none', out = [], t = 0, c = { badge: 0, screen: 0, changed: 0 }, last = '—', scope = '—';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {};
+        o.metrics = { screen: c.screen, badge: c.badge, changed: c.changed };
+        o.stateAfter = [{ labelKey: M(m, 'st.gen'), value: GEN[sc] }, { labelKey: M(m, 'st.scope'), value: scope }, { labelKey: M(m, 'st.last'), value: last }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'annot_' + sc, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 4, kind: o.kind || 'recompose', subject: o.activeNodes[o.activeNodes.length - 1] || 'screen', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      scope = sc === 'nr' ? 'Screen' : 'Badge';
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['screen', 'badge'], lines: [6, 7, 8], kind: 'observe' });
+      c.screen++; last = 'Screen()';
+      P('ev1', { activeNodes: ['screen'], lines: [2, 3, 4], kind: 'recompose' });
+      if (sc === 'none') {
+        c.changed++; last = 'skipToGroupEnd()';
+        P('skip', { activeNodes: ['screen', 'badge'], movingSignals: [{ edge: 'e1', tok: 'runtime' }], lines: [4, 8], kind: 'skip', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.skip') }] });
+      } else {
+        c.badge++; last = 'Badge()';
+        P(sc === 'ns' ? 'runNs' : 'runNr', { type: 'pitfall', activeNodes: ['screen', 'badge'], movingSignals: [{ edge: 'e1', tok: 'runtime' }], lines: [4, 6, 9, 10], kind: 'recompose',
+          callouts: [{ kind: 'source', textKey: M(m, 'co.' + sc) }] });
+      }
+      last = 'blinkState = true';
+      P('ev2', { activeNodes: ['state'], movingSignals: [{ edge: sc === 'nr' ? 'e3' : 'e2', tok: 'state' }], lines: [9], kind: 'write' });
+      if (sc === 'nr') {
+        c.screen++; c.badge++; last = 'Screen() → Badge()';
+        P('restartParent', { type: 'pitfall', activeNodes: ['state', 'screen', 'badge'], movingSignals: [{ edge: 'e3', tok: 'state' }, { edge: 'e1', tok: 'runtime' }], lines: [2, 3, 4, 9], kind: 'recompose',
+          callouts: [{ kind: 'mechanism', textKey: M(m, 'co.parentScope') }] });
+      } else {
+        c.badge++; last = 'Badge()';
+        P('restartSelf', { activeNodes: ['state', 'badge'], movingSignals: [{ edge: 'e2', tok: 'state' }], lines: [8, 9, 10], kind: 'recompose' });
+      }
+      last = '—';
+      P('end.' + sc, { type: sc === 'none' ? 'mechanism' : 'pitfall', activeNodes: ['badge'], lines: [], kind: 'observe', callouts: [{ kind: sc === 'none' ? 'mechanism' : 'pitfall', textKey: M(m, 'co.end.' + sc) }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'annot_none',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [
+        { id: 'which', type: 'select', labelKey: M(m, 'ctl.which'), get: function (s) { return s.which; }, action: 'which', options: SC.map(function (v) { return { value: v, labelKey: M(m, 'ctl.which.' + v) }; }) }
+      ],
+      init: function () { return { which: 'none' }; },
+      act: function (s, a, v) { return { which: SC.indexOf(v) >= 0 ? v : 'none' }; },
+      steps: steps,
+      selfChecks: [{ name: 'không annotation: Badge skip ở sự kiện 1 (1 lần changed), chạy 1 lần; @NonSkippableComposable: Badge chạy 2 lần, 0 changed; @NonRestartableComposable: Screen chạy 2 lần, Badge 2 lần, scope đọc là Screen', run: function () {
+        var last = function (w) { return steps({ which: w }).slice(-1)[0]; };
+        var a = last('none'), b = last('ns'), r = last('nr');
+        return a.metrics.badge === 1 && a.metrics.changed === 1 && a.metrics.screen === 1 && b.metrics.badge === 2 && b.metrics.changed === 0 && b.metrics.screen === 1 &&
+          r.metrics.screen === 2 && r.metrics.badge === 2 && r.metrics.changed === 0 && r.stateAfter[1].value === 'Screen';
+      } }]
+    });
+  })();
 })();

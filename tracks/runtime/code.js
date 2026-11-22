@@ -422,4 +422,19 @@
     '    }',
     '}'
   ]);
+  [['annot_none', { vi: '// (không annotation)', en: '// (no annotation)' }], ['annot_ns', '@NonSkippableComposable'], ['annot_nr', '@NonRestartableComposable']].forEach(function (c) {
+    add(c[0], [
+      '@Composable',
+      'fun Screen(title: String) {',
+      '    Text(title)',
+      '    Badge(count = 3)',
+      '}',
+      c[1],
+      '@Composable',
+      'fun Badge(count: Int) {',
+      { vi: '    val on = blinkState.value                     // đọc state', en: '    val on = blinkState.value                     // reads state' },
+      '    Text("$count", Modifier.alpha(if (on) 1f else 0.5f))',
+      '}'
+    ]);
+  });
 })();

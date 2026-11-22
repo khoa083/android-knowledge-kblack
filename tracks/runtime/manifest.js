@@ -22,7 +22,7 @@ ADE.registerTrack({
     { id: 'lo', titleKey: 'track.runtime.lo.title', sims: ['runtime.measure'], simAfter: 'custom', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (Kunneth Ch.4, Essentials Ch.28–29, 32, layouts docs, MeasurePolicy.kt @296313a4)
     { id: 'md', titleKey: 'track.runtime.md.title', sims: ['runtime.chain'], simAfter: 'node', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (Tutorials Ch.6, Essentials Ch.24, modifiers docs, NodeChain.kt @296313a4)
     { id: 'lz', titleKey: 'track.runtime.lz.title', sims: ['runtime.lazy'], simAfter: 'reuse', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (Tutorials Ch.4, Essentials Ch.34–37, lists docs, LazyLayout.kt @296313a4)
-    { id: 'b8', titleKey: 'track.runtime.b8.title', sims: ['runtime.skip'], bridges: ['X2'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'b8', titleKey: 'track.runtime.b8.title', sims: ['runtime.annot', 'runtime.skip'], simAfter: 'annotations', bridges: ['X2'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },   // v2 (stability docs, runtime annotations @296313a4, Compose compiler Kotlin v2.4.21)
     { id: 'b9', titleKey: 'track.runtime.b9.title', sims: ['runtime.semantics'], bridges: ['X6'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'b10', titleKey: 'track.runtime.b10.title', sims: ['runtime.counter'], bridges: ['X1'], goals: [{ id: 'g1', step: 4 }, { id: 'g2', step: 'end' }] }
   ],

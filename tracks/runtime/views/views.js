@@ -144,6 +144,13 @@
     edges: [E('e1', 'data', 'measure'), E('e2', 'measure', 'active'), E('e3', 'pool', 'active'), E('e4', 'active', 'pool')],
     metrics: [T('lazy', 'composed'), T('lazy', 'fresh'), T('lazy', 'reused'), T('lazy', 'pool')]
   });
+  /* B8 (v2): Screen gọi Badge; blinkState được Badge đọc, nhưng thuộc scope nào tùy annotation. */
+  V('annot', {
+    layout: 'tree',
+    nodes: [N('annot', 'screen', 0, 0, 'layers', 'runtime'), N('annot', 'badge', 0, 5, 'square', 'ui'), N('annot', 'state', 5, 5, 'frame', 'state')],
+    edges: [E('e1', 'screen', 'badge'), E('e2', 'state', 'badge'), E('e3', 'state', 'screen')],
+    metrics: [T('annot', 'screen'), T('annot', 'badge'), T('annot', 'changed')]
+  });
   V('keys', {
     layout: 'tree',
     nodes: [N('keys', 'list', 0, 0, 'list', 'state'), N('keys', 'p0', 5, -3, 'square', 'runtime'), N('keys', 'p1', 5, 1, 'square', 'runtime'), N('keys', 'p2', 5, 5, 'square', 'runtime'), N('keys', 'p3', 5, 9, 'square', 'runtime')],
