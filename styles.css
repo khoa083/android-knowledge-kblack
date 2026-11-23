@@ -40,6 +40,10 @@
   color-scheme: dark;
 }
 
+/* chuyển cảnh khi đổi theme (app.js switchTheme): tắt hiệu ứng mờ dần mặc định, để vòng tròn lan ra là chuyển động duy nhất */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { z-index: 2; }
+
 /* ---------- nền tảng ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { font-size: 15px; -webkit-text-size-adjust: 100%; }

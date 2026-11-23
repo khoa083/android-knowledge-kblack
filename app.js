@@ -13,6 +13,20 @@
   /* ================= tuỳ chọn giao diện ================= */
   var root = document.documentElement;
   function applyTheme(t) { root.setAttribute('data-theme', t); }
+  /* Đổi theme có chuyển cảnh: màu mới lan ra thành vòng tròn từ nút vừa bấm tới góc xa nhất của cửa sổ (View Transitions API).
+     Trình duyệt không hỗ trợ, hay người dùng chọn giảm chuyển động: đổi ngay, không hiệu ứng. */
+  function switchTheme(n, btn) {
+    var done = function () { applyTheme(n); ADE.store.set('theme', n); renderChrome(); };
+    if (typeof document.startViewTransition !== 'function' || ADE.motionReduced() || !btn) { done(); return; }
+    var b = btn.getBoundingClientRect(), x = b.left + b.width / 2, y = b.top + b.height / 2;
+    var radius = Math.ceil(Math.sqrt(Math.pow(Math.max(x, window.innerWidth - x), 2) + Math.pow(Math.max(y, window.innerHeight - y), 2)));
+    var tr;
+    try { tr = document.startViewTransition(done); } catch (e) { done(); return; }
+    tr.ready.then(function () {
+      root.animate({ clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + radius + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 600, easing: 'cubic-bezier(.25, .1, .25, 1)', pseudoElement: '::view-transition-new(root)' });
+    }).catch(function () { /* chuyển cảnh bị bỏ qua: theme đã đổi trong done() */ });
+  }
   function currentTheme() { return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; }
   function initPrefs() {
     var th = ADE.store.get('theme', null);
@@ -149,8 +163,9 @@
       langSeg.appendChild(h('button', { type: 'button', 'data-fk': 'lang-' + l, class: 'seg-b' + (l === ADE.lang ? ' on' : ''), 'aria-pressed': l === ADE.lang ? 'true' : 'false', lang: l, title: ADE.t('app.langName.' + l), 'aria-label': ADE.t('app.langName.' + l), onclick: function () { switchLang(l); }, text: l.toUpperCase() }));
     });
     var th = currentTheme();
-    var bTheme = h('button', { type: 'button', 'data-fk': 'theme', class: 'btn icon', 'aria-label': ADE.t('app.theme'), title: ADE.t(th === 'dark' ? 'app.themeToLight' : 'app.themeToDark'), onclick: function () {
-      var n = currentTheme() === 'dark' ? 'light' : 'dark'; applyTheme(n); ADE.store.set('theme', n); renderChrome();
+    var bTheme = h('button', { type: 'button', 'data-fk': 'theme', class: 'btn icon', 'aria-label': ADE.t('app.theme'), title: ADE.t(th === 'dark' ? 'app.themeToLight' : 'app.themeToDark'), onclick: function (ev) {
+      var n = currentTheme() === 'dark' ? 'light' : 'dark';
+      switchTheme(n, ev.currentTarget);
     } }, icon(th === 'dark' ? 'sun' : 'moon', { size: 18 }));
     var reduced = ADE.motionReduced();
     var bMotion = h('button', { type: 'button', 'data-fk': 'motion', class: 'btn toggle', 'aria-pressed': reduced ? 'true' : 'false', title: ADE.t('app.reducedMotionHint'), onclick: function () {

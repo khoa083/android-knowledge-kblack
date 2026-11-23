@@ -662,3 +662,9 @@ Trạng thái: `chưa / đang / xong`.
     - track-check arch 0 vấn đề ở 1280 và 360;
     - đã xem ảnh đồ thị ở các tình huống một module, tách module và đảo phụ thuộc, và ảnh vòng SSOT. Đã sửa chữ tràn hộp và nhãn module đè lên cạnh sai.
   - **Tiếp theo:** G3 (UI layer: UiState, ViewModel, sự kiện).
+- **Chuyển cảnh khi đổi theme (2026-11-24, người dùng yêu cầu giống trang mẫu):**
+  - `app.js` `switchTheme`: dùng View Transitions API, màu mới lan ra thành vòng tròn từ nút theme tới góc xa nhất, khoảng 600 ms. Cơ chế quan sát từ trang mẫu; mã tự viết.
+  - CSS tắt hiệu ứng mờ mặc định của `::view-transition-*(root)`.
+  - Trình duyệt không hỗ trợ, hay người dùng bật giảm chuyển động, thì đổi ngay.
+  - Kiểm: report 0 lỗi, 120 cảnh báo; bấm nút trong Chrome headless thì theme đổi, không lỗi.
+- **Mẫu theme dark chờ duyệt (2026-11-24):** người dùng thấy dark mode khó nhìn. Đã dựng 4 bảng màu và đo tương phản: than chì (xám trung tính), lục dịu (giữ màu site), giấy tối ấm, đen OLED. Ảnh so sánh gửi cho người dùng; chưa đổi `styles.css`.
