@@ -253,6 +253,49 @@
         { name: 'ép kiểu listOf sang MutableList rồi add là ngoại lệ lúc chạy; map trên Map cho List, mapValues giữ Map', run: function () { var d = steps({ case: 'downcast' }), mm = steps({ case: 'mapOnMap' }); return d[2].nodeStates.op === K + 'st.crashed' && mm[1].metrics.type === M(m, 'type.listInt') && mm[3].metrics.type === M(m, 'type.mapInt'); } }] });
   })();
 
+  /* ================= K8: lambda và inline — chép thân vào chỗ gọi hay tạo object hàm; return thoát khỏi đâu; lambda bắt gì =================
+     Theo Inline functions (inline chép hàm và lambda vào chỗ gọi; non-local return chỉ khi lambda được inline), Returns (return@label),
+     Lambdas (closure), What's new in Kotlin 2.0.0 (lambda không inline sinh bằng invokedynamic). Rò rỉ Activity: suy luận từ closure + GC. */
+  (function () {
+    var m = 'inline', CASES = ['inlined', 'returnBug', 'stored'];
+    // mỗi bước: [node, trạng thái node, số đo {objects, exit, captured}, loại bước, dòng mã, loại log, chủ thể log]
+    var P = {
+      inlined: [[['call'], {}, { objects: 0, exit: 'none', captured: 'taken' }, 'scenario', [1, 2], 'observe', 'call'],
+        [['call', 'compile'], { compile: 'done' }, { objects: 0, exit: 'none', captured: 'taken' }, 'mechanism', [7, 8], 'check', 'compile'],
+        [['lambda', 'exit'], { compile: 'done', lambda: 'done', exit: 'done' }, { objects: 0, exit: 'outer', captured: 'taken' }, 'mechanism', [3], 'run', 'lambda'],
+        [['exit'], { compile: 'done', lambda: 'done', exit: 'done' }, { objects: 0, exit: 'outer', captured: 'taken' }, 'mechanism', [3, 5], 'complete', 'exit']],
+      returnBug: [[['call'], {}, { objects: 0, exit: 'none', captured: 'cancelled' }, 'scenario', [1, 2, 3], 'observe', 'call'],
+        [['call', 'compile'], { compile: 'done' }, { objects: 0, exit: 'none', captured: 'cancelled' }, 'mechanism', [2], 'check', 'compile'],
+        [['lambda', 'exit'], { compile: 'done', lambda: 'done', exit: 'surprise' }, { objects: 0, exit: 'outer', captured: 'cancelled' }, 'pitfall', [3, 6], 'skip', 'exit'],
+        [['lambda', 'exit'], { compile: 'done', lambda: 'done', exit: 'done' }, { objects: 0, exit: 'lambda', captured: 'cancelled' }, 'mechanism', [8, 9], 'write', 'lambda']],
+      stored: [[['call'], {}, { objects: 0, exit: 'na', captured: 'none' }, 'scenario', [1, 2, 7], 'observe', 'call'],
+        [['compile', 'lambda'], { compile: 'done' }, { objects: 1, exit: 'na', captured: 'activity' }, 'mechanism', [7], 'check', 'compile'],
+        [['lambda', 'exit'], { compile: 'done', lambda: 'done', exit: 'surprise' }, { objects: 1, exit: 'na', captured: 'activity' }, 'pitfall', [2, 7], 'run', 'exit'],
+        [['call', 'exit'], { compile: 'done', lambda: 'done', exit: 'done' }, { objects: 1, exit: 'na', captured: 'none' }, 'mechanism', [9, 10], 'write', 'call']]
+    };
+    ADE.kotlinInline = P;
+    var EDGE = { call: null, compile: 'e1', lambda: 'e2', exit: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var met = { objects: p[2].objects, exit: M(m, 'exit.' + p[2].exit), captured: M(m, 'cap.' + p[2].captured) };
+        var e = EDGE[p[0][0]] || EDGE[p[0][1]], bad = p[3] === 'pitfall';
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: met, codeHighlight: { snippet: 'inl.' + s.case, lines: p[4] },
+          movingSignals: e ? [{ edge: e, tok: bad ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5], subject: p[6] }] });
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i >= 2) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'returnBug' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước; bước thứ hai là lúc trình biên dịch quyết định', run: function () { return CASES.every(function (k) { var st = steps({ case: k }); return st.length === 4 && st[1].logEvents[0].kind === 'check'; }); } },
+        { name: 'lambda truyền cho hàm inline không tạo object hàm và return trần thoát hàm bao ngoài; return@forEach chỉ thoát lambda', run: function () { var a = steps({ case: 'inlined' }), b = steps({ case: 'returnBug' }); return a[1].metrics.objects === 0 && a[2].metrics.exit === M(m, 'exit.outer') && b[2].type === 'pitfall' && b[3].metrics.exit === M(m, 'exit.lambda'); } },
+        { name: 'lambda lưu vào property là object hàm và bắt this; gỡ tham chiếu thì hết giữ Activity', run: function () { var c = steps({ case: 'stored' }); return c[1].metrics.objects === 1 && c[2].metrics.captured === M(m, 'cap.activity') && c[3].metrics.captured === M(m, 'cap.none'); } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

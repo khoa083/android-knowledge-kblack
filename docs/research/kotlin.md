@@ -117,3 +117,18 @@ Kiểm URL (curl, HTTP 200): exceptions.html, API use, require, run-catching; Cl
 | Bài tập Pharmacy | dựa trên "Inventory management", `book-kt-exercises`; lời giải tự viết | — |
 
 Kiểm URL (curl, HTTP 200): collections-overview, collection-types, constructing-collections, collection-transformations, map-operations; _Maps.kt ở tag v2.1.0 (raw và blob).
+
+## K8 · Lambda, closure và inline (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Kiểu hàm, lambda, it, trailing lambda, tham chiếu hàm; closure: lambda đọc và sửa được biến ở phạm vi ngoài | `kt-lambdas` | stable |
+| Hàm bậc cao: mỗi hàm là object và bắt closure (cấp phát, lời gọi ảo); inline chép hàm và lambda vào chỗ gọi; noinline; crossinline cấm non-local return khi lambda gọi từ ngữ cảnh khác; reified chỉ ở hàm inline; cảnh báo khi không có gì để inline; inline làm mã lớn lên | `kt-inline` (trang ghi 23 June 2025) | stable |
+| return trần chỉ thoát hàm có tên hoặc hàm ẩn danh; trong lambda là lỗi trừ khi lambda được inline (non-local return); return@forEach giống continue; giả lập break bằng run loop@ | `kt-returns` (trang ghi 29 September 2026), `kt-inline` | stable |
+| Từ Kotlin 2.0.0 lambda mặc định sinh bằng invokedynamic (trước đó lớp ẩn danh, -Xlambdas=indy từ 1.5.0); -Xlambdas=class giữ cách cũ | `kt-whatsnew20` | version |
+| forEach/map/filter/fold của stdlib là inline; lambda truyền vào không tạo object | `book-functional-kotlin` | guideline |
+| Lambda lưu trong object toàn cục bắt this của Activity làm Activity không được giải phóng | suy luận từ closure (`kt-lambdas`) + cách GC giữ object còn tham chiếu; ghi rõ trong mục trung thực | simplified |
+| Bài tập mapAll / firstOfOrNull | dựa trên "Implement map" và "Inline functions", `book-kt-exercises`; lời giải tự viết | — |
+
+Đổi nhãn log `check` của track từ "kiểm kiểu (biên dịch)" thành "kiểm lúc biên dịch" để đúng cả với bước trình biên dịch quyết định inline.
+Kiểm URL (curl, HTTP 200): lambdas, inline-functions, returns, whatsnew20, leanpub.com/kotlin_functional.

@@ -34,6 +34,10 @@
   V('collections', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.collFail' },
     nodes: [N('collections', 'source', 0, 0, 'store', 'state'), N('collections', 'ref', 3, 0, 'layers', 'ui'), N('collections', 'op', 6, 0, 'play', 'runtime'), N('collections', 'result', 9, 0, 'search', 'job')],
     edges: [E('e1', 'source', 'ref'), E('e2', 'ref', 'op'), E('e3', 'op', 'result')], metrics: [T('collections', 'size'), T('collections', 'seen'), T('collections', 'type')] });
+  /* K8: chỗ gọi → trình biên dịch (inline hay object hàm) → thân lambda chạy → kết quả (return thoát đâu, ai giữ lambda) */
+  V('inline', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.collFail' },
+    nodes: [N('inline', 'call', 0, 0, 'source', 'ui'), N('inline', 'compile', 3, 0, 'target', 'state'), N('inline', 'lambda', 6, 0, 'play', 'runtime'), N('inline', 'exit', 9, 0, 'square', 'job')],
+    edges: [E('e1', 'call', 'compile'), E('e2', 'compile', 'lambda'), E('e3', 'lambda', 'exit')], metrics: [T('inline', 'objects'), T('inline', 'exit'), T('inline', 'captured')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],

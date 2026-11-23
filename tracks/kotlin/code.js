@@ -240,6 +240,40 @@
     c('// sửa: mapValues giữ key, chỉ đổi value', '// fix: mapValues keeps the keys, changes only the values'),
     'val discounted = prices.mapValues { it.value * 9 / 10 }   // {checkup=180, bloodTest=135}'
   ]);
+  add('inl.inlined', [
+    'fun hasFreeSlot(slots: List<String>, taken: Set<String>): Boolean {',
+    '    slots.forEach {',
+    c('        if (it !in taken) return true    // thoát hasFreeSlot', '        if (it !in taken) return true    // exits hasFreeSlot'),
+    '    }',
+    '    return false',
+    '}',
+    c('// forEach là inline: trình biên dịch chép thân thành vòng lặp, gần như:', '// forEach is inline: the compiler copies the body into a loop, roughly:'),
+    'for (it in slots) { if (it !in taken) return true }'
+  ]);
+  add('inl.returnBug', [
+    'fun confirmAll(slots: List<String>) {',
+    '    slots.forEach {',
+    c('        if (it in cancelled) return      // định "bỏ qua giờ này"', '        if (it in cancelled) return      // meant as "skip this slot"'),
+    '        confirm(it)',
+    '    }',
+    c('    saveAndNotify()                      // không chạy nếu gặp giờ đã hủy', '    saveAndNotify()                      // never runs once a cancelled slot is met'),
+    '}',
+    c('// sửa: return@forEach chỉ thoát lambda, giống continue', '// fix: return@forEach exits only the lambda, like continue'),
+    '        if (it in cancelled) return@forEach'
+  ]);
+  add('inl.stored', [
+    'object ClinicRepository {',
+    c('    var onUpdate: (() -> Unit)? = null   // giữ lambda lâu dài', '    var onUpdate: (() -> Unit)? = null   // holds the lambda for a long time'),
+    '}',
+    'class SlotsActivity : AppCompatActivity() {',
+    '    override fun onCreate(savedInstanceState: Bundle?) {',
+    '        super.onCreate(savedInstanceState)',
+    c('        ClinicRepository.onUpdate = { render() }   // bắt this (Activity)', '        ClinicRepository.onUpdate = { render() }   // captures this (the Activity)'),
+    '    }',
+    c('    // sửa: gỡ lambda khi Activity bị hủy', '    // fix: remove the lambda when the Activity is destroyed'),
+    '    override fun onDestroy() { ClinicRepository.onUpdate = null; super.onDestroy() }',
+    '}'
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',

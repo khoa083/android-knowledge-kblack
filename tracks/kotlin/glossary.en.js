@@ -17,5 +17,8 @@ ADE.addGlossary('en', 'kotlin', {
   "use-function": { term: "use", def: "An extension on Closeable: runs the block and always closes the resource, even if the block throws; the exception still propagates.", chapter: "kotlin/k6" },
   "read-only-collection": { term: "read-only collection", def: "An interface such as List, Set or Map with only read operations; it means no changes THROUGH this reference, not that the underlying object is immutable.", chapter: "kotlin/k7" },
   "map-values": { term: "mapValues / mapKeys", def: "Transforms a Map's values (or keys) and returns a new Map; unlike map, which returns a List.", chapter: "kotlin/k7" },
+  "closure": { term: "closure", def: "The outer-scope variables a lambda (or local function, object expression) can access; the lambda keeps them alive as long as it lives.", chapter: "kotlin/k8" },
+  "inline-function": { term: "inline function", def: "A function whose body (and the lambdas passed to it) the compiler copies to the call site instead of calling it; no function object for the lambdas, and non-local return and reified become possible.", chapter: "kotlin/k8" },
+  "non-local-return": { term: "non-local return", def: "A bare return inside a lambda that exits the enclosing function; allowed only when the lambda is inlined.", chapter: "kotlin/k8" },
   "when-expression": { term: "when expression", def: "when returns the value of the first matching branch; used as an expression, its branches must cover every case (usually with else).", chapter: "kotlin/k1" }
 });
