@@ -25,5 +25,7 @@ ADE.addGlossary('en', 'kotlin', {
   "variance": { term: "variance (out / in)", def: "The subtype relation between C<Doctor> and C<Staff>: out (covariant) keeps the direction, in (contravariant) reverses it, nothing means invariant (unrelated).", chapter: "kotlin/k10" },
   "type-erasure": { term: "type erasure", def: "At runtime a generic object carries no type arguments: List<Doctor> and List<Nurse> are both just List; so is List<Doctor> cannot be checked.", chapter: "kotlin/k10" },
   "star-projection": { term: "star-projection (*)", def: "C<*> means \"C of some unknown type\": reading is safe at the upper bound, writing is not possible.", chapter: "kotlin/k10" },
+  "delegated-property": { term: "delegated property (by)", def: "A property whose getter/setter forward to another object through getValue/setValue; the compiler keeps that object in a hidden prop$delegate field.", chapter: "kotlin/k11" },
+  "lazy-mode": { term: "LazyThreadSafetyMode", def: "The lazy modes: SYNCHRONIZED (default, locks, the initializer runs once), PUBLICATION (may run several times, only one value is used), NONE (no locking, single thread only).", chapter: "kotlin/k11" },
   "when-expression": { term: "when expression", def: "when returns the value of the first matching branch; used as an expression, its branches must cover every case (usually with else).", chapter: "kotlin/k1" }
 });

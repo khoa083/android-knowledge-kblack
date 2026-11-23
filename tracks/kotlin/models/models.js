@@ -385,6 +385,49 @@
         { name: 'lý do MutableList bất biến: nếu cho phép thì ghi được phần tử sai kiểu, lỗi lúc chạy', run: function () { var s2 = steps({ case: 'invariantMutable' })[2]; return s2.type === 'pitfall' && s2.metrics.safe === M(m, 'safe.cce'); } }] });
   })();
 
+  /* ================= K11: delegation — đọc property đi qua getValue của delegate; ba chế độ của lazy khi hai luồng đọc lần đầu cùng lúc =================
+     Theo Delegated properties (prop$delegate, getValue/setValue; lazy mặc định synchronized, PUBLICATION, NONE) và mã stdlib tag v2.1.0
+     (LazyJVM.kt: SynchronizedLazyImpl khóa, SafePublicationLazyImpl compareAndSet, UnsafeLazyImpl không khóa; Lazy.kt: NONE "unspecified").
+     Tình huống hai luồng là kịch bản xấu nhất CÓ THỂ xảy ra, không phải lần nào cũng vậy. */
+  (function () {
+    var m = 'delegate', CASES = ['synchronized', 'publication', 'none'];
+    // mỗi bước: [node, trạng thái node, số đo {runs, instances}, loại bước, dòng mã, loại log, chủ thể log]
+    var P = {
+      synchronized: [[['access', 'delegate'], {}, { runs: 0, instances: 0 }, 'scenario', [2, 5, 6], 'observe', 'access'],
+        [['access', 'delegate', 'init'], { delegate: 'running', init: 'running' }, { runs: 1, instances: 0 }, 'mechanism', [7, 2], 'run', 'init'],
+        [['init', 'value'], { delegate: 'done', init: 'done', value: 'done' }, { runs: 1, instances: 1 }, 'mechanism', [2], 'write', 'value'],
+        [['access', 'value'], { delegate: 'done', init: 'done', value: 'done' }, { runs: 1, instances: 1 }, 'mechanism', [6], 'complete', 'access']],
+      publication: [[['access', 'delegate'], {}, { runs: 0, instances: 0 }, 'scenario', [1], 'observe', 'access'],
+        [['delegate', 'init'], { delegate: 'running', init: 'running' }, { runs: 2, instances: 0 }, 'mechanism', [1, 2], 'run', 'init'],
+        [['init', 'value'], { delegate: 'done', init: 'done', value: 'done' }, { runs: 2, instances: 1 }, 'mechanism', [3], 'write', 'value'],
+        [['access', 'value'], { delegate: 'done', init: 'done', value: 'done' }, { runs: 2, instances: 1 }, 'mechanism', [4], 'complete', 'access']],
+      none: [[['access', 'delegate'], {}, { runs: 0, instances: 0 }, 'scenario', [1], 'observe', 'access'],
+        [['delegate', 'init'], { delegate: 'running', init: 'running' }, { runs: 2, instances: 0 }, 'mechanism', [1, 2], 'run', 'init'],
+        [['init', 'value'], { delegate: 'done', init: 'done', value: 'surprise' }, { runs: 2, instances: 2 }, 'pitfall', [3], 'write', 'value'],
+        [['delegate', 'value'], { delegate: 'done', init: 'done', value: 'done' }, { runs: 1, instances: 1 }, 'mechanism', [4, 5], 'write', 'delegate']]
+    };
+    ADE.kotlinDelegate = P;
+    var EDGE = { access: null, delegate: 'e1', init: 'e2', value: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var e = EDGE[p[0][0]] || EDGE[p[0][1]], bad = p[3] === 'pitfall';
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: { mode: M(m, 'mode.' + s.case), runs: p[2].runs, instances: p[2].instances },
+          codeHighlight: { snippet: 'del.' + s.case, lines: p[4] }, movingSignals: e ? [{ edge: e, tok: bad ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5], subject: p[6] }] });
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i >= 2) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'synchronized' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi chế độ có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'SYNCHRONIZED: initializer chạy đúng 1 lần, mọi luồng thấy 1 giá trị; PUBLICATION: có thể chạy nhiều lần nhưng chỉ 1 giá trị được dùng', run: function () { var a = steps({ case: 'synchronized' })[3].metrics, b = steps({ case: 'publication' })[3].metrics; return a.runs === 1 && a.instances === 1 && b.runs > 1 && b.instances === 1; } },
+        { name: 'NONE với hai luồng: các luồng có thể nhận object khác nhau (bẫy)', run: function () { var c = steps({ case: 'none' })[2]; return c.type === 'pitfall' && c.metrics.instances > 1; } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

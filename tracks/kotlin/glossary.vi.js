@@ -25,5 +25,7 @@ ADE.addGlossary('vi', 'kotlin', {
   "variance": { term: "variance (out / in)", def: "Quan hệ cha–con giữa C<Doctor> và C<Staff>: out (hiệp biến) giữ chiều, in (nghịch biến) đảo chiều, không ghi gì là bất biến (không liên quan).", chapter: "kotlin/k10" },
   "type-erasure": { term: "type erasure", def: "Lúc chạy, object generic không mang kiểu tham số: List<Doctor> và List<Nurse> đều chỉ là List; nên không kiểm được is List<Doctor>.", chapter: "kotlin/k10" },
   "star-projection": { term: "star-projection (*)", def: "C<*> nghĩa là \"C của một kiểu nào đó không biết\": đọc ra an toàn ở mức cận trên, không ghi vào được.", chapter: "kotlin/k10" },
+  "delegated-property": { term: "delegated property (by)", def: "Property mà getter/setter chuyển cho một object khác qua getValue/setValue; trình biên dịch giữ object đó trong trường ẩn prop$delegate.", chapter: "kotlin/k11" },
+  "lazy-mode": { term: "LazyThreadSafetyMode", def: "Chế độ của lazy: SYNCHRONIZED (mặc định, khóa, initializer chạy một lần), PUBLICATION (có thể chạy nhiều lần, chỉ một giá trị được dùng), NONE (không khóa, chỉ cho một luồng).", chapter: "kotlin/k11" },
   "when-expression": { term: "biểu thức when", def: "when trả về giá trị của nhánh khớp đầu tiên; khi dùng như biểu thức, các nhánh phải phủ đủ mọi trường hợp (thường bằng else).", chapter: "kotlin/k1" }
 });

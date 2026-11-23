@@ -158,3 +158,17 @@ Kiểm URL (curl, HTTP 200): sequences.html.
 | Notifier<in T> | kiểu tự đặt cho ví dụ, chỉ dựa vào quy tắc in của tài liệu | — |
 
 Kiểm URL (curl, HTTP 200): generics.html; Collections.kt (raw và blob, v2.1.0); Flow.kt (raw và blob, 1.9.0); leanpub.com/advanced_kotlin.
+
+## K11 · Delegation: by lazy, by remember, by viewModels (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| by: getter/setter gọi getValue/setValue; delegate không cần interface; trình biên dịch sinh prop$delegate và gọi getValue(this, this::prop); lazy mặc định synchronized (một luồng tính, mọi luồng thấy cùng giá trị), PUBLICATION, NONE; observable (sau khi gán), vetoable (trước, có thể từ chối); ủy quyền cho property khác bằng :: | `kt-delegated-properties` | stable |
+| class Derived(b: Base) : Base by b; override thắng nhưng b không gọi được override | `kt-delegation` | stable |
+| lazy {} = SynchronizedLazyImpl (synchronized(lock), initializer = null sau khi xong); PUBLICATION = SafePublicationLazyImpl (compareAndSet; initializer có thể chạy nhiều lần, chỉ một giá trị dùng); NONE = UnsafeLazyImpl, nhiều luồng thì hành vi không xác định; Lazy<T>.getValue = value | `kt-stdlib-lazy` (LazyJVM.kt dòng 23–42, Lazy.kt dòng 50–84, tag v2.1.0) | version |
+| State<T>.getValue = value; MutableState<T>.setValue | `rt-state-src` (SnapshotState.kt dòng 85, 112, androidx-main @296313a4; nguồn dùng chung với track Runtime) | version |
+| ComponentActivity.viewModels() inline reified trả Lazy<VM> = ViewModelLazy; ViewModelLazy giữ cached, lần đầu lấy từ provider | `ax-activity-viewmodels`, `ax-viewmodel-lazy` (androidx-main @296313a4) | version |
+| Kịch bản hai luồng chen nhau là trường hợp xấu nhất có thể, không xảy ra lần nào cũng vậy | ghi trong mục trung thực và simp.1 | simplified |
+| Bài tập mutableLazy | dựa trên "Mutable lazy delegate", `book-kt-exercises`; lời giải tự viết (không đồng bộ, ghi rõ) | — |
+
+Kiểm URL (curl, HTTP 200): delegated-properties, delegation; Lazy.kt và LazyJVM.kt (raw, blob, v2.1.0); ActivityViewModelLazy.kt và ViewModelLazy.kt (gitiles ở commit ghim).

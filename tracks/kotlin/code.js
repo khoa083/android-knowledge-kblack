@@ -328,6 +328,28 @@
     c('// chiều kia thì không:', '// the other direction is not:'),
     c('val anyStaff: Notifier<Staff> = doctorNotifier         // lỗi biên dịch', 'val anyStaff: Notifier<Staff> = doctorNotifier         // compile error')
   ]);
+  add('del.synchronized', [
+    'class ClinicRepository(context: Context) {',
+    c('    val db: ClinicDb by lazy { openDb(context) }          // mặc định: SYNCHRONIZED', '    val db: ClinicDb by lazy { openDb(context) }          // default: SYNCHRONIZED'),
+    '}',
+    c('// trình biên dịch sinh (giản lược):', '// what the compiler generates (simplified):'),
+    'private val db$delegate = lazy { openDb(context) }',
+    'val db: ClinicDb get() = db$delegate.getValue(this, this::db)   // = db$delegate.value',
+    c('// luồng A (main) và B (Dispatchers.IO) cùng đọc repo.db lần đầu', '// thread A (main) and B (Dispatchers.IO) both read repo.db for the first time')
+  ]);
+  add('del.publication', [
+    'val db: ClinicDb by lazy(LazyThreadSafetyMode.PUBLICATION) { openDb(context) }',
+    c('// A và B cùng đọc lần đầu: cả hai có thể chạy openDb()', '// A and B read it first at the same time: both may run openDb()'),
+    c('// chỉ giá trị lưu vào trước được dùng; giá trị kia bị bỏ', '// only the value stored first is used; the other is discarded'),
+    c('val same = repo.db                       // mọi luồng: cùng một object', 'val same = repo.db                       // every thread: the same object')
+  ]);
+  add('del.none', [
+    'val db: ClinicDb by lazy(LazyThreadSafetyMode.NONE) { openDb(context) }',
+    c('// A (main) và B (Dispatchers.IO) cùng đọc lần đầu', '// A (main) and B (Dispatchers.IO) read it first at the same time'),
+    c('// không khóa: cả hai chạy openDb(), mỗi luồng có thể giữ một kết nối khác', '// no lock: both run openDb(), and each thread may keep a different connection'),
+    c('// sửa: nhiều luồng thì dùng chế độ mặc định', '// fix: with several threads, use the default mode'),
+    'val db: ClinicDb by lazy { openDb(context) }'
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',
