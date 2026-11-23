@@ -293,6 +293,8 @@ Thứ tự viết: e1 → e2 → e3 → e4 → ia → e5 → e6 → e7 → dv �
   - Material 3 trong Compose: token, theme.
 
 ### Kotlin (track mới, trừ coroutines)
+
+> **Spec chốt (2026-11-23):** `docs/tracks/F-kotlin.md`, 14 chương, hai phần (nền tảng cho người mới; cơ chế sâu), chọn kiến thức cần và đủ, bài tập từ *Kotlin Exercises*. Dàn nháp dưới đây giữ để đối chiếu.
 - **Essentials:** biến, kiểu, null-safety, hàm, class/object, data/sealed/enum, interface, generics cơ bản, collection, exception.
 - **Advanced Kotlin:**
   - generics nâng cao: variance in/out, reified;
