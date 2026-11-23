@@ -6,9 +6,9 @@
 Đọc CLAUDE.md, docs/progress.md (mục cuối) và docs/roadmap-v2.md (bảng "Trạng thái các track") trước.
 
 Trạng thái:
-- Đã xong và stable: A Coroutines, B Runtime, C Animation (v2), F Kotlin (14 chương).
+- Đã xong và stable: A Coroutines, B Runtime, C Animation (v2), F Kotlin (14 chương), G Kiến trúc (12 chương).
 - Tạm dừng, KHÔNG đụng tới: D UX, E UI ("Sắp ra mắt"). Phần SM dở dang của UX nằm trong git stash.
-- Đang viết: G Kiến trúc app Android (track `arch`). Đã duyệt; G1–G9 xong; tiếp theo G10 (kiểm thử theo tầng), G11, G0. Spec: docs/tracks/G-clean-architecture.md.
+- Đã xong và stable: G Kiến trúc app Android (track `arch`, 12 chương G0–G11, 2026-11-24).
 - Đã duyệt dàn ý (2026-11-24), CHƯA xây, làm theo thứ tự sau G: H docs/tracks/H-saving-data.md → I docs/tracks/I-mobile-system-design.md → J docs/tracks/J-clean-code.md → K docs/tracks/K-functional-kotlin.md.
 - Sau K: L Gỡ lỗi và hiệu năng Android docs/tracks/L-debugging-performance.md (đã duyệt 2026-11-24).
 
@@ -36,5 +36,5 @@ Git:
 
 Hạn mức: kiểm usage định kỳ, dừng ở khoảng 90–98% của cửa sổ 5 giờ. Trước khi dừng: commit, push, ghi vào docs/progress.md đang dừng ở đâu.
 
-Việc tiếp theo: viết G10 theo spec G (ma trận tầng × loại test), rồi G11, G0 sau cùng; sau G0 chuyển track sang stable và thêm cầu nối còn thiếu (G6↔K11, G8↔K6, G10↔A9/B9). Mỗi chương arch: module dev/gen/arch_v2_<id>.py + patch model/view/code/visuals; script patch mẫu: xem các commit G3–G8.
+Việc tiếp theo: bắt đầu track H Lưu dữ liệu (`storage`) theo docs/tracks/H-saving-data.md (đã duyệt): dựng khung track (manifest, generator dev/gen/storage_content.py, sources, glossary, misconceptions, models, views, visuals) theo mẫu track arch, rồi viết h1 → h9, h0 cuối. Hình mỗi chương theo cột "Hình chính" của spec (h7 cần sơ đồ tuần tự MỚI).
 ```

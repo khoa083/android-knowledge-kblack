@@ -700,4 +700,38 @@
         { name: 'di trú dần: luôn phát hành được, cuối cùng đủ 5 màn', run: function () { var a = steps({ case: 'gradual' }); return a.every(function (s) { return s.metrics.ship === M(m, 'ship.yes'); }) && a[3].metrics.done === '5/5'; } },
         { name: 'thêm tính năng theo tầng: domain trước, data sau cùng (repository stub trong lúc chờ)', run: function () { return R.newfeature[0][0][1][0] === 'done' && R.newfeature[2][0][1][3] === 'stub' && R.newfeature[3][0][1][3] === 'done'; } }] });
   })();
+  /* ================= G0: bản đồ track: triệu chứng → lúc lộ ra → nguyên nhân → chương ================= */
+  (function () {
+    var m = 'map';
+    // [triệu chứng, chương, lúc lộ ra: build | test | runtime | silent]
+    var SYM = [['rotateLoses', 'g1', 'runtime'], ['importUi', 'g2', 'silent'], ['toastAgain', 'g3', 'silent'], ['staleAfterRefresh', 'g4', 'silent'],
+      ['rulesDiffer', 'g5', 'silent'], ['memoryGrows', 'g6', 'runtime'], ['spinnerError', 'g7', 'silent'], ['crashOffline', 'g8', 'runtime'],
+      ['cycleBuild', 'g9', 'build'], ['flakyTests', 'g10', 'test'], ['rewriteStalls', 'g11', 'silent']];
+    var IDS = SYM.map(function (x) { return x[0]; });
+    ADE.archMap = SYM;
+    var PH = { build: 'broken', test: 'surprise', runtime: 'broken', silent: 'surprise' };
+    function steps(s) {
+      var row = SYM.filter(function (x) { return x[0] === s.symptom; })[0] || SYM[0], id = row[0], ch = row[1], ph = row[2];
+      var met = function (i) { return { phase: i >= 1 ? M(m, 'phase.' + ph) : M(m, 'phase.none'), chapter: i >= 3 ? M(m, 'ch.' + ch) : M(m, 'ch.none') }; };
+      var st = function (i, type, nodes, ns0, kind, subj, titleKey, explainKey, edge) {
+        var ns = {}; Object.keys(ns0).forEach(function (n) { ns[n] = K + 'st.' + ns0[n]; });
+        return S(m, id + '.' + ['start', 'first', 'next', 'end'][i], { type: type, activeNodes: nodes, nodeStates: ns, metrics: met(i), titleKey: titleKey, explainKey: explainKey,
+          movingSignals: edge ? [{ edge: edge, tok: type === 'pitfall' ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: kind, subject: subj, detailKey: titleKey }] });
+      };
+      var a = st(0, 'scenario', ['symptom'], {}, 'observe', 'symptom', M(m, 's.' + id + '.title'), M(m, 's.' + id + '.detail'), null);
+      a.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+      var b = st(1, 'mechanism', ['symptom', 'phase'], { phase: PH[ph] }, ph === 'build' ? 'exception' : 'run', 'phase', M(m, 'phase.' + ph), M(m, 'phase.' + ph + '.explain'), 'e1');
+      var c = st(2, 'pitfall', ['phase', 'cause'], { phase: PH[ph], cause: 'done' }, 'observe', 'cause', M(m, 's.' + id + '.cause'), M(m, 's.' + id + '.causeDetail'), 'e2');
+      c.callouts = [{ kind: 'pitfall', textKey: M(m, 'co.cause') }];
+      var d = st(3, 'mechanism', ['cause', 'chapter'], { phase: PH[ph], cause: 'done', chapter: 'done' }, 'complete', 'chapter', M(m, 'go.' + ch), M(m, 's.' + id + '.fix'), 'e3');
+      d.callouts = [{ kind: 'mechanism', textKey: M(m, 'co.chapter') }];
+      return [a, b, c, d];
+    }
+    reg(m, { controls: [sel(m, 'symptom', IDS)], init: function () { return { symptom: 'toastAgain' }; }, act: setter(['symptom']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi triệu chứng có 4 bước và trỏ tới một chương', run: function () { return IDS.every(function (k) { var x = steps({ symptom: k }); return x.length === 4 && x[3].metrics.chapter !== M(m, 'ch.none'); }); } },
+        { name: 'mọi chương G1–G11 có ít nhất một triệu chứng, và chương đó có trong manifest', run: function () { var t = ADE.getTrack && ADE.getTrack('arch'), chs = t ? t.chapters.map(function (c) { return c.id; }) : [];
+          return ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9', 'g10', 'g11'].every(function (g) { return SYM.some(function (x) { return x[1] === g; }) && (!t || chs.indexOf(g) >= 0); }); } },
+        { name: 'lúc lộ ra chỉ là một trong bốn: build, test, lúc chạy, sai lặng lẽ', run: function () { return SYM.every(function (x) { return !!PH[x[2]]; }); } }] });
+  })();
 })();

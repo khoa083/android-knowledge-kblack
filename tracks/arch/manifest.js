@@ -4,9 +4,10 @@ ADE.registerTrack({
   id: 'arch', code: 'G', order: 70, domain: 'engineering',
   accent: '#3D7F8A', icon: 'layers',
   titleKey: 'track.arch.title', summaryKey: 'track.arch.summary',
-  level: 'intermediate', estMinutes: 360, status: 'draft',
+  level: 'intermediate', estMinutes: 360, status: 'stable',
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
+    { id: 'g0', titleKey: 'track.arch.g0.title', sims: ['arch.map'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'g1', titleKey: 'track.arch.g1.title', sims: ['arch.god'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'g2', titleKey: 'track.arch.g2.title', sims: ['arch.layers', 'arch.ssot'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'g3', titleKey: 'track.arch.g3.title', sims: ['arch.events'], simAfter: 'hook', bridges: ['X12'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
@@ -30,7 +31,8 @@ ADE.registerTrack({
     { id: 'arch-failure', model: 'arch.failure', titleKey: 'track.arch.preset.failure' },
     { id: 'arch-modules', model: 'arch.modules', titleKey: 'track.arch.preset.modules' },
     { id: 'arch-testing', model: 'arch.testing', titleKey: 'track.arch.preset.testing' },
-    { id: 'arch-feature', model: 'arch.feature', titleKey: 'track.arch.preset.feature' }
+    { id: 'arch-feature', model: 'arch.feature', titleKey: 'track.arch.preset.feature' },
+    { id: 'arch-map', model: 'arch.map', titleKey: 'track.arch.preset.map' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

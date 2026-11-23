@@ -52,7 +52,7 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 | D | UX (`ux`) | **Tạm dừng** ("Sắp ra mắt"); dàn v2 đã đối chiếu sách | mục "UX v2" bên dưới |
 | E | UI (`ui`) | **Tạm dừng** ("Sắp ra mắt"); dàn v2 đã đối chiếu sách | mục "UI v2" bên dưới |
 | F | Kotlin (`kotlin`) | **Xong**, stable, 14 chương; đã đổi hình K4, K9, K10, K12, K0 | `docs/tracks/F-kotlin.md` |
-| G | Kiến trúc app Android (`arch`) | **Đã duyệt**, đang viết (G1 xong), draft | `docs/tracks/G-clean-architecture.md` |
+| G | Kiến trúc app Android (`arch`) | **Xong**, stable, 12 chương (G0–G11) | `docs/tracks/G-clean-architecture.md` |
 | H | Lưu dữ liệu (`storage`) | **Đã duyệt** 2026-11-24, chưa xây (sau G) | `docs/tracks/H-saving-data.md` |
 | I | Thiết kế hệ thống phía mobile (`sysdesign`) | **Đã duyệt** 2026-11-24, chưa xây (sau H) | `docs/tracks/I-mobile-system-design.md` |
 | J | Mã sạch và kỷ luật làm nghề (`cleancode`) | **Đã duyệt** 2026-11-24, chưa xây (sau I) | `docs/tracks/J-clean-code.md` |

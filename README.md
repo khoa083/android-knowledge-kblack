@@ -16,7 +16,7 @@ Website học tập tương tác, song ngữ Việt–Anh, chạy **offline**. C
 | D | Thiết kế cho cách con người nghĩ (UX) | Design | sắp ra mắt |
 | E | Giao diện Android: từ nguyên lý đến design system (UI) | Design | sắp ra mắt |
 | F | Kotlin: cơ chế ngôn ngữ | Engineering | có |
-| G | Kiến trúc app Android | Engineering | đang viết |
+| G | Kiến trúc app Android | Engineering | có |
 | H–K | Lưu dữ liệu; Thiết kế hệ thống phía mobile; Mã sạch; Lập trình hàm với Kotlin | Engineering | đã duyệt dàn ý, chưa viết (`docs/tracks/`) |
 | L | Gỡ lỗi và hiệu năng Android | Engineering | đã duyệt dàn ý, chưa viết (`docs/tracks/`) |
 
@@ -79,7 +79,7 @@ An interactive, bilingual (Vietnamese–English) learning site that runs **offli
 | D | Designing for How People Think (UX) | Design | coming soon |
 | E | Android UI: From Principles to Design Systems (UI) | Design | coming soon |
 | F | Kotlin: How the Language Works | Engineering | available |
-| G | Android App Architecture | Engineering | in progress |
+| G | Android App Architecture | Engineering | available |
 | H–K | Saving Data; Mobile System Design; Clean Code and Craft; Functional Programming in Kotlin | Engineering | outlines approved, not yet written (`docs/tracks/`) |
 | L | Android Debugging and Performance | Engineering | outline approved, not yet written (`docs/tracks/`) |
 

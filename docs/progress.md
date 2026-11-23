@@ -771,3 +771,8 @@ Trạng thái: `chưa / đang / xong`.
   - Thêm 1 preset; nguồn Boudjnah bổ sung ch.7–8.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; đã xem ảnh. Đã sửa để chỉ ô vừa đổi mới có viền.
   - **Tiếp theo:** G0 (bản đồ track), rồi chuyển track G sang stable.
+- **Kiến trúc · G0 và track stable (2026-11-24):** bản đồ track (`arch_v2_g0.py`, đặt đầu track). Nội dung: thứ tự đọc, chỉ mục hình của mỗi chương, cầu nối sang track khác, mục trung thực của cả track, quiz 3 câu.
+  - **Sim `arch.map`:** 11 triệu chứng → lộ ra lúc nào (build, test, lúc chạy, sai lặng lẽ) → nguyên nhân → chương. Tab chính là **bảng tra**, ô "?" mở dần theo bước.
+  - **Track G chuyển `stable`** với 12 chương G0–G11. Đã cập nhật roadmap, README, next-prompt.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; routes-check 165 route, không lỗi; đã xem ảnh bảng tra.
+  - **Tiếp theo:** track H (Lưu dữ liệu).

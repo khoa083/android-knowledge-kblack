@@ -59,4 +59,8 @@
   V('feature', { layout: 'pipeline', nodes: [N('feature', 'ui', 0, 0, 'screen', 'ui'), N('feature', 'vm', 3, 0, 'layers', 'state'), N('feature', 'uc', 6, 0, 'mechanism', 'runtime'), N('feature', 'repo', 9, 0, 'store', 'job')],
     edges: [E('e1', 'ui', 'vm'), E('e2', 'vm', 'uc'), E('e3', 'uc', 'repo')],
     metrics: [T('feature', 'ship'), T('feature', 'done'), T('feature', 'tests')] });
+  /* G0: triệu chứng → lúc lộ ra → nguyên nhân → chương */
+  V('map', { layout: 'pipeline', nodes: [N('map', 'symptom', 0, 0, 'eye', 'ui'), N('map', 'phase', 3, 0, 'clock', 'state'), N('map', 'cause', 6, 0, 'mechanism', 'runtime'), N('map', 'chapter', 9, 0, 'source', 'job')],
+    edges: [E('e1', 'symptom', 'phase'), E('e2', 'phase', 'cause'), E('e3', 'cause', 'chapter')],
+    metrics: [T('map', 'phase'), T('map', 'chapter')] });
 })();
