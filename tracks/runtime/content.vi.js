@@ -3403,5 +3403,14 @@ ADE.addTrackStrings('runtime', 'vi', {
   "track.runtime.b0.quiz.q3.a": "LZ (key), rồi B3.",
   "track.runtime.b0.quiz.q3.why": "Không có key thì state gắn với vị trí.",
   "track.runtime.vz.tab.slots": "Dãy group",
-  "track.runtime.vz.slots.cap": "Mỗi ô là một group theo đúng thứ tự trong SlotTable. So hàng \"cũ\" với hàng \"lần chạy mới gọi\" từ trái sang phải để thấy chỗ khớp, chỗ lệch; hàng có viền vừa đổi ở bước này."
+  "track.runtime.vz.slots.cap": "Mỗi ô là một group theo đúng thứ tự trong SlotTable. So hàng \"cũ\" với hàng \"lần chạy mới gọi\" từ trái sang phải để thấy chỗ khớp, chỗ lệch; hàng có viền vừa đổi ở bước này.",
+  "track.runtime.vz.tab.chain": "Đối chiếu chuỗi",
+  "track.runtime.vz.chain.cap": "Mỗi hàng là một vị trí trong chuỗi modifier: phần tử cũ, phần tử mới, và việc Compose làm với node ở vị trí đó. Cột hành động hiện dần theo số đo của bước; ô viền là việc vừa làm.",
+  "track.runtime.vz.chain.colOld": "Chuỗi cũ",
+  "track.runtime.vz.chain.colNew": "Chuỗi mới",
+  "track.runtime.vz.chain.colAct": "Node được",
+  "track.runtime.vz.chain.reuse": "giữ nguyên",
+  "track.runtime.vz.chain.update": "cập nhật (update)",
+  "track.runtime.vz.chain.insert": "tạo mới (onAttach)",
+  "track.runtime.vz.chain.remove": "gỡ (onDetach)"
 });

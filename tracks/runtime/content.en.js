@@ -3403,5 +3403,14 @@ ADE.addTrackStrings('runtime', 'en', {
   "track.runtime.b0.quiz.q3.a": "LZ (keys), then B3.",
   "track.runtime.b0.quiz.q3.why": "Without keys, state is tied to position.",
   "track.runtime.vz.tab.slots": "Group sequence",
-  "track.runtime.vz.slots.cap": "Each chip is one group in SlotTable order. Compare the \"old\" row with the \"new run calls\" row left to right to see where they match and where they diverge; an outlined row just changed at this step."
+  "track.runtime.vz.slots.cap": "Each chip is one group in SlotTable order. Compare the \"old\" row with the \"new run calls\" row left to right to see where they match and where they diverge; an outlined row just changed at this step.",
+  "track.runtime.vz.tab.chain": "Chain diff",
+  "track.runtime.vz.chain.cap": "Each row is a position in the modifier chain: the old element, the new element, and what Compose does with the node there. The action column fills in with the metrics of each step; the outlined cell is the latest action.",
+  "track.runtime.vz.chain.colOld": "Old chain",
+  "track.runtime.vz.chain.colNew": "New chain",
+  "track.runtime.vz.chain.colAct": "The node is",
+  "track.runtime.vz.chain.reuse": "reused",
+  "track.runtime.vz.chain.update": "updated in place",
+  "track.runtime.vz.chain.insert": "created (onAttach)",
+  "track.runtime.vz.chain.remove": "removed (onDetach)"
 });
