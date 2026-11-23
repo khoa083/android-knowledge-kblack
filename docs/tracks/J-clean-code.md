@@ -1,6 +1,6 @@
 # TRACK J — Mã sạch và kỷ luật làm nghề / Clean Code and Craft (`cleancode`)
 
-> **BẢN NHÁP, CHỜ DUYỆT (2026-11-24).** Chưa tạo manifest, model hay nội dung.
+> **ĐÃ DUYỆT (2026-11-24).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **giữ j11**, tên track **"Mã sạch và kỷ luật làm nghề"**. Chưa xây; làm sau track I.
 > Nguyên tắc: **cần và đủ**; ví dụ bằng Kotlin trên app "Hẹn Khám". Mỗi chương bắt đầu từ một lỗi thật: sửa một chỗ hỏng chỗ khác, test vỡ khi refactor, bug không tái hiện được.
 
 ## Manifest đề xuất
@@ -111,6 +111,6 @@ Khuôn mỗi chương như track Kotlin:
 - j9 ↔ G g9 (module hóa).
 - j3 ↔ K (FP): parse don't validate và kiểu dữ liệu đại số.
 
-## Câu hỏi cần người dùng quyết
-1. Có giữ j11 (tính chuyên nghiệp, ước lượng) không? Phần này ít kỹ thuật nhất.
-2. Tên track: "Mã sạch và kỷ luật làm nghề" (đề xuất), hay chỉ "Clean Code"? Lưu ý rằng không có cuốn *Clean Code* trong kho.
+## Hai câu hỏi đã có mặc định (người dùng đổi được)
+1. Giữ j11 (tính chuyên nghiệp, ước lượng), track 12 chương.
+2. Tên track: "Mã sạch và kỷ luật làm nghề" / "Clean Code and Craft".

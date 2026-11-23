@@ -1,6 +1,6 @@
 # TRACK I — Thiết kế hệ thống phía mobile / Mobile System Design (`sysdesign`)
 
-> **BẢN NHÁP, CHỜ DUYỆT (2026-11-24).** Chưa tạo manifest, model hay nội dung.
+> **ĐÃ DUYỆT (2026-11-24).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **giữ i2 và i3 riêng**, **bài mẫu là app nhắn tin**. Chưa xây; làm sau track H.
 > Nguyên tắc: **cần và đủ**, nhìn từ phía **app Android** (client). Mỗi chương bắt đầu từ một lỗi thật xảy ra khi app nói chuyện với server, hoặc khi app sống trong giới hạn của điện thoại.
 
 ## Manifest đề xuất
@@ -147,6 +147,6 @@ Bài tập là đề thiết kế nhỏ do site tự viết theo ý sách. Lời
 - i8 ↔ H h7.
 - i12 ↔ J (feature flag, semantic versioning).
 
-## Câu hỏi cần người dùng quyết
-1. Giữ i2–i3 (phần hệ điều hành) hay gộp thành một chương để track còn 13 chương?
-2. Bài mẫu i13: app nhắn tin (đề xuất, vì dùng được nhiều chương nhất), hay news feed?
+## Hai câu hỏi đã có mặc định (người dùng đổi được)
+1. Giữ i2 và i3 là hai chương riêng, track 14 chương.
+2. Bài mẫu i13 là app nhắn tin với phòng khám.

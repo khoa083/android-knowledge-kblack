@@ -52,10 +52,10 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 | E | UI (`ui`) | **Tạm dừng** ("Sắp ra mắt"); dàn v2 đã đối chiếu sách | mục "UI v2" bên dưới |
 | F | Kotlin (`kotlin`) | **Xong**, stable, 14 chương; đã đổi hình K4, K9, K10, K12, K0 | `docs/tracks/F-kotlin.md` |
 | G | Kiến trúc app Android (`arch`) | **Đã duyệt**, đang viết (G1 xong), draft | `docs/tracks/G-clean-architecture.md` |
-| H | Lưu dữ liệu (`storage`) | Dàn ý **chờ duyệt** | `docs/tracks/H-saving-data.md` |
-| I | Thiết kế hệ thống phía mobile (`sysdesign`) | Dàn ý **chờ duyệt** | `docs/tracks/I-mobile-system-design.md` |
-| J | Mã sạch và kỷ luật làm nghề (`cleancode`) | Dàn ý **chờ duyệt** | `docs/tracks/J-clean-code.md` |
-| K | Lập trình hàm với Kotlin (`fp`) | Dàn ý **chờ duyệt** | `docs/tracks/K-functional-kotlin.md` |
+| H | Lưu dữ liệu (`storage`) | **Đã duyệt** 2026-11-24, chưa xây (sau G) | `docs/tracks/H-saving-data.md` |
+| I | Thiết kế hệ thống phía mobile (`sysdesign`) | **Đã duyệt** 2026-11-24, chưa xây (sau H) | `docs/tracks/I-mobile-system-design.md` |
+| J | Mã sạch và kỷ luật làm nghề (`cleancode`) | **Đã duyệt** 2026-11-24, chưa xây (sau I) | `docs/tracks/J-clean-code.md` |
+| K | Lập trình hàm với Kotlin (`fp`) | **Đã duyệt** 2026-11-24, chưa xây (sau J) | `docs/tracks/K-functional-kotlin.md` |
 
 Mỗi dàn ý ghi cột **Hình chính** cho từng chương. Kiểu hình chọn theo nội dung, xem `docs/chapter-template-v2.md`, mục "Chọn kiểu hình theo nội dung". Một track chỉ được xây sau khi người dùng duyệt IN/OUT và dàn chương của nó.
 

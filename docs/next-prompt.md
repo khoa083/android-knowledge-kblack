@@ -9,7 +9,7 @@ Trạng thái:
 - Đã xong và stable: A Coroutines, B Runtime, C Animation (v2), F Kotlin (14 chương).
 - Tạm dừng, KHÔNG đụng tới: D UX, E UI ("Sắp ra mắt"). Phần SM dở dang của UX nằm trong git stash.
 - Đang viết: G Kiến trúc app Android (track `arch`). Đã duyệt; G1 xong; tiếp theo G2. Spec: docs/tracks/G-clean-architecture.md.
-- Dàn ý chờ người dùng duyệt (CHƯA được xây): H docs/tracks/H-saving-data.md, I docs/tracks/I-mobile-system-design.md, J docs/tracks/J-clean-code.md, K docs/tracks/K-functional-kotlin.md. Mỗi file có mục "Câu hỏi cần người dùng quyết".
+- Đã duyệt dàn ý (2026-11-24), CHƯA xây, làm theo thứ tự sau G: H docs/tracks/H-saving-data.md → I docs/tracks/I-mobile-system-design.md → J docs/tracks/J-clean-code.md → K docs/tracks/K-functional-kotlin.md.
 
 Quy tắc đã chốt với người dùng:
 - Nội dung "cần và đủ": cơ chế sâu nhưng chọn lọc, không chép sách, không bám từng chương. Sách trong E:\AndroidBooks là nguồn giảng chính, cùng tài liệu chính thức; nguồn chính thức thắng khi mâu thuẫn.
@@ -35,5 +35,5 @@ Git:
 
 Hạn mức: kiểm usage định kỳ, dừng ở khoảng 90–98% của cửa sổ 5 giờ. Trước khi dừng: commit, push, ghi vào docs/progress.md đang dừng ở đâu.
 
-Việc tiếp theo: nếu người dùng đã duyệt H/I/J/K thì ghi quyết định vào file spec tương ứng. Sau đó viết G2 theo spec G: đồ thị phụ thuộc MỚI cho phần tầng và vòng cho UDF. Rồi viết G3 → G11, G0 sau cùng; sau G0 chuyển track sang stable và thêm cầu nối.
+Việc tiếp theo: viết G2 theo spec G: đồ thị phụ thuộc MỚI cho phần tầng và vòng cho UDF. Rồi viết G3 → G11, G0 sau cùng; sau G0 chuyển track sang stable và thêm cầu nối.
 ```

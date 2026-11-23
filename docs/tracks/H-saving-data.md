@@ -1,6 +1,6 @@
 # TRACK H — Lưu dữ liệu trên Android / Saving Data on Android (`storage`)
 
-> **BẢN NHÁP, CHỜ DUYỆT** (soạn 2026-11-23, cập nhật 2026-11-24 với cột "Hình chính"). Chưa tạo manifest, model hay nội dung. Người dùng duyệt IN/OUT và dàn chương trước khi bắt đầu.
+> **ĐÃ DUYỆT (2026-11-24).** Người dùng duyệt IN/OUT và dàn chương. Hai câu hỏi cuối theo mặc định (người dùng đổi được): **giữ h8**, **bỏ hẳn Firebase**. Chưa xây; làm sau khi xong track G.
 > Nguyên tắc: **cần và đủ**. Mỗi chương bắt đầu từ một lỗi thật: mất dữ liệu, ANR, crash khi nâng cấp app.
 
 ## Manifest đề xuất
@@ -96,6 +96,6 @@ Bài tập do site tự viết theo ý sách, có ghi nguồn ý.
 - h7 ↔ I i8 (xung đột giữa nhiều thiết bị).
 - h4 ↔ Kotlin K7 (collection read-only) và K4 (data class làm entity).
 
-## Câu hỏi cần người dùng quyết
-1. Có giữ h8 (shared storage, MediaStore) không, hay bỏ để track gọn hơn (9 chương)?
-2. Firebase: bỏ hẳn (đề xuất), hay thêm một chương tổng quan "khi nào cần backend đồng bộ"?
+## Hai câu hỏi đã có mặc định (người dùng đổi được)
+1. Giữ h8 (shared storage, MediaStore), track 10 chương.
+2. Firebase lưu dữ liệu: bỏ hẳn, chỉ để "đọc thêm".

@@ -1,6 +1,6 @@
 # TRACK K — Lập trình hàm với Kotlin / Functional Programming in Kotlin (`fp`)
 
-> **BẢN NHÁP, CHỜ DUYỆT (2026-11-24).** Chưa tạo manifest, model hay nội dung.
+> **ĐÃ DUYỆT (2026-11-24).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **dùng Arrow ở p5 và p10** (có bản Kotlin thuần đi trước), **property-based testing để OUT**. Chưa xây; làm sau track J.
 > Nguyên tắc: **cần và đủ**. Dạy FP để viết mã Android an toàn hơn: ít trạng thái lẫn lộn, lỗi hiện ra trong kiểu, logic test được không cần mock. Không bắt đầu từ lý thuyết phạm trù.
 
 ## Manifest đề xuất
@@ -110,6 +110,6 @@ Bài tập lấy ý từ bài tập của FP by Tutorials (Challenges) và Manni
 - p8 ↔ G g7 (MVI).
 - p9 ↔ J j3 (parse don't validate), G g10 (test không mock).
 
-## Câu hỏi cần người dùng quyết
-1. Dùng Arrow ở p5 và p10 (đề xuất, có bản Kotlin thuần đi trước), hay chỉ Kotlin thuần?
-2. Có muốn thêm chương "property-based testing" (Manning ch.8) không? Hiện đang để OUT.
+## Hai câu hỏi đã có mặc định (người dùng đổi được)
+1. Dùng Arrow ở p5 và p10, luôn có bản Kotlin thuần đi trước.
+2. Property-based testing (Manning ch.8) để OUT, chỉ "đọc thêm".

@@ -628,3 +628,4 @@ Trạng thái: `chưa / đang / xong`.
     - `docs/next-prompt.md`: viết lại theo trạng thái hiện tại.
     - `README.md`: bảng track có thêm F, G, H–K kèm trạng thái.
   - **Không sửa mã site.** Tiếp theo: chờ người dùng duyệt H, I, J, K (và trả lời câu hỏi trong từng file), rồi viết G2.
+- **Duyệt H, I, J, K (2026-11-24, người dùng: "Duyệt cả bốn"):** ghi trạng thái ĐÃ DUYỆT vào bốn file spec. Các câu hỏi còn mở theo mặc định, người dùng đổi được: giữ h8, bỏ Firebase; giữ i2/i3 riêng, bài mẫu app nhắn tin; giữ j11, tên "Mã sạch và kỷ luật làm nghề"; dùng Arrow ở p5/p10, property-based testing OUT. Thứ tự xây: G → H → I → J → K.
