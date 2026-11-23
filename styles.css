@@ -679,3 +679,23 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 .bridge-map .bm-box { fill: var(--paper); stroke: var(--ink); stroke-width: 1.6; }
 .bridge-map .bm-code { font: 800 14px var(--mono); fill: var(--ink); }
 .bridge-map .bm-node:focus-visible .bm-box, .bridge-map .bm-node:hover .bm-box { stroke: var(--focus); stroke-width: 3; }
+
+/* Hình trực quan dạng bảng, ma trận, hộp lồng (ADE.registerScreen với opts; track kỹ thuật dùng) */
+.vz { width: 100%; max-width: 640px; display: grid; gap: 8px; }
+.vz-cap { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.vz-scroll { overflow-x: auto; max-width: 100%; }
+.vz-table { border-collapse: collapse; font: 13px/1.35 var(--mono); color: var(--ink); min-width: 100%; }
+.vz-table th, .vz-table td { border: 1px solid var(--line-strong); padding: 5px 8px; text-align: left; vertical-align: top; background: var(--paper); }
+.vz-table th { font-weight: 700; color: var(--ink-2); background: var(--paper-2); }
+.vz-table td.c { text-align: center; }
+.vz-table .hl, .vz-box.hl { outline: 2px solid var(--focus); outline-offset: -2px; background: var(--row-active); }
+.vz-table .bad, .vz-box.bad { color: var(--tok-error); border-color: var(--tok-error); background: repeating-linear-gradient(45deg, transparent 0 5px, rgba(196, 43, 50, .10) 5px 10px); }
+.vz-table .ok { color: var(--ink); font-weight: 700; }
+.vz-table .dim { color: var(--ink-3); }
+.vz-chip { display: inline-block; margin: 1px 2px; padding: 1px 6px; border: 1px solid var(--line-strong); border-radius: 3px; background: var(--paper-2); }
+.vz-chip.bad { border-color: var(--tok-error); color: var(--tok-error); }
+.vz-chip.hl { outline: 2px solid var(--focus); }
+.vz-box { border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 8px 10px 10px; background: var(--paper); display: grid; gap: 6px; font: 13px/1.4 var(--mono); color: var(--ink); }
+.vz-box > .vz-h { font-weight: 700; color: var(--ink-2); }
+.vz-box .vz-box { margin-left: 14px; background: var(--paper-2); }
+.vz-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-2); }

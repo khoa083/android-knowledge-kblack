@@ -317,7 +317,8 @@
     function renderCanvasTabs() {
       ui.clear(canvasTabs);
       if (!disc) return;
-      canvasTabs.appendChild(ui.tabs((screenFn ? [{ id: 'screen', label: ADE.t('app.screen'), icon: 'phone' }] : []).concat([{ id: 'diagram', label: ADE.t('app.diagram'), icon: 'layers' }, { id: 'timeline', label: ADE.t('app.timeline'), icon: 'list' }]), vs.canvasTab, function (id) { vs.canvasTab = id; renderCanvasTabs(); applyCanvasTab(); refreshCanvas(); }, ADE.t('app.views')));
+      var so = ADE.screenOpts[opts.modelId] || {};
+      canvasTabs.appendChild(ui.tabs((screenFn ? [{ id: 'screen', label: so.labelKey ? ADE.t(so.labelKey) : ADE.t('app.screen'), icon: so.icon || 'phone' }] : []).concat([{ id: 'diagram', label: ADE.t('app.diagram'), icon: 'layers' }, { id: 'timeline', label: ADE.t('app.timeline'), icon: 'list' }]), vs.canvasTab, function (id) { vs.canvasTab = id; renderCanvasTabs(); applyCanvasTab(); refreshCanvas(); }, ADE.t('app.views')));
     }
     function applyCanvasTab() { screenBox.hidden = vs.canvasTab !== 'screen'; diagramBox.hidden = vs.canvasTab !== 'diagram'; timelineBox.hidden = vs.canvasTab !== 'timeline'; }
     function renderScreen() {
