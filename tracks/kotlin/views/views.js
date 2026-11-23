@@ -22,6 +22,10 @@
   V('hashset', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.hashFail' },
     nodes: [N('hashset', 'obj', 0, 0, 'square', 'ui'), N('hashset', 'hash', 3, 0, 'grid', 'state'), N('hashset', 'bucket', 6, 0, 'layers', 'runtime'), N('hashset', 'lookup', 9, 0, 'search', 'job')],
     edges: [E('e1', 'obj', 'hash'), E('e2', 'hash', 'bucket'), E('e3', 'bucket', 'lookup')], metrics: [T('hashset', 'bucket'), T('hashset', 'size'), T('hashset', 'found')] });
+  /* K5: khai báo kiểu → when / chuyển đổi → trình biên dịch kiểm → kết quả lúc chạy */
+  V('sealed', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', run: K + 'fam.running' },
+    nodes: [N('sealed', 'def', 0, 0, 'layers', 'state'), N('sealed', 'when', 3, 0, 'diamond', 'ui'), N('sealed', 'compiler', 6, 0, 'target', 'runtime'), N('sealed', 'screen', 9, 0, 'phone', 'job')],
+    edges: [E('e1', 'def', 'when'), E('e2', 'when', 'compiler'), E('e3', 'compiler', 'screen')], metrics: [T('sealed', 'covered'), T('sealed', 'total')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],

@@ -566,3 +566,6 @@ Trạng thái: `chưa / đang / xong`.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck 12/12 PASS (cả track); track-check Kotlin 1280/360 0 vấn đề; routes-check 126 route 0 vấn đề; đã xem ảnh sim (sửa loại sự kiện tra cứu từ "kiểm kiểu" sang "chạy").
   - **Báo người dùng (không tự làm):** bucket của HashSet có thể dễ hình dung hơn nếu vẽ thành bảng các bucket thay vì sơ đồ node.
   - **Tiếp theo:** K5 (enum, sealed, when).
+- **Kotlin · K5 (2026-11-23):** enum, sealed và when (`kotlin_v2_k5.py`, 8 mục): enum (name, ordinal, entries, valueOf, thuộc tính và hàm), sealed (kiểu con biết lúc biên dịch, mô hình UiState), when phủ đủ và vì sao tránh else; 2 bug (Empty rơi vào else; valueOf crash với trạng thái mới từ máy chủ), bài tập ClinicDay (dựa trên "Days of the week enum"), tự trả lời 2 câu, quiz 4 câu. Sim `kotlin.sealed` (when không else, when có else, valueOf). 2 nguồn mới, 2 thuật ngữ, 2 hiểu lầm. Phần 1 (nền tảng) còn K6, K7.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck 15/15 PASS (cả track); track-check Kotlin 1280/360 0 vấn đề; routes-check 127 route 0 vấn đề; đã xem ảnh sim.
+  - **Tiếp theo:** K6 (ngoại lệ, require/check, use).

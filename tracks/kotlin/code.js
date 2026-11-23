@@ -142,6 +142,40 @@
     c('println(a == b)                      // false: equals mặc định so tham chiếu', 'println(a == b)                      // false: default equals compares references'),
     'println(setOf(a, b).size)            // 2'
   ]);
+  /* K5: sealed + when (Sealed classes and interfaces; Conditions and loops), enum valueOf (Enum classes) */
+  add('sealed.exhaustive', [
+    'sealed interface UiState',
+    'data object Loading : UiState',
+    'data class Success(val slots: List<String>) : UiState',
+    'data class Error(val message: String) : UiState',
+    c('data object Empty : UiState          // THÊM SAU', 'data object Empty : UiState          // ADDED LATER'),
+    'fun title(s: UiState): String = when (s) {',
+    c('    Loading -> "Đang tải"', '    Loading -> "Loading"'),
+    c('    is Success -> "${s.slots.size} giờ trống"   // smart cast sang Success', '    is Success -> "${s.slots.size} free slots"   // smart cast to Success'),
+    '    is Error -> s.message',
+    c('    // không có else: thiếu Empty là lỗi biên dịch', '    // no else: a missing Empty is a compile error'),
+    '}'
+  ]);
+  add('sealed.withElse', [
+    'sealed interface UiState',
+    'data object Loading : UiState',
+    'data class Success(val slots: List<String>) : UiState',
+    'data class Error(val message: String) : UiState',
+    c('data object Empty : UiState          // THÊM SAU', 'data object Empty : UiState          // ADDED LATER'),
+    'fun title(s: UiState): String = when (s) {',
+    c('    Loading -> "Đang tải"', '    Loading -> "Loading"'),
+    c('    is Success -> "${s.slots.size} giờ trống"', '    is Success -> "${s.slots.size} free slots"'),
+    c('    else -> "Có lỗi xảy ra"            // Empty lặng lẽ rơi vào đây', '    else -> "Something went wrong"     // Empty silently lands here'),
+    '}'
+  ]);
+  add('sealed.valueOf', [
+    'enum class Status { BOOKED, CANCELLED, DONE }',
+    c('val raw = "booked"                     // chuỗi từ máy chủ, chữ thường', 'val raw = "booked"                     // a string from the server, lowercase'),
+    'val status = Status.valueOf(raw)',
+    '// IllegalArgumentException: No enum constant Status.booked',
+    c('// an toàn hơn:', '// safer:'),
+    'val safe = Status.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }'
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',

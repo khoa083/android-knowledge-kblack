@@ -10,5 +10,7 @@ ADE.addGlossary('vi', 'kotlin', {
   "companion-object": { term: "companion object", def: "object gắn với một class, chứa thành viên gọi qua tên lớp (như static của Java); khởi tạo khi lớp được nạp.", chapter: "kotlin/k3" },
   "data-class": { term: "data class", def: "Class có trình biên dịch sinh equals, hashCode, toString, componentN và copy từ các property của constructor chính.", chapter: "kotlin/k4" },
   "hash-table": { term: "bảng băm (hash table)", def: "Cấu trúc bên dưới HashSet/HashMap: mảng các bucket; hashCode chọn bucket, equals so trong bucket. Phần tử bị sửa sau khi thêm có thể nằm sai bucket.", chapter: "kotlin/k4" },
+  "sealed": { term: "sealed class / interface", def: "Kiểu có tập kiểu con trực tiếp cố định, biết lúc biên dịch (cùng package và module); when trên nó có thể phủ đủ mà không cần else.", chapter: "kotlin/k5" },
+  "exhaustive": { term: "phủ đủ (exhaustive)", def: "when xử lý mọi trường hợp có thể của subject; bắt buộc khi when là biểu thức.", chapter: "kotlin/k5" },
   "when-expression": { term: "biểu thức when", def: "when trả về giá trị của nhánh khớp đầu tiên; khi dùng như biểu thức, các nhánh phải phủ đủ mọi trường hợp (thường bằng else).", chapter: "kotlin/k1" }
 });

@@ -134,6 +134,40 @@
         { name: 'property trong thân không thuộc equals: set chỉ giữ 1; class thường: set giữ 2', run: function () { return steps({ case: 'bodyProp' })[3].metrics.size === 1 && steps({ case: 'plain' })[3].metrics.size === 2; } }] });
   })();
 
+  /* ================= K5: sealed + when — trình biên dịch biết đủ các kiểu con, nên kiểm được when đã phủ hết chưa =================
+     Theo Sealed classes and interfaces (kiểm exhaustive, không cần else) và Enum classes (valueOf ném IllegalArgumentException). */
+  (function () {
+    var m = 'sealed', CASES = ['exhaustive', 'withElse', 'valueOf'];
+    // mỗi bước: [node, trạng thái node, số đo, loại bước, dòng mã, loại log]
+    var P = {
+      exhaustive: [[['def'], {}, { covered: 3, total: 3 }, 'scenario', [1, 2, 3, 4], 'observe'], [['when', 'compiler'], { compiler: 'done' }, { covered: 3, total: 3 }, 'mechanism', [6, 7, 8, 9, 10], 'check'],
+        [['def', 'compiler'], { compiler: 'broken' }, { covered: 3, total: 4 }, 'mechanism', [5, 6], 'check'], [['when', 'screen'], { compiler: 'done', screen: 'done' }, { covered: 4, total: 4 }, 'mechanism', [6], 'write']],
+      withElse: [[['def'], {}, { covered: 3, total: 3 }, 'scenario', [1, 2, 3, 4], 'observe'], [['when', 'compiler'], { compiler: 'done' }, { covered: 3, total: 3 }, 'mechanism', [6, 9], 'check'],
+        [['def', 'compiler', 'screen'], { compiler: 'done', screen: 'surprise' }, { covered: 2, total: 4 }, 'pitfall', [5, 9], 'run'], [['when', 'compiler'], { compiler: 'broken', screen: 'done' }, { covered: 4, total: 4 }, 'mechanism', [9], 'write']],
+      valueOf: [[['def'], {}, {}, 'scenario', [1, 2], 'observe'], [['when'], { when: 'running' }, {}, 'mechanism', [3], 'run'],
+        [['screen'], { when: 'running', screen: 'crashed' }, {}, 'pitfall', [3, 4], 'run'], [['when', 'screen'], { when: 'done', screen: 'done' }, {}, 'mechanism', [5, 6], 'write']]
+    };
+    var EDGE = { def: null, when: 'e1', compiler: 'e2', screen: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var e = EDGE[p[0][0]] || EDGE[p[0][1]];
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: p[2], codeHighlight: { snippet: 'sealed.' + s.case, lines: p[4] },
+          movingSignals: e ? [{ edge: e, tok: p[3] === 'pitfall' ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5], subject: p[0][0] }] });
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i >= 2) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'exhaustive' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'không else: thêm kiểu con thì trình biên dịch báo (thiếu 1 nhánh); có else: biên dịch được nhưng sai lúc chạy', run: function () { var a = steps({ case: 'exhaustive' }), b = steps({ case: 'withElse' }); return a[2].metrics.covered < a[2].metrics.total && a[2].nodeStates.compiler === K + 'st.broken' && b[2].type === 'pitfall' && b[2].nodeStates.compiler === K + 'st.done'; } },
+        { name: 'valueOf với tên không khớp chính xác là ngoại lệ lúc chạy', run: function () { return steps({ case: 'valueOf' })[2].nodeStates.screen === K + 'st.crashed'; } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

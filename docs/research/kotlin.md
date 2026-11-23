@@ -68,3 +68,17 @@ Kiểm URL (curl, HTTP 200): classes, inheritance, interfaces, object-declaratio
 | Bài tập Patient | dựa trên "Data class practice", `book-kt-exercises`; lời giải tự viết | — |
 
 Kiểm URL (curl, HTTP 200): data-classes.html, equality.html.
+
+## K5 · Enum, sealed và when (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Kiểu con trực tiếp của sealed biết lúc biên dịch; cùng package và module; không thêm được sau khi module biên dịch | `kt-sealed` | stable |
+| when với sealed: trình biên dịch kiểm phủ đủ, không cần else; ngoại lệ: when trên sealed expect trong mã chung multiplatform vẫn cần else | `kt-sealed` | stable |
+| when dạng biểu thức phải phủ đủ; subject Boolean/enum/sealed có thể phủ đủ không cần else; when dạng câu lệnh không bắt buộc (nói chung) | `kt-control-flow` | stable |
+| enum: name, ordinal (từ 0), entries; valueOf cần tên khớp chính xác, nếu không ném IllegalArgumentException; entries.getOrNull(index) | `kt-enum` | stable |
+| Tránh else trên sealed/enum tự quản lý vì nó nuốt kiểu con mới | suy ra từ hai dòng trên | guideline |
+| KHÔNG khẳng định quy tắc phủ đủ cho when dạng câu lệnh trên sealed (tài liệu không nêu ở trang đã đọc) | — | ghi trong mục trung thực |
+| Bài tập ClinicDay | dựa trên "Days of the week enum", `book-kt-exercises`; lời giải tự viết | — |
+
+Kiểm URL (curl, HTTP 200): sealed-classes.html, enum-classes.html.
