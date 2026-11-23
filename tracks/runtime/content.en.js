@@ -3412,5 +3412,7 @@ ADE.addTrackStrings('runtime', 'en', {
   "track.runtime.vz.chain.reuse": "reused",
   "track.runtime.vz.chain.update": "updated in place",
   "track.runtime.vz.chain.insert": "created (onAttach)",
-  "track.runtime.vz.chain.remove": "removed (onDetach)"
+  "track.runtime.vz.chain.remove": "removed (onDetach)",
+  "track.runtime.vz.tab.records": "Record list",
+  "track.runtime.vz.records.cap": "A state object holds a list of records, each tagged with the id of the snapshot that wrote it. The top row lists the current records; the rows below are the values Global, snapshot A and snapshot B read. An outlined row just changed at this step."
 });

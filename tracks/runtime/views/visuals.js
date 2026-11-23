@@ -4,19 +4,24 @@
 (function () {
   'use strict';
   var K = 'track.runtime.vz.';
-  ADE.registerScreen('runtime.structure', function (box, ctx) {
-    var h = ADE.ui.h, steps = ctx.steps, i = ctx.step ? steps.indexOf(ctx.step) : (ctx.pos > ctx.N ? steps.length - 1 : 0);
-    var cur = steps[i] || steps[0], prev = i > 0 ? steps[i - 1] : null;
-    var val = function (st, k) { var r = (st.stateAfter || []).filter(function (x) { return x.labelKey.split('.').pop() === k; })[0]; return r ? String(r.value) : '—'; };
-    var tb = h('tbody');
-    ['old', 'seq', 'pending', 'ops', 'nodes'].forEach(function (k) {
-      var v = val(cur, k), changed = prev && val(prev, k) !== v;
-      var parts = v === '—' ? [] : v.split(' · ');
-      var cell = h('td', { class: changed ? 'hl' : null }, parts.length ? parts.map(function (p) { return h('span', { class: 'vz-chip' + (/✗/.test(p) ? ' bad' : ''), text: p }); }) : '—');
-      tb.appendChild(h('tr', null, h('th', { text: ADE.t('track.runtime.m.structure.st.' + k) }), cell));
-    });
-    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: ADE.t(K + 'slots.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, tb))));
-  }, { labelKey: K + 'tab.slots', icon: 'list' });
+  // Dãy ô từ stateAfter: mỗi khoá một hàng, giá trị tách theo " · " thành ô; hàng vừa đổi so với bước trước có viền.
+  function chipRows(modelId, mkey, keys, capKey, tabKey) {
+    ADE.registerScreen(modelId, function (box, ctx) {
+      var h = ADE.ui.h, steps = ctx.steps, i = ctx.step ? steps.indexOf(ctx.step) : (ctx.pos > ctx.N ? steps.length - 1 : 0);
+      var cur = steps[i] || steps[0], prev = i > 0 ? steps[i - 1] : null;
+      var val = function (st, k) { var r = (st.stateAfter || []).filter(function (x) { return x.labelKey.split('.').pop() === k; })[0]; return r ? String(r.value) : '—'; };
+      var tb = h('tbody');
+      keys.forEach(function (k) {
+        var v = val(cur, k), changed = prev && val(prev, k) !== v;
+        var parts = v === '—' ? [] : v.split(' · ');
+        var cell = h('td', { class: changed ? 'hl' : null }, parts.length ? parts.map(function (p) { return h('span', { class: 'vz-chip' + (/✗/.test(p) ? ' bad' : ''), text: p }); }) : '—');
+        tb.appendChild(h('tr', null, h('th', { text: ADE.t('track.runtime.m.' + mkey + '.st.' + k) }), cell));
+      });
+      box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: ADE.t(K + capKey) }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, tb))));
+    }, { labelKey: K + tabKey, icon: 'list' });
+  }
+  chipRows('runtime.structure', 'structure', ['old', 'seq', 'pending', 'ops', 'nodes'], 'slots.cap', 'tab.slots');
+  chipRows('runtime.records', 'records', ['records', 'global', 'readA', 'readB', 'merge'], 'records.cap', 'tab.records');
 
   /* MD runtime.chain: đối chiếu chuỗi modifier cũ và mới theo vị trí; hành động trên node hiện dần theo tổng số đo của bước
      (reused + updated + inserted + removed), theo thứ tự hàng. Hàng lấy từ chú thích của model (giữ/cập nhật/chèn/gỡ). */

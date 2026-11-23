@@ -11,3 +11,6 @@ def add(a):
     for k, vi, en in [('colOld', 'Chuỗi cũ', 'Old chain'), ('colNew', 'Chuỗi mới', 'New chain'), ('colAct', 'Node được', 'The node is'),
                       ('reuse', 'giữ nguyên', 'reused'), ('update', 'cập nhật (update)', 'updated in place'), ('insert', 'tạo mới (onAttach)', 'created (onAttach)'), ('remove', 'gỡ (onDetach)', 'removed (onDetach)')]:
         a('vz.chain.' + k, vi, en)
+    a('vz.tab.records', 'Dãy bản ghi', 'Record list')
+    a('vz.records.cap', 'Một state object giữ một danh sách bản ghi, mỗi bản ghi gắn id snapshot đã ghi nó. Hàng đầu là các bản ghi đang có; các hàng dưới là giá trị mà Global, snapshot A và snapshot B đọc thấy. Hàng có viền vừa đổi ở bước này.',
+      'A state object holds a list of records, each tagged with the id of the snapshot that wrote it. The top row lists the current records; the rows below are the values Global, snapshot A and snapshot B read. An outlined row just changed at this step.')

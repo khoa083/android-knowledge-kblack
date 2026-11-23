@@ -3412,5 +3412,7 @@ ADE.addTrackStrings('runtime', 'vi', {
   "track.runtime.vz.chain.reuse": "giữ nguyên",
   "track.runtime.vz.chain.update": "cập nhật (update)",
   "track.runtime.vz.chain.insert": "tạo mới (onAttach)",
-  "track.runtime.vz.chain.remove": "gỡ (onDetach)"
+  "track.runtime.vz.chain.remove": "gỡ (onDetach)",
+  "track.runtime.vz.tab.records": "Dãy bản ghi",
+  "track.runtime.vz.records.cap": "Một state object giữ một danh sách bản ghi, mỗi bản ghi gắn id snapshot đã ghi nó. Hàng đầu là các bản ghi đang có; các hàng dưới là giá trị mà Global, snapshot A và snapshot B đọc thấy. Hàng có viền vừa đổi ở bước này."
 });
