@@ -48,3 +48,28 @@ Giả định của đường cong (ghi trên giao diện): người dùng tươ
 | Hiểu lầm ≥ 10, có nguồn | 11 mục |
 
 Ghi chú: sách (DOET, Wendel, Podmajersky, Greever, Banfield) chưa đọc epub trong lần chạy này — chỉ nêu tên framework và tác giả, không trích nội dung. Các nguồn NN/g "đọc thêm" (`pageOnly`) chưa được dùng cho khẳng định cụ thể.
+
+## UX v2 (2026-11-23)
+
+### D1 v2 · Bộ óc người dùng: chú ý, trí nhớ, mô hình tư duy
+
+Sách đọc chương liên quan (epub, diễn đạt lại, không chép): Whalen Ch.1, 2, 4; Norman Ch.1 (mô hình khái niệm, system image), Ch.3; Krug Ch.2. Mã AndroidX đọc ở commit `296313a4`.
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Sáu "bộ óc": thị giác/chú ý/tự động, wayfinding, ngôn ngữ, trí nhớ, ra quyết định, cảm xúc; tác giả tự nói là giản lược | `book-whalen` Ch.1 | author-framework |
+| Hai kiểu xử lý (Kahneman, qua Whalen); saccade; mẫu chữ F 7–10 / 5–7 từ (đo trên kết quả tìm kiếm ở máy tính) | `book-whalen` Ch.2 | research (ghi rõ bối cảnh máy tính) |
+| Popout hút mắt bất kể số phần tử cạnh tranh; hệ chú ý dùng bản mờ, phần lớn đen trắng; mẹo nheo mắt / làm mờ | `book-whalen` Ch.2 | research (ghi tên tác giả) |
+| Khoảng 2° góc nhìn là nét; "chỗ không ai nhìn" (cột phải trên máy tính bị coi là quảng cáo); icon phải được kiểm tra | `book-whalen` Ch.2 | research |
+| Thẻ giống khuyến mãi trên điện thoại | site chuyển từ ví dụ máy tính của Whalen | simplified (ghi rõ là suy ra) |
+| Boundary extension; khuôn mẫu dịch vụ; ca "cuối tuần" | `book-whalen` Ch.4 | research |
+| Ba "sự thật": quét, satisficing (Simon, Klein), muddle through | `book-krug` Ch.2 | author-framework |
+| Bốn lý do hành vi chính xác từ kiến thức không chính xác; STM 5–7 (10–12 khi nhẩm), thực hành 3–5; thông báo biến mất đúng lúc cần; LTM dựng lại; Bảng 3.1 | `book-norman` Ch.3 | research |
+| Mô hình khái niệm, mô hình tư duy, system image | `book-norman` Ch.1 | author-framework |
+| Hai con số STM đặt cạnh nhau (NN/g ~7 chunk / 20 s; Norman 5–7, thực hành 3–5); sửa mục v1 `sec.mem` để không chỉ còn một con số | `nn-stm`, `book-norman` | research |
+| showSnackbar: không action → Short, có action → Indefinite; toMillis Short 4000L, Long 10000L dưới `// TODO: magic numbers adjustment`; qua calculateRecommendedTimeoutMillis | `m3-snackbar-src` | impl |
+| API 29+: gọi getRecommendedTimeoutMillis của nền tảng; dưới 29: vô hạn chỉ khi có control và touch exploration bật | `ui-a11ymgr-src` | impl |
+| getRecommendedTimeoutMillis: thời gian người dùng hiện tại cần (không nêu tên cài đặt người dùng vì trang tham chiếu không nêu) | `and-a11ymgr` | stable |
+| Sim `ux.glance`: số lần nhìn 1, 9, 18 và "8 mục phải giữ" là minh họa | Minh họa | ghi trong simp.1, simp.2 |
+
+Kiểm URL: `book-norman` và `and-a11ymgr` trả HTTP 200 với curl. Trang O'Reilly (Whalen) trả 403 và sensible.com (Krug) trả 406 với curl (chặn bot), nhưng mở bình thường trong trình duyệt ngày 2026-11-23 (tiêu đề trang khớp sách). Công cụ kiểm link bằng curl sẽ báo nhầm hai nguồn này là hỏng.

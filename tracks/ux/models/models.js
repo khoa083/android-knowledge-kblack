@@ -12,7 +12,7 @@
   }
   function reg(m, def) {
     def.kind = 'discrete'; def.titleKey = M(m, 'title'); def.overviewKey = M(m, 'overview'); def.wrapupKey = M(m, 'wrapup');
-    def.codeId = def.codeId || null; def.controlsHintKey = M(m, 'ctl.hint'); def.simplificationKeys = [M(m, 'simp.1')];
+    def.codeId = def.codeId || null; def.controlsHintKey = M(m, 'ctl.hint'); def.simplificationKeys = [M(m, 'simp.1')].concat(def.simpExtra || []);
     ADE.registerModel('ux.' + m, def);
   }
   var sel = function (m, id, vals) { return { id: id, type: 'select', labelKey: M(m, 'ctl.' + id), get: function (s) { return s[id]; }, action: id, options: vals.map(function (v) { return { value: v, labelKey: M(m, 'ctl.' + id + '.' + v) }; }) }; };
@@ -64,6 +64,49 @@
     }
     reg(m, { controls: [sel(m, 'phase', PH), tog(m, 'loop')], init: function () { return { phase: 'discover', loop: false }; }, act: setter(['phase', 'loop']), steps: steps,
       selfChecks: [{ name: 'mỗi pha có 3 bước; vòng lặp thêm 1 bước', run: function () { return PH.every(function (p) { return steps({ phase: p, loop: false }).length === 3 && steps({ phase: p, loop: true }).length === 4; }); } }] });
+  })();
+
+  /* D1 v2: mắt, chú ý và trí nhớ làm việc trên màn Chọn giờ của Hẹn Khám (4 biến thể).
+     Số lần nhìn (1, 9, 18) và số mục phải giữ là MINH HỌA (simp.1); popout "bất kể số phần tử" theo Whalen Ch.2;
+     giới hạn trí nhớ ngắn hạn theo Norman Ch.3; thời lượng Snackbar theo SnackbarHost.kt @296313a4. */
+  (function () {
+    var m = 'glance', VAR = ['popout', 'nopop', 'sidenote', 'transient'];
+    // [khóa, loại bước, node đang xét, trạng thái node (hậu tố st.*), số đo, callout [loại, khóa co.*], loại log, cạnh có tín hiệu]
+    var PLAN = {
+      popout: [['intro', 'scenario', ['screen'], {}, null, ['try', 'try'], 'observe', []],
+        ['pop', 'mechanism', ['attn'], { attn: 'ok' }, { fix: 1, wm: 0, miss: 0 }, ['source', 'popout'], 'observe', ['e1']],
+        ['double', 'experiment', ['screen', 'attn'], { attn: 'ok' }, { fix: 1, wm: 0, miss: 0 }, ['source', 'popout'], 'measure', ['e1']],
+        ['act', 'mechanism', ['act'], { attn: 'ok', act: 'ok' }, { fix: 1, wm: 0, miss: 0 }, ['mechanism', 'one'], 'act', ['e3']]],
+      nopop: [['intro', 'scenario', ['screen'], {}, null, ['try', 'try'], 'observe', []],
+        ['serial', 'pitfall', ['attn'], { attn: 'broken' }, { fix: 9, wm: 0, miss: 0 }, ['mechanism', 'illus'], 'observe', ['e1']],
+        ['double', 'experiment', ['screen', 'attn'], { attn: 'broken' }, { fix: 18, wm: 0, miss: 0 }, ['mechanism', 'illus'], 'measure', ['e1']],
+        ['fix', 'mechanism', ['screen', 'attn'], { attn: 'ok', act: 'ok' }, { fix: 1, wm: 0, miss: 0 }, ['source', 'popout'], 'recover', ['e1', 'e3']]],
+      sidenote: [['intro', 'scenario', ['screen'], {}, null, ['try', 'try'], 'observe', []],
+        ['skip', 'pitfall', ['attn'], { attn: 'broken' }, { fix: 1, wm: 0, miss: 1 }, ['pitfall', 'adapt'], 'observe', ['e1']],
+        ['cost', 'pitfall', ['act'], { attn: 'broken', act: 'broken' }, { fix: 1, wm: 0, miss: 1 }, ['source', 'null'], 'error', ['e3']],
+        ['fix', 'mechanism', ['screen', 'attn', 'act'], { attn: 'ok', act: 'ok' }, { fix: 1, wm: 0, miss: 0 }, ['source', 'world'], 'recover', ['e1', 'e3']]],
+      transient: [['intro', 'scenario', ['screen'], {}, null, ['try', 'try'], 'observe', []],
+        ['read', 'mechanism', ['attn', 'wm'], { attn: 'ok', wm: 'blocked' }, { fix: 1, wm: 8, miss: 0 }, ['source', 'stm'], 'observe', ['e1', 'e2']],
+        ['gone', 'pitfall', ['wm'], { attn: 'ok', wm: 'broken', act: 'broken' }, { fix: 1, wm: 8, miss: 1 }, ['source', 'snack'], 'error', ['e2']],
+        ['fix', 'mechanism', ['screen', 'wm', 'act'], { attn: 'ok', wm: 'ok', act: 'ok' }, { fix: 1, wm: 0, miss: 0 }, ['source', 'world'], 'recover', ['e1', 'e3']]]
+    };
+    function steps(s) {
+      return PLAN[s.which].map(function (p, i) {
+        var ns = {}; Object.keys(p[3]).forEach(function (n) { ns[n] = K + 'st.' + p[3][n]; });
+        var o = S(m, s.which + '.' + p[0], { type: p[1], activeNodes: p[2], nodeStates: ns,
+          movingSignals: p[7].map(function (e) { return { edge: e, tok: 'signal' }; }),
+          callouts: [{ kind: p[5][0], textKey: M(m, 'co.' + p[5][1]) }],
+          logEvents: [{ t: i, kind: p[6], subject: p[2][p[2].length - 1] }] });
+        if (p[4]) o.metrics = p[4];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'which', VAR)], init: function () { return { which: 'popout' }; }, act: setter(['which']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi biến thể có 4 bước; bước 2 (chỉ số 1) luôn là chỗ mắt dừng', run: function () { return VAR.every(function (v) { var st = steps({ which: v }); return st.length === 4 && st[1].activeNodes.indexOf('attn') >= 0; }); } },
+        { name: 'popout: gấp đôi số ô không đổi số lần nhìn; không popout: số lần nhìn tăng', run: function () { var a = steps({ which: 'popout' }), b = steps({ which: 'nopop' }); return a[2].metrics.fix === a[1].metrics.fix && b[2].metrics.fix > b[1].metrics.fix; } },
+        { name: 'mã 8 chữ số vượt mức 3–5 mục của Norman; bản sửa không bắt giữ gì trong đầu', run: function () { var t = steps({ which: 'transient' }); return t[1].metrics.wm > 5 && t[3].metrics.wm === 0 && t[2].metrics.miss === 1; } }] });
   })();
 
   /* D1: mô hình tư duy — công tắc "Lưu tự động" */

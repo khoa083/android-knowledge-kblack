@@ -11,6 +11,10 @@
   V('errors', { layout: 'cycle', captionKey: K + 'cap.loop', nodes: basic.nodes, edges: basic.edges, metrics: [{ id: 'right', labelKey: K + 'c.metRight' }, { id: 'before', labelKey: K + 'm.errors.met.before' }, { id: 'after', labelKey: K + 'm.errors.met.after' }] });
   V('diamond', { layout: 'pipeline', nodes: [N('discover', 0, 0, 'search', 'signal', K + 'm.diamond.ph.discover.title'), N('define', 3, 0, 'target', 'state', K + 'm.diamond.ph.define.title'), N('develop', 6, 0, 'spark', 'ui', K + 'm.diamond.ph.develop.title'), N('deliver', 9, 0, 'check', 'job', K + 'm.diamond.ph.deliver.title')],
     edges: [E('d1', 'discover', 'define'), E('d2', 'define', 'develop'), E('d3', 'develop', 'deliver'), E('back', 'deliver', 'discover')], metrics: [] });
+  /* D1 v2: màn hình → chú ý thị giác → trí nhớ làm việc → hành động (mô hình giản lược) */
+  V('glance', { layout: 'pipeline', nodes: [N('screen', 0, 0, 'phone', 'ui'), N('attn', 3, 0, 'eye', 'signal', K + 'm.glance.n.attn'), N('wm', 6, 0, 'chip', 'state', K + 'm.glance.n.wm'), N('act', 9, 0, 'target', 'job', K + 'm.glance.n.act')],
+    edges: [E('e1', 'screen', 'attn'), E('e2', 'attn', 'wm'), E('e3', 'wm', 'act')],
+    metrics: [{ id: 'fix', labelKey: K + 'm.glance.met.fix' }, { id: 'wm', labelKey: K + 'm.glance.met.wm' }, { id: 'miss', labelKey: K + 'm.glance.met.miss' }] });
   var ST = ['goal', 'plan', 'specify', 'perform', 'perceive', 'interpret', 'compare'];
   var pos = [[0, 0], [3, -3], [6, -3], [9, 0], [6, 3], [3, 3], [0, 3]];
   V('stages', { layout: 'cycle', nodes: ST.map(function (s, i) { return N(s, pos[i][0], pos[i][1], i <= 3 ? 'play' : 'eye', i <= 3 ? 'ui' : 'signal', K + 'm.stages.s.' + s + '.title'); }),

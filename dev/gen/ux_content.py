@@ -517,8 +517,9 @@ def o2(k, vi, en=None):
     for i, e in enumerate(E):
         if e[0] == k: E[i] = (k, vi, vi if en is None else en); return
     raise KeyError(k)
-for mod in ():   # thêm module mới vào đây, ví dụ ('ux_v2_d1',)
-    if os.path.exists(os.path.join(_here, mod + '.py')):
+for mod in ('ux_v2_d1',):   # thêm module mới vào đây (giữ dấu phẩy cuối)
+    assert os.path.exists(os.path.join(_here, mod + '.py')), 'thiếu module ' + mod
+    if True:
         mm = __import__(mod)
         mm.add(a2)
         if hasattr(mm, 'override'): mm.override(o2)

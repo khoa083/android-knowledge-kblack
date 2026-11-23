@@ -7,7 +7,7 @@ ADE.registerTrack({
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
     { id: 'd0', titleKey: 'track.ux.d0.title', sims: ['ux.classify', 'ux.diamond'], bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'd1', titleKey: 'track.ux.d1.title', sims: ['ux.recall', 'ux.mental'], bridges: ['X7'], goals: [{ id: 'g1', step: 0 }, { id: 'g2', step: 'end' }] },
+    { id: 'd1', titleKey: 'track.ux.d1.title', sims: ['ux.glance', 'ux.mental', 'ux.recall'], simAfter: 'hook', bridges: ['X7'], goals: [{ id: 'g1', step: 1 }, { id: 'g2', step: 'end' }] },
     { id: 'd2', titleKey: 'track.ux.d2.title', sims: ['ux.stages'], bridges: ['X6'], goals: [{ id: 'g1', step: 4 }, { id: 'g2', step: 'end' }] },
     { id: 'd3', titleKey: 'track.ux.d3.title', sims: ['ux.errors'], bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'd4', titleKey: 'track.ux.d4.title', sims: ['ux.heuristic'], bridges: [], goals: [{ id: 'g1', step: 0 }, { id: 'g2', step: 'end' }] },
@@ -27,6 +27,6 @@ ADE.registerTrack({
     { id: 'ux-microcopy', model: 'ux.microcopy', titleKey: 'track.ux.preset.microcopy' }
   ],
   logKinds: ['observe', 'act', 'error', 'feedback', 'decide', 'measure', 'recover'],
-  labels: ['normative', 'research', 'ds-guideline', 'author-framework', 'quant-model', 'guideline', 'simplified'],
+  labels: ['normative', 'research', 'ds-guideline', 'author-framework', 'quant-model', 'guideline', 'simplified', 'impl', 'stable'],
   glossaryNs: 'ux', misconceptionsNs: 'ux'
 });
