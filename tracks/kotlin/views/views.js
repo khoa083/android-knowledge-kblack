@@ -18,6 +18,10 @@
   V('init', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na', run: K + 'fam.running' },
     nodes: [N('init', 'trigger', 0, 0, 'play', 'ui'), N('init', 'parent', 3, 0, 'layers', 'state'), N('init', 'child', 6, 0, 'square', 'runtime'), N('init', 'use', 9, 0, 'target', 'job')],
     edges: [E('e1', 'trigger', 'parent'), E('e2', 'parent', 'child'), E('e3', 'child', 'use')], metrics: [T('init', 'inits')] });
+  /* K4: object → hashCode → bucket trong HashSet → tra cứu (contains / ==) */
+  V('hashset', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.hashFail' },
+    nodes: [N('hashset', 'obj', 0, 0, 'square', 'ui'), N('hashset', 'hash', 3, 0, 'grid', 'state'), N('hashset', 'bucket', 6, 0, 'layers', 'runtime'), N('hashset', 'lookup', 9, 0, 'search', 'job')],
+    edges: [E('e1', 'obj', 'hash'), E('e2', 'hash', 'bucket'), E('e3', 'bucket', 'lookup')], metrics: [T('hashset', 'bucket'), T('hashset', 'size'), T('hashset', 'found')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],

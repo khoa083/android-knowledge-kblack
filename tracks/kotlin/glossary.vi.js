@@ -8,5 +8,7 @@ ADE.addGlossary('vi', 'kotlin', {
   "elvis": { term: "Elvis ?:", def: "Toán tử trả về vế trái nếu khác null, ngược lại trả vế phải; vế phải có thể là return hoặc throw.", chapter: "kotlin/k2" },
   "lateinit": { term: "lateinit", def: "Đánh dấu một var không null sẽ được gán sau khi tạo object; đọc trước khi gán ném UninitializedPropertyAccessException. Không dùng cho kiểu nguyên thủy.", chapter: "kotlin/k3" },
   "companion-object": { term: "companion object", def: "object gắn với một class, chứa thành viên gọi qua tên lớp (như static của Java); khởi tạo khi lớp được nạp.", chapter: "kotlin/k3" },
+  "data-class": { term: "data class", def: "Class có trình biên dịch sinh equals, hashCode, toString, componentN và copy từ các property của constructor chính.", chapter: "kotlin/k4" },
+  "hash-table": { term: "bảng băm (hash table)", def: "Cấu trúc bên dưới HashSet/HashMap: mảng các bucket; hashCode chọn bucket, equals so trong bucket. Phần tử bị sửa sau khi thêm có thể nằm sai bucket.", chapter: "kotlin/k4" },
   "when-expression": { term: "biểu thức when", def: "when trả về giá trị của nhánh khớp đầu tiên; khi dùng như biểu thức, các nhánh phải phủ đủ mọi trường hợp (thường bằng else).", chapter: "kotlin/k1" }
 });

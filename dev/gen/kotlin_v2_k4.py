@@ -1,0 +1,147 @@
+# Kotlin · K4: data class và bằng nhau (Phần 1)
+# Nguồn: kotlinlang.org Data classes, Equality đọc 2026-11-23; Effective Kotlin Item 1 (hạn chế mutability) và Item 43 (hợp đồng hashCode,
+# ví dụ data class FullName bị sửa sau khi thêm vào set); Kotlin Essentials (Data classes).
+# Bài tập dựa trên "Data class practice" (Kotlin Exercises), diễn đạt lại. Trần: 8 mục, mục cơ chế ≤ 5 khối.
+
+SEC_ORDER = {'k4': ['hook', 'data', 'equality', 'mutable', 'bugs', 'ex', 'recall', 'honest']}
+
+
+def add(a):
+    def B(ch, sec, n, field, vi, en=None):
+        a('%s.sec.%s.b.%02d.%s' % (ch, sec, n, field), vi, vi if en is None else en)
+
+    m = lambda k, vi, en=None: a('m.hashset.' + k, vi, en)
+    m('title', 'Phần tử trong HashSet: hashCode chọn bucket, equals so trong bucket', 'An element in a HashSet: hashCode picks the bucket, equals compares inside it')
+    m('overview', 'Danh sách bệnh nhân đang chờ là một mutableSetOf. Bốn tình huống: sửa một phần tử sau khi thêm; "sửa" bằng copy; property khai báo trong thân data class; class thường không có data. Theo dõi bucket mà hashCode chọn và kết quả tra cứu.',
+      'The waiting-patient list is a mutableSetOf. Four situations: modifying an element after adding it; "modifying" with copy; a property declared in the body of a data class; a plain class without data. Follow the bucket hashCode picks and the lookup result.')
+    m('wrapup', 'HashSet và HashMap đặt mỗi phần tử vào bucket theo hashCode lúc thêm, rồi tìm lại bằng hashCode lúc tra. Sửa một thuộc tính tham gia equals/hashCode sau khi đã thêm thì phần tử nằm sai bucket và "biến mất". Dùng data class với val, và thay đổi bằng copy rồi thay phần tử.',
+      'HashSet and HashMap put each element into a bucket by hashCode when it is added, and find it again by hashCode on lookup. Modify a property that takes part in equals/hashCode after adding, and the element sits in the wrong bucket and "disappears". Use data classes with val, and change them with copy, then replace the element.')
+    m('simp.1', 'Số bucket là minh họa: tổng mã ký tự của các thuộc tính chia lấy dư 4. HashSet thật dùng hashCode của data class, trộn thêm bit và đổi kích thước bảng khi lớn lên.', 'The bucket number is illustrative: the sum of the properties\' character codes modulo 4. A real HashSet uses the data class hashCode, mixes the bits and resizes the table as it grows.')
+    m('simp.2', 'Kết quả contains/== theo ví dụ của Effective Kotlin (Item 43) và tài liệu Data classes; site không chạy Kotlin trong trang.', 'The contains/== results follow the Effective Kotlin example (Item 43) and the Data classes docs; the site does not run Kotlin in the page.')
+    m('ctl.hint', 'Xem "sửa sau khi thêm" trước, rồi so với "dùng copy".', 'Look at "modify after adding" first, then compare with "use copy".')
+    m('ctl.case', 'Tình huống', 'Situation')
+    for k, vi, en in [('mutate', 'Sửa var sau khi thêm vào set', 'Modify a var after adding'), ('copy', 'Dùng val và copy', 'Use val and copy'),
+                      ('bodyProp', 'Property khai báo trong thân', 'Property declared in the body'), ('plain', 'Class thường (không data)', 'Plain class (no data)')]:
+        m('ctl.case.' + k, vi, en)
+    m('diagramTitle', 'Object, hashCode, bucket, tra cứu', 'Object, hashCode, bucket, lookup')
+    m('diagramDesc', 'Object được băm để chọn bucket trong HashSet; khi tra cứu, set băm lại rồi so bằng equals trong bucket đó', 'The object is hashed to pick a bucket in the HashSet; on lookup the set hashes again and compares with equals inside that bucket')
+    for k, vi, en in [('obj', 'Object Patient', 'Patient object'), ('hash', 'hashCode', 'hashCode'), ('bucket', 'Bucket trong set', 'Bucket in the set'), ('lookup', 'Tra cứu (contains, ==)', 'Lookup (contains, ==)')]:
+        m('n.' + k, vi, en)
+    m('met.bucket', 'Bucket (minh họa)', 'Bucket (illustrative)'); m('met.size', 'Số phần tử trong set', 'Elements in the set'); m('met.found', 'Tìm thấy', 'Found')
+    m('yes', 'có', 'yes'); m('no', 'không', 'no')
+    a('fam.hashFail', 'sai chỗ hoặc không khớp', 'misplaced or not matching')
+    a('cap.hashset', 'Từ trái sang phải: object, hashCode của nó, bucket trong HashSet, rồi lần tra cứu. Khối viền đỏ là chỗ hash đã đổi sau khi thêm, hoặc chỗ tra cứu cho kết quả bất ngờ.', 'Left to right: the object, its hashCode, the bucket in the HashSet, then the lookup. A red-outlined box is where the hash changed after adding, or where the lookup gives a surprising result.')
+    S = [
+        ('mutate', 'start', 'Khai báo data class Patient(var name, var surname)', 'Declare data class Patient(var name, var surname)', 'Một data class có thuộc tính var. Lan Nguyen đang chờ khám.', 'A data class with var properties. Lan Nguyen is waiting.'),
+        ('mutate', 'first', 'Thêm vào set: hashCode chọn bucket', 'Added to the set: hashCode picks a bucket', 'Lúc add, set tính hashCode từ name và surname rồi đặt phần tử vào bucket tương ứng.', 'On add, the set computes hashCode from name and surname and puts the element into the matching bucket.'),
+        ('mutate', 'next', 'Sửa surname: hashCode đổi, phần tử KHÔNG di chuyển', 'surname changes: hashCode changes, the element does NOT move', 'Phần tử vẫn nằm ở bucket cũ, nhưng hashCode bây giờ chỉ tới một bucket khác. Set không biết bạn vừa sửa nó.', 'The element is still in its old bucket, but its hashCode now points to a different bucket. The set has no idea you changed it.'),
+        ('mutate', 'end', 'lan in waiting: false (dù nó vẫn ở trong set)', 'lan in waiting: false (although it is still in the set)', 'contains băm lan ra bucket mới, không thấy gì ở đó. Nhưng waiting.first() == lan vẫn true: phần tử còn đó, chỉ là không tìm thấy bằng hash.', 'contains hashes lan to the new bucket and finds nothing there. Yet waiting.first() == lan is still true: the element is there, it just cannot be found by hash.'),
+        ('copy', 'start', 'Khai báo data class Patient(val name, val surname)', 'Declare data class Patient(val name, val surname)', 'Cùng dữ liệu, nhưng thuộc tính là val: object không đổi được sau khi tạo.', 'The same data, but the properties are val: the object cannot change after creation.'),
+        ('copy', 'first', 'Thêm vào set', 'Added to the set', 'hashCode chọn bucket như trước.', 'hashCode picks a bucket as before.'),
+        ('copy', 'next', 'copy(surname = "Tran") tạo object mới', 'copy(surname = "Tran") creates a new object', 'lan không đổi nên vẫn nằm đúng bucket. Để "đổi tên" trong set, bỏ lan ra rồi thêm bản mới.', 'lan does not change, so it stays in the right bucket. To "rename" inside the set, remove lan and add the new copy.'),
+        ('copy', 'end', 'renamed in waiting cho true', 'renamed in waiting gives true', 'Bản mới được thêm sau khi đã có hashCode cuối cùng, nên tra cứu đúng bucket.', 'The new copy is added with its final hashCode, so the lookup hits the right bucket.'),
+        ('bodyProp', 'start', 'Khai báo data class Patient(val id) { var note }', 'Declare data class Patient(val id) { var note }', 'note được khai báo trong thân lớp, không trong constructor chính.', 'note is declared in the class body, not in the primary constructor.'),
+        ('bodyProp', 'first', 'equals và hashCode chỉ dùng id', 'equals and hashCode only use id', 'Hàm data class sinh ra chỉ dựa trên property của constructor chính.', 'The generated data class functions only use the primary constructor properties.'),
+        ('bodyProp', 'next', 'a == b: true dù note khác nhau', 'a == b: true even though the notes differ', 'Hai bệnh nhân cùng id nhưng một người có ghi chú dị ứng vẫn được coi là bằng nhau.', 'Two patients with the same id, one with an allergy note, are still considered equal.'),
+        ('bodyProp', 'end', 'setOf(a, b) chỉ còn 1 phần tử', 'setOf(a, b) keeps only 1 element', 'Set bỏ b vì bằng a. Nếu note quan trọng, nó phải nằm trong constructor chính, hoặc bạn phải hiểu rằng nó không phân biệt hai object.', 'The set drops b because it equals a. If the note matters, it belongs in the primary constructor, or you must accept that it does not tell objects apart.'),
+        ('plain', 'start', 'class Patient(val id) — không có data', 'class Patient(val id) without data', 'Class thường không sinh equals/hashCode theo nội dung.', 'A plain class does not generate content-based equals/hashCode.'),
+        ('plain', 'first', 'equals/hashCode mặc định theo danh tính object', 'Default equals/hashCode use object identity', 'Hai lần gọi Patient("P01") tạo hai object khác nhau, mỗi object có hash riêng.', 'Two calls to Patient("P01") create two different objects, each with its own hash.'),
+        ('plain', 'next', 'a == b cho false', 'a == b gives false', 'Cùng id nhưng không bằng nhau, vì == gọi equals mặc định so tham chiếu.', 'Same id, but not equal, because == calls the default equals, which compares references.'),
+        ('plain', 'end', 'setOf(a, b) có 2 phần tử', 'setOf(a, b) has 2 elements', 'Muốn so theo nội dung, dùng data class hoặc tự viết equals VÀ hashCode cùng nhau.', 'To compare by content, use a data class or write equals AND hashCode together yourself.'),
+    ]
+    for case, k, tv, te, xv, xe in S:
+        sid = case + '.' + k
+        m('s.%s.title' % sid, tv, te); m('s.%s.explain' % sid, xv, xe); m('ev.' + sid, tv, te)
+    for k, vi, en in [
+        ('try', 'Đổi tình huống rồi đi lại; để ý bucket trước và sau.', 'Change the situation and walk again; watch the bucket before and after.'),
+        ('mutate.next', 'Effective Kotlin (Item 43): HashSet, HashMap dựa trên bảng băm; phần tử bị sửa sau khi đã được phân loại thì nằm sai chỗ. [[src:book-effective-kotlin]]', 'Effective Kotlin (Item 43): HashSet and HashMap are built on hash tables; an element modified after being classified sits in the wrong place. [[src:book-effective-kotlin]]'),
+        ('mutate.end', 'Đây đúng là ví dụ FullName trong sách: contains trả false nhưng first() == person trả true. Đừng dùng object có thể sửa làm phần tử set hay key của map, hoặc đừng sửa chúng khi đang ở trong đó. [[src:book-effective-kotlin]]', 'This is the book\'s FullName example: contains returns false but first() == person returns true. Do not use mutable objects as set elements or map keys, or do not modify them while they are inside. [[src:book-effective-kotlin]]'),
+        ('copy.next', 'copy() tạo bản sao nông: thuộc tính tham chiếu (như một list) vẫn dùng chung giữa bản gốc và bản sao. [[src:kt-data-classes]]', 'copy() makes a shallow copy: reference properties (a list, say) stay shared between the original and the copy. [[src:kt-data-classes]]'),
+        ('copy.end', 'Effective Kotlin (Item 1): object bất biến an toàn hơn làm phần tử set hay key của map. [[src:book-effective-kotlin]]', 'Effective Kotlin (Item 1): immutable objects are safer as set elements or map keys. [[src:book-effective-kotlin]]'),
+        ('bodyProp.next', 'Tài liệu Data classes: trình biên dịch chỉ dùng property trong constructor chính cho các hàm sinh ra; property trong thân bị loại. [[src:kt-data-classes]]', 'Data classes docs: the compiler only uses primary constructor properties for the generated functions; properties in the body are excluded. [[src:kt-data-classes]]'),
+        ('bodyProp.end', 'Cách này cũng có ích có chủ đích: đặt trong thân những gì KHÔNG được ảnh hưởng tới việc so sánh (cache, trạng thái tạm).', 'This can also be useful on purpose: put in the body what must NOT affect comparison (a cache, transient state).'),
+        ('plain.next', 'Tài liệu Equality: a == b được dịch thành a?.equals(b) ?: (b === null); === so tham chiếu. [[src:kt-equality]]', 'Equality docs: a == b is translated to a?.equals(b) ?: (b === null); === compares references. [[src:kt-equality]]'),
+        ('plain.end', 'Hợp đồng hashCode: hai object bằng nhau theo equals phải có cùng hashCode. Ghi đè equals mà quên hashCode thì phần tử "lạc" trong set. [[src:book-effective-kotlin]]', 'The hashCode contract: objects equal under equals must have the same hashCode. Override equals but forget hashCode and elements get "lost" in sets. [[src:book-effective-kotlin]]')]:
+        m('co.' + k, vi, en)
+
+    C = 'k4'
+    a(C + '.title', 'Data class và bằng nhau', 'Data classes and equality')
+    a(C + '.essence', 'data class sinh equals, hashCode, toString, componentN và copy từ các property của constructor chính; property trong thân lớp không được tính.\n== gọi equals (so nội dung), === so tham chiếu; class thường mặc định so theo danh tính.\nHashSet và HashMap tìm phần tử bằng hashCode: sửa một thuộc tính tham gia so sánh sau khi thêm thì phần tử "biến mất". Dùng val và thay đổi bằng copy.',
+      'A data class generates equals, hashCode, toString, componentN and copy from its primary constructor properties; properties in the class body are not included.\n== calls equals (content), === compares references; a plain class compares by identity by default.\nHashSet and HashMap find elements by hashCode: modify a property that takes part in comparison after adding and the element "disappears". Use val and change things with copy.')
+    a(C + '.goal.g1', 'Đã xem hashCode chọn bucket', 'Saw hashCode pick the bucket')
+    a(C + '.goal.g2', 'Đã đi tới kết quả tra cứu', 'Reached the lookup result')
+    a(C + '.sim.kotlin.hashset', 'Phần tử trong HashSet', 'An element in a HashSet')
+
+    S_ = 'hook'
+    a(C + '.sec.%s.title' % S_, 'Đoán trước khi đọc', 'Predict before reading')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'predict', '`data class Patient(var name: String, var surname: String)`. Thêm `lan` vào `mutableSetOf()`, rồi `lan.surname = "Tran"`. `lan in waiting` trả gì? Còn `waiting.first() == lan`?', '`data class Patient(var name: String, var surname: String)`. Add `lan` to a `mutableSetOf()`, then `lan.surname = "Tran"`. What does `lan in waiting` return? And `waiting.first() == lan`?')
+    B(C, S_, 1, 'ans', '`false` và `true`. Phần tử vẫn ở trong set (first() bằng nó), nhưng set tìm theo hashCode, mà hashCode đã đổi sau khi sửa surname, nên tra cứu đi vào bucket khác và không thấy. Đây là ví dụ của Effective Kotlin (Item 43). Mô phỏng ngay dưới cho thấy bucket trước và sau. [[src:book-effective-kotlin]]', '`false` and `true`. The element is still in the set (first() equals it), but the set searches by hashCode, which changed when surname was modified, so the lookup goes to another bucket and finds nothing. This is the Effective Kotlin example (Item 43). The simulation just below shows the bucket before and after. [[src:book-effective-kotlin]]')
+
+    S_ = 'data'
+    a(C + '.sec.%s.title' % S_, 'data class sinh ra những gì', 'What a data class generates')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'Ghi `data` trước `class`, trình biên dịch tự sinh từ MỌI property của constructor chính: `equals()`/`hashCode()`, `toString()` dạng `Patient(name=Lan, surname=Nguyen)`, các hàm `componentN()` cho phép destructuring (`val (name, surname) = lan`), và `copy()`. Constructor chính phải có ít nhất một tham số, và mọi tham số phải là `val` hoặc `var`. Property khai báo trong thân lớp KHÔNG tham gia các hàm này. [[src:kt-data-classes]]',
+      'Put `data` before `class` and the compiler generates, from EVERY primary constructor property: `equals()`/`hashCode()`, `toString()` like `Patient(name=Lan, surname=Nguyen)`, `componentN()` functions for destructuring (`val (name, surname) = lan`), and `copy()`. The primary constructor needs at least one parameter, and every parameter must be `val` or `var`. Properties declared in the class body do NOT take part in these functions. [[src:kt-data-classes]]')
+    B(C, S_, 2, 'kt', 'data class Booking(val patient: String, val time: String, val tags: List<String>)\nval b1 = Booking("Lan", "09:00", listOf("lần đầu"))\nval b2 = b1.copy(time = "14:00")       // đổi một thuộc tính, giữ phần còn lại\nval (who, at) = b2                     // destructuring theo thứ tự khai báo\nprintln(b1 == b1.copy())               // true: so theo nội dung',
+      'data class Booking(val patient: String, val time: String, val tags: List<String>)\nval b1 = Booking("Lan", "09:00", listOf("first visit"))\nval b2 = b1.copy(time = "14:00")       // change one property, keep the rest\nval (who, at) = b2                     // destructuring in declaration order\nprintln(b1 == b1.copy())               // true: compared by content')
+    B(C, S_, 3, 'p', '`copy()` là bản sao NÔNG: thuộc tính tham chiếu tới object khác (một MutableList chẳng hạn) được dùng chung giữa bản gốc và bản sao, nên sửa qua bản này thì bản kia cũng thấy. Với data class mà mọi thuộc tính đều là val và kiểu bất biến (List, String), điều này không thành vấn đề. [[src:kt-data-classes]]',
+      '`copy()` is a SHALLOW copy: properties that reference other objects (a MutableList, say) are shared between the original and the copy, so a change through one is visible through the other. For a data class whose properties are all val and of immutable types (List, String), this is not a problem. [[src:kt-data-classes]]')
+
+    S_ = 'equality'
+    a(C + '.sec.%s.title' % S_, '==, === và hợp đồng equals/hashCode', '==, === and the equals/hashCode contract')
+    a(C + '.sec.%s.badge' % S_, 'stable impl')
+    B(C, S_, 1, 'p', '`==` là bằng nhau về cấu trúc: `a == b` được dịch thành `a?.equals(b) ?: (b === null)`, nên an toàn với null. `===` là bằng nhau về tham chiếu: hai biến có trỏ tới cùng một object không. Class thường kế thừa equals của `Any`, so theo danh tính; data class sinh equals so theo nội dung. [[src:kt-equality]]',
+      '`==` is structural equality: `a == b` is translated to `a?.equals(b) ?: (b === null)`, so it is null-safe. `===` is referential equality: do two variables point to the same object. A plain class inherits `Any`\'s equals, which compares identity; a data class generates an equals that compares content. [[src:kt-equality]]')
+    B(C, S_, 2, 'p', 'Dưới mui xe, HashSet và HashMap là bảng băm: một mảng các bucket. Khi thêm, phần tử được đặt vào bucket do hashCode chọn; khi tìm, set tính hashCode để tới đúng bucket, rồi mới dùng equals so với các phần tử trong bucket đó. Vì vậy hợp đồng có hai vế: hashCode phải ổn định khi thông tin dùng trong equals không đổi, và hai object bằng nhau theo equals phải có cùng hashCode. Vi phạm vế nào thì phần tử cũng "lạc" trong set. [[src:book-effective-kotlin]]',
+      'Under the hood, HashSet and HashMap are hash tables: an array of buckets. On add, the element goes into the bucket its hashCode picks; on lookup, the set computes hashCode to reach the right bucket and only then uses equals against the elements in that bucket. Hence the contract has two halves: hashCode must stay stable while the information used by equals does not change, and objects equal under equals must have the same hashCode. Break either half and elements get "lost" in the set. [[src:book-effective-kotlin]]')
+    B(C, S_, 3, 'note', 'Nếu tự viết `equals`, luôn viết `hashCode` dùng ĐÚNG các thuộc tính đó. Cách an toàn nhất là để data class sinh cả hai.', 'If you write `equals` yourself, always write a `hashCode` that uses EXACTLY the same properties. The safest option is to let a data class generate both.')
+    B(C, S_, 3, 'kind', 'pitfall')
+
+    S_ = 'mutable'
+    a(C + '.sec.%s.title' % S_, 'Hạn chế mutability: val và copy', 'Limit mutability: val and copy')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'p', 'Effective Kotlin mở đầu bằng lời khuyên hạn chế mutability (Item 1), và một lý do cụ thể là bảng băm: object bất biến dùng làm phần tử set hay key của map an toàn, còn object có thể sửa thì không, vì sửa sau khi đã được phân loại làm nó nằm sai chỗ. Cách làm quen thuộc trong Kotlin: data class với thuộc tính `val`, muốn "đổi" thì `copy()` ra object mới. [[src:book-effective-kotlin]]',
+      'Effective Kotlin opens with the advice to limit mutability (Item 1), and one concrete reason is hash tables: immutable objects are safe as set elements or map keys, mutable ones are not, because modifying them after they are classified leaves them in the wrong place. The familiar Kotlin pattern: a data class with `val` properties, and `copy()` to a new object when you need a "change". [[src:book-effective-kotlin]]')
+    B(C, S_, 2, 'p', 'Trên Android, điều này gặp ngay trong state của màn hình: một `data class UiState(val items: List<Slot>, val selected: String?)` được thay bằng `state.copy(selected = id)` chứ không sửa tại chỗ. Compose và StateFlow so state cũ với mới bằng equals (track Runtime B4, B8; Coroutines A7), nên sửa tại chỗ còn làm màn hình không cập nhật.',
+      'On Android this shows up right in screen state: a `data class UiState(val items: List<Slot>, val selected: String?)` is replaced with `state.copy(selected = id)` rather than modified in place. Compose and StateFlow compare old and new state with equals (Runtime B4, B8; Coroutines A7), so modifying in place can also keep the screen from updating.')
+
+    S_ = 'bugs'
+    a(C + '.sec.%s.title' % S_, 'Hai lỗi hay gặp', 'Two common bugs')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'bug', 'Danh sách "bệnh nhân đã chọn" là `mutableSetOf<Patient>()`. Sau khi người dùng sửa họ của một bệnh nhân trong màn hình chi tiết, nút "Bỏ chọn" không bỏ được người đó nữa.', 'The "selected patients" list is a `mutableSetOf<Patient>()`. After the user edits a patient\'s surname on the detail screen, the "Deselect" button can no longer remove that patient.')
+    B(C, S_, 1, 'cause', 'Patient có `var surname` và bị sửa tại chỗ khi đang nằm trong set; hashCode đổi nên `remove` tìm ở bucket khác.', 'Patient has `var surname` and was modified in place while in the set; its hashCode changed, so `remove` looks in another bucket.')
+    B(C, S_, 1, 'fix', 'Dùng `val` và `copy()`, rồi thay phần tử trong set; hoặc lưu set theo khóa ổn định (`mutableSetOf<String>()` chứa id).', 'Use `val` and `copy()`, then replace the element in the set; or store the set by a stable key (a `mutableSetOf<String>()` of ids).')
+    B(C, S_, 2, 'bug', 'Hai bệnh nhân khác nhau bị gộp làm một trong danh sách hiển thị: một người có ghi chú dị ứng, người kia không.', 'Two different patients are merged into one in the displayed list: one has an allergy note, the other does not.')
+    B(C, S_, 2, 'cause', '`data class Patient(val id: String) { var note: String = "" }`: note nằm trong thân nên không tham gia equals; danh sách đi qua `distinct()` coi hai bản ghi cùng id là một.', '`data class Patient(val id: String) { var note: String = "" }`: note lives in the body, so it is not part of equals; the list goes through `distinct()`, which treats two records with the same id as one.')
+    B(C, S_, 2, 'fix', 'Quyết định rõ cái gì xác định danh tính. Nếu note phải phân biệt, đưa nó vào constructor chính; nếu id là danh tính thật, sửa dữ liệu nguồn để không có hai bản ghi trùng id.', 'Decide explicitly what defines identity. If note must tell records apart, move it into the primary constructor; if id really is the identity, fix the source data so it has no duplicate ids.')
+
+    S_ = 'ex'
+    a(C + '.sec.%s.title' % S_, 'Bài tập', 'Exercise')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'ex', 'Tạo `data class Patient(val name: String, val age: Int)`. (1) Tạo Patient("Lan", 30) và in ra. (2) Tạo bản sao với name = "Mai". (3) Tạo mới Patient("Mai", 30) và so với bản sao bằng == và ===. (4) In hashCode của cả ba object. (5) Destructure bản sao thành hai biến và in ra. Trước khi chạy, viết dự đoán cho từng dòng in. (Dựa trên bài "Data class practice" của Kotlin Exercises, diễn đạt lại.) [[src:book-kt-exercises]]',
+      'Create `data class Patient(val name: String, val age: Int)`. (1) Create Patient("Lan", 30) and print it. (2) Make a copy with name = "Mai". (3) Create a new Patient("Mai", 30) and compare it with the copy using == and ===. (4) Print the hashCode of all three objects. (5) Destructure the copy into two variables and print them. Before running, write down your prediction for every printed line. (Based on the "Data class practice" exercise in Kotlin Exercises, restated.) [[src:book-kt-exercises]]')
+    B(C, S_, 1, 'hint', 'Bản sao và object mới có cùng nội dung: == so nội dung, === so tham chiếu. Object bằng nhau theo equals phải có cùng hashCode.', 'The copy and the new object have the same content: == compares content, === compares references. Objects equal under equals must share a hashCode.')
+    B(C, S_, 1, 'sol', 'Dự đoán đúng: toString in Patient(name=Lan, age=30); copy == mới là true, copy === mới là false; hashCode của copy và object mới bằng nhau, khác của Lan (gần như chắc chắn); destructuring cho "Mai" và 30.', 'The right predictions: toString prints Patient(name=Lan, age=30); copy == new is true, copy === new is false; the copy and the new object share a hashCode, different from Lan\'s (almost certainly); destructuring gives "Mai" and 30.')
+    B(C, S_, 1, 'solkt', 'data class Patient(val name: String, val age: Int)\n\nval lan = Patient("Lan", 30)\nprintln(lan)                         // Patient(name=Lan, age=30)\nval copy = lan.copy(name = "Mai")\nval fresh = Patient("Mai", 30)\nprintln(copy == fresh)               // true\nprintln(copy === fresh)              // false\nprintln(listOf(lan, copy, fresh).map { it.hashCode() })\nval (name, age) = copy\nprintln("$name $age")                // Mai 30')
+
+    S_ = 'recall'
+    a(C + '.sec.%s.title' % S_, 'Tự trả lời', 'Answer it yourself')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'ask', 'Property nào của data class tham gia equals và hashCode?', 'Which data class properties take part in equals and hashCode?')
+    B(C, S_, 1, 'ans', 'Chỉ các property trong constructor chính; property trong thân lớp bị loại.', 'Only the primary constructor properties; properties in the class body are excluded.')
+    B(C, S_, 2, 'ask', 'Vì sao sửa một phần tử đang nằm trong HashSet làm contains trả false?', 'Why does modifying an element inside a HashSet make contains return false?')
+    B(C, S_, 2, 'ans', 'contains tìm theo hashCode hiện tại; sau khi sửa, hashCode chỉ tới bucket khác, còn phần tử vẫn nằm ở bucket cũ.', 'contains searches by the current hashCode; after the change, it points to another bucket while the element is still in the old one.')
+
+    S_ = 'honest'
+    a(C + '.sec.%s.title' % S_, 'Chương này giản lược những gì', 'What this chapter simplifies')
+    a(C + '.sec.%s.badge' % S_, 'simplified')
+    B(C, S_, 1, 'p', 'Số bucket trong mô phỏng là phép băm minh họa (tổng mã ký tự chia lấy dư 4), không phải hashCode thật của data class. Kết quả contains và == theo ví dụ của Effective Kotlin và tài liệu Data classes, Equality đọc ngày 2026-11-23; site không chạy Kotlin trong trang. Chương bỏ qua data object, value class (chương K9) và các quy tắc kế thừa của data class.',
+      'The bucket number in the simulation is an illustrative hash (the sum of character codes modulo 4), not the real data class hashCode. The contains and == results follow the Effective Kotlin example and the Data classes and Equality docs as read on 2026-11-23; the site does not run Kotlin in the page. The chapter skips data objects, value classes (chapter K9) and data class inheritance rules.')
+
+    for q, qv, qe, av, ae, wv, we in [
+        ('q1', '`a == b` gọi hàm nào?', 'Which function does `a == b` call?', '`equals` (an toàn với null).', '`equals` (null-safe).', 'Nó được dịch thành `a?.equals(b) ?: (b === null)`.', 'It is translated to `a?.equals(b) ?: (b === null)`.'),
+        ('q2', '`copy()` có sao chép sâu list bên trong không?', 'Does `copy()` deep-copy a list inside?', 'Không, đó là bản sao nông.', 'No, it is a shallow copy.', 'Thuộc tính tham chiếu được dùng chung.', 'Reference properties are shared.'),
+        ('q3', 'Hai object bằng nhau theo equals có được phép khác hashCode không?', 'May two objects equal under equals have different hashCodes?', 'Không.', 'No.', 'Đó là vế thứ hai của hợp đồng hashCode; vi phạm thì phần tử lạc trong set.', 'That is the second half of the hashCode contract; break it and elements get lost in sets.'),
+        ('q4', 'Class thường (không data) so `==` theo gì?', 'What does `==` compare for a plain (non-data) class?', 'Theo danh tính object.', 'Object identity.', 'Nó dùng equals mặc định của Any.', 'It uses Any\'s default equals.')]:
+        a(C + '.quiz.%s.q' % q, qv, qe); a(C + '.quiz.%s.a' % q, av, ae); a(C + '.quiz.%s.why' % q, wv, we)

@@ -94,6 +94,46 @@
         { name: 'gọi hàm open trong init lớp cha và đọc lateinit trước khi gán đều là bẫy lúc chạy', run: function () { return steps({ case: 'openCall' })[2].type === 'pitfall' && steps({ case: 'lateinit' })[2].type === 'pitfall'; } }] });
   })();
 
+  /* ================= K4: phần tử trong HashSet — hashCode chọn bucket, equals so trong bucket =================
+     Bucket là MINH HỌA: tổng mã ký tự chia lấy dư 4 (HashSet thật trải và đổi kích thước bảng). Hành vi contains theo Effective Kotlin Item 43. */
+  (function () {
+    var m = 'hashset', CASES = ['mutate', 'copy', 'bodyProp', 'plain'];
+    var bucket = function (s) { var t = 0; for (var i = 0; i < s.length; i++) t += s.charCodeAt(i); return t % 4; };
+    ADE.kotlinBucket = bucket;
+    var Y = M(m, 'yes'), N0 = M(m, 'no');
+    // mỗi bước: [node, trạng thái node, số đo, loại bước, dòng mã, loại log]
+    var b1 = bucket('Lan|Nguyen'), b2 = bucket('Lan|Tran'), bp = bucket('P01');
+    var P = {
+      mutate: [[['obj'], {}, { bucket: b1, size: 0 }, 'scenario', [1, 2], 'observe'], [['hash', 'bucket'], { hash: 'done', bucket: 'done' }, { bucket: b1, size: 1 }, 'mechanism', [3, 4], 'write'],
+        [['obj', 'hash'], { hash: 'surprise', bucket: 'done' }, { bucket: b2, size: 1 }, 'pitfall', [5], 'write'], [['lookup', 'bucket'], { hash: 'surprise', bucket: 'done', lookup: 'broken' }, { bucket: b2, size: 1, found: N0 }, 'pitfall', [6, 7], 'check']],
+      copy: [[['obj'], {}, { bucket: b1, size: 0 }, 'scenario', [1, 2], 'observe'], [['hash', 'bucket'], { hash: 'done', bucket: 'done' }, { bucket: b1, size: 1 }, 'mechanism', [3], 'write'],
+        [['obj', 'hash'], { hash: 'done', bucket: 'done' }, { bucket: b2, size: 1 }, 'mechanism', [4, 5], 'write'], [['lookup', 'bucket'], { hash: 'done', bucket: 'done', lookup: 'done' }, { bucket: b2, size: 1, found: Y }, 'mechanism', [6], 'check']],
+      bodyProp: [[['obj'], {}, { bucket: bp, size: 0 }, 'scenario', [1, 2, 3], 'observe'], [['hash'], { hash: 'done' }, { bucket: bp, size: 0 }, 'mechanism', [4, 5], 'check'],
+        [['lookup'], { hash: 'done', lookup: 'done' }, { bucket: bp, size: 0, found: Y }, 'pitfall', [6], 'check'], [['bucket'], { hash: 'done', lookup: 'done', bucket: 'done' }, { bucket: bp, size: 1 }, 'mechanism', [7], 'write']],
+      plain: [[['obj'], {}, { size: 0 }, 'scenario', [1, 2, 3], 'observe'], [['hash'], { hash: 'done' }, { size: 0 }, 'mechanism', [2, 3], 'check'],
+        [['lookup'], { hash: 'done', lookup: 'broken' }, { size: 0, found: N0 }, 'pitfall', [4], 'check'], [['bucket'], { hash: 'done', lookup: 'broken', bucket: 'done' }, { size: 2 }, 'mechanism', [5], 'write']]
+    };
+    var EDGE = { obj: null, hash: 'e1', bucket: 'e2', lookup: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var e = EDGE[p[0][0]];
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: p[2], codeHighlight: { snippet: 'hash.' + s.case, lines: p[4] },
+          movingSignals: e ? [{ edge: e, tok: p[3] === 'pitfall' ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5] === 'check' ? 'run' : p[5], subject: p[0][0] }] });   // so sánh trong set xảy ra lúc chạy
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i >= 2) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'mutate' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'bucket minh họa trước và sau khi sửa khác nhau, nên contains không tìm thấy', run: function () { var st = steps({ case: 'mutate' }); return b1 !== b2 && st[1].metrics.bucket !== st[2].metrics.bucket && st[3].metrics.found === N0; } },
+        { name: 'property trong thân không thuộc equals: set chỉ giữ 1; class thường: set giữ 2', run: function () { return steps({ case: 'bodyProp' })[3].metrics.size === 1 && steps({ case: 'plain' })[3].metrics.size === 2; } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

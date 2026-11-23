@@ -53,3 +53,18 @@ Kiểm URL (curl, HTTP 200): null-safety.html, typecasts.html, java-interop.html
 | Bài tập VaccineStock | dựa trên "Implementing the Product class", `book-kt-exercises`; lời giải tự viết | — |
 
 Kiểm URL (curl, HTTP 200): classes, inheritance, interfaces, object-declarations, properties.
+
+## K4 · Data class và bằng nhau (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| data class sinh equals/hashCode, toString, componentN, copy từ mọi property của constructor chính; constructor chính ≥ 1 tham số, đều val/var; property trong thân bị loại | `kt-data-classes` | stable |
+| copy() là bản sao nông, tham chiếu dùng chung | `kt-data-classes` | stable |
+| a == b dịch thành a?.equals(b) ?: (b === null); === là bằng nhau tham chiếu | `kt-equality` | stable |
+| HashSet/HashMap là bảng băm; hợp đồng hashCode (ổn định, bằng nhau thì cùng hash); ví dụ FullName bị sửa sau khi add: contains false, first() == person true | `book-effective-kotlin` Item 43 | guideline |
+| Hạn chế mutability; object bất biến an toàn làm phần tử set/key map | `book-effective-kotlin` Item 1 | guideline |
+| Compose và StateFlow so state bằng equals | dẫn sang track Runtime B4/B8 và Coroutines A7 (nguồn ở các chương đó) | — |
+| Bucket trong sim (tổng mã ký tự mod 4) | Minh họa | simp.1 |
+| Bài tập Patient | dựa trên "Data class practice", `book-kt-exercises`; lời giải tự viết | — |
+
+Kiểm URL (curl, HTTP 200): data-classes.html, equality.html.

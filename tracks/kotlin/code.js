@@ -108,6 +108,40 @@
     c('BookingScreen().refresh()     // UninitializedPropertyAccessException', 'BookingScreen().refresh()     // UninitializedPropertyAccessException'),
     c('// kiểm trước: if (::adapter.isInitialized) adapter.notifyChanged()', '// check first: if (::adapter.isInitialized) adapter.notifyChanged()')
   ]);
+  /* K4: phần tử trong HashSet (ví dụ theo Effective Kotlin Item 43; data class theo trang Data classes) */
+  add('hash.mutate', [
+    'data class Patient(var name: String, var surname: String)',
+    'val lan = Patient("Lan", "Nguyen")',
+    'val waiting = mutableSetOf<Patient>()',
+    'waiting.add(lan)',
+    c('lan.surname = "Tran"                 // sửa SAU khi đã thêm vào set', 'lan.surname = "Tran"                 // modified AFTER being added'),
+    'println(lan in waiting)              // false',
+    'println(waiting.first() == lan)      // true'
+  ]);
+  add('hash.copy', [
+    'data class Patient(val name: String, val surname: String)',
+    'val lan = Patient("Lan", "Nguyen")',
+    'val waiting = mutableSetOf(lan)',
+    c('val renamed = lan.copy(surname = "Tran")   // object MỚI, lan không đổi', 'val renamed = lan.copy(surname = "Tran")   // a NEW object, lan unchanged'),
+    'waiting.remove(lan); waiting.add(renamed)',
+    'println(renamed in waiting)          // true'
+  ]);
+  add('hash.bodyProp', [
+    'data class Patient(val id: String) {',
+    c('    var note: String = ""            // khai báo trong thân: KHÔNG thuộc equals', '    var note: String = ""            // declared in the body: NOT part of equals'),
+    '}',
+    'val a = Patient("P01").apply { note = "dị ứng" }',
+    'val b = Patient("P01")',
+    'println(a == b)                      // true',
+    'println(setOf(a, b).size)            // 1'
+  ]);
+  add('hash.plain', [
+    c('class Patient(val id: String)        // class thường, không có data', 'class Patient(val id: String)        // a plain class, no data'),
+    'val a = Patient("P01")',
+    'val b = Patient("P01")',
+    c('println(a == b)                      // false: equals mặc định so tham chiếu', 'println(a == b)                      // false: default equals compares references'),
+    'println(setOf(a, b).size)            // 2'
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',
