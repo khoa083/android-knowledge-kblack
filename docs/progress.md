@@ -550,3 +550,9 @@ Trạng thái: `chưa / đang / xong`.
   - Phần SM đang viết dở (model `ux.minds` và view) cất trong `git stash` ("UX v2 SM chapter WIP …"); chưa có nội dung chương. D1 v2 (đã xong) và cơ chế màn hình mẫu giữ nguyên trong mã.
   - Track-check: từ giờ chỉ chạy cho track đang mở (Coroutines, Runtime, Animation); UX/UI đóng nên không có chương để bấm.
   - **Tiếp theo:** track mới Kotlin (ưu tiên 4 trong roadmap). Theo yêu cầu mới của người dùng: tự chọn phần kiến thức cần và đủ, không bám từng chương sách.
+- **P-NEW: track F Kotlin · khung + K1 (2026-11-23, người dùng duyệt dàn ý 14 chương):**
+  - Khung track: `tracks/kotlin/` (manifest `status: 'draft'` trong lúc viết, `order: 60`, màu `#78842C` đạt ≥ 3,44 trên cả sáu nền; logKinds dùng lại loại có sẵn trong lõi), generator mới `dev/gen/kotlin_content.py` (module `kotlin_v2_<id>.py`, báo lỗi nếu thiếu module), khối `<script>` trong `index.html` và `dev/report.html`. Không sửa lõi.
+  - K1 (`kotlin_v2_k1.py`, 8 mục, mục cơ chế ≤ 4 khối): val/var và suy kiểu (val không bất biến), số (chia nguyên, chuyển kiểu tường minh, tràn số, boxing và cache -128..127), if/when là biểu thức và hàm với tham số mặc định; 2 bug (thanh tiến độ 0%, === trên Int?), bài tập dựa trên "Pretty time display", tự trả lời 2 câu, quiz 4 câu. 7 nguồn, 4 thuật ngữ, 3 hiểu lầm.
+  - Sim `kotlin.eval` (chia nguyên, chia cho 2.0, tràn Int, when): mã nguồn → suy kiểu → tính giá trị → biến; goal g1 = bước 2 (suy kiểu).
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck 3/3 PASS; track-check Kotlin 1280/360 0 vấn đề; routes-check 123 route 0 vấn đề (sửa một lỗi lộ khóa `app.kind.check` bằng nhãn loại sự kiện của track); goal kiểm trong trang; đã xem ảnh sim.
+  - **Tiếp theo:** K2 (null safety, smart cast, platform type).

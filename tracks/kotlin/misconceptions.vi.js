@@ -1,0 +1,6 @@
+/* Hiểu lầm track kotlin (tiếng Việt). */
+ADE.addMisconceptions('vi', 'kotlin', {
+  "val-immutable": { wrong: "Khai báo bằng val là dữ liệu bất biến.", right: "val chỉ cấm gán lại tham chiếu; object mà nó trỏ tới vẫn có thể đổi (ví dụ MutableList). [[src:book-effective-kotlin]] [[src:kt-basic-syntax]]", example: "`val list = mutableListOf(1, 2)` rồi `list.add(3)` vẫn biên dịch và chạy.", chapter: "kotlin/k1" },
+  "auto-widening": { wrong: "Kotlin tự đổi Int sang Long hoặc Double khi gán như Java.", right: "Kotlin không chuyển kiểu ngầm khi gán hay truyền đối số; phải gọi toLong(), toDouble(). Chỉ trong biểu thức số học trộn kiểu thì kết quả mới lấy kiểu rộng hơn. [[src:kt-numbers]]", example: "`val l: Long = 1.5.toLong()` được; truyền một Int cho tham số Double thì lỗi biên dịch.", chapter: "kotlin/k1" },
+  "overflow-error": { wrong: "Cộng tràn Int sẽ báo lỗi.", right: "Trình biên dịch không báo lỗi; kết quả quay vòng sang giá trị âm. [[src:kt-numbers]]", example: "`Int.MAX_VALUE + 1` cho -2147483648.", chapter: "kotlin/k1" }
+});
