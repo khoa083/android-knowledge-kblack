@@ -241,13 +241,18 @@
     var metrics = h('div', { class: 'metrics', role: 'group', 'aria-label': ADE.t('app.metrics') });
     var diagramBox = h('div', { class: 'view-diagram', tabindex: '0', role: 'region', 'aria-label': ADE.t('app.diagram') });
     var timelineBox = h('div', { class: 'view-timeline', tabindex: '0', role: 'region', 'aria-label': ADE.t('app.timeline') });
+    // màn hình mẫu (tùy chọn, track đăng ký qua ADE.registerScreen): lần đầu mở sim thì xem màn hình trước
+    var screenFn = disc ? ADE.screens[opts.modelId] || null : null;
+    var screenBox = h('div', { class: 'view-screen', tabindex: '0', role: 'region', 'aria-label': ADE.t('app.screenView') });
+    if (screenFn && !vs.screenSeen) { vs.screenSeen = true; vs.canvasTab = 'screen'; }
+    if (!screenFn && vs.canvasTab === 'screen') vs.canvasTab = 'diagram';
     var conceptual = h('span', { class: 'badge badge-simplified conceptual', text: ADE.t('app.conceptual') });
     var diagOnly = h('button', { type: 'button', class: 'btn small toggle', 'aria-pressed': ADE.diagramOnly() ? 'true' : 'false', title: ADE.t('app.diagramOnlyHint'), onclick: function () {
       var on = !ADE.diagramOnly(); document.documentElement.classList.toggle('diagram-only', on); ADE.store.set('diagramOnly', on);
       diagOnly.setAttribute('aria-pressed', on ? 'true' : 'false'); if (scene) refreshCanvas(false);
     } }, ui.icon('eye', { size: 14 }), h('span', { text: ADE.t('app.diagramOnly') }));
     var canvasHead = h('header', { class: 'panel-h' }, h('h2', { class: 'caps', text: ADE.t('app.canvas') }), canvasTabs, conceptual, diagOnly);
-    var canvas = h('section', { class: 'panel canvas' }, canvasHead, metrics, h('div', { class: 'canvas-body' }, diagramBox, timelineBox));
+    var canvas = h('section', { class: 'panel canvas' }, canvasHead, metrics, h('div', { class: 'canvas-body' }, screenBox, diagramBox, timelineBox));
     // "Bạn đang xem gì": câu ngắn mô tả hình (captionKey, nếu không có thì descKey), rồi hình, rồi chú giải hình dạng
     var hasDiagram = disc && (vw.nodes.length || vw.layout === 'lanes');
     var caption = hasDiagram ? h('p', { class: 'diagram-caption' }, h('b', { class: 'caps', text: ADE.t('app.whatYouSee') }), ' ', h('span', { html: ADE.tm(vw.captionKey || vw.descKey) })) : null;
@@ -312,9 +317,15 @@
     function renderCanvasTabs() {
       ui.clear(canvasTabs);
       if (!disc) return;
-      canvasTabs.appendChild(ui.tabs([{ id: 'diagram', label: ADE.t('app.diagram'), icon: 'layers' }, { id: 'timeline', label: ADE.t('app.timeline'), icon: 'list' }], vs.canvasTab, function (id) { vs.canvasTab = id; renderCanvasTabs(); applyCanvasTab(); refreshCanvas(); }, ADE.t('app.views')));
+      canvasTabs.appendChild(ui.tabs((screenFn ? [{ id: 'screen', label: ADE.t('app.screen'), icon: 'phone' }] : []).concat([{ id: 'diagram', label: ADE.t('app.diagram'), icon: 'layers' }, { id: 'timeline', label: ADE.t('app.timeline'), icon: 'list' }]), vs.canvasTab, function (id) { vs.canvasTab = id; renderCanvasTabs(); applyCanvasTab(); refreshCanvas(); }, ADE.t('app.views')));
     }
-    function applyCanvasTab() { diagramBox.hidden = vs.canvasTab !== 'diagram'; timelineBox.hidden = vs.canvasTab !== 'timeline'; }
+    function applyCanvasTab() { screenBox.hidden = vs.canvasTab !== 'screen'; diagramBox.hidden = vs.canvasTab !== 'diagram'; timelineBox.hidden = vs.canvasTab !== 'timeline'; }
+    function renderScreen() {
+      if (!screenFn) return;
+      ui.clear(screenBox);
+      try { screenFn(screenBox, { step: S.pos >= 1 && S.pos <= S.N ? S.step() : null, pos: S.pos, N: S.N, state: S.state, steps: S.steps, reduced: ADE.motionReduced(), viewState: vs, redraw: renderScreen }); }
+      catch (e) { ADE.err('error', 'screen', opts.modelId + ': ' + e.message); }
+    }
     var prevVals = null;   // giá trị chỉ số lần vẽ trước: chỉ số nào đổi thì nháy một lần (chuyển cảnh, tắt khi reduced-motion)
     function renderMetrics() {
       ui.clear(metrics);
@@ -335,6 +346,7 @@
       if (scene) scene.render(step, { speed: S.speed, instant: animate === false, prev: S.pos >= 2 ? S.steps[S.pos - 2] : null, events: evs, pos: S.pos, steps: S.steps });
       renderShapeLegend();
       ADE.diagram.timeline(timelineBox, vw, opts.trackId, evs, { speed: S.speed });
+      renderScreen();
     }
     function renderShapeLegend() {
       if (!shapeLegend) return;

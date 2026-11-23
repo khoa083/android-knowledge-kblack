@@ -6,7 +6,7 @@
 
 ```
 tracks/<id>/manifest.js → content.vi.js → content.en.js → code.js → sources.js →
-glossary.vi.js → glossary.en.js → misconceptions.vi.js → misconceptions.en.js → models/*.js → views/*.js
+glossary.vi.js → glossary.en.js → misconceptions.vi.js → misconceptions.en.js → models/*.js → views/*.js (views.js, labs.js, screens.js)
 ```
 Mỗi khối có comment `<!-- track: <id> -->`. Thêm track = thêm khối này vào cả hai file HTML; không sửa lõi.
 
@@ -105,6 +105,14 @@ Lõi làm chung cho mọi dạng:
 Icon mới: thêm vào `ADE.diagram.ICONS` (nét 24×24, `currentColor`). Khung điện thoại mẫu: `ADE.ui.mockFrame(node)`. Đoạn mã: `ADE.addCode(trackId, id, {lang, illustrative?, lines:[string | {vi,en}]})`.
 
 **Tô màu cú pháp (thêm 2026-11-23):** `ADE.ui.codeBlock` tự tô màu khi `lang` là `kotlin`, `kt` hoặc `kts` (mặc định `kotlin`); ngôn ngữ khác (ví dụ khối "Kết quả") để chữ thuần. Lõi là `ADE.syntax.tokenize(lines, lang)`, trả về `[[{c, t}]]` (mỗi dòng một mảng token; `c` thuộc `kw str esc num com ann type fn` hoặc `null`). Tokenizer dùng regex, giữ trạng thái qua dòng cho `/* … */` và raw string `"""`, có cache theo nội dung. Nó chỉ bọc `<span class="t-…">` quanh chữ gốc nên `textContent` không đổi. `dev/tools/syntax-check.js` (chạy bằng `cdp.js --eval`) tokenize mọi snippet và mọi khối `kt/exkt/fixkt/solkt` ở cả vi và en, rồi báo dòng nào ghép lại khác chữ gốc. Đây là phép tô màu theo heuristic, không phải parser Kotlin: ví dụ `Channel<Int>()` được tô như lời gọi hàm.
+
+### 4.2 Màn hình mẫu theo bước (thêm 2026-11-23, CHỈ dùng cho track thiết kế UI/UX)
+
+`ADE.registerScreen(modelId, fn)` (đặt trong `tracks/<id>/views/screens.js`, nạp sau `views.js`). `fn(container, ctx)` vẽ giao diện mẫu của bước hiện tại; `ctx = {step, pos, N, state, steps, reduced, viewState, redraw}` (`step` là `null` ở trang tổng quan và trang tổng kết). Sim có màn hình thì vùng sơ đồ có thêm tab "Màn hình", mở mặc định ở lần đầu; sơ đồ node và Timeline vẫn còn ở hai tab bên cạnh. Lỗi trong `fn` được bắt và ghi vào `ADE.err`, không làm hỏng sim.
+
+Thành phần dùng chung trong `styles.css`: khung `ADE.ui.mockFrame`; lớp `mk-*` (bên trong `.mf-screen`, luôn nền sáng như ứng dụng mẫu: `mk-grid`, `mk-slot` + `free-pop`/`full-dim`/`tap`, `mk-card`, `mk-unseen`, `mk-row`, `mk-note`, `mk-snack` + `mk-timer`, `mk-chat-h`, `mk-bubble`, `mk-input`, `mk-btn`, `mk-dot` cho chấm số thứ tự mắt dừng); lớp `scr-*` (bên ngoài điện thoại: `scr-tools`, `scr-cap`, `scr-out`, `scr-mem`, `scr-attn` làm mờ và bỏ màu màn hình). Hiệu ứng (chấm hiện dần, vòng chạm, thanh đếm ngược) đặt trạng thái cuối là trạng thái mặc định nên khi giảm chuyển động vẫn đọc được.
+
+**Quyết định của người dùng (2026-11-23):** chỉ track UI và UX dùng màn hình mẫu, vì chủ thể là màn hình và con người. Các track kỹ thuật (Coroutines, Runtime, Animation) và mọi track mới giữ sơ đồ node. Muốn đổi kiểu sơ đồ của track nào khác thì phải hỏi người dùng trước. Sim đầu tiên dùng: `ux.glance` (D1).
 
 ## 5. Route và lưu trữ
 

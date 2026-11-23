@@ -17,6 +17,7 @@
   ADE.trackMap = {};
   ADE.models = {};
   ADE.views = {};
+  ADE.screens = {};   // màn hình mẫu theo bước, track tự đăng ký (dùng cho track thiết kế); lõi không biết track nào
   ADE.code = {};
   ADE.sources = {};
   ADE.sourceList = [];
@@ -139,6 +140,9 @@
     return true;
   };
   ADE.registerView = function (modelId, cfg) { ADE.views[modelId] = cfg; };
+  /* Màn hình mẫu: fn(container, ctx) vẽ giao diện của bước hiện tại; ctx = {step, pos, N, state, steps, reduced, viewState, redraw}.
+     Sim có màn hình thì vùng sơ đồ có thêm tab "Màn hình" (mặc định). Sim không đăng ký thì giữ nguyên sơ đồ. */
+  ADE.registerScreen = function (modelId, fn) { if (typeof fn !== 'function') { ADE.err('error', 'registry', 'Màn hình "' + modelId + '" không phải hàm'); return; } ADE.screens[modelId] = fn; };
   ADE.addCode = function (trackId, id, snippet) { ADE.code[trackId + '.' + id] = snippet; };
   ADE.getCode = function (trackId, id) { return ADE.code[trackId + '.' + id] || null; };
 

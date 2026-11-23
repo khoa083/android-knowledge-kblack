@@ -55,10 +55,10 @@ def add(a):
          'Xét nghiệm máu cần nhịn ăn 8 giờ trước. Hẹn Khám đặt lưu ý này trong một thẻ màu sặc sỡ, kiểu thẻ khuyến mãi, dưới lưới ô giờ.', 'The blood test needs 8 hours of fasting beforehand. ClinicBook puts this note in a brightly coloured card, promotion-style, under the slot grid.'),
         ('sidenote.skip', 'Mắt theo tác vụ và bỏ qua thẻ', 'The eye follows the task and skips the card',
          'Mắt Lan đi thẳng vào các ô giờ, việc cô đang làm. Thẻ trông giống khuyến mãi nên không được nhìn tới lần nào.', 'Lan\'s eyes go straight to the slots, the job at hand. The card looks like a promotion, so it is never looked at.'),
-        ('sidenote.cost', 'Lan ăn sáng rồi mới đến: phải hẹn lại', 'Lan has breakfast before coming: she has to rebook',
+        ('sidenote.cost', 'Lan ăn trưa rồi mới đến: phải hẹn lại', 'Lan has lunch before coming: she has to rebook',
          'Thông tin tồn tại trên màn hình, nhưng với Lan nó như không có. Cái giá rơi vào cả hai phía: Lan mất một buổi, phòng khám mất một lượt.', 'The information exists on the screen, but for Lan it might as well not. Both sides pay: Lan loses a morning, the clinic loses a slot.'),
         ('sidenote.fix', 'Sửa: đưa lưu ý vào đường đi của tác vụ', 'Fix: put the note on the task\'s path',
-         'Một dòng ngay dưới giờ đã chọn ở màn Xác nhận ("Nhịn ăn từ 22:00 hôm trước"), nhắc lại trong thông báo hôm trước. Kiến thức nằm trong thế giới, đúng chỗ và đúng lúc mắt đang ở đó.', 'One line right under the chosen time on Confirm ("Fast from 22:00 the night before"), repeated in the reminder the day before. The knowledge lives in the world, where and when the eye already is.'),
+         'Một dòng ngay dưới giờ đã chọn ở màn Xác nhận ("Nhịn ăn từ 06:00, 8 giờ trước giờ hẹn"), nhắc lại trong thông báo hôm trước. Kiến thức nằm trong thế giới, đúng chỗ và đúng lúc mắt đang ở đó.', 'One line right under the chosen time on Confirm ("Fast from 06:00, 8 hours before the appointment"), repeated in the reminder the day before. The knowledge lives in the world, where and when the eye already is.'),
         ('transient.intro', 'Đặt xong: Snackbar "Mã đặt lịch: 48219307"', 'Booked: a Snackbar "Booking code: 48219307"',
          'Snackbar không có action, dùng thời lượng mặc định. Phòng khám dặn gửi mã qua tin nhắn để xác nhận.', 'The Snackbar has no action and uses the default duration. The clinic asks for the code by message to confirm.'),
         ('transient.read', 'Lan đọc mã: 8 chữ số phải giữ trong đầu', 'Lan reads the code: 8 digits to hold in mind',
@@ -82,6 +82,35 @@ def add(a):
         ('snack', 'SnackbarHost.kt @296313a4: không action → Short; Short = 4000L, Long = 10000L, dưới chú thích TODO; qua calculateRecommendedTimeoutMillis khi có AccessibilityManager. [[src:m3-snackbar-src]]', 'SnackbarHost.kt @296313a4: no action → Short; Short = 4000L, Long = 10000L, under a TODO comment; passed through calculateRecommendedTimeoutMillis when there is an AccessibilityManager. [[src:m3-snackbar-src]]')]:
         m('co.' + k, vi, en)
     a('cap.glance', 'Từ trái sang phải: màn hình Hẹn Khám, sự chú ý thị giác, trí nhớ làm việc, hành động. Khối viền đỏ là chỗ thông tin bị chặn hoặc bị mất ở bước này.', 'Left to right: the ClinicBook screen, visual attention, working memory, action. A red-outlined box is where information is blocked or lost at this step.')
+
+    # màn hình mẫu của sim (tracks/ux/views/screens.js)
+    s = lambda k, vi, en=None: a('scr.glance.' + k, vi, en)
+    s('sub', 'Thứ Năm 27/11 · buổi chiều', 'Thursday 27/11 · afternoon')
+    s('free', 'trống', 'free')
+    s('attn', 'Nhìn như hệ chú ý', 'See it like the attention system')
+    s('attnHint', 'Màn hình đang được làm mờ và bỏ màu (mẹo của Whalen): thứ còn nổi lên là thứ mắt bị kéo tới trước. Bấm lần nữa để trở lại.', 'The screen is blurred and desaturated (Whalen\'s trick): whatever still stands out is where the eye is pulled first. Press again to go back.')
+    s('dots', 'Chấm số: thứ tự mắt dừng trong mô hình (minh họa, không phải dữ liệu eye tracking).', 'Numbered dots: the order the eye stops in the model (illustrative, not eye-tracking data).')
+    s('promoHead', 'Mẹo cho buổi khám của bạn', 'Tips for your visit')
+    s('promoBody', 'Xét nghiệm máu: nhịn ăn 8 giờ trước giờ hẹn.', 'Blood test: fast for 8 hours before your appointment.')
+    s('unseen', '0 lần nhìn', '0 looks')
+    s('cost', 'Thứ Năm 13:30: Lan đã ăn trưa, xét nghiệm phải dời sang hôm khác.', 'Thursday 13:30: Lan has had lunch, so the test moves to another day.')
+    s('confirmSvc', 'Xét nghiệm máu · Thứ Năm 27/11 · 14:00', 'Blood test · Thursday 27/11 · 14:00')
+    s('fastNote', 'Nhịn ăn từ 06:00 (8 giờ trước giờ hẹn)', 'Fast from 06:00 (8 hours before the appointment)')
+    s('book', 'Đặt lịch', 'Book appointment')
+    s('booked', 'Đã đặt lịch', 'Booked')
+    s('bookedSum', 'Khám tổng quát · Thứ Năm 27/11 · 14:00', 'General check-up · Thursday 27/11 · 14:00')
+    s('snack', 'Mã đặt lịch: 48219307', 'Booking code: 48219307')
+    s('chatTitle', 'Tin nhắn · Phòng khám', 'Messages · Clinic')
+    s('chatClinic', 'Phòng khám: Bạn gửi giúp mã đặt lịch nhé.', 'Clinic: Please send us your booking code.')
+    s('chatInput', 'Mã của tôi là 4821…', 'My code is 4821…')
+    s('gone', 'Snackbar đã tự đóng sau 4000 ms (SnackbarDuration.Short, không action). Bốn chữ số cuối không còn trong đầu Lan.', 'The Snackbar closed itself after 4000 ms (SnackbarDuration.Short, no action). The last four digits are no longer in Lan\'s head.')
+    s('codeLabel', 'Mã đặt lịch', 'Booking code')
+    s('copy', 'Sao chép', 'Copy')
+    s('copied', 'Đã sao chép mã', 'Code copied')
+    s('mem', 'Trong đầu Lan:', 'In Lan\'s head:')
+    s('memNone', 'Trong đầu Lan: không phải giữ gì, mã nằm trên màn hình.', 'In Lan\'s head: nothing to hold, the code is on the screen.')
+    s('memLimit', 'Ô gạch chéo: vượt mức 3–5 mục mà Norman khuyên coi là thực tế.', 'Hatched cells: beyond the 3–5 items Norman advises treating as the practical limit.')
+    s('srFix', 'Mắt dừng {n} lần trong mô hình.', 'The eye stops {n} times in the model.')
 
     C = 'd1'
     a(C + '.sim.ux.glance', 'Mắt và trí nhớ', 'Eye and memory')

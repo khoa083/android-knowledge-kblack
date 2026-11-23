@@ -122,6 +122,8 @@ ADE.addUiStrings('en', {
   'app.canvas': 'Diagram',
   'app.diagram': 'Diagram',
   'app.timeline': 'Timeline',
+  'app.screen': 'Screen',
+  'app.screenView': 'Sample screen for the current step',
   'app.timelineDesc': 'A sequence diagram of {n} events, in time order from top to bottom.',
   'app.views': 'View',
   'app.noDiagram': 'This model has no step-by-step diagram.',

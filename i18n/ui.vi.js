@@ -121,6 +121,8 @@ ADE.addUiStrings('vi', {
   'app.canvas': 'Sơ đồ',
   'app.diagram': 'Sơ đồ',
   'app.timeline': 'Timeline',
+  'app.screen': 'Màn hình',
+  'app.screenView': 'Màn hình mẫu của bước hiện tại',
   'app.timelineDesc': 'Sơ đồ tuần tự gồm {n} sự kiện, theo thứ tự thời gian từ trên xuống.',
   'app.views': 'Cách xem',
   'app.noDiagram': 'Mô hình này không có sơ đồ từng bước.',
