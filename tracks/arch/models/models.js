@@ -526,4 +526,72 @@
         { name: 'ánh xạ ở repository: không crash, không lộ chữ kỹ thuật; lỗi lập trình vẫn được báo', run: function () { var a = steps({ case: 'mapped' }); return a.every(function (s) { return s.metrics.text === M(m, 'yn.no'); }) && a[3].metrics.crash === M(m, 'crash.report'); } },
         { name: 'bắt Exception rộng: mọi lỗi bị giấu, kể cả hủy coroutine', run: function () { return steps({ case: 'swallow' }).every(function (s) { return s.metrics.hidden === M(m, 'yn.yes'); }) && ORDER.swallow.indexOf('cancel') >= 0; } }] });
   })();
+  /* ================= G9: module hóa: đồ thị module =================
+     Theo Guide to Android app modularization (kiểm soát chặt phần lộ ra bằng internal/private) và Common modularization patterns
+     (feature module phụ thuộc data module; app module là điểm vào, giữ điều hướng gốc; hai module không gọi thẳng nhau được khi thành
+     vòng, cần module trung gian, thường là app module giữ navigation graph; truyền id chứ không truyền object; lộ ít nhất có thể,
+     ưu tiên implementation hơn api; module cao và module cài đặt cùng phụ thuộc module trừu tượng).
+     Node, cạnh và khung của hình "Đồ thị module" lấy từ ADE.archModules. */
+  (function () {
+    var m = 'modules', CASES = ['features', 'visibility', 'abstraction'], KS = ['s1', 's2', 's3', 's4'];
+    var N = function (id, k, x, y, cls) { return { id: id, k: k, x: x, y: y, cls: cls || '' }; };
+    var E = function (f, t, cls) { return { from: f, to: t, cls: cls || '' }; };
+    var APP = N('app', 'app', 270, 40), BOOK = N('book', 'book', 115, 140), HIST = N('hist', 'hist', 425, 140), DATA = N('data', 'data', 270, 250);
+    var BASE = [E('app', 'book'), E('app', 'hist'), E('book', 'data'), E('hist', 'data')];
+    var G = {
+      features: [
+        { n: [APP, BOOK, HIST, DATA], e: BASE, g: [], build: 'pass' },
+        { n: [APP, N('book', 'book', 115, 140, 'bad'), HIST, DATA], e: BASE.concat([E('book', 'hist', 'bad')]), g: [], build: 'pass' },
+        { n: [APP, N('book', 'book', 115, 140, 'bad'), N('hist', 'hist', 425, 140, 'bad'), DATA], e: BASE.concat([E('book', 'hist', 'bad'), E('hist', 'book', 'err')]), g: [], build: 'cycle' },
+        { n: [N('app', 'appNav', 270, 40), BOOK, HIST, DATA], e: BASE, g: [], build: 'pass' }],
+      visibility: [
+        { n: [N('book', 'book', 140, 60), N('repo', 'repoPublic', 340, 170), N('dao', 'daoPublic', 340, 270)], e: [E('book', 'repo'), E('repo', 'dao')], g: [['dataBox', 220, 128, 300, 182]], build: 'pass' },
+        { n: [N('book', 'book', 140, 60, 'bad'), N('repo', 'repoPublic', 340, 170), N('dao', 'daoPublic', 340, 270, 'bad')], e: [E('book', 'repo'), E('repo', 'dao'), E('book', 'dao', 'bad')], g: [['dataBox', 220, 128, 300, 182]], build: 'pass' },
+        { n: [N('book', 'book', 140, 60, 'bad'), N('repo', 'repoPublic', 340, 170), N('dao', 'daoInternal', 340, 270)], e: [E('book', 'repo'), E('repo', 'dao'), E('book', 'dao', 'err')], g: [['dataBox', 220, 128, 300, 182]], build: 'internal' },
+        { n: [N('book', 'book', 140, 60), N('repo', 'repoPublic', 340, 170), N('dao', 'daoInternal', 340, 270)], e: [E('book', 'repo'), E('repo', 'dao')], g: [['dataBox', 220, 128, 300, 182]], build: 'pass' }],
+      abstraction: [
+        { n: [APP, BOOK, N('data', 'dataAll', 140, 250, 'bad')], e: [E('app', 'book'), E('book', 'data', 'bad')], g: [], build: 'pass' },
+        { n: [APP, BOOK, N('api', 'dataApi', 140, 250), N('impl', 'dataImpl', 400, 250)], e: [E('app', 'book'), E('book', 'impl', 'bad'), E('impl', 'api')], g: [], build: 'pass' },
+        { n: [APP, BOOK, N('api', 'dataApi', 140, 250), N('impl', 'dataImpl', 400, 250)], e: [E('app', 'book'), E('app', 'impl'), E('book', 'api'), E('impl', 'api')], g: [], build: 'pass' },
+        { n: [APP, BOOK, N('api', 'dataApi', 140, 250), N('impl', 'dataImplChanged', 400, 250, 'hl')], e: [E('app', 'book'), E('app', 'impl'), E('book', 'api'), E('impl', 'api')], g: [], build: 'implOnly' }]
+    };
+    ADE.archModules = { at: function (c, i) { return G[c][i]; } };
+    var MET = {   // {ff: số cạnh feature → feature, cycle, impl: feature dính chi tiết cài đặt}
+      features: [{ ff: 0, cycle: 'no', impl: 'no' }, { ff: 1, cycle: 'no', impl: 'yes' }, { ff: 2, cycle: 'yes', impl: 'yes' }, { ff: 0, cycle: 'no', impl: 'no' }],
+      visibility: [{ ff: 0, cycle: 'no', impl: 'no' }, { ff: 0, cycle: 'no', impl: 'yes' }, { ff: 0, cycle: 'no', impl: 'no' }, { ff: 0, cycle: 'no', impl: 'no' }],
+      abstraction: [{ ff: 0, cycle: 'no', impl: 'yes' }, { ff: 0, cycle: 'no', impl: 'yes' }, { ff: 0, cycle: 'no', impl: 'no' }, { ff: 0, cycle: 'no', impl: 'no' }]
+    };
+    var STEP = {   // [node sáng, trạng thái node, loại bước, dòng mã, loại log, chủ thể]
+      features: [[['app', 'feat', 'data'], { app: 'done', feat: 'done', data: 'done' }, 'scenario', [1, 2, 3], 'observe', 'app'],
+        [['feat'], { app: 'done', feat: 'surprise', data: 'done' }, 'pitfall', [4], 'write', 'feat'],
+        [['feat'], { app: 'done', feat: 'broken', data: 'done' }, 'pitfall', [5, 6], 'exception', 'feat'],
+        [['app', 'feat'], { app: 'done', feat: 'done', data: 'done' }, 'mechanism', [7, 8], 'complete', 'app']],
+      visibility: [[['feat', 'data'], { app: 'skipped', feat: 'done', data: 'done' }, 'scenario', [1, 2], 'observe', 'data'],
+        [['feat', 'data'], { app: 'skipped', feat: 'surprise', data: 'surprise' }, 'pitfall', [3, 4], 'write', 'feat'],
+        [['feat', 'data'], { app: 'skipped', feat: 'broken', data: 'done' }, 'mechanism', [5, 6], 'exception', 'feat'],
+        [['feat', 'data'], { app: 'skipped', feat: 'done', data: 'done' }, 'mechanism', [1, 5, 7], 'complete', 'data']],
+      abstraction: [[['feat', 'data'], { app: 'done', feat: 'surprise', data: 'surprise' }, 'scenario', [1, 2], 'observe', 'feat'],
+        [['data'], { app: 'done', feat: 'surprise', data: 'done' }, 'mechanism', [3, 4], 'write', 'data'],
+        [['app', 'feat', 'data'], { app: 'done', feat: 'done', data: 'done' }, 'mechanism', [5, 6], 'write', 'feat'],
+        [['data'], { app: 'done', feat: 'done', data: 'done' }, 'mechanism', [7], 'complete', 'data']]
+    };
+    function steps(s) {
+      return STEP[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var x = MET[s.case][i];
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[0], nodeStates: ns,
+          metrics: { ff: x.ff, cycle: M(m, 'yn.' + x.cycle), impl: M(m, 'yn.' + x.impl) },
+          codeHighlight: { snippet: 'g9.' + s.case, lines: p[3] }, movingSignals: [{ edge: 'e1', tok: 'signal' }], logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (p[2] === 'pitfall' ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'features' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'feature phụ thuộc feature theo hai chiều: Gradle từ chối vòng; app làm trung gian thì hết', run: function () { return G.features[2].build === 'cycle' && steps({ case: 'features' })[3].metrics.ff === 0; } },
+        { name: 'đánh dấu internal: feature dùng DAO thành lỗi biên dịch', run: function () { return G.visibility[2].build === 'internal' && G.visibility[2].e.some(function (x) { return x.cls === 'err'; }); } },
+        { name: 'module trừu tượng: feature chỉ phụ thuộc data-api, không phụ thuộc data-impl', run: function () { var e = G.abstraction[2].e; return e.some(function (x) { return x.from === 'book' && x.to === 'api'; }) && !e.some(function (x) { return x.from === 'book' && x.to === 'impl'; }); } }] });
+  })();
 })();

@@ -110,3 +110,15 @@ Kiểm URL: topic/architecture/data-layer/offline-first HTTP 200 (curl), đọc 
 | Sealed class tốt hơn Boolean cho failure (đặt tên, mở rộng) | `book-boudjnah` ch.6 | guideline |
 | catch (e: Exception) bắt cả CancellationException | sự thật về kiểu (CancellationException là một Exception); giải thích ở track Coroutines A5, Kotlin K6 | stable |
 | HttpException, mã 409/500 | ví dụ với Retrofit | simplified |
+
+## G9 · Module hóa (2026-11-24)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Lợi ích: dùng lại, kiểm soát phần lộ ra (internal/private), đóng gói, build time, trách nhiệm | `ax-modularization` | stable |
+| Data module; feature module phụ thuộc data; app module là điểm vào, phụ thuộc feature, giữ điều hướng gốc; common/core, test module | `ax-modularization-patterns` | stable |
+| Giao tiếp hai chiều trực tiếp không thể khi thành vòng; module trung gian (thường app module giữ navigation graph); truyền id, không truyền object | `ax-modularization-patterns` | stable |
+| Lộ ít nhất có thể; private/internal; ưu tiên implementation hơn api (api lộ phụ thuộc bắc cầu; implementation giảm module phải build lại) | `ax-modularization-patterns` | stable |
+| Module cao và module cài đặt cùng phụ thuộc module trừu tượng | `ax-modularization-patterns` | stable |
+| internal: thấy trong cùng module | `kt-visibility` | stable |
+| Kết quả build (vòng, internal, chỉ build lại data-impl) | mô tả theo quy tắc trên; site không chạy Gradle | simplified |

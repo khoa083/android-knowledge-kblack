@@ -47,4 +47,8 @@
   V('failure', { layout: 'pipeline', nodes: [N('failure', 'ui', 0, 0, 'screen', 'ui'), N('failure', 'vm', 3, 0, 'layers', 'state'), N('failure', 'repo', 6, 0, 'store', 'runtime'), N('failure', 'source', 9, 0, 'source', 'job')],
     edges: [E('e1', 'ui', 'vm'), E('e2', 'vm', 'repo'), E('e3', 'repo', 'source')],
     metrics: [T('failure', 'crash'), T('failure', 'text'), T('failure', 'hidden')] });
+  /* G9: app module, feature module, data module */
+  V('modules', { layout: 'pipeline', nodes: [N('modules', 'app', 0, 0, 'android', 'ui'), N('modules', 'feat', 3, 0, 'screen', 'state'), N('modules', 'data', 6, 0, 'store', 'job')],
+    edges: [E('e1', 'app', 'feat'), E('e2', 'feat', 'data')],
+    metrics: [T('modules', 'ff'), T('modules', 'cycle'), T('modules', 'impl')] });
 })();

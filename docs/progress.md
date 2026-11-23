@@ -736,4 +736,12 @@ Trạng thái: `chưa / đang / xong`.
   - **Sim `arch.failure`:** ba tình huống (để nguyên rồi bắt tất cả, đổi thành failure, bắt Exception rộng). Tab chính là **bảng ánh xạ lỗi**: loại lỗi × repository × ViewModel × người dùng thấy, hàng hiện dần theo bước.
   - Thêm 1 thuật ngữ, 1 hiểu lầm (đổi id thành `catch-exception-layers` vì trùng track Kotlin), 1 preset.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; đã xem ảnh ba tình huống.
-  - **Dừng phiên ở đây** (hạn mức 5 giờ gần chạm ngưỡng). Đã push mọi commit. Tiếp theo: G9 (module hóa; dùng lại hình đồ thị phụ thuộc của G2), G10, G11, G0, rồi chuyển track G sang stable.
+- **Kiến trúc · G9 (2026-11-24):** module hóa (`arch_v2_g9.py`, 8 mục). Nội dung:
+  - vì sao chia module, các loại module;
+  - hai feature trao đổi qua app module làm trung gian, truyền id;
+  - lộ ít nhất có thể (internal, implementation hơn api, module trừu tượng);
+  - 2 bug (vòng phụ thuộc giữa hai feature; feature dùng thẳng DAO); bài tập vẽ đồ thị module có thêm Thanh toán; quiz 4 câu.
+  - **Sim `arch.modules`:** ba tình huống (feature gọi feature, lớp nội bộ lộ ra, module interface và cài đặt). Tab chính là **đồ thị module**: hàm vẽ đồ thị chung lấy node, cạnh và khung từ model; cạnh sai đỏ; nhãn lỗi đặt lệch khỏi đường; có dòng Build.
+  - Thêm 1 thuật ngữ, 1 preset; nguồn modularization bổ sung G9.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0; routes-check không lỗi; đã xem ảnh ba tình huống (sửa nhãn đè lên hộp).
+  - **Dừng phiên ở đây** (hạn mức 5 giờ gần ngưỡng). Đã push mọi commit. Tiếp theo: G10 (kiểm thử theo tầng), G11, G0, rồi chuyển track G sang stable và thêm cầu nối còn thiếu.

@@ -256,4 +256,32 @@
     c('// nên mã sau đó vẫn chạy như chưa bị hủy', '// so the code after it keeps running as if nothing was cancelled'),
     c('// NullPointerException trong api.slots bị nuốt: không có crash report nào', '// a NullPointerException in api.slots is swallowed: no crash report at all')
   ]);
+  add('g9.features', [
+    '// settings.gradle.kts: include(":app", ":feature:booking", ":feature:history", ":core:data")',
+    c('// :app phụ thuộc hai feature; mỗi feature phụ thuộc :core:data', '// :app depends on both features; each feature depends on :core:data'),
+    'dependencies { implementation(project(":core:data")) }',
+    c('// feature/booking: muốn mở màn Lịch sử nên thêm implementation(project(":feature:history"))', '// feature/booking: wants to open History, so adds implementation(project(":feature:history"))'),
+    c('// feature/history: muốn "đặt lại" nên thêm implementation(project(":feature:booking"))', '// feature/history: wants "book again", so adds implementation(project(":feature:booking"))'),
+    c('// Gradle: hai project phụ thuộc vòng, không build được', '// Gradle: the two projects depend on each other in a cycle; no build'),
+    c('// sửa: :app giữ navigation graph và làm trung gian; feature chỉ truyền id', '// fix: :app owns the navigation graph and mediates; features pass only ids'),
+    'navController.navigate("history/$patientId")'
+  ]);
+  add('g9.visibility', [
+    c('// :core:data — SlotRepository là giao diện công khai của module', '// :core:data — SlotRepository is the module\'s public interface'),
+    'class SlotRepository(private val dao: SlotDao) { … }',
+    c('@Dao interface SlotDao { … }                      // mặc định public: module khác dùng được', '@Dao interface SlotDao { … }                      // public by default: other modules can use it'),
+    c('// :feature:booking dùng thẳng SlotDao, bỏ qua repository', '// :feature:booking uses SlotDao directly, bypassing the repository'),
+    '@Dao internal interface SlotDao { … }',
+    c('// :feature:booking: lỗi biên dịch, SlotDao là internal của :core:data', '// :feature:booking: compile error, SlotDao is internal to :core:data'),
+    'class SlotRepository internal constructor(private val dao: SlotDao) { … }'
+  ]);
+  add('g9.abstraction', [
+    c('// :core:data gồm cả interface và cài đặt (Room, Retrofit)', '// :core:data holds both the interface and the implementation (Room, Retrofit)'),
+    c('// :feature:booking phụ thuộc :core:data, nên phụ thuộc cả chi tiết cài đặt', '// :feature:booking depends on :core:data, so on implementation details too'),
+    c('// tách: :core:data-api (interface SlotRepository, mô hình) và :core:data-impl (Room, Retrofit)', '// split: :core:data-api (SlotRepository interface, models) and :core:data-impl (Room, Retrofit)'),
+    c('// :core:data-impl phụ thuộc :core:data-api', '// :core:data-impl depends on :core:data-api'),
+    c('// :feature:booking chỉ phụ thuộc :core:data-api', '// :feature:booking depends only on :core:data-api'),
+    c('// :app phụ thuộc :core:data-impl và nối DI (@Binds, chương G6)', '// :app depends on :core:data-impl and wires DI (@Binds, chapter G6)'),
+    c('// đổi mã Room trong data-impl: :feature:booking không phụ thuộc module đó', '// changing Room code in data-impl: :feature:booking does not depend on that module')
+  ]);
 })();

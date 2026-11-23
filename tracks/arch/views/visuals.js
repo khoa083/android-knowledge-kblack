@@ -207,4 +207,44 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('fl.cap') }),
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)), h('div', { class: 'vz-legend', text: T('fl.legend') })));
   }, { labelKey: K + 'tab.fl', icon: 'grid' });
+
+  /* ---------- G9: đồ thị module (node, cạnh, khung lấy từ model; mũi tên = "phụ thuộc") ---------- */
+  var MW = 190, MH = 36;
+  function edgeEnds(a, b) {   // từ mép hộp a tới mép hộp b, theo đường nối hai tâm
+    var dx = b.x - a.x, dy = b.y - a.y, len = Math.sqrt(dx * dx + dy * dy) || 1;
+    var t = function (p) { return Math.min(Math.abs(dx) > 0 ? (MW / 2 + p) / Math.abs(dx) : 1e9, Math.abs(dy) > 0 ? (MH / 2 + p) / Math.abs(dy) : 1e9); };
+    var ta = t(0), tb = t(3);
+    return [a.x + dx * ta, a.y + dy * ta, b.x - dx * tb, b.y - dy * tb, len];
+  }
+  ADE.registerScreen('arch.modules', function (box, ctx) {
+    var h = ADE.ui.h, c = ctx.state.case, i = Math.max(0, idx(ctx)), d = ADE.archModules.at(c, i), pos = {};
+    var uid = 'md' + Math.random().toString(36).slice(2, 8);
+    d.n.forEach(function (n) { pos[n.id] = n; });
+    var svg = '<svg viewBox="0 0 540 310" class="vz-dg" role="img" aria-label="' + esc(T('md.cap')) + '"><title>' + esc(T('md.cap')) + '</title>' +
+      '<defs><marker id="' + uid + 'a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-dg-head"/></marker>' +
+      '<marker id="' + uid + 'b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-dg-head bad"/></marker></defs>';
+    d.g.forEach(function (g) { svg += '<rect class="vz-dg-mod" x="' + g[1] + '" y="' + g[2] + '" width="' + g[3] + '" height="' + g[4] + '" rx="8"/><text class="vz-dg-modt" x="' + (g[1] + g[3] - 8) + '" y="' + (g[2] + 15) + '" text-anchor="end">' + esc(T('md.g.' + g[0])) + '</text>'; });
+    d.e.forEach(function (e) {
+      var a = pos[e.from], b = pos[e.to]; if (!a || !b) return;
+      var back = d.e.some(function (o) { return o.from === e.to && o.to === e.from; }), off = back ? (e.from < e.to ? 8 : -8) : 0;
+      var p = edgeEnds(a, b), nx = -(p[3] - p[1]) / p[4] * off, ny = (p[2] - p[0]) / p[4] * off;
+      svg += '<path class="vz-dg-e' + (e.cls ? ' bad' : '') + '" d="M' + (p[0] + nx).toFixed(1) + ' ' + (p[1] + ny).toFixed(1) + ' L ' + (p[2] + nx).toFixed(1) + ' ' + (p[3] + ny).toFixed(1) + '" marker-end="url(#' + uid + (e.cls ? 'b' : 'a') + ')"/>';
+      if (e.cls === 'err') {   // nhãn đặt lệch khỏi đường, về phía trên (pháp tuyến hướng lên), để không đè lên hộp
+        var ux = -(p[3] - p[1]) / p[4], uy = (p[2] - p[0]) / p[4];
+        if (Math.abs(ux) > 0.3 ? ux > 0 : uy > 0) { ux = -ux; uy = -uy; }   // cạnh xiên: nhãn bên trái; cạnh ngang: nhãn phía trên
+        svg += '<text class="vz-dg-badt" x="' + ((p[0] + p[2]) / 2 + ux * 14).toFixed(1) + '" y="' + ((p[1] + p[3]) / 2 + uy * 14).toFixed(1) + '" text-anchor="' + (Math.abs(ux) > 0.3 ? 'end' : 'middle') + '">' + esc(T('md.err.' + d.build)) + '</text>';
+      }
+    });
+    d.n.forEach(function (n) {
+      var lb = T('md.n.' + n.k);
+      svg += '<g class="vz-dg-n' + (n.cls === 'bad' ? ' bad' : '') + '"><rect x="' + (n.x - MW / 2) + '" y="' + (n.y - MH / 2) + '" width="' + MW + '" height="' + MH + '" rx="5"' + (n.cls === 'hl' ? ' style="stroke:var(--focus);stroke-width:2.4"' : '') + '/>' +
+        '<text x="' + n.x + '" y="' + (n.y + 4) + '" text-anchor="middle" class="vz-dg-s"' + fitText(lb, MW - 12) + '>' + esc(lb) + '</text></g>';
+    });
+    svg += '</svg>';
+    var holder = h('div', { class: 'vz-scroll' }); holder.innerHTML = svg;
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('md.cap') }), holder,
+      h('p', { class: 'vz-cap vz-dg-build' + (d.build === 'cycle' || d.build === 'internal' ? ' bad' : '') }, h('b', { text: T('md.build') + ': ' }), h('span', { text: T('md.b.' + d.build) })),
+      h('div', { class: 'vz-legend' }, h('span', { class: 'vz-dg-lg' }, h('i', { class: 'e' }), h('span', { text: T('md.lg.dep') })),
+        h('span', { class: 'vz-dg-lg' }, h('i', { class: 'e bad' }), h('span', { text: T('md.lg.bad') })))));
+  }, { labelKey: K + 'tab.md', icon: 'layers' });
 })();
