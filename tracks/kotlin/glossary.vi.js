@@ -20,5 +20,7 @@ ADE.addGlossary('vi', 'kotlin', {
   "closure": { term: "closure", def: "Các biến ở phạm vi bên ngoài mà một lambda (hay hàm cục bộ, object expression) truy cập được; lambda giữ chúng sống chừng nào lambda còn sống.", chapter: "kotlin/k8" },
   "inline-function": { term: "hàm inline", def: "Hàm mà trình biên dịch chép thân (và các lambda truyền vào) vào chỗ gọi thay vì gọi; không tạo object hàm cho lambda và cho phép non-local return, reified.", chapter: "kotlin/k8" },
   "non-local-return": { term: "non-local return", def: "return trần nằm trong lambda nhưng thoát hàm bao ngoài; chỉ được phép khi lambda được inline.", chapter: "kotlin/k8" },
+  "sequence": { term: "Sequence", def: "Chuỗi xử lý lười: không chứa phần tử mà sinh ra khi duyệt; mỗi phần tử đi qua cả chuỗi thao tác trước phần tử sau, và chỉ chạy khi có thao tác cuối.", chapter: "kotlin/k9" },
+  "terminal-operation": { term: "thao tác cuối (terminal)", def: "Thao tác trả về thứ không phải Sequence (toList, first, sum, forEach…); chỉ nó mới làm chuỗi Sequence thật sự chạy.", chapter: "kotlin/k9" },
   "when-expression": { term: "biểu thức when", def: "when trả về giá trị của nhánh khớp đầu tiên; khi dùng như biểu thức, các nhánh phải phủ đủ mọi trường hợp (thường bằng else).", chapter: "kotlin/k1" }
 });

@@ -38,6 +38,10 @@
   V('inline', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.collFail' },
     nodes: [N('inline', 'call', 0, 0, 'source', 'ui'), N('inline', 'compile', 3, 0, 'target', 'state'), N('inline', 'lambda', 6, 0, 'play', 'runtime'), N('inline', 'exit', 9, 0, 'square', 'job')],
     edges: [E('e1', 'call', 'compile'), E('e2', 'compile', 'lambda'), E('e3', 'lambda', 'exit')], metrics: [T('inline', 'objects'), T('inline', 'exit'), T('inline', 'captured')] });
+  /* K9: danh sách gốc → filter → map → take / thao tác cuối */
+  V('sequence', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.collFail', wait: K + 'fam.waiting', idle: K + 'fam.unused', run: K + 'fam.running' },
+    nodes: [N('sequence', 'source', 0, 0, 'store', 'state'), N('sequence', 'filter', 3, 0, 'diamond', 'ui'), N('sequence', 'map', 6, 0, 'play', 'runtime'), N('sequence', 'terminal', 9, 0, 'target', 'job')],
+    edges: [E('e1', 'source', 'filter'), E('e2', 'filter', 'map'), E('e3', 'map', 'terminal')], metrics: [T('sequence', 'ops'), T('sequence', 'inter'), T('sequence', 'touched')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],

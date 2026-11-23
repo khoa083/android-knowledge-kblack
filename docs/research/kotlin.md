@@ -132,3 +132,16 @@ Kiểm URL (curl, HTTP 200): collections-overview, collection-types, constructin
 
 Đổi nhãn log `check` của track từ "kiểm kiểu (biên dịch)" thành "kiểm lúc biên dịch" để đúng cả với bước trình biên dịch quyết định inline.
 Kiểm URL (curl, HTTP 200): lambdas, inline-functions, returns, whatsnew20, leanpub.com/kotlin_functional.
+
+## K9 · Sequence và hiệu năng xử lý collection (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Iterable xử lý háo hức, mỗi bước trả collection trung gian; Sequence lười, từng phần tử qua mọi bước; chỉ chạy khi kết quả cả chuỗi được yêu cầu; take đủ thì dừng; trung gian/cuối; phần tử chỉ lấy được bằng thao tác cuối; overhead đáng kể với collection nhỏ hay phép tính đơn giản; generateSequence, sequence { yield }; thao tác có trạng thái | `kt-sequences` (trang ghi 03 November 2026) | stable |
+| Ưu tiên Sequence cho collection lớn có nhiều bước; filter không biết trước kích thước nên list có thể phải chép mảng khi lớn dần | `book-effective-kotlin` Item 54 | guideline |
+| Giảm số thao tác: mapNotNull thay map + filterNotNull, filterNotNull thay lọc rồi ép non-null | `book-effective-kotlin` Item 57 (đã kiểm: sách KHÔNG nêu filterIsInstance, nên chương không nói) | guideline |
+| Số lần chạy lambda (13 so với 5) và số phần tử đã đọc | tính trên dữ liệu mẫu, model tính lại trong selfCheck; không phải tỉ lệ tốc độ (ghi trong mục trung thực) | simplified |
+| Bài tập dự đoán thứ tự in | dựa trên "Understanding sequences", `book-kt-exercises`; hàm và dữ liệu tự đặt | — |
+
+Ghi chú sơ đồ (đã báo người dùng từ trước, không tự đổi): luồng Sequence có thể dễ hình dung hơn bằng sơ đồ dạng luồng từng phần tử; chương vẫn giữ sơ đồ node theo quy định, các node là đúng các bước filter → map → take.
+Kiểm URL (curl, HTTP 200): sequences.html.

@@ -274,6 +274,30 @@
     '    override fun onDestroy() { ClinicRepository.onUpdate = null; super.onDestroy() }',
     '}'
   ]);
+  add('seq.list', [
+    c('// 8 lịch hẹn, giờ: 8, 13, 9, 10, 15, 11, 16, 9', '// 8 appointments, hours: 8, 13, 9, 10, 15, 11, 16, 9'),
+    'val firstTwo = appts',
+    c('    .filter { it.hour < 12 }        // chạy 8 lần → List 5 phần tử', '    .filter { it.hour < 12 }        // runs 8 times → a List of 5'),
+    c('    .map { it.patient }             // chạy 5 lần → List 5 tên', '    .map { it.patient }             // runs 5 times → a List of 5 names'),
+    c('    .take(2)                        // giữ 2, bỏ 3', '    .take(2)                        // keeps 2, throws away 3')
+  ]);
+  add('seq.sequence', [
+    c('// cùng 8 lịch hẹn', '// the same 8 appointments'),
+    'val firstTwo = appts.asSequence()',
+    '    .filter { it.hour < 12 }',
+    '    .map { it.patient }',
+    '    .take(2)',
+    c('    .toList()                       // thao tác cuối: lúc này mới chạy', '    .toList()                       // terminal operation: only now does it run')
+  ]);
+  add('seq.noTerminal', [
+    'fun remindMorning(appts: List<Appt>) {',
+    '    appts.asSequence()',
+    '        .filter { it.hour < 12 }',
+    c('        .map { sendReminder(it) }   // không bao giờ chạy', '        .map { sendReminder(it) }   // never runs'),
+    '}',
+    c('// sửa: cần một thao tác cuối (terminal) để chuỗi chạy', '// fix: a terminal operation is needed for the chain to run'),
+    'appts.asSequence().filter { it.hour < 12 }.forEach { sendReminder(it) }'
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',

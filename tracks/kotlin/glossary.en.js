@@ -20,5 +20,7 @@ ADE.addGlossary('en', 'kotlin', {
   "closure": { term: "closure", def: "The outer-scope variables a lambda (or local function, object expression) can access; the lambda keeps them alive as long as it lives.", chapter: "kotlin/k8" },
   "inline-function": { term: "inline function", def: "A function whose body (and the lambdas passed to it) the compiler copies to the call site instead of calling it; no function object for the lambdas, and non-local return and reified become possible.", chapter: "kotlin/k8" },
   "non-local-return": { term: "non-local return", def: "A bare return inside a lambda that exits the enclosing function; allowed only when the lambda is inlined.", chapter: "kotlin/k8" },
+  "sequence": { term: "Sequence", def: "A lazy processing chain: holds no elements but produces them while iterating; each element goes through the whole chain before the next one, and nothing runs without a terminal operation.", chapter: "kotlin/k9" },
+  "terminal-operation": { term: "terminal operation", def: "An operation returning something other than a Sequence (toList, first, sum, forEach…); only it makes a Sequence chain actually run.", chapter: "kotlin/k9" },
   "when-expression": { term: "when expression", def: "when returns the value of the first matching branch; used as an expression, its branches must cover every case (usually with else).", chapter: "kotlin/k1" }
 });

@@ -296,6 +296,52 @@
         { name: 'lambda lưu vào property là object hàm và bắt this; gỡ tham chiếu thì hết giữ Activity', run: function () { var c = steps({ case: 'stored' }); return c[1].metrics.objects === 1 && c[2].metrics.captured === M(m, 'cap.activity') && c[3].metrics.captured === M(m, 'cap.none'); } }] });
   })();
 
+  /* ================= K9: Sequence — xử lý từng phần tử qua cả chuỗi (lười) so với từng bước cho cả list (háo hức) =================
+     Theo trang Sequences (Iterable tạo collection trung gian ở mỗi bước; Sequence chạy lười, từng phần tử, chỉ khi có thao tác cuối)
+     và Effective Kotlin Item 54. Số lần chạy lambda đếm trên dữ liệu mẫu HOURS, selfCheck tính lại từ HOURS. */
+  (function () {
+    var m = 'sequence', CASES = ['list', 'sequence', 'noTerminal'];
+    var HOURS = [8, 13, 9, 10, 15, 11, 16, 9], TAKE = 2;
+    // mỗi bước: [node, trạng thái node, số đo {ops, inter, touched}, loại bước, dòng mã, loại log, chủ thể log]
+    var P = {
+      list: [[['source'], {}, { ops: 0, inter: 0, touched: 0 }, 'scenario', [1, 2], 'observe', 'source'],
+        [['source', 'filter'], { filter: 'done' }, { ops: 8, inter: 1, touched: 8 }, 'mechanism', [3], 'run', 'filter'],
+        [['filter', 'map'], { filter: 'done', map: 'done' }, { ops: 13, inter: 2, touched: 8 }, 'mechanism', [4], 'run', 'map'],
+        [['map', 'terminal'], { filter: 'done', map: 'done', terminal: 'done' }, { ops: 13, inter: 2, touched: 8 }, 'mechanism', [5], 'complete', 'terminal']],
+      sequence: [[['source', 'filter', 'map', 'terminal'], { filter: 'pending', map: 'pending', terminal: 'pending' }, { ops: 0, inter: 0, touched: 0 }, 'scenario', [2, 3, 4, 5], 'observe', 'source'],
+        [['filter', 'map', 'terminal'], { filter: 'done', map: 'done', terminal: 'running' }, { ops: 2, inter: 0, touched: 1 }, 'mechanism', [6, 3, 4], 'run', 'filter'],
+        [['source', 'filter'], { filter: 'done', map: 'done', terminal: 'running' }, { ops: 3, inter: 0, touched: 2 }, 'mechanism', [3], 'skip', 'filter'],
+        [['filter', 'map', 'terminal'], { filter: 'done', map: 'done', terminal: 'done' }, { ops: 5, inter: 0, touched: 3 }, 'mechanism', [3, 4, 5], 'complete', 'terminal']],
+      noTerminal: [[['source'], {}, { ops: 0, inter: 0, touched: 0 }, 'scenario', [1, 2], 'observe', 'source'],
+        [['filter', 'map'], { filter: 'pending', map: 'pending' }, { ops: 0, inter: 0, touched: 0 }, 'mechanism', [2, 3, 4], 'observe', 'map'],
+        [['terminal'], { filter: 'unused', map: 'unused', terminal: 'surprise' }, { ops: 0, inter: 0, touched: 0 }, 'pitfall', [4, 5], 'skip', 'terminal'],
+        [['filter', 'map', 'terminal'], { filter: 'done', map: 'done', terminal: 'done' }, { ops: 13, inter: 0, touched: 8 }, 'mechanism', [6, 7], 'write', 'terminal']]
+    };
+    ADE.kotlinSeq = { P: P, HOURS: HOURS };
+    var EDGE = { source: null, filter: 'e1', map: 'e2', terminal: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var e = EDGE[p[0][0]] || EDGE[p[0][1]], bad = p[3] === 'pitfall';
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: { ops: p[2].ops, inter: p[2].inter, touched: p[2].touched },
+          codeHighlight: { snippet: 'seq.' + s.case, lines: p[4] }, movingSignals: e ? [{ edge: e, tok: bad ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5], subject: p[6] }] });
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i >= 2) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    // Đếm lại từ HOURS: list = filter mọi phần tử + map mọi phần tử qua lọc; sequence = dừng khi đủ TAKE phần tử.
+    function eager() { var kept = HOURS.filter(function (h) { return h < 12; }); return HOURS.length + kept.length; }
+    function lazy() { var ops = 0, got = 0, touched = 0; for (var i = 0; i < HOURS.length && got < TAKE; i++) { touched++; ops++; if (HOURS[i] < 12) { ops++; got++; } } return { ops: ops, touched: touched }; }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'list' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'số lần chạy lambda khớp với dữ liệu mẫu: list chạy hết từng bước, sequence dừng khi take đủ', run: function () { var l = steps({ case: 'list' })[3].metrics, q = steps({ case: 'sequence' })[3].metrics, z = lazy(); return l.ops === eager() && l.inter === 2 && q.ops === z.ops && q.touched === z.touched && q.inter === 0; } },
+        { name: 'không có thao tác cuối thì không lambda nào chạy', run: function () { var n = steps({ case: 'noTerminal' }); return n[2].metrics.ops === 0 && n[2].type === 'pitfall' && n[3].metrics.ops === eager(); } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {
