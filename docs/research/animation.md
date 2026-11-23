@@ -132,7 +132,7 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 | animateContentSize = clipToBounds() then SizeAnimationModifierElement; hai overload (có/không alignment, mặc định TopStart); spec mặc định spring(StiffnessMediumLow, IntSize.VisibilityThreshold) | `an-acs-src` | impl |
 | measure: đo con → animateTo(kích thước con) trả anim.value → constraints.constrain → đặt con theo alignment; lần đầu tạo Animatable(targetSize) nên không animate; đích đổi thì startSize = giá trị hiện tại và launch animateTo; listener chỉ khi Finished; onReset xóa animData; dùng lookahead size làm đích | `an-acs-src` | impl |
 | Đặt trước size/defaultMinSize; tham số animationSpec, alignment, finishedListener | `an-composables` | stable |
-| Sách nói "mặc định spring()": cách nói gọn, độ cứng thật là StiffnessMediumLow | Kunneth Ch.8 vs `an-acs-src` | ghi rõ trong bài |
+| Kunneth ghi mặc định `spring()` (sách viết cho phiên bản cũ); ở commit ghim là spring(StiffnessMediumLow); không khẳng định phiên bản nào đã đổi | Kunneth Ch.8 vs `an-acs-src` | ghi rõ trong bài |
 | `.height(h).animateContentSize()` nhảy (constraints cố định); animation vô hình vẫn làm đo lại mỗi frame | Suy ra từ mã (`constrain`, state đọc trong measure) | ghi rõ "suy ra, không phải số đo" |
 | animateItem: fade in/out + placement (kể cả arrangement/alignment), null tắt, mặc định spring(StiffnessMediumLow), cần key; animateItemWithTransitions còn internal | `an-lazyscope-src`, `cp-lists` | impl / stable |
 | Item đặt ở targetOffset + placementDelta bằng placeWithLayer; placementDelta animate về 0; alpha của GraphicsLayer cho fade; độ lệch do cuộn không animate | `an-lazyanim-src` (+ LazyListMeasuredItem.kt) | impl |
