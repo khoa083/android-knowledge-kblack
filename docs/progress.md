@@ -524,7 +524,7 @@ Trạng thái: `chưa / đang / xong`.
   - Nội dung (`animation_v2_c0.py`, giữ mục v1 `pairs` và sim `animation.choose` làm tab thứ hai): bản đồ track và thứ tự đọc, cây quyết định chọn API theo trang choose-api (cấu trúc lồng nhau đọc từ HTML; ghi chú CapturedAnimatedVisibility và TextMotion.Animated chưa giảng), chỉ mục triệu chứng → chương, ghi chú trung thực; tự trả lời 2 câu, quiz thêm q3, q4.
   - Sim mới `animation.tree` (6 nhu cầu đi theo cây tới API và chương).
 - **Lõi: goal và tiến độ chương gắn với sim từng bước đầu tiên (2026-11-23, người dùng hỏi về điểm nợ goal của C1–C3):**
-  - Kiểm lại: điểm nợ cũ vô hại (tab lab kiểu compute không hiện goal, không ghi tiến độ). Lỗi thật: chương có HAI tab từng bước (38 chương có ≥ 2 sim ở mọi track) thì tab thứ hai cũng ghi `progress.max/done` chung và hiện danh sách goal viết cho tab đầu, nên goal có thể bị đánh dấu nhầm.
+  - Kiểm lại: điểm nợ cũ vô hại (tab lab kiểu compute không hiện goal, không ghi tiến độ). Lỗi thật: chương có HAI tab từng bước (đếm trong trang: 32 chương có ≥ 2 sim, trong đó 24 chương có ≥ 2 tab từng bước: coroutines a2, fl, fp, a7, a8, a9; runtime b2–b9; animation c0, c3, c4, c5, c7, c8; ux d0, d5, d10; ui e7) thì tab thứ hai cũng ghi `progress.max/done` chung và hiện danh sách goal viết cho tab đầu, nên goal có thể bị đánh dấu nhầm.
   - Sửa `app.js` (`mountStage`): chỉ sim từng bước ĐẦU TIÊN trong `chapter.sims` hiện goal và gọi `saveProg`; các chương UX có tab đầu là lab (d1, d7, d9) dùng sim từng bước kế tiếp. Đổi tab thì bỏ số bước trên URL để tab mới không nhảy theo bước của tab cũ.
   - Kiểm bằng script trong trang: tab 2 của c3 không hiện goal, đi 3 bước ở tab 2 không ghi tiến độ, tab 1 ghi đúng.
 
