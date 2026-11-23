@@ -205,7 +205,44 @@ Thứ tự viết: c1 → c2 → c3 → c4 → c5 → if → c6 → se → cv �
 
 **Việc kỹ thuật trước chương đầu:** `dev/gen/animation_content.py` chưa có cơ chế module v2; thêm vòng `for mod in (...)` với `add/override/SEC_ORDER` giống `runtime_content.py`.
 
-### UX v2 / UI v2 (track D, E mở rộng)
+### UX v2: dàn chương ĐÃ đối chiếu mục lục sách (2026-11-23)
+
+**Mục lục thật đã đọc** (epub bằng `tools/epub_toc.py`, PDF bằng pdftotext; chỉ đọc tiêu đề):
+- Norman, *The Design of Everyday Things* (bản sửa đổi): Ch.1 Psychopathology of Everyday Things (HCD, nguyên lý tương tác, system image, nghịch lý công nghệ); Ch.2 Psychology of Everyday Actions (gulf of execution/evaluation, seven stages, ba mức xử lý, tự đổ lỗi, 7 nguyên lý từ seven stages); Ch.3 Knowledge in the Head and in the World (cấu trúc trí nhớ, đánh đổi đầu/thế giới, natural mapping và văn hóa); Ch.4 Constraints, Discoverability, Feedback (4 loại ràng buộc, forcing function, quy ước, âm thanh làm signifier); Ch.5 Human Error? No, Bad Design (slip/mistake và phân loại, vi phạm cố ý, phát hiện lỗi, designing for error, resilience engineering, nghịch lý tự động hóa); Ch.6 Design Thinking (giải đúng vấn đề, Double Diamond, HCD process, chuẩn hóa); Ch.7 Design in the World of Business (đổi mới tiệm tiến/đột phá, trách nhiệm đạo đức).
+- Krug, *Don't Make Me Think, Revisited* (3rd ed.): Ch.1 Don't make me think; Ch.2 How we really use the Web (quét, satisficing, muddle through); Ch.3 Billboard Design 101 (quy ước, phân cấp thị giác, vùng bấm được); Ch.4 Animal, Vegetable, or Mineral? (lựa chọn không cần nghĩ); Ch.5 Omit needless words; Ch.6 Street signs and Breadcrumbs (điều hướng); Ch.7 The Big Bang Theory of Web Design (trang chủ); Ch.8 The Farmer and the Cowman (tranh luận trong nhóm, "người dùng trung bình" là huyền thoại); Ch.9 Usability testing on 10 cents a day; Ch.10 Mobile; Ch.11 Usability as common courtesy (reservoir of goodwill); Ch.12 Accessibility; Ch.13 Guide for the perplexed.
+- Whalen, *Design for How People Think*: Part I Ch.1 The Six Minds of Experience; Ch.2 Vision/Attention/Automaticity; Ch.3 Wayfinding; Ch.4 Memory/Semantics; Ch.5 Language; Ch.6 Decision Making and Problem Solving; Ch.7 Emotion; Part II Ch.8 Contextual Interviews; Ch.9–14 khai thác từng "mind" trong nghiên cứu; Part III Ch.15 Sense-Making; Ch.16 Appeal, Enhance, Awaken; Ch.17 Succeed Fast; Ch.19 How to Make a Better Human.
+- Albert & Tullis, *Measuring the User Experience*: Ch.1 Introduction (10 myths); Ch.2 Background (biến, kiểu dữ liệu, thống kê mô tả, so sánh trung bình, phi tham số, trình bày); Ch.3 Planning; Ch.4 Performance Metrics (task success, time-on-task, errors, efficiency, learnability); Ch.5 Self-Reported Metrics (rating scales, post-task, SUS); Ch.6 Issues-Based Metrics (severity, nhất quán, thiên lệch, số người tham gia); Ch.7 Eye Tracking; Ch.8 Measuring Emotion; Ch.9 Combined and Comparative Metrics.
+- Podmajersky, *Strategic Writing for UX*: Ch.1 Why (mục tiêu người dùng và tổ chức); Ch.2 Voice (voice chart); Ch.3 Conversation for content-first design; Ch.4 UX text patterns (title, button, description, empty state, label, control, input, transitional, confirmation, notification, error); Ch.5 Edit in four phases (purposeful, concise, conversational, clear); Ch.6 Measuring UX content; Ch.7 Tools; Ch.8 30/60/90-day plan; Ch.9 What to do first.
+- Metts & Welfle, *Writing Is Designing*: Ch.1 How words shape experiences; Ch.2 Strategy and research; Ch.3 Clarity (recognition vs recall, cognitive load, plain language); Ch.4 Errors and stress cases; Ch.5 Inclusivity and accessibility; Ch.6 Voice; Ch.7 Tone; Ch.8 Collaboration and consistency.
+- Greever, *Articulating Design Decisions*: Ch.1 Great designers are great communicators; Ch.2 Stakeholders are people too; Ch.3 Design the meeting; Ch.4 Listen to understand; Ch.5 Right mindset; Ch.6 Form a response; Ch.7 Choose a message (business, design, research, limitations); Ch.8 Lock in agreement (IDEA → IDEAL); Ch.9 Follow up; Ch.10 Dealing with changes; Ch.11 How executives can help.
+- Wendel, *Designing for Behavior Change*: Part I Ch.1–4 (deciding and acting, creating action, stopping negative actions, ethics); Part II Ch.5–13 (process, defining the problem, context, cue–reaction–evaluation, ability–timing–experience, implementation, A/B tests).
+- Banfield, Lombardo, Wax, *Design Sprint*: Ch.1–4 (what, when, approach, plan); Ch.5–9 năm pha Understand, Diverge, Converge, Prototype, Test; Ch.10 after the sprint. Lewrick, Link, Leifer, *The Design Thinking Playbook*: 3 phần (understand, transform organizations, design the future).
+
+**Dàn chương.** Giữ id v1 (d0–d10) để route không đổi; thêm 4 chương mới. Ví dụ xuyên suốt vẫn là app "Hẹn Khám" (spec track D). Framework của tác giả luôn ghi tên tác giả; "định luật" là heuristic có giới hạn; công thức (SUS, 1 − (1 − p)^n) có ví dụ kiểm chứng.
+
+| Thứ tự | Id | Chương | Nguồn chính |
+|---|---|---|---|
+| 1 | d0 | Bản đồ UX (viết CUỐI CÙNG) | Norman Ch.1, Ch.6 (HCD, Double Diamond); Krug Ch.1 |
+| 2 | d1 | Bộ óc người dùng: thị giác, chú ý, trí nhớ, mô hình tư duy | Whalen Ch.1–2, Ch.4; Norman Ch.3; Krug Ch.2 |
+| 3 | **sm** (mới) | Sáu "bộ óc" của Whalen: wayfinding, ngôn ngữ, ra quyết định, cảm xúc, và cách quan sát chúng | Whalen Ch.3, Ch.5–7, Part II Ch.9–14, Ch.15–16 (framework của Whalen) |
+| 4 | d2 | Nguyên lý tương tác: affordance, signifier, mapping, constraint, feedback, conceptual model, hai vịnh, seven stages | Norman Ch.1, Ch.2, Ch.4 |
+| 5 | d3 | Lỗi người dùng: slip, mistake, thiết kế để phát hiện và phục hồi | Norman Ch.5; Metts & Welfle Ch.4 (thông báo lỗi) |
+| 6 | **kr** (mới) | Thiết kế cho người quét trang: billboard design, quy ước, bỏ chữ thừa, điều hướng, mobile, thiện chí | Krug Ch.2–8, Ch.10–12 (framework của Krug) |
+| 7 | d4 | Heuristic evaluation và mức độ nghiêm trọng | spec D4 (Nielsen); Albert & Tullis Ch.6 (severity, nhất quán, thiên lệch) |
+| 8 | d5 | Quyết định, hành vi và đạo đức | Wendel Part I–II (cue–reaction–evaluation, ability–timing–experience; framework của Wendel), Ch.4 ethics; Whalen Ch.6–7; Norman Ch.7 |
+| 9 | d6 | Nghiên cứu người dùng: phỏng vấn, contextual inquiry, chọn phương pháp | Whalen Ch.8; Metts & Welfle Ch.2; Albert & Tullis Ch.3 |
+| 10 | d7 | Usability testing và "5 người dùng" | Krug Ch.9; Albert & Tullis Ch.6.7 (số người tham gia) |
+| 11 | d8 | Đo lường UX: task success, thời gian, lỗi, SUS, kết hợp chỉ số | Albert & Tullis Ch.2, Ch.4, Ch.5, Ch.9 (Ch.7–8 chỉ giới thiệu) |
+| 12 | d9 | UX writing: mục tiêu, voice chart, mẫu chữ, biên tập bốn pha | Podmajersky Ch.1–5; Metts & Welfle Ch.1, Ch.3, Ch.6–7 |
+| 13 | **wx** (mới) | Viết cho lúc khó và cho mọi người: lỗi, stress case, hòa nhập, đo nội dung, làm nghề viết | Metts & Welfle Ch.4–5, Ch.8; Podmajersky Ch.6–9 |
+| 14 | d10 | Quy trình: design thinking, design sprint năm pha | Banfield và cộng sự (Design Sprint) Ch.1–10; Lewrick và cộng sự (Design Thinking Playbook); Norman Ch.6 |
+| 15 | **ad** (mới) | Trình bày và bảo vệ quyết định thiết kế với stakeholder | Greever Ch.1–11 (IDEAL; framework của Greever) |
+
+Thứ tự viết: d1 → sm → d2 → d3 → kr → d4 → d5 → d6 → d7 → d8 → d9 → wx → d10 → ad → d0.
+
+**Việc kỹ thuật trước chương đầu:** kiểm `dev/gen/ux_content.py` (hoặc file sinh nội dung UX tương ứng) có cơ chế module v2 (`for mod in (...)`, add/override/SEC_ORDER) chưa; nếu chưa thì thêm như Runtime/Animation. Chương mới thêm vào manifest theo đúng thứ tự trên; goal `step` tính theo sim từng bước đầu tiên của chương.
+
+### UX v2 / UI v2 (track D, E mở rộng) (dàn nháp cũ, giữ để đối chiếu)
 - **UX:**
   - Norman: affordance, signifier, mapping, feedback, mô hình tư duy, hai vịnh (gulf of execution/evaluation), phân loại lỗi.
   - Krug: quét trang, tự giải thích, test khả dụng giá rẻ.

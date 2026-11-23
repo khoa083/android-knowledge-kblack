@@ -527,4 +527,6 @@ Trạng thái: `chưa / đang / xong`.
   - Kiểm lại: điểm nợ cũ vô hại (tab lab kiểu compute không hiện goal, không ghi tiến độ). Lỗi thật: chương có HAI tab từng bước (đếm trong trang: 32 chương có ≥ 2 sim, trong đó 24 chương có ≥ 2 tab từng bước: coroutines a2, fl, fp, a7, a8, a9; runtime b2–b9; animation c0, c3, c4, c5, c7, c8; ux d0, d5, d10; ui e7) thì tab thứ hai cũng ghi `progress.max/done` chung và hiện danh sách goal viết cho tab đầu, nên goal có thể bị đánh dấu nhầm.
   - Sửa `app.js` (`mountStage`): chỉ sim từng bước ĐẦU TIÊN trong `chapter.sims` hiện goal và gọi `saveProg`; các chương UX có tab đầu là lab (d1, d7, d9) dùng sim từng bước kế tiếp. Đổi tab thì bỏ số bước trên URL để tab mới không nhảy theo bước của tab cũ.
   - Kiểm bằng script trong trang: tab 2 của c3 không hiện goal, đi 3 bước ở tab 2 không ghi tiến độ, tab 1 ghi đúng.
+- **UX v2 · dàn chương (2026-11-23):** đọc mục lục thật của Norman, Krug, Whalen, Albert & Tullis, Podmajersky, Metts & Welfle, Greever, Wendel, Design Sprint, Design Thinking Playbook; ghi dàn 15 chương vào `roadmap-v2.md` (giữ d0–d10, thêm sm, kr, wx, ad). Chưa viết chương nào.
+  - **Tiếp theo:** kiểm cơ chế module v2 của generator UX, rồi viết d1 theo thứ tự trong roadmap.
 
