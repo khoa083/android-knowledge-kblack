@@ -344,6 +344,28 @@ Tổng: **7 màu** được chỉnh (6 light, 1 dark), mỗi màu giữ nguyên 
 - `--tok-anim` ở light **trùng hex với `--ink`** (`#0B4F45`), đúng theo `STYLE-REFERENCE`. Phân biệt bằng **nét** (current value dùng nét đặc và dấu tròn đầy; velocity dùng nét đứt) và nhãn, không bằng màu.
 - Tỷ lệ chỉ đo chữ/nền phẳng. Chữ đè lên lưới isometric (`--grid-iso`, alpha ≤ .07) không đổi kết luận đáng kể; P1 vẫn kiểm bằng mắt.
 
+### 5.x Theme dark "Giấy tối ấm" (2026-11-24, thay bảng màu dark ở trên)
+
+Người dùng thấy dark xanh-lục cũ khó nhìn, nên đã chọn mẫu 3 trong bốn mẫu đề xuất. Nền chuyển sang nâu trầm, chữ màu giấy ngà; điểm nhấn (`--brand`) vẫn là xanh-lục. Màu token và màu tô mã giữ như cũ, trừ `--syn-ln` được làm sáng lên.
+
+**Nền:** paper `#1A1814`, paper-2 `#201E19`, paper-3 `#25221D`; mã: `--syn-bg` `#1E1C17`, `--syn-hl` `#2C2923`.
+
+| token | màu | trên paper | trên paper-2 | trên paper-3 |
+|---|---|---|---|---|
+| ink | `#EEE8DC` | 14.528 | 13.647 | 12.988 |
+| ink-2 | `#C3BAAA` | 9.221 | 8.662 | 8.244 |
+| ink-3 | `#9D9584` | 5.964 | 5.603 | 5.332 |
+| brand | `#7DD8AF` | 10.394 | 9.764 | 9.292 |
+| line-strong | `#82796B` | 4.133 | 3.882 | 3.695 |
+| focus | `#FFB547` | 10.089 | 9.477 | 9.019 |
+| line (trang trí) | `#36322B` | 1.391 | 1.307 | 1.244 |
+
+**Các ngưỡng khác:**
+- Token (thấp nhất): error 5.729.
+- Màu tô mã: thấp nhất là `--syn-ln` `#9A917F` 4.646, đo trên `--syn-bg` và `--syn-hl`.
+- Chữ `--paper` trên nền `--brand`: 10.394.
+- Accent track (thấp nhất trên ba nền): #2F83BE 3.857, #398D62 3.894, #3D7F8A 3.472, #78842C 3.875, #946BC4 3.893, #B46D24 3.889, #C75976 3.863. Ngưỡng là ≥ 3.427; vì thế nền được chọn tối hơn bản nháp `#1C1A16` / `#23211C` / `#2D2A24`, bản nháp đó đưa accent `#3D7F8A` xuống 3.13.
+
 ## 6. Font và dấu tiếng Việt
 
 Stack (từ `STYLE-REFERENCE` 4.1): `ui-monospace, "Cascadia Mono", "Cascadia Code", Consolas, "SF Mono", "Roboto Mono", "Noto Sans Mono", monospace`.

@@ -668,3 +668,9 @@ Trạng thái: `chưa / đang / xong`.
   - Trình duyệt không hỗ trợ, hay người dùng bật giảm chuyển động, thì đổi ngay.
   - Kiểm: report 0 lỗi, 120 cảnh báo; bấm nút trong Chrome headless thì theme đổi, không lỗi.
 - **Mẫu theme dark chờ duyệt (2026-11-24):** người dùng thấy dark mode khó nhìn. Đã dựng 4 bảng màu và đo tương phản: than chì (xám trung tính), lục dịu (giữ màu site), giấy tối ấm, đen OLED. Ảnh so sánh gửi cho người dùng; chưa đổi `styles.css`.
+- **Theme dark "Giấy tối ấm" (2026-11-24, người dùng chọn mẫu 3):** `styles.css` đổi bảng màu dark sang nền nâu trầm, chữ màu giấy ngà; điểm nhấn vẫn xanh-lục.
+  - **Đo tương phản** (ghi ở `docs/research/global.md` §5.x):
+    - ink-3 ≥ 5.332, line-strong ≥ 3.695, focus ≥ 9.019;
+    - token ≥ 5.729, màu tô mã ≥ 4.646;
+    - accent track ≥ 3.472. Nền được chọn tối hơn bản nháp để accent G không tụt dưới 3.427.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; đã xem ảnh trang chủ (đồ thị) và chương K8 ở theme dark mới.

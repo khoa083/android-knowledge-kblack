@@ -4,7 +4,7 @@
    Ngưỡng: chữ >= 4.5:1 (1.4.3), non-text >= 3:1 (1.4.11); biên nội bộ 4.55 / 3.10.
    Tối thiểu đã đo (paper / paper-2 / paper-3):
      light  chữ ink-3 4.561 · token 4.565 (ui) · line-strong 3.126 · focus 3.613 · accent track >= 3.427
-     dark   chữ ink-3 4.553 · token 5.091 (error) · line-strong 3.130 · focus 8.769 · accent track >= 3.427
+     dark   (giấy tối ấm, 2026-11-24) chữ ink-3 5.332 · token 5.729 (error) · line-strong 3.695 · focus 9.019 · accent track >= 3.472 · mã >= 4.646
    --line (1.3-1.9:1) CHỈ trang trí; viền control và nét sơ đồ có nghĩa dùng --line-strong.
    Chip và chú giải dùng chữ --ink; màu token chỉ ở icon, viền, nét. */
 
@@ -26,15 +26,16 @@
   color-scheme: light;
 }
 :root[data-theme="dark"] {
-  --ink: #BFE3D6; --ink-2: #8FBFB1; --ink-3: #6C9C8F;
-  --paper: #0A1512; --paper-2: #10201B; --paper-3: #173029;
-  --line: #2A4A41; --line-strong: #4F8073; --grid-iso: rgba(191, 227, 214, .06);
-  --brand: #5FD3A8; --focus: #FFC24D; --row-active: #173029;
+  /* "Giấy tối ấm" (người dùng chọn 2026-11-24): nền nâu trầm, chữ màu giấy ngà; điểm nhấn vẫn xanh-lục */
+  --ink: #EEE8DC; --ink-2: #C3BAAA; --ink-3: #9D9584;
+  --paper: #1A1814; --paper-2: #201E19; --paper-3: #25221D;
+  --line: #36322B; --line-strong: #82796B; --grid-iso: rgba(238, 232, 220, .05);
+  --brand: #7DD8AF; --focus: #FFB547; --row-active: #25221D;
   --tok-state: #F2B84B; --tok-signal: #F472B6; --tok-runtime: #A78BFA; --tok-ui: #2DD4BF;
   --tok-coroutine: #60A5FA; --tok-job: #4ADE80; --tok-thread: #94A3B8; --tok-flow: #BEF264;
   --tok-cancel: #FB923C; --tok-error: #F87171; --tok-anim: #E2E8F0;
-  /* mã: sắc độ One Dark (Atom) trên nền xanh-lục đậm của site */
-  --syn-bg: #13211D; --syn-hl: #1F362F; --syn-fg: #ABB2BF; --syn-ln: #717B94;
+  /* mã: sắc độ One Dark (Atom) trên nền nâu trầm; số dòng sáng lên để đủ ≥ 4.6:1 */
+  --syn-bg: #1E1C17; --syn-hl: #2C2923; --syn-fg: #ABB2BF; --syn-ln: #9A917F;
   --syn-kw: #C980DF; --syn-str: #98C379; --syn-esc: #56B6C2; --syn-num: #D19A66;
   --syn-com: #959BA8; --syn-ann: #E47D85; --syn-type: #E5C07B; --syn-fn: #61AFEF;
   color-scheme: dark;
