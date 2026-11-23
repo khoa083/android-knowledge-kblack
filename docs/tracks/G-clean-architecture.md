@@ -1,6 +1,6 @@
 # TRACK G — Kiến trúc app Android / Android App Architecture (`arch`)
 
-> **BẢN NHÁP – CHỜ DUYỆT (2026-11-23).** Chưa tạo manifest, model hay nội dung. Người dùng duyệt danh sách IN/OUT và dàn chương bên dưới trước khi bắt đầu.
+> **ĐÃ DUYỆT (2026-11-23).** Người dùng duyệt dàn chương bên dưới; hai câu hỏi cuối (giữ g11, chỉ Hilt) chưa được trả lời, tạm theo đề xuất: giữ g11, chỉ Hilt. Track id `arch`, đang viết (G1 xong).
 > Nguyên tắc chọn nội dung giống track Kotlin: **cần và đủ**, không bám từng chương sách; mỗi chương bắt đầu từ một lỗi thật trên Android.
 
 ## Nguồn đã đọc để soạn dàn ý
