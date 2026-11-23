@@ -122,3 +122,21 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 | AnimatedVisibility, slide, Crossfade | Kunneth Ch.8 | Ví dụ của sách |
 | animateEnterExit cho con, auto-start | Essentials Ch.39 | Ví dụ của sách |
 | Sim `animation.exitlife`: gỡ ở 300 / 500 ms; bản "outside" bị cắt ở 300 ms | Theo KDoc và tài liệu | selfCheck; mốc minh họa |
+
+### C5 v2 · animateContentSize, animateItem (2026-11-23)
+
+Đọc ở commit ghim 296313a4: `compose/animation/animation/.../AnimationModifier.kt`; `compose/foundation/foundation/.../lazy/LazyItemScope.kt`, `lazy/layout/LazyLayoutItemAnimation.kt`, `lazy/LazyListMeasuredItem.kt`.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| animateContentSize = clipToBounds() then SizeAnimationModifierElement; hai overload (có/không alignment, mặc định TopStart); spec mặc định spring(StiffnessMediumLow, IntSize.VisibilityThreshold) | `an-acs-src` | impl |
+| measure: đo con → animateTo(kích thước con) trả anim.value → constraints.constrain → đặt con theo alignment; lần đầu tạo Animatable(targetSize) nên không animate; đích đổi thì startSize = giá trị hiện tại và launch animateTo; listener chỉ khi Finished; onReset xóa animData; dùng lookahead size làm đích | `an-acs-src` | impl |
+| Đặt trước size/defaultMinSize; tham số animationSpec, alignment, finishedListener | `an-composables` | stable |
+| Sách nói "mặc định spring()": cách nói gọn, độ cứng thật là StiffnessMediumLow | Kunneth Ch.8 vs `an-acs-src` | ghi rõ trong bài |
+| `.height(h).animateContentSize()` nhảy (constraints cố định); animation vô hình vẫn làm đo lại mỗi frame | Suy ra từ mã (`constrain`, state đọc trong measure) | ghi rõ "suy ra, không phải số đo" |
+| animateItem: fade in/out + placement (kể cả arrangement/alignment), null tắt, mặc định spring(StiffnessMediumLow), cần key; animateItemWithTransitions còn internal | `an-lazyscope-src`, `cp-lists` | impl / stable |
+| Item đặt ở targetOffset + placementDelta bằng placeWithLayer; placementDelta animate về 0; alpha của GraphicsLayer cho fade; độ lệch do cuộn không animate | `an-lazyanim-src` (+ LazyListMeasuredItem.kt) | impl |
+| SizeChangeAnimationDemo (Slider → maxLines), snap(1000) | Kunneth Ch.8 | Ví dụ của sách |
+| Overview READ MORE với Column.animateContentSize | AAT Ch.10 | Ví dụ của sách |
+| notifyItemRemoved/Inserted, DefaultItemAnimator, bốn hàm của ItemAnimator | AAT Ch.7 | Ví dụ của sách (hệ View) |
+| Sim `animation.acs`: 40/160 px, giá trị từng frame 85/128/152/160 | Minh họa | selfCheck; ghi trong simp |

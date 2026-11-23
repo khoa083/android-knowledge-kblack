@@ -142,4 +142,21 @@
       '}'
     ]);
   });
+  var acsTail = ['        .fillMaxWidth()', '        .clickable { expanded = !expanded }', ')'];
+  add('acs_expand', [
+    'var expanded by remember { mutableStateOf(false) }',
+    'Box(',
+    '    Modifier',
+    '        .background(Teal)',
+    { vi: '        .animateContentSize(finishedListener = { from, to -> log(from, to) })   // ✓ ngoài', en: '        .animateContentSize(finishedListener = { from, to -> log(from, to) })   // ✓ outer' },
+    '        .height(if (expanded) 160.dp else 40.dp)'
+  ].concat(acsTail));
+  add('acs_after', [
+    'var expanded by remember { mutableStateOf(false) }',
+    'Box(',
+    '    Modifier',
+    '        .background(Teal)',
+    { vi: '        .height(if (expanded) 160.dp else 40.dp)       // ✗ modifier kích thước đứng ngoài', en: '        .height(if (expanded) 160.dp else 40.dp)       // ✗ the size modifier is outside' },
+    '        .animateContentSize(finishedListener = { from, to -> log(from, to) })'
+  ].concat(acsTail));
 })();

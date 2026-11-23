@@ -60,6 +60,13 @@
     edges: [E('e1', 'flag', 'av'), E('e2', 'av', 'content'), E('e3', 'av', 'gone')],
     metrics: [T('exitlife', 'ms'), T('exitlife', 'inComp')]
   });
+  /* C5 (v2): state → con (height) → node animateContentSize → cha và phần tử bên cạnh. */
+  V('acs', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('acs', 'state', 0, 0, 'target', 'state'), N('acs', 'child', 4, -3, 'square', 'ui'), N('acs', 'node', 8, 0, 'grid', 'anim'), N('acs', 'parent', 12, 3, 'layers', 'runtime')],
+    edges: [E('e1', 'state', 'child'), E('e2', 'child', 'node'), E('e3', 'node', 'parent')],
+    metrics: [T('acs', 'comp'), T('acs', 'layout'), T('acs', 'child'), T('acs', 'reported')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

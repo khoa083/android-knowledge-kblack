@@ -472,4 +472,73 @@
       } }]
     });
   })();
+
+  /* ================= C5 (v2): bên trong animateContentSize (AnimationModifier.kt @296313a4) =================
+     expand: .animateContentSize().height(h): đo con 160, đích 160, báo giá trị hiện tại (40 → 85 → 128 → 152 → 160); mỗi frame chỉ layout.
+     after: .height(h).animateContentSize(): constraints cố định → constraints.constrain ép về 160 ngay; animation vô hình vẫn làm đo lại.
+     interrupt: đang mở ở 128 thì thu: startSize = 128, animateTo(40) hủy lần cũ (không gọi listener), listener(128 → 40). Số px là minh họa. */
+  (function () {
+    var m = 'acs';
+    var SC = ['expand', 'after', 'interrupt'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'expand', out = [], t = 0, c = { comp: 0, layout: 0, child: 40, reported: 40 }, target = 40, n = 0;
+      var snip = sc === 'after' ? 'acs_after' : 'acs_expand';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {}; o.params.n = n; o.params.h = c.reported;
+        o.metrics = { comp: c.comp, layout: c.layout, child: c.child, reported: c.reported };
+        o.stateAfter = [{ labelKey: M(m, 'st.child'), value: c.child + ' px' }, { labelKey: M(m, 'st.reported'), value: c.reported + ' px' }, { labelKey: M(m, 'st.target'), value: target + ' px' }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: snip, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 16, kind: o.kind || 'layout', subject: o.activeNodes[0] || 'node', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var LA = sc === 'after' ? 6 : 5, LH = sc === 'after' ? 5 : 6, LN = [5, 6];
+      c.layout = 1;
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['node', 'child'], lines: LN, kind: 'observe', callouts: [{ kind: 'source', textKey: M(m, sc === 'after' ? 'co.constrain' : 'co.first') }] });
+      c.comp++;
+      P('toggle', { activeNodes: ['state', 'child'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: [1, LH, 8], kind: 'recompose' });
+      c.layout++; c.child = 160; target = 160;
+      if (sc === 'after') {
+        c.reported = 160;
+        P('measure.after', { type: 'pitfall', activeNodes: ['node', 'parent'], movingSignals: [{ edge: 'e2', tok: 'ui' }, { edge: 'e3', tok: 'error' }], lines: [5, 6], kind: 'layout', callouts: [{ kind: 'pitfall', textKey: M(m, 'co.constrain') }] });
+      } else {
+        P('measure.anim', { activeNodes: ['node', 'child', 'parent'], movingSignals: [{ edge: 'e2', tok: 'ui' }, { edge: 'e3', tok: 'anim' }], lines: [5, 6], kind: 'layout', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.clip') }] });
+      }
+      var fwd = sc === 'interrupt' ? [85, 128] : [85, 128, 152, 160], from = 40;
+      fwd.forEach(function (v, i) {
+        n++; c.layout++; if (sc !== 'after') c.reported = v;
+        P(sc === 'after' ? 'frame.after' : 'frame.anim', { type: sc === 'after' ? 'pitfall' : 'mechanism', activeNodes: sc === 'after' ? ['node'] : ['node', 'parent'], movingSignals: sc === 'after' ? [] : [{ edge: 'e3', tok: 'anim' }], lines: [LA], kind: 'frame',
+          callouts: i === 0 ? [{ kind: sc === 'after' ? 'pitfall' : 'source', textKey: M(m, sc === 'after' ? 'co.wasted' : 'co.layoutOnly') }] : undefined });
+      });
+      if (sc === 'interrupt') {
+        c.comp++; c.child = 40; target = 40; from = c.reported;
+        P('collapse', { type: 'pitfall', activeNodes: ['state', 'child', 'node'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'ui' }], lines: [1, 6, 8], kind: 'interrupt' });
+        [95, 62, 40].forEach(function (v) {
+          n++; c.layout++; c.reported = v;
+          P('frame.back', { activeNodes: ['node', 'parent'], movingSignals: [{ edge: 'e3', tok: 'anim' }], lines: [5], kind: 'frame' });
+        });
+      }
+      var done = { activeNodes: ['node'], lines: [LA], kind: 'settle', params: { from: from, to: target } };
+      if (sc === 'interrupt') done.callouts = [{ kind: 'source', textKey: M(m, 'co.interrupted') }];
+      if (sc === 'after') done.type = 'pitfall';
+      P('done.' + sc, done);
+      return out;
+    }
+    reg(m, {
+      codeId: 'acs_expand',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'expand' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'đúng thứ tự: bước đo sau khi chạm con 160 nhưng báo 40, cuối báo 160, 1 composition, 6 lượt layout; sai thứ tự: báo 160 ngay; ngắt ở 128: listener(128 → 40), 2 composition', run: function () {
+        var a = steps({ which: 'expand' }), b = steps({ which: 'after' }), d = steps({ which: 'interrupt' });
+        var la = a[a.length - 1], ld = d[d.length - 1];
+        return a[2].metrics.child === 160 && a[2].metrics.reported === 40 && la.metrics.reported === 160 && la.metrics.comp === 1 && la.metrics.layout === 6 &&
+          b[2].metrics.reported === 160 && ld.params.from === 128 && ld.params.to === 40 && ld.metrics.comp === 2 && ld.metrics.reported === 40;
+      } }]
+    });
+  })();
 })();
