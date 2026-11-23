@@ -3,21 +3,22 @@
    Giá trị màu và số đo tương phản: docs/research/global.md mục 5 (WCAG 2.2, công thức luminance; 3 chữ số thập phân).
    Ngưỡng: chữ >= 4.5:1 (1.4.3), non-text >= 3:1 (1.4.11); biên nội bộ 4.55 / 3.10.
    Tối thiểu đã đo (paper / paper-2 / paper-3):
-     light  chữ ink-3 4.561 · token 4.565 (ui) · line-strong 3.126 · focus 3.613 · accent track >= 3.427
+     light  (giấy sáng ấm, 2026-11-24) chữ ink-3 5.221 · token 4.654 (flow) · line-strong 3.375 · focus 4.303 · accent track >= 3.488 · mã >= 4.626
      dark   (giấy tối ấm, 2026-11-24) chữ ink-3 5.332 · token 5.729 (error) · line-strong 3.695 · focus 9.019 · accent track >= 3.472 · mã >= 4.646
    --line (1.3-1.9:1) CHỈ trang trí; viền control và nét sơ đồ có nghĩa dùng --line-strong.
    Chip và chú giải dùng chữ --ink; màu token chỉ ở icon, viền, nét. */
 
 :root {
-  --ink: #0B4F45; --ink-2: #2F6E63; --ink-3: #4C716A;
-  --paper: #FBFCFB; --paper-2: #F1F6F4; --paper-3: #E3EEEA;
-  --line: #B9D3CB; --line-strong: #638D81; --grid-iso: rgba(11, 79, 69, .07);
-  --brand: #0B4F45; --focus: #C25E00; --row-active: #E3EEEA;
-  --tok-state: #925F00; --tok-signal: #B0287A; --tok-runtime: #6236C9; --tok-ui: #0B776D;
+  /* "Giấy sáng ấm" (2026-11-24, đi cặp với dark "Giấy tối ấm"): nền giấy ngà, chữ nâu than; điểm nhấn xanh-lục */
+  --ink: #2E2820; --ink-2: #584F42; --ink-3: #6A6153;
+  --paper: #FDFBF7; --paper-2: #F8F5EE; --paper-3: #F2EDE3;
+  --line: #E0D8C8; --line-strong: #8A7F6C; --grid-iso: rgba(46, 40, 32, .06);
+  --brand: #1E6A50; --focus: #B4530B; --row-active: #F2EDE3;
+  --tok-state: #925F00; --tok-signal: #B0287A; --tok-runtime: #6236C9; --tok-ui: #0A6E65;
   --tok-coroutine: #1D5FD1; --tok-job: #1F793A; --tok-thread: #5B6878; --tok-flow: #587300;
-  --tok-cancel: #AC4E0C; --tok-error: #C42B32; --tok-anim: #0B4F45;
+  --tok-cancel: #AC4E0C; --tok-error: #C42B32; --tok-anim: #1E6A50;
   /* mã: sắc độ gốc One Light (Atom), chỉnh độ sáng cho đủ ≥ 4.6:1 trên --syn-bg và --syn-hl (đo trong docs/design-principles.md) */
-  --syn-bg: #F4F8F6; --syn-hl: #DFEBE6; --syn-fg: #383A42; --syn-ln: #7A8581;
+  --syn-bg: #F8F5EE; --syn-hl: #EFE9DE; --syn-fg: #383A42; --syn-ln: #6F6758;
   --syn-kw: #A626A4; --syn-str: #387137; --syn-esc: #016B98; --syn-num: #895E01;
   --syn-com: #65666D; --syn-ann: #C32B1D; --syn-type: #0B7269; --syn-fn: #1056EF;
   --radius: 4px;
@@ -99,7 +100,7 @@ html.dev .i18n-missing { outline: 2px dashed var(--tok-error); outline-offset: 1
 .searchbox .ph { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ctx-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .ctx-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--paper); text-decoration: none; font-size: 13px; }
-.ctx-chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); font-weight: 700; }
+.ctx-chip.on { background: var(--brand); color: var(--paper); border-color: var(--brand); font-weight: 700; }
 .toplinks { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-left: auto; font-size: 13px; }
 .toplinks a.on { font-weight: 800; text-decoration-thickness: 3px; }
 .foot { padding: 20px 16px 28px; color: var(--ink-2); font-size: 13px; border-top: 1px solid var(--line); margin-top: 32px; }
@@ -125,11 +126,11 @@ html.dev .i18n-missing { outline: 2px dashed var(--tok-error); outline-offset: 1
 .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; background: var(--paper); }
 .seg-b { min-height: 36px; min-width: 40px; padding: 4px 12px; border: 0; background: transparent; color: var(--ink); font: 700 13px var(--mono); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
 .seg-b + .seg-b { border-left: 1px solid var(--line-strong); }
-.seg-b.on { background: var(--ink); color: var(--paper); }
+.seg-b.on { background: var(--brand); color: var(--paper); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; min-height: 26px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--paper); font: 12px var(--mono); color: var(--ink); text-decoration: none; }
 .chip.btn { min-height: 32px; cursor: pointer; }
-.chip.on { background: var(--ink); color: var(--paper); font-weight: 700; }
+.chip.on { background: var(--brand); color: var(--paper); border-color: var(--brand); font-weight: 700; }
 .chip b { font-weight: 700; padding-left: 4px; border-left: 1px solid currentColor; }
 .chip.status-draft { border-style: dashed; }
 .chip.status-soon { border-style: dotted; font-weight: 700; }

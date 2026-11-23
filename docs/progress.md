@@ -745,3 +745,8 @@ Trạng thái: `chưa / đang / xong`.
   - Thêm 1 thuật ngữ, 1 preset; nguồn modularization bổ sung G9.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0; routes-check không lỗi; đã xem ảnh ba tình huống (sửa nhãn đè lên hộp).
   - **Dừng phiên ở đây** (hạn mức 5 giờ gần ngưỡng). Đã push mọi commit. Tiếp theo: G10 (kiểm thử theo tầng), G11, G0, rồi chuyển track G sang stable và thêm cầu nối còn thiếu.
+- **Theme sáng "Giấy sáng ấm" và màu nút (2026-11-24, người dùng yêu cầu khớp với dark ấm):**
+  - Theme sáng đổi sang nền giấy ngà, chữ nâu than, điểm nhấn xanh-lục; chỉnh `--tok-ui` và `--syn-ln` cho đủ tương phản.
+  - Nút và chip đang chọn dùng màu nhấn `--brand` thay cho `--ink` ở cả hai theme.
+  - Số đo ghi ở `docs/research/global.md` §5.y.
+  - Kiểm: report 0 lỗi, 120 cảnh báo; đã xem ảnh chương K8 ở cả hai theme.

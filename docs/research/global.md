@@ -366,6 +366,32 @@ Người dùng thấy dark xanh-lục cũ khó nhìn, nên đã chọn mẫu 3 t
 - Chữ `--paper` trên nền `--brand`: 10.394.
 - Accent track (thấp nhất trên ba nền): #2F83BE 3.857, #398D62 3.894, #3D7F8A 3.472, #78842C 3.875, #946BC4 3.893, #B46D24 3.889, #C75976 3.863. Ngưỡng là ≥ 3.427; vì thế nền được chọn tối hơn bản nháp `#1C1A16` / `#23211C` / `#2D2A24`, bản nháp đó đưa accent `#3D7F8A` xuống 3.13.
 
+### 5.y Theme sáng "Giấy sáng ấm" và nút đang chọn (2026-11-24)
+
+Người dùng muốn theme sáng và màu nút khớp với dark "Giấy tối ấm".
+
+**Bảng màu sáng:**
+- Nền: paper `#FDFBF7`, paper-2 `#F8F5EE`, paper-3 `#F2EDE3`.
+- Chữ: ink `#2E2820`, ink-2 `#584F42`, ink-3 `#6A6153`.
+- Đường: line-strong `#8A7F6C` (line `#E0D8C8` chỉ để trang trí).
+- Điểm nhấn: brand `#1E6A50`, focus `#B4530B`.
+- Màu mã: `--syn-bg` `#F8F5EE`, `--syn-hl` `#EFE9DE`, `--syn-ln` `#6F6758`.
+- Token: `--tok-ui` `#0A6E65`, `--tok-anim` `#1E6A50`.
+
+**Tối thiểu đo trên ba nền:**
+
+| Mục | Tỉ lệ |
+|---|---|
+| ink-3 | 5.221 |
+| line-strong | 3.375 |
+| focus | 4.303 |
+| brand | 5.568 |
+| token (flow) | 4.654 |
+| màu tô mã (syn-ln) | 4.626 |
+| accent track | ≥ 3.488 |
+
+**Nút đang chọn:** `.seg-b.on`, `.chip.on`, `.ctx-chip.on` dùng nền `--brand` thay vì `--ink`, để khớp nút chính (Phát) ở cả hai theme. Chữ `--paper` trên `--brand` đạt 6.125 ở theme sáng và 10.394 ở theme tối.
+
 ## 6. Font và dấu tiếng Việt
 
 Stack (từ `STYLE-REFERENCE` 4.1): `ui-monospace, "Cascadia Mono", "Cascadia Code", Consolas, "SF Mono", "Roboto Mono", "Noto Sans Mono", monospace`.
