@@ -522,15 +522,18 @@
     var vsKey = 'vs:' + key; cur.viewStates[vsKey] = cur.viewStates[vsKey] || { canvasTab: 'diagram', sideTab: 'explain', mtab: 'diagram' };
     if (startPos != null) S.goto(startPos);
     var onQuiz = function () { var q = document.getElementById('quiz'); if (q) q.scrollIntoView({ behavior: ADE.motionReduced() ? 'auto' : 'smooth' }); };
+    // Goal và tiến độ chương chỉ gắn với sim từng bước ĐẦU TIÊN của chương (goal được viết theo các bước của sim đó);
+    // tab khác vẫn chạy bình thường nhưng không hiện goal và không ghi tiến độ, để bước của nó không đánh dấu nhầm goal.
+    var primary = !!chapter && (chapter.sims || []).filter(function (id) { var d = ADE.models[id]; return d && d.kind !== 'compute'; })[0] === modelId;
     var m = ui.mountSim(slot, {
       session: S, trackId: trackId, modelId: modelId, mode: mode, viewState: cur.viewStates[vsKey],
-      goals: chapter ? function () {
+      goals: primary ? function () {
         var pg = getProg(trackId, chapter.id), mx = Math.max(pg.max, S.maxPos), N = S.N || 0;
         return chapter.goals.map(function (g) { return { id: g.id, text: ADE.t(ADE.chapterKey(trackId, chapter.id, 'goal.' + g.id)), done: g.step === 'end' ? (pg.done || mx > N) : mx >= g.step }; });
       } : null,
       onQuiz: chapter ? onQuiz : null,
       onPos: function (pos) {
-        if (chapter) saveProg(trackId, chapter.id, pos, S.N);
+        if (primary) saveProg(trackId, chapter.id, pos, S.N);
         var rr = ADE.router.parse();
         if (mode === 'live') { rr.query = rr.query || {}; rr.query.step = pos || ''; ADE.router.replace(ADE.router.build(rr)); }
         else { rr.step = pos; ADE.router.replace(ADE.router.build(rr)); }
@@ -560,7 +563,12 @@
       var simSel = cur.viewStates['sim:' + t.id + '/' + c.id] || (cur.viewStates['sim:' + t.id + '/' + c.id] = { idx: 0 });
       var slot = h('div', { class: 'stage-slot' });
       if (c.sims.length > 1) {
-        wrap.appendChild(ui.tabs(c.sims.map(function (s, k) { return { id: String(k), label: ADE.hasKey(ADE.chapterKey(t.id, c.id, 'sim.' + s)) ? ADE.t(ADE.chapterKey(t.id, c.id, 'sim.' + s)) : s }; }), String(simSel.idx), function (id) { simSel.idx = parseInt(id, 10); rerender(); }, ADE.t('app.sims')));
+        wrap.appendChild(ui.tabs(c.sims.map(function (s, k) { return { id: String(k), label: ADE.hasKey(ADE.chapterKey(t.id, c.id, 'sim.' + s)) ? ADE.t(ADE.chapterKey(t.id, c.id, 'sim.' + s)) : s }; }), String(simSel.idx), function (id) {
+          simSel.idx = parseInt(id, 10);
+          // bước trên URL thuộc tab cũ: bỏ đi để tab mới không nhảy tới bước của tab kia
+          var rr = ADE.router.parse(); rr.step = null; ADE.router.replace(ADE.router.build(rr));
+          rerender();
+        }, ADE.t('app.sims')));
       }
       wrap.appendChild(slot);
       mountStage(slot, t.id, c, c.sims[Math.min(simSel.idx, c.sims.length - 1)], 'guided', r.step != null ? r.step : null);

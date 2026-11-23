@@ -116,6 +116,13 @@
     edges: [E('e1', 'test', 'recomposer'), E('e2', 'test', 'clock'), E('e3', 'clock', 'anim'), E('e4', 'clock', 'recomposer')],
     metrics: [T('clockstart', 'clock'), T('clockstart', 'frames'), T('clockstart', 'play')]
   });
+  /* C0 (v2): nhu cầu → câu hỏi của cây → API → chương. */
+  V('tree', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('tree', 'need', 0, 0, 'target', 'state'), N('tree', 'question', 4, 0, 'layers', 'runtime'), N('tree', 'api', 8, 0, 'motion', 'anim'), N('tree', 'chapter', 12, 0, 'phone', 'ui')],
+    edges: [E('e1', 'need', 'question'), E('e2', 'question', 'api'), E('e3', 'api', 'chapter')],
+    metrics: [T('tree', 'depth')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

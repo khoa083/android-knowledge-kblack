@@ -15,7 +15,7 @@ Mỗi khối có comment `<!-- track: <id> -->`. Thêm track = thêm khối này
 - Nạp chuỗi bằng `ADE.addTrackStrings('<id>', 'vi'|'en', { 'track.<id>.…': '…' })`. Khoá phẳng; ngoài `track.<id>.*` bị từ chối; khoá trùng bị từ chối.
 - Quy ước khoá của **chương** `c` (cơ sở `track.<id>.<c>`):
   - `.title` (= `titleKey` trong manifest), `.essence` (nhiều dòng `\n` → nhiều đoạn, bắt buộc),
-  - `.goal.<gid>` (khớp `goals:[{id, step:n|'end'}]` trong manifest),
+  - `.goal.<gid>` (khớp `goals:[{id, step:n|'end'}]` trong manifest). `step` là vị trí 1-based trong sim **từng bước đầu tiên** của `sims` (bỏ qua lab kiểu `compute`): chỉ tab đó hiện danh sách goal và ghi tiến độ chương; các tab khác vẫn chạy nhưng không đánh dấu goal (2026-11-23). Đổi tab thì số bước trên URL bị bỏ, tab mới mở ở trang tổng quan.
   - `.sec.<s>.title`, `.sec.<s>.p.<n>`, `.sec.<s>.badge` (các key nhãn cách nhau bằng dấu cách), `.sec.<s>.code` (id đoạn mã từ `code.js`),
   - `.quiz.<q>.q|a|why`,
   - `.sim.<modelId>` (nhãn tab khi chương có nhiều sim).

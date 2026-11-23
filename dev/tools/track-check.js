@@ -14,6 +14,8 @@
     for (let k = 0; k < nSims; k++) {
       location.hash = '#/' + lang() + '/' + tid + '/' + c.id + '/1'; await wait(250);
       if (k > 0) { const tabs = [...document.querySelectorAll('#main [role=tablist]')[0].querySelectorAll('[role=tab]')]; if (tabs[k]) { tabs[k].click(); await wait(250); } }
+      // đổi tab bỏ số bước trên URL (app.js): tab mới mở ở trang tổng quan → bấm "Bắt đầu"
+      { const st = document.querySelector('[data-fk=start]'); if (st && !document.querySelector('[data-fk=nav-next]')) { st.click(); await wait(150); } }
       const nextBtn = () => document.querySelector('[data-fk=nav-next]');
       let pos = 1, guard = 0, maxN = 0;
       while (nextBtn() && !nextBtn().disabled && guard++ < 200) {
@@ -60,6 +62,7 @@
       // focus sau khi bấm Tiếp
       location.hash = '#/' + lang() + '/' + tid + '/' + c.id + '/1'; await wait(200);
       if (k > 0) { const tabs = [...document.querySelectorAll('#main [role=tablist]')[0].querySelectorAll('[role=tab]')]; if (tabs[k]) { tabs[k].click(); await wait(200); } }
+      { const st = document.querySelector('[data-fk=start]'); if (st && !document.querySelector('[data-fk=nav-next]')) { st.click(); await wait(150); } }
       const nb = nextBtn(); let focusOk = true;
       if (nb && !nb.disabled) { nb.focus(); nb.click(); await wait(60); focusOk = document.activeElement && document.activeElement.tagName !== 'BODY'; }
       // đổi ngôn ngữ giữa chừng

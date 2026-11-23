@@ -957,4 +957,55 @@
       } }]
     });
   })();
+
+  /* ================= C0 (v2): đi theo cây quyết định của trang choose-api (cấu trúc đọc từ HTML 2026-11-23) =================
+     Mỗi nhu cầu là một đường đi: danh sách [câu hỏi, có/không] rồi API. */
+  (function () {
+    var m = 'tree';
+    var PATHS = {
+      icon: [['art', 1], ['svg', 1]],
+      spinner: [['art', 0], ['infinite', 1]],
+      screen: [['art', 0], ['infinite', 0], ['layout', 1], ['switch', 1], ['nav', 1]],
+      expand: [['art', 0], ['infinite', 0], ['layout', 1], ['switch', 0], ['appear', 0], ['size', 1]],
+      together: [['art', 0], ['infinite', 0], ['layout', 0], ['multi', 1], ['indep', 0], ['together', 1]],
+      swipe: [['art', 0], ['infinite', 0], ['layout', 0], ['multi', 0], ['target', 0], ['gesture', 1]]
+    };
+    var API = { icon: 'AnimatedVectorDrawable', spinner: 'rememberInfiniteTransition', screen: 'composable() + enter/exitTransition', expand: 'Modifier.animateContentSize', together: 'updateTransition', swipe: 'Animatable' };
+    var CH = { icon: 'cv', spinner: 'if', screen: 'c4 · se', expand: 'c5', together: 'c3', swipe: 'c6' };
+    var SC = Object.keys(PATHS);
+    function steps(s) {
+      var sc = PATHS[s.which] ? s.which : 'icon', out = [], t = 0, depth = 0, ans = '—', api = '—';
+      var P = function (titleKey, explainKey, o) {
+        o.id = 'st' + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, titleKey); o.explainKey = M(m, explainKey);
+        o.params = o.params || {};
+        o.metrics = { depth: depth };
+        o.stateAfter = [{ labelKey: M(m, 'st.answer'), value: ans }, { labelKey: M(m, 'st.api'), value: api }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'choose', lines: [] };
+        o.logEvents = [{ t: t++, kind: o.kind || 'observe', subject: o.activeNodes[0] || 'need', detailKey: M(m, o.ev), params: o.params }]; delete o.kind; delete o.ev;
+        out.push(o);
+      };
+      P('s.intro.' + sc + '.title', 's.intro.' + sc + '.explain', { type: 'scenario', activeNodes: ['need'], ev: 'ev.intro.' + sc, callouts: [{ kind: 'source', textKey: M(m, 'co.tree') }] });
+      PATHS[sc].forEach(function (q, i) {
+        depth++; ans = q[1] ? '✓' : '✗';
+        P('s.q.' + q[0] + '.title', q[1] ? 's.ans.yes' : 's.ans.no', { activeNodes: ['need', 'question'], movingSignals: [{ edge: 'e1', tok: q[1] ? 'state' : 'runtime' }], kind: 'act', ev: 'ev.q.' + q[0] });
+      });
+      ans = '—'; api = API[sc];
+      P('s.api.' + sc + '.title', 's.api.' + sc + '.explain', { activeNodes: ['api', 'chapter'], movingSignals: [{ edge: 'e2', tok: 'anim' }, { edge: 'e3', tok: 'ui' }], kind: 'settle', ev: 'ev.api.' + sc,
+        params: { ch: CH[sc] }, callouts: sc === 'together' || sc === 'expand' ? [{ kind: 'mechanism', textKey: M(m, 'co.overlap') }] : undefined });
+      return out;
+    }
+    reg(m, {
+      codeId: 'choose',
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'icon' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'mỗi nhu cầu đi đúng số câu hỏi của cây rồi tới API; nút đổi nhiều thuộc tính → updateTransition qua 6 câu; thẻ kéo → Animatable', run: function () {
+        return SC.every(function (k) { var x = steps({ which: k }); return x.length === PATHS[k].length + 2 && x[x.length - 1].stateAfter[1].value === API[k]; }) &&
+          steps({ which: 'together' }).length === 8 && steps({ which: 'swipe' })[7].stateAfter[1].value === 'Animatable';
+      } }]
+    });
+  })();
 })();

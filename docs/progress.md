@@ -520,4 +520,11 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.clockstart` (tự tiến, bỏ làm tròn, autoAdvance). 2 nguồn mới (`ui-testclock-src`, `an-tooling`), đều HTTP 200.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 120 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Tiếp theo:** c0 (chọn API theo cây quyết định choose-api; viết cuối cùng), rồi sang UX v2 / UI v2 (đọc mục lục sách trước).
+- **Animation v2 · C0 viết lại (2026-11-23), Animation v2 hoàn tất 13 chương:**
+  - Nội dung (`animation_v2_c0.py`, giữ mục v1 `pairs` và sim `animation.choose` làm tab thứ hai): bản đồ track và thứ tự đọc, cây quyết định chọn API theo trang choose-api (cấu trúc lồng nhau đọc từ HTML; ghi chú CapturedAnimatedVisibility và TextMotion.Animated chưa giảng), chỉ mục triệu chứng → chương, ghi chú trung thực; tự trả lời 2 câu, quiz thêm q3, q4.
+  - Sim mới `animation.tree` (6 nhu cầu đi theo cây tới API và chương).
+- **Lõi: goal và tiến độ chương gắn với sim từng bước đầu tiên (2026-11-23, người dùng hỏi về điểm nợ goal của C1–C3):**
+  - Kiểm lại: điểm nợ cũ vô hại (tab lab kiểu compute không hiện goal, không ghi tiến độ). Lỗi thật: chương có HAI tab từng bước (38 chương có ≥ 2 sim ở mọi track) thì tab thứ hai cũng ghi `progress.max/done` chung và hiện danh sách goal viết cho tab đầu, nên goal có thể bị đánh dấu nhầm.
+  - Sửa `app.js` (`mountStage`): chỉ sim từng bước ĐẦU TIÊN trong `chapter.sims` hiện goal và gọi `saveProg`; các chương UX có tab đầu là lab (d1, d7, d9) dùng sim từng bước kế tiếp. Đổi tab thì bỏ số bước trên URL để tab mới không nhảy theo bước của tab cũ.
+  - Kiểm bằng script trong trang: tab 2 của c3 không hiện goal, đi 3 bước ở tab 2 không ghi tiến độ, tab 1 ghi đúng.
 

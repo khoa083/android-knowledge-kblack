@@ -239,3 +239,11 @@ Nguồn chính: AAT Ch.1–5 (PDF, đọc bằng pdftotext) và trang Property A
 | Animation Inspector (sách): chỉ khi có Transition, label thành tên tab | Essentials 40.10 | Ví dụ sách (phiên bản cũ) |
 | Ghi chú v1 "16 ms là minh họa" sửa thành có nguồn (KDoc) | `ui-testclock-src` | sửa |
 | Sim `animation.clockstart`: play time 250 ở autoAdvance làm tròn cho dễ đọc | Minh họa | ghi trong simp |
+
+### C0 v2 · Bản đồ track và chọn API (2026-11-23)
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Cây quyết định: hình (SVG đơn giản → AVD; phức tạp → Lottie) → vô hạn → layout? (đổi nội dung: Navigation → composable() enter/exitTransition, không → AnimatedContent/Crossfade/Pager; xuất hiện: AnimatedVisibility/CapturedAnimatedVisibility/animateFloatAsState + alpha; kích thước: animateContentSize; thuộc tính layout khác → nhánh nhiều thuộc tính; list: animateItem) → không phải layout: nhiều thuộc tính (độc lập → animate*AsState, TextMotion.Animated cho Text; cùng lúc → updateTransition; khác lúc → Animatable) / một thuộc tính (đích định trước → animate*AsState; cử chỉ → Animatable; một lần → AnimationState/animate) | `an-choose` (cấu trúc lồng nhau đọc từ HTML 2026-11-23) | guideline |
+| CapturedAnimatedVisibility, TextMotion.Animated: site chưa giảng chi tiết | `an-choose` | ghi rõ trong bài |
+| Sim `animation.tree`: 6 nhu cầu mẫu đi đúng đường của cây | `an-choose` | selfCheck |
