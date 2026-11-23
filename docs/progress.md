@@ -529,4 +529,6 @@ Trạng thái: `chưa / đang / xong`.
   - Kiểm bằng script trong trang: tab 2 của c3 không hiện goal, đi 3 bước ở tab 2 không ghi tiến độ, tab 1 ghi đúng.
 - **UX v2 · dàn chương (2026-11-23):** đọc mục lục thật của Norman, Krug, Whalen, Albert & Tullis, Podmajersky, Metts & Welfle, Greever, Wendel, Design Sprint, Design Thinking Playbook; ghi dàn 15 chương vào `roadmap-v2.md` (giữ d0–d10, thêm sm, kr, wx, ad). Chưa viết chương nào.
   - **Tiếp theo:** kiểm cơ chế module v2 của generator UX, rồi viết d1 theo thứ tự trong roadmap.
+- **UI v2 · dàn chương (2026-11-23):** đọc mục lục thật của Tidwell, Neil, MacDonald, Williams, App Design Apprentice; ghi dàn 14 chương vào `roadmap-v2.md` (giữ e0–e10, thêm ia, dv, ap). Mục lục Lupton chưa trích được, ghi rõ phải đọc trước E2.
+  - **Tiếp theo (thứ tự đề nghị):** UX v2 d1 (kiểm cơ chế module v2 của `dev/gen/ux_content.py` trước), rồi theo thứ tự UX trong roadmap; UI v2 sau UX.
 

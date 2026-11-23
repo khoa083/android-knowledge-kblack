@@ -242,6 +242,37 @@ Thứ tự viết: d1 → sm → d2 → d3 → kr → d4 → d5 → d6 → d7 �
 
 **Việc kỹ thuật trước chương đầu:** kiểm `dev/gen/ux_content.py` (hoặc file sinh nội dung UX tương ứng) có cơ chế module v2 (`for mod in (...)`, add/override/SEC_ORDER) chưa; nếu chưa thì thêm như Runtime/Animation. Chương mới thêm vào manifest theo đúng thứ tự trên; goal `step` tính theo sim từng bước đầu tiên của chương.
 
+### UI v2: dàn chương ĐÃ đối chiếu mục lục sách (2026-11-23)
+
+**Mục lục thật đã đọc:**
+- Tidwell và cộng sự, *Designing Interfaces* (3rd ed.): Ch.1 Designing for People; Ch.2 Organizing the Content (IA, cấu trúc ứng dụng); Ch.3 Getting Around (điều hướng, signpost, wayfinding); Ch.4 Layout of Screen Elements; Ch.5 Visual Style and Aesthetics; Ch.6 Mobile Interfaces; Ch.7 Lists of Things; Ch.8 Doing Things (actions, commands); Ch.9 Showing Complex Data; Ch.10 Getting Input (forms, controls); Ch.11 UI Systems and Atomic Design; Ch.12 Beyond and Behind the Screen.
+- Neil, *Mobile Design Pattern Gallery*: Ch.1 Navigation; Ch.2 Forms; Ch.3 Tables; Ch.4 Search, Sort, Filter; Ch.5 Tools; Ch.6 Charts; Ch.7 Tutorials and Invitations; Ch.8 Social; Ch.9 Feedback and Affordance; Ch.10 Help; Ch.11 Anti-Patterns.
+- MacDonald, *Practical UI Patterns for Design Systems*: Ch.1 Introducing UI patterns; Ch.2 Tap into patterns; Ch.3 Deciding which pattern to use and when; Ch.4 Patterns in design systems; Ch.5 Anti-patterns and dark patterns; Ch.6 Mixing and matching patterns.
+- Williams, *The Non-Designer's Design Book*: Ch.1–6 bốn nguyên tắc (proximity, alignment, repetition, contrast) và ôn tập; Ch.7 Color; Ch.8 Extra tips; Ch.9–12 typography (essentials, type & life, categories, type contrasts); Ch.13 Does it make sense?
+- *App Design Apprentice* (Kodeco, 2nd ed., PDF): Ch.3 App teardowns; Ch.4 Wireframing & screen layout; Ch.5 Reusable elements & data; Ch.6 Typography; Ch.7 Colors; Ch.8 Design systems; Ch.9 Transitions & animations; Ch.10 Feedback & testing (Ch.1–2 là tổng quan và Figma).
+- Chưa đọc được mục lục: Lupton, *Thinking with Type* (PDF, pdftotext không trích được tiêu đề ở các trang 5–12); phải đọc trước khi dùng cho E2.
+
+**Dàn chương.** Giữ id v1 (e0–e10); thêm 3 chương mới. Nguồn chính thức cho Android: Material 3 và tài liệu Compose (theme, color roles, type scale, window size classes, accessibility); sách là nguồn giảng chính cho nguyên lý và pattern. Framework của tác giả (CRAP của Williams, atomic design trong Tidwell Ch.11) ghi tên tác giả; "định luật" (Fitts) là heuristic có giới hạn và có ví dụ tính.
+
+| Thứ tự | Id | Chương | Nguồn chính |
+|---|---|---|---|
+| 1 | e0 | Bản đồ UI (viết CUỐI CÙNG) | Tidwell Ch.1; App Design Apprentice Ch.3 (teardown) |
+| 2 | e1 | Nguyên lý thị giác: proximity, alignment, repetition, contrast; Gestalt; phân cấp | Williams Ch.1–6, Ch.13; Tidwell Ch.5 |
+| 3 | e2 | Typography: type scale, độ dễ đọc, chữ tiếng Việt | Williams Ch.9–12; App Design Apprentice Ch.6; Lupton (sau khi đọc mục lục); M3 type scale |
+| 4 | e3 | Màu: color roles, dynamic color, tương phản | Williams Ch.7; App Design Apprentice Ch.7; M3 color roles; WCAG |
+| 5 | e4 | Bố cục, khoảng cách, giao diện thích ứng | Tidwell Ch.4, Ch.6; App Design Apprentice Ch.4; window size classes |
+| 6 | **ia** (mới) | Kiến trúc thông tin và điều hướng | Tidwell Ch.2–3; Neil Ch.1; nối UX `kr` (Krug Ch.6) |
+| 7 | e5 | Kích thước mục tiêu chạm và Fitts's law | spec E5; M3 touch target; Tidwell Ch.6 |
+| 8 | e6 | Component và trạng thái tương tác | Tidwell Ch.8; Neil Ch.9; App Design Apprentice Ch.5 |
+| 9 | e7 | Pattern: danh sách, form, tìm/sắp/lọc, onboarding, trợ giúp; chọn pattern | Tidwell Ch.7, Ch.10; Neil Ch.2–5, Ch.7, Ch.10; MacDonald Ch.1–3, Ch.6 |
+| 10 | **dv** (mới) | Dữ liệu phức tạp và biểu đồ trên màn hình nhỏ | Tidwell Ch.9; Neil Ch.3, Ch.6 |
+| 11 | **ap** (mới) | Anti-pattern và dark pattern | Neil Ch.11; MacDonald Ch.5; nối UX d5 (đạo đức) |
+| 12 | e8 | Design system và token → `MaterialTheme` | Tidwell Ch.11; MacDonald Ch.4; App Design Apprentice Ch.8; M3 theming |
+| 13 | e9 | Chuyển động có mục đích | App Design Apprentice Ch.9; nối track Animation (C0, C8) |
+| 14 | e10 | Accessibility trong UI Compose | spec E10; tài liệu accessibility Compose; nối Runtime B9 |
+
+Thứ tự viết: e1 → e2 → e3 → e4 → ia → e5 → e6 → e7 → dv → ap → e8 → e9 → e10 → e0.
+
 ### UX v2 / UI v2 (track D, E mở rộng) (dàn nháp cũ, giữ để đối chiếu)
 - **UX:**
   - Norman: affordance, signifier, mapping, feedback, mô hình tư duy, hai vịnh (gulf of execution/evaluation), phân loại lỗi.
