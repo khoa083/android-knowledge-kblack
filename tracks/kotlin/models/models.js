@@ -514,6 +514,42 @@
         { name: 'Java truyền null cho tham số non-null: kiểm tra Kotlin chèn vào ném NPE ngay khi gọi', run: function () { var c = steps({ case: 'nullFromJava' })[2]; return c.metrics.call === M(m, 'call.npe') && c.nodeStates.jvm === K + 'st.crashed'; } }] });
   })();
 
+  /* ================= K0: bản đồ track — từ một triệu chứng tới lúc nó xảy ra, cơ chế gây ra, và chương cần đọc =================
+     Chỉ tổng hợp những gì các chương K1–K13 đã viết (có nguồn ở từng chương); không có khẳng định mới. */
+  (function () {
+    var m = 'map';
+    // [triệu chứng, chương, lúc nào: compile | runtime | silent]
+    var SYM = [['intDiv', 'k1', 'silent'], ['smartCast', 'k2', 'compile'], ['initNpe', 'k3', 'runtime'], ['hashLost', 'k4', 'silent'], ['elseBranch', 'k5', 'silent'],
+      ['swallowed', 'k6', 'silent'], ['listChanged', 'k7', 'silent'], ['forEachReturn', 'k8', 'silent'], ['seqNothing', 'k9', 'silent'], ['castLater', 'k10', 'runtime'],
+      ['lazyTwice', 'k11', 'runtime'], ['applyNested', 'k12', 'silent'], ['javaCall', 'k13', 'compile']];
+    var IDS = SYM.map(function (x) { return x[0]; });
+    ADE.kotlinMap = SYM;
+    var PH = { compile: 'broken', runtime: 'crashed', silent: 'surprise' };
+    function steps(s) {
+      var row = SYM.filter(function (x) { return x[0] === s.symptom; })[0] || SYM[0], id = row[0], ch = row[1], ph = row[2];
+      var met = function (i) { return { phase: i >= 1 ? M(m, 'phase.' + ph) : M(m, 'phase.none'), chapter: i >= 3 ? M(m, 'ch.' + ch) : M(m, 'ch.none') }; };
+      var st = function (o, i, type, nodes, ns0, kind, subj, titleKey, explainKey, edge) {
+        var ns = {}; Object.keys(ns0).forEach(function (n) { ns[n] = K + 'st.' + ns0[n]; });
+        o = S(m, id + '.' + ['start', 'first', 'next', 'end'][i], { type: type, activeNodes: nodes, nodeStates: ns, metrics: met(i), titleKey: titleKey, explainKey: explainKey,
+          movingSignals: edge ? [{ edge: edge, tok: type === 'pitfall' ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: kind, subject: subj, detailKey: titleKey }] });
+        return o;
+      };
+      var a = st(null, 0, 'scenario', ['symptom'], {}, 'observe', 'symptom', M(m, 's.' + id + '.title'), M(m, 's.' + id + '.detail'), null);
+      a.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+      var b = st(null, 1, 'mechanism', ['symptom', 'phase'], { phase: PH[ph] }, ph === 'compile' ? 'check' : 'run', 'phase', M(m, 'phase.' + ph), M(m, 'phase.' + ph + '.explain'), 'e1');
+      var c = st(null, 2, 'pitfall', ['phase', 'cause'], { phase: PH[ph], cause: 'done' }, 'observe', 'cause', M(m, 's.' + id + '.cause'), M(m, 's.' + id + '.causeDetail'), 'e2');
+      c.callouts = [{ kind: 'pitfall', textKey: M(m, 'co.cause') }];
+      var d = st(null, 3, 'mechanism', ['cause', 'chapter'], { phase: PH[ph], cause: 'done', chapter: 'done' }, 'complete', 'chapter', M(m, 'go.' + ch), M(m, 's.' + id + '.fix'), 'e3');
+      d.callouts = [{ kind: 'mechanism', textKey: M(m, 'co.chapter') }];
+      return [a, b, c, d];
+    }
+    reg(m, { controls: [sel(m, 'symptom', IDS)], init: function () { return { symptom: 'forEachReturn' }; }, act: setter(['symptom']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi triệu chứng có 4 bước và trỏ tới một chương', run: function () { return IDS.every(function (k) { var st = steps({ symptom: k }); return st.length === 4 && st[3].metrics.chapter !== M(m, 'ch.none'); }); } },
+        { name: 'mọi chương K1–K13 đều có ít nhất một triệu chứng, và chương đó có trong manifest', run: function () { var t = ADE.getTrack && ADE.getTrack('kotlin'), chs = t ? t.chapters.map(function (c) { return c.id; }) : null; for (var i = 1; i <= 13; i++) { var k = 'k' + i; if (!SYM.some(function (x) { return x[1] === k; })) return false; if (chs && chs.indexOf(k) < 0) return false; } return true; } },
+        { name: 'lúc xảy ra chỉ là một trong ba: biên dịch, lúc chạy, sai lặng lẽ; trạng thái node là khoá st.*', run: function () { return SYM.every(function (x) { return !!PH[x[2]]; }) && steps({ symptom: 'intDiv' })[3].nodeStates.chapter === K + 'st.done'; } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

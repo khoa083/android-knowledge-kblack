@@ -198,3 +198,8 @@ Kiểm URL (curl, HTTP 200): scope-functions, type-safe-builders.
 
 Không khẳng định thư viện cụ thể nào dùng KSP (bỏ câu "như Room/Moshi" vì trang đã đọc không nêu).
 Kiểm URL (curl, HTTP 200): java-to-kotlin-interop, reflection, ksp-overview, API kotlin.contracts.
+
+## K0 · Bản đồ track (2026-11-23, viết cuối, đặt đầu track)
+
+Không có khẳng định mới: mỗi triệu chứng, cơ chế và cách sửa chép lại ý của chương K1–K13 tương ứng (nguồn ở bảng của chương đó). Sim `kotlin.map` có selfCheck kiểm mọi chương K1–K13 đều có ít nhất một triệu chứng và có trong manifest. Mục "Cầu nối" chỉ nhắc lại những gì K5, K6, K8, K10, K11 đã viết (đã bỏ một câu về lambda composable vì chưa có nguồn trong track).
+Track chuyển `status: 'stable'` sau K0.

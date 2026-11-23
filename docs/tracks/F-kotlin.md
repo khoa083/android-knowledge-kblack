@@ -14,7 +14,7 @@
 | prerequisites | [] (Coroutines, Runtime dựa vào track này) |
 | logKinds | dùng lại loại có sẵn trong lõi (`ADE.kinds`), không thêm loại mới: `check`, `run`, `write`, `skip`, `exception`, `complete`, `observe` |
 | labels | `stable`, `version`, `impl`, `simplified`, `guideline` |
-| status | `draft` trong lúc viết (để track-check bấm được chương); `stable` sau k0 |
+| status | `draft` trong lúc viết (để track-check bấm được chương); `stable` sau k0 (đã chuyển 2026-11-23) |
 | Ví dụ xuyên suốt | Ứng dụng hư cấu "Hẹn Khám" (dùng lại mock-app), nhưng góc nhìn là mã Kotlin của app |
 
 ## Nguyên tắc chọn nội dung (cần và đủ)

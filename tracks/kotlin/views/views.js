@@ -58,6 +58,10 @@
   V('jvm', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail' },
     nodes: [N('jvm', 'kotlin', 0, 0, 'source', 'ui'), N('jvm', 'compiler', 3, 0, 'target', 'state'), N('jvm', 'jvm', 6, 0, 'layers', 'runtime'), N('jvm', 'java', 9, 0, 'play', 'job')],
     edges: [E('e1', 'kotlin', 'compiler'), E('e2', 'compiler', 'jvm'), E('e3', 'jvm', 'java')], metrics: [T('jvm', 'sig'), T('jvm', 'call'), T('jvm', 'annot')] });
+  /* K0: triệu chứng → lúc nào xảy ra → cơ chế gây ra → chương cần đọc */
+  V('map', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.collFail' },
+    nodes: [N('map', 'symptom', 0, 0, 'search', 'ui'), N('map', 'phase', 3, 0, 'diamond', 'state'), N('map', 'cause', 6, 0, 'target', 'runtime'), N('map', 'chapter', 9, 0, 'source', 'job')],
+    edges: [E('e1', 'symptom', 'phase'), E('e2', 'phase', 'cause'), E('e3', 'cause', 'chapter')], metrics: [T('map', 'phase'), T('map', 'chapter')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],
