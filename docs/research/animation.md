@@ -226,3 +226,16 @@ Nguồn chính: AAT Ch.1–5 (PDF, đọc bằng pdftotext) và trang Property A
 | durationScale 0 → playTime = durationNanos (frame đầu là cuối); thời gian chia cho tỉ lệ | `an-suspend-src` | impl |
 | Đổi alpha không làm đo lại (sim không có bước đo/đặt) | Suy luận từ phase docs; sim ghi giản lược | simplified |
 | Sim `animation.frameorder`: 0,4 → 0,5; đo/đặt/vẽ đặt ngay sau trong cùng frame là giản lược | Minh họa | selfCheck; ghi trong simp |
+
+### C8 v2 · Kiểm thử, công cụ, giảm chuyển động (2026-11-23)
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Test clock điều khiển recomposition, withFrameNanos, LaunchedEffect; trên Android đo/đặt chạy đồng bộ, vẽ do Choreographer | `ui-testclock-src` (KDoc MainTestClock @296313a4) | impl |
+| Frame gửi cho animation trước recomposition → bật state rồi advanceTimeBy(32) thì play time vẫn 0; frame 16 ms trên JVM | `ui-testclock-src` | impl |
+| advanceTimeBy làm tròn lên bội số frame, ignoreFrameDuration; autoAdvance mặc định true; advanceTimeUntil; điều kiện dựa vào vẽ không đúng trên Android | `ui-testclock-src` | impl |
+| Ví dụ golden, runWithoutImplicitWait từ ui-test 1.12.0-alpha03 | `an-testing` | version |
+| Animation Preview hỗ trợ animate*AsState, Crossfade, rememberInfiniteTransition, AnimatedContent, updateTransition, AnimatedVisibility | `an-tooling` | version |
+| Animation Inspector (sách): chỉ khi có Transition, label thành tên tab | Essentials 40.10 | Ví dụ sách (phiên bản cũ) |
+| Ghi chú v1 "16 ms là minh họa" sửa thành có nguồn (KDoc) | `ui-testclock-src` | sửa |
+| Sim `animation.clockstart`: play time 250 ở autoAdvance làm tròn cho dễ đọc | Minh họa | ghi trong simp |

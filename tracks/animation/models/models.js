@@ -181,7 +181,7 @@
 
   /* ================= C8: test clock (testing) — autoAdvance; advanceTimeBy làm tròn LÊN bội số frame duration ================= */
   var TC = ADE.animTestClock = {};
-  TC.FRAME = 16;     // khoảng frame MINH HỌA của mô hình (tài liệu không ghi con số)
+  TC.FRAME = 16;     // 16 ms theo KDoc của MainTestClock @296313a4 (JVM: Android và Desktop)
   TC.round = function (ms) { return Math.ceil(ms / TC.FRAME) * TC.FRAME; };
   TC.value = function (ms) { return Ph.sample({ from: 0, to: 100, spec: { type: 'tween', duration: 300, easing: 'FastOutSlowIn' } }, ms).value; };
   (function () {
@@ -889,6 +889,71 @@
         var ia = b.findIndex(function (x) { return /^awaiters/.test(x.id); }), ir = b.findIndex(function (x) { return /^recompose/.test(x.id); });
         var lb = b[b.length - 1].metrics, ll = l[l.length - 1].metrics, a0 = z.filter(function (x) { return /^awaiters0/.test(x.id); })[0];
         return ia > 0 && ir > ia && lb.recomp === 1 && lb.draw === 1 && ll.recomp === 0 && ll.draw === 1 && a0.metrics.val === 100 && a0.stateAfter[1].value === 'false';
+      } }]
+    });
+  })();
+
+  /* ================= C8 (v2): đồng hồ test và frame khởi động (MainTestClock.kt @296313a4) =================
+     Frame 16 ms. manual: bật state → frame 16: recompose, lên lịch → frame 32: play 0 → advanceTimeBy(50) làm tròn 64 → play 64.
+     ignore: advanceTimeBy(50, ignoreFrameDuration) → frame 16, 32, 48 → play 16. auto: chờ idle chạy tới cuối (play ≥ 250). */
+  (function () {
+    var m = 'clockstart';
+    var SC = ['manual', 'ignore', 'auto'], FR = 16;
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'manual', out = [], t = 0, clock = 0, frames = 0, play = -1, adv = 0, sees = '—';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = { clock: clock, play: Math.max(play, 0), adv: adv };
+        o.metrics = { clock: clock, frames: frames, play: Math.max(play, 0) };
+        o.stateAfter = [{ labelKey: M(m, 'st.auto'), value: sc === 'auto' ? 'true' : 'false' }, { labelKey: M(m, 'st.play'), value: play < 0 ? '—' : play + ' ms' }, { labelKey: M(m, 'st.sees'), value: sees }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'cs_' + sc, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 5, kind: o.kind || 'frame', subject: o.activeNodes[0] || 'clock', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var frame = function () { frames++; clock += FR; if (play >= 0) play += FR; };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['test', 'clock'], lines: [1], kind: 'observe', callouts: [{ kind: 'source', textKey: M(m, sc === 'auto' ? 'co.auto' : 'co.drives') }] });
+      P('toggle', { activeNodes: ['test', 'recomposer'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: [2], kind: 'target-change' });
+      if (sc === 'auto') {
+        frame();               // frame 1: recompose, lên lịch
+        frame(); play = 0;     // frame 2: play 0
+        while (play < 250) frame();
+        play = 250; sees = 'end';
+        P('idle', { activeNodes: ['clock', 'anim', 'recomposer'], movingSignals: [{ edge: 'e2', tok: 'runtime' }, { edge: 'e3', tok: 'anim' }], lines: [3], kind: 'settle' });
+        P('done.auto', { activeNodes: ['test'], lines: [3], kind: 'observe' });
+        return out;
+      }
+      if (sc === 'manual') {
+        frame();
+        P('f1', { activeNodes: ['clock', 'recomposer'], movingSignals: [{ edge: 'e2', tok: 'runtime' }, { edge: 'e4', tok: 'runtime' }], lines: [3], kind: 'recompose' });
+        frame(); play = 0; sees = 't=0';
+        P('f2', { activeNodes: ['clock', 'anim'], movingSignals: [{ edge: 'e3', tok: 'anim' }], lines: [3], kind: 'frame', callouts: [{ kind: 'source', textKey: M(m, 'co.twoframes') }] });
+        adv = Math.ceil(50 / FR) * FR;
+        for (var k = 0; k < adv / FR; k++) frame();
+        sees = 't=' + play + ' ms';
+        P('adv', { activeNodes: ['clock', 'anim'], movingSignals: [{ edge: 'e3', tok: 'anim' }], lines: [4], kind: 'frame', callouts: [{ kind: 'source', textKey: M(m, 'co.round') }] });
+        P('done.manual', { activeNodes: ['test'], lines: [5], kind: 'observe' });
+        return out;
+      }
+      // ignore: tiến đúng 50 ms; frame chỉ ở 16, 32, 48
+      frame(); frame(); play = 0; frame(); clock = 50; sees = 't=' + play + ' ms';
+      P('advIgnore', { type: 'pitfall', activeNodes: ['clock', 'anim'], movingSignals: [{ edge: 'e3', tok: 'anim' }], lines: [3], kind: 'frame' });
+      P('done.ignore', { type: 'pitfall', activeNodes: ['test'], lines: [4], kind: 'observe' });
+      return out;
+    }
+    reg(m, {
+      codeId: 'cs_manual',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'manual' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'tự tiến: sau 32 ms thời gian chơi = 0; advanceTimeBy(50) tiến 64 → thời gian chơi 64; bỏ làm tròn: đồng hồ 50, 3 frame, thời gian chơi 16; autoAdvance: test thấy giá trị cuối', run: function () {
+        var a = steps({ which: 'manual' }), b = steps({ which: 'ignore' }), c = steps({ which: 'auto' });
+        var f2 = a.filter(function (x) { return /^f2/.test(x.id); })[0], la = a[a.length - 1], lb = b[b.length - 1], lc = c[c.length - 1];
+        return f2.metrics.clock === 32 && f2.metrics.play === 0 && la.params.adv === 64 && la.metrics.play === 64 &&
+          lb.metrics.clock === 50 && lb.metrics.frames === 3 && lb.metrics.play === 16 && lc.stateAfter[2].value === 'end';
       } }]
     });
   })();

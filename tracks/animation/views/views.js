@@ -109,6 +109,13 @@
     edges: [E('e1', 'vsync', 'recomposer'), E('e2', 'recomposer', 'anim'), E('e3', 'anim', 'recomposer'), E('e4', 'recomposer', 'ui')],
     metrics: [T('frameorder', 'recomp'), T('frameorder', 'draw'), T('frameorder', 'val')]
   });
+  /* C8 (v2): bài test → đồng hồ test → animation (trước) → recomposition. */
+  V('clockstart', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('clockstart', 'test', 0, 0, 'target', 'state'), N('clockstart', 'clock', 4, 0, 'frame', 'runtime'), N('clockstart', 'anim', 8, -3, 'motion', 'anim'), N('clockstart', 'recomposer', 8, 3, 'layers', 'runtime')],
+    edges: [E('e1', 'test', 'recomposer'), E('e2', 'test', 'clock'), E('e3', 'clock', 'anim'), E('e4', 'clock', 'recomposer')],
+    metrics: [T('clockstart', 'clock'), T('clockstart', 'frames'), T('clockstart', 'play')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

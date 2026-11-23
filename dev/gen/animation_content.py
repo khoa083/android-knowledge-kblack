@@ -258,7 +258,7 @@ m(M, 'co.x3', 'Animation tiến theo frame clock (cầu nối X3, chương B5); 
 M = 'testclock'
 common(M, ('Đồng hồ test và giá trị trung gian', 'The test clock and intermediate values'), ('Một tween 300 ms (FastOutSlowInEasing) từ 0 tới 100 trong test. Tắt autoAdvance và nhảy tới 0/25/50/75/100% thời lượng.', 'A 300 ms tween (FastOutSlowInEasing) from 0 to 100 in a test. Turn off autoAdvance and jump to 0/25/50/75/100% of the duration.'),
        ('`mainClock` cho test kiểm soát thời gian animation; `advanceTimeBy` làm tròn lên bội số của frame duration. Đồng hồ test không điều khiển mọi thứ của Android host.', '`mainClock` lets a test control animation time; `advanceTimeBy` rounds up to a multiple of the frame duration. The test clock does not control everything on the Android host.'),
-       ('Frame duration 16 ms trong mô hình là minh họa; tài liệu không nêu con số.', 'The 16 ms frame duration in the model is illustrative; the documentation does not give a number.'),
+       ('Frame 16 ms theo KDoc của MainTestClock ở commit ghim (JVM: Android và Desktop); trang Test animations không nêu con số. [[src:ui-testclock-src]]', 'The 16 ms frame follows MainTestClock's KDoc at the pinned commit (JVM: Android and Desktop); the Test animations page does not give a number. [[src:ui-testclock-src]]'),
        ('Bật/tắt autoAdvance và chọn mốc thời gian.', 'Toggle autoAdvance and pick a time mark.'), ('Test, đồng hồ và animation', 'The test, the clock and the animation'), ('Test điều khiển mainClock; mainClock điều khiển animation.', 'The test drives mainClock; mainClock drives the animation.'))
 m(M, 'simp.2', 'Giá trị trung gian tính bằng mô hình tween của site, không phải chạy Compose thật.', 'Intermediate values come from the site\'s tween model, not from running Compose.')
 m(M, 'ctl.auto', 'autoAdvance', 'autoAdvance'); m(M, 'ctl.at', 'Nhảy tới', 'Jump to')
@@ -424,7 +424,7 @@ def o2(k, vi, en=None):
     for i, e in enumerate(E):
         if e[0] == k: E[i] = (k, vi, vi if en is None else en); return
     raise KeyError(k)
-for mod in ('animation_v2_c1', 'animation_v2_c2', 'animation_v2_c3', 'animation_v2_c4', 'animation_v2_c5', 'animation_v2_if', 'animation_v2_c6', 'animation_v2_se', 'animation_v2_cv', 'animation_v2_vm', 'animation_v2_c7'):   # thêm module mới vào đây
+for mod in ('animation_v2_c1', 'animation_v2_c2', 'animation_v2_c3', 'animation_v2_c4', 'animation_v2_c5', 'animation_v2_if', 'animation_v2_c6', 'animation_v2_se', 'animation_v2_cv', 'animation_v2_vm', 'animation_v2_c7', 'animation_v2_c8'):   # thêm module mới vào đây
     if os.path.exists(os.path.join(_here, mod + '.py')):
         mm = __import__(mod)
         mm.add(a2)

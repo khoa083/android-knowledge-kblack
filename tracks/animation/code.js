@@ -264,4 +264,22 @@
     'val a by animateFloatAsState(if (shown) 1f else 0f, label = "a")',
     { vi: 'Box(Modifier.graphicsLayer { alpha = a })   // chỉ cập nhật lớp vẽ', en: 'Box(Modifier.graphicsLayer { alpha = a })   // only the layer updates' }
   ]);
+  add('cs_manual', [
+    'rule.mainClock.autoAdvance = false',
+    { vi: 'enabled = true                         // khởi động tween(250)', en: 'enabled = true                         // kick off tween(250)' },
+    { vi: '// frame 16: recompose; frame 32: thời gian chơi = 0', en: '// frame 16: recompose; frame 32: play time = 0' },
+    { vi: 'rule.mainClock.advanceTimeBy(50L)      // làm tròn lên 64', en: 'rule.mainClock.advanceTimeBy(50L)      // rounds up to 64' },
+    'rule.onRoot().captureToImage().assertAgainstGolden()'
+  ]);
+  add('cs_ignore', [
+    'rule.mainClock.autoAdvance = false',
+    'enabled = true',
+    'rule.mainClock.advanceTimeBy(50L, ignoreFrameDuration = true)',
+    { vi: '// đồng hồ ở 50, nhưng frame chỉ ở 16, 32, 48', en: '// the clock is at 50, but frames only at 16, 32, 48' }
+  ]);
+  add('cs_auto', [
+    { vi: '// autoAdvance = true (mặc định)', en: '// autoAdvance = true (default)' },
+    'enabled = true',
+    { vi: 'rule.onNodeWithTag("box").assertExists()   // chờ idle: chạy animation tới cuối', en: 'rule.onNodeWithTag("box").assertExists()   // idle wait: runs the animation to the end' }
+  ]);
 })();

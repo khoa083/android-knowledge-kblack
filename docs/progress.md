@@ -515,4 +515,9 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.frameorder` (đọc trong thân, đọc trong graphicsLayer, tỉ lệ 0). Không thêm nguồn mới (dùng lại nguồn Runtime B5 và `an-suspend-src`).
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 120 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Tiếp theo:** c8 (kiểm thử, công cụ, giảm chuyển động: testing, tooling, Essentials 40.10, Runtime B9), rồi c0 cuối cùng.
+- **Animation v2 · C8 viết lại (2026-11-23):**
+  - Nội dung (`animation_v2_c8.py`, giữ mục v1 `test` và lab `animation.testclock`): đồng hồ test điều khiển gì theo KDoc của MainTestClock ở commit ghim (2 frame khởi động, làm tròn, ignoreFrameDuration, autoAdvance, vẽ trên Android không theo đồng hồ), viết test theo trang Test animations (runWithoutImplicitWait có nhãn phiên bản), công cụ (Animation Inspector của Essentials so với Animation Preview hiện tại), giảm chuyển động (phần Compose tự làm và phần người viết phải làm); 3 bug, 1 bài tập, tự trả lời 2 câu, quiz thêm q3, q4. Sửa ghi chú v1 "16 ms là minh họa" thành có nguồn.
+  - Sim mới `animation.clockstart` (tự tiến, bỏ làm tròn, autoAdvance). 2 nguồn mới (`ui-testclock-src`, `an-tooling`), đều HTTP 200.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 120 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
+  - **Tiếp theo:** c0 (chọn API theo cây quyết định choose-api; viết cuối cùng), rồi sang UX v2 / UI v2 (đọc mục lục sách trước).
 
