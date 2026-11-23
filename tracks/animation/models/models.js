@@ -840,4 +840,56 @@
       } }]
     });
   })();
+
+  /* ================= C7 (v2): thứ tự trong một frame (Recomposer.kt, AndroidUiFrameClock, WindowRecomposer, SuspendAnimation @296313a4) =================
+     body: vsync → awaiters (animation ghi giá trị) → notify → recompose → draw. layer: … notify → không recompose → draw.
+     scale0: durationScale 0 → frame đầu đã là cuối (giá trị = đích, hết chạy). */
+  (function () {
+    var m = 'frameorder';
+    var SC = ['body', 'layer', 'scale0'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'body', out = [], t = 0, c = { recomp: 0, draw: 0 }, val = 0.4, running = 'true';
+      var read = sc === 'layer' ? 'graphicsLayer { }' : 'body';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = { v: val.toFixed(1) };
+        o.metrics = { recomp: c.recomp, draw: c.draw, val: Math.round(val * 100) };
+        o.stateAfter = [{ labelKey: M(m, 'st.val'), value: val.toFixed(1) }, { labelKey: M(m, 'st.running'), value: running }, { labelKey: M(m, 'st.read'), value: read }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: sc === 'layer' ? 'fo_layer' : 'fo_body', lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 2, kind: o.kind || 'frame', subject: o.activeNodes[0] || 'recomposer', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['anim', 'ui'], lines: [1, 2], kind: 'observe', callouts: sc === 'scale0' ? [{ kind: 'source', textKey: M(m, 'co.scale') }] : undefined });
+      P('vsync', { activeNodes: ['vsync', 'recomposer'], movingSignals: [{ edge: 'e1', tok: 'runtime' }], lines: [], kind: 'frame', callouts: [{ kind: 'source', textKey: M(m, 'co.choreo') }] });
+      if (sc === 'scale0') { val = 1; running = 'false'; } else { val = 0.5; }
+      P(sc === 'scale0' ? 'awaiters0' : 'awaiters', { type: sc === 'scale0' ? 'pitfall' : 'mechanism', activeNodes: ['recomposer', 'anim'], movingSignals: [{ edge: 'e2', tok: 'anim' }], lines: [1], kind: 'act', callouts: sc === 'scale0' ? undefined : [{ kind: 'source', textKey: M(m, 'co.order') }] });
+      P('notify', { activeNodes: ['anim', 'recomposer'], movingSignals: [{ edge: 'e3', tok: 'state' }], lines: [], kind: 'observe' });
+      if (sc === 'layer') {
+        P('norecompose', { activeNodes: ['recomposer'], lines: [2], kind: 'skip', callouts: [{ kind: 'source', textKey: M(m, 'co.defer') }] });
+      } else {
+        c.recomp++;
+        P('recompose', { activeNodes: ['recomposer', 'ui'], movingSignals: [{ edge: 'e4', tok: 'runtime' }], lines: [2], kind: 'recompose' });
+      }
+      c.draw++;
+      P('draw', { activeNodes: ['ui'], movingSignals: [{ edge: 'e4', tok: 'ui' }], lines: [2], kind: 'draw' });
+      P('done.' + sc, { activeNodes: ['ui'], lines: [], kind: 'settle' });
+      return out;
+    }
+    reg(m, {
+      codeId: 'fo_body',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'body' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'animation chạy trước recompose; đọc trong thân: 1 recompose + 1 vẽ; đọc trong graphicsLayer: 0 recompose + 1 vẽ; tỉ lệ 0: giá trị = đích và hết chạy ngay frame đầu', run: function () {
+        var b = steps({ which: 'body' }), l = steps({ which: 'layer' }), z = steps({ which: 'scale0' });
+        var ia = b.findIndex(function (x) { return /^awaiters/.test(x.id); }), ir = b.findIndex(function (x) { return /^recompose/.test(x.id); });
+        var lb = b[b.length - 1].metrics, ll = l[l.length - 1].metrics, a0 = z.filter(function (x) { return /^awaiters0/.test(x.id); })[0];
+        return ia > 0 && ir > ia && lb.recomp === 1 && lb.draw === 1 && ll.recomp === 0 && ll.draw === 1 && a0.metrics.val === 100 && a0.stateAfter[1].value === 'false';
+      } }]
+    });
+  })();
 })();

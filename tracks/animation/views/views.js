@@ -102,6 +102,13 @@
     edges: [E('e1', 'clock', 'interp'), E('e2', 'interp', 'eval'), E('e3', 'eval', 'target')],
     metrics: [T('vframe', 'elapsed'), T('vframe', 'interp'), T('vframe', 'value')]
   });
+  /* C7 (v2): vsync → Recomposer → animation (ghi state) → cây UI. */
+  V('frameorder', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('frameorder', 'vsync', 0, 0, 'frame', 'runtime'), N('frameorder', 'recomposer', 4, 0, 'layers', 'runtime'), N('frameorder', 'anim', 8, -3, 'motion', 'anim'), N('frameorder', 'ui', 12, 0, 'phone', 'ui')],
+    edges: [E('e1', 'vsync', 'recomposer'), E('e2', 'recomposer', 'anim'), E('e3', 'anim', 'recomposer'), E('e4', 'recomposer', 'ui')],
+    metrics: [T('frameorder', 'recomp'), T('frameorder', 'draw'), T('frameorder', 'val')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

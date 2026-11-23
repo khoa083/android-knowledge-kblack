@@ -256,4 +256,12 @@
     '        easing = Easing { t -> (cos((t + 1) * PI) / 2 + 0.5).toFloat() }), label = "x")',
     { vi: 'Button(onClick, Modifier.offset { IntOffset(x.roundToInt(), 0) }) { … }   // đọc ở bước đặt', en: 'Button(onClick, Modifier.offset { IntOffset(x.roundToInt(), 0) }) { … }   // read at placement' }
   ]);
+  add('fo_body', [
+    'val a by animateFloatAsState(if (shown) 1f else 0f, label = "a")',
+    { vi: 'Box(Modifier.alpha(a))          // đọc trong thân: recompose mỗi frame', en: 'Box(Modifier.alpha(a))          // read in the body: recompose every frame' }
+  ]);
+  add('fo_layer', [
+    'val a by animateFloatAsState(if (shown) 1f else 0f, label = "a")',
+    { vi: 'Box(Modifier.graphicsLayer { alpha = a })   // chỉ cập nhật lớp vẽ', en: 'Box(Modifier.graphicsLayer { alpha = a })   // only the layer updates' }
+  ]);
 })();

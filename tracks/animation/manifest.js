@@ -20,7 +20,7 @@ ADE.registerTrack({
     { id: 'c6', titleKey: 'track.animation.c6.title', sims: ['animation.mutex', 'animation.gesture'], simAfter: 'inside', bridges: ['X4', 'X2'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (Animatable.kt, InternalMutatorMutex.kt @296313a4; advanced docs; Essentials Ch.50)
     { id: 'se', titleKey: 'track.animation.se.title', sims: ['animation.shared'], simAfter: 'inside', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 mới (SharedTransitionScope.kt @296313a4; shared-elements docs; AAT Ch.6)
     { id: 'cv', titleKey: 'track.animation.cv.title', sims: ['animation.avd'], simAfter: 'inside', bridges: ['X1'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 mới (animation-graphics @296313a4, VectorPainter.kt; Essentials Ch.41; AAT Ch.2)
-    { id: 'c7', titleKey: 'track.animation.c7.title', sims: ['animation.phaseread'], bridges: ['X1', 'X3'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'c7', titleKey: 'track.animation.c7.title', sims: ['animation.frameorder', 'animation.phaseread'], simAfter: 'frame', bridges: ['X1', 'X3'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (Recomposer.kt, AndroidUiFrameClock, WindowRecomposer, SuspendAnimation.kt @296313a4)
     { id: 'c8', titleKey: 'track.animation.c8.title', sims: ['animation.testclock'], bridges: ['X6'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [

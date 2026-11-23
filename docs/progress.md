@@ -510,4 +510,9 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.vframe` (ObjectAnimator, TranslateAnimation, Compose; ví dụ 40 ms của tài liệu). 1 nguồn mới (`views-prop`, HTTP 200).
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 120 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Tiếp theo:** c7 (frame clock và phase, giữ X1, X3; Runtime B5, B7, quick-guide), rồi c8, c0.
+- **Animation v2 · C7 viết lại (2026-11-23):**
+  - Nội dung (`animation_v2_c7.py`, giữ mục v1 `defer` và sim `animation.phaseread` làm tab thứ hai): một frame từ Choreographer tới màn hình (AndroidUiFrameClock, thứ tự trong frame của Recomposer: animation trước, rồi thông báo, recompose, apply; giữ X3), tỉ lệ thời lượng của máy (MotionDurationScale từ ANIMATOR_DURATION_SCALE, tỉ lệ 0 nhảy tới cuối ở frame đầu); 2 bug, 1 bài tập, tự trả lời 2 câu, quiz thêm q3, q4.
+  - Sim mới `animation.frameorder` (đọc trong thân, đọc trong graphicsLayer, tỉ lệ 0). Không thêm nguồn mới (dùng lại nguồn Runtime B5 và `an-suspend-src`).
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 120 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
+  - **Tiếp theo:** c8 (kiểm thử, công cụ, giảm chuyển động: testing, tooling, Essentials 40.10, Runtime B9), rồi c0 cuối cùng.
 

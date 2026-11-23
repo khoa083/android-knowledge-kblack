@@ -215,3 +215,14 @@ Nguồn chính: AAT Ch.1–5 (PDF, đọc bằng pdftotext) và trang Property A
 | overridePendingTransition, nav enter/exit/popEnter/popExit; Transition framework trên ViewGroup, Fragment enter/exit/reenter/return, TransitionSet, addTarget/removeTarget, MaterialSharedAxis, dùng bản AndroidX | AAT Ch.4–5 | Ví dụ của sách |
 | Bảng View → Compose | Site tự lập, gắn nhãn "ánh xạ ý niệm, không phải bảng chính thức" | analogy |
 | AccelerateDecelerate = cos((t+1)π)/2 + 0,5 dùng trong sim; 0,25 → 0,146 khớp "khoảng 0,15" của tài liệu | Công thức chuẩn (site tự tính) | ghi trong simp |
+
+### C7 v2 · Frame clock và phase (2026-11-23)
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Trong frame: gửi frame cho awaiter trước, rồi sendApplyNotifications, recompose, apply | `rt-recomposer-src` (đã đọc ở Runtime B5) | impl |
+| AndroidUiFrameClock dùng Choreographer.postFrameCallback | `ui-frameclock` | impl |
+| WindowRecomposer thêm MotionDurationScaleImpl (trừ khi context đã có) đọc Settings.Global.ANIMATOR_DURATION_SCALE, theo dõi bằng ContentObserver | `ui-windowrecomposer` (đọc lại file ở commit ghim 2026-11-23) | impl |
+| durationScale 0 → playTime = durationNanos (frame đầu là cuối); thời gian chia cho tỉ lệ | `an-suspend-src` | impl |
+| Đổi alpha không làm đo lại (sim không có bước đo/đặt) | Suy luận từ phase docs; sim ghi giản lược | simplified |
+| Sim `animation.frameorder`: 0,4 → 0,5; đo/đặt/vẽ đặt ngay sau trong cùng frame là giản lược | Minh họa | selfCheck; ghi trong simp |
