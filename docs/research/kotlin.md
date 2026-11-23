@@ -145,3 +145,16 @@ Kiểm URL (curl, HTTP 200): lambdas, inline-functions, returns, whatsnew20, lea
 
 Ghi chú sơ đồ (đã báo người dùng từ trước, không tự đổi): luồng Sequence có thể dễ hình dung hơn bằng sơ đồ dạng luồng từng phần tử; chương vẫn giữ sơ đồ node theo quy định, các node là đúng các bước filter → map → take.
 Kiểm URL (curl, HTTP 200): sequences.html.
+
+## K10 · Generics và variance (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Suy luận kiểu tham số; upper bound (mặc định Any?), where; Java generic bất biến, ví dụ List<String> → List<Object> gây ClassCastException; out: chỉ vị trí trả ra, C<Base> là cha của C<Derived>; in: nghịch biến (Comparable<in T>); "Consumer in, Producer out"; type projection (Array<out Any>, Array<in String>), star-projection; type erasure, cấm is List<Int>, ép kiểu generic không được kiểm; reified là ngoại lệ | `kt-generics` | stable |
+| Collection<out E>, List<out E>, MutableList<E>, Map<K, out V> | `kt-stdlib-collections` (builtins Collections.kt tag v2.1.0, dòng 39/124/179/295) | version |
+| public interface Flow<out T> | `kx-flow-src` (kotlinx.coroutines 1.9.0, Flow.kt dòng 176) | version |
+| Nothing là kiểu con của mọi kiểu, List<Nothing> hợp với mọi list; mẫu Response<out R, out E> với Success : Response<R, Nothing> | `book-advanced-kotlin` | guideline |
+| Bài tập LoadResult | dựa trên "Generic Response", `book-kt-exercises`; tên và lời giải tự viết | — |
+| Notifier<in T> | kiểu tự đặt cho ví dụ, chỉ dựa vào quy tắc in của tài liệu | — |
+
+Kiểm URL (curl, HTTP 200): generics.html; Collections.kt (raw và blob, v2.1.0); Flow.kt (raw và blob, 1.9.0); leanpub.com/advanced_kotlin.

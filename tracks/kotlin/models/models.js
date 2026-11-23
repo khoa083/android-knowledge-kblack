@@ -342,6 +342,49 @@
         { name: 'không có thao tác cuối thì không lambda nào chạy', run: function () { var n = steps({ case: 'noTerminal' }); return n[2].metrics.ops === 0 && n[2].type === 'pitfall' && n[3].metrics.ops === eager(); } }] });
   })();
 
+  /* ================= K10: variance — gán C<Doctor> cho C<Staff> (hay ngược lại) được không, tùy C khai báo out, in hay bất biến =================
+     Theo Generics: in, out, where (declaration-site variance; quy tắc vị trí out/in; Java arrays → ClassCastException),
+     builtins Collections.kt tag v2.1.0 (List<out E>, MutableList<E>), Flow.kt kotlinx.coroutines 1.9.0 (Flow<out T>). */
+  (function () {
+    var m = 'variance', CASES = ['outList', 'invariantMutable', 'inNotifier'];
+    // mỗi bước: [node, trạng thái node, số đo {variance, assign, safe}, loại bước, dòng mã, loại log, chủ thể log]
+    var P = {
+      outList: [[['decl'], {}, { variance: 'out', assign: 'none', safe: 'na' }, 'scenario', [1, 2, 3], 'observe', 'decl'],
+        [['assign', 'compiler'], { compiler: 'done' }, { variance: 'out', assign: 'ok', safe: 'na' }, 'mechanism', [4], 'check', 'compiler'],
+        [['compiler', 'call'], { compiler: 'done', call: 'done' }, { variance: 'out', assign: 'ok', safe: 'yes' }, 'mechanism', [5, 6], 'run', 'call'],
+        [['decl', 'compiler'], { compiler: 'done', call: 'done' }, { variance: 'out', assign: 'ok', safe: 'yes' }, 'mechanism', [7, 8], 'check', 'compiler']],
+      invariantMutable: [[['decl'], {}, { variance: 'inv', assign: 'none', safe: 'na' }, 'scenario', [1, 2, 3], 'observe', 'decl'],
+        [['assign', 'compiler'], { compiler: 'broken' }, { variance: 'inv', assign: 'error', safe: 'na' }, 'mechanism', [4], 'check', 'compiler'],
+        [['compiler', 'call'], { compiler: 'broken', call: 'crashed' }, { variance: 'inv', assign: 'error', safe: 'cce' }, 'pitfall', [5, 6, 7], 'exception', 'call'],
+        [['assign', 'compiler'], { compiler: 'done', call: 'done' }, { variance: 'inv', assign: 'ok', safe: 'yes' }, 'mechanism', [8, 9], 'write', 'assign']],
+      inNotifier: [[['decl'], {}, { variance: 'in', assign: 'none', safe: 'na' }, 'scenario', [1, 2, 3], 'observe', 'decl'],
+        [['assign', 'compiler'], { compiler: 'done' }, { variance: 'in', assign: 'ok', safe: 'na' }, 'mechanism', [4], 'check', 'compiler'],
+        [['compiler', 'call'], { compiler: 'done', call: 'done' }, { variance: 'in', assign: 'ok', safe: 'yes' }, 'mechanism', [5], 'run', 'call'],
+        [['assign', 'compiler'], { compiler: 'broken', call: 'done' }, { variance: 'in', assign: 'error', safe: 'yes' }, 'mechanism', [6, 7], 'check', 'compiler']]
+    };
+    ADE.kotlinVariance = P;
+    var EDGE = { decl: null, assign: 'e1', compiler: 'e2', call: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var met = { variance: M(m, 'v.' + p[2].variance), assign: M(m, 'a.' + p[2].assign), safe: M(m, 'safe.' + p[2].safe) };
+        var e = EDGE[p[0][0]] || EDGE[p[0][1]], bad = p[3] === 'pitfall' || p[2].assign === 'error';
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: met, codeHighlight: { snippet: 'var.' + s.case, lines: p[4] },
+          movingSignals: e ? [{ edge: e, tok: bad ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5], subject: p[6] }] });
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i >= 2) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'invariantMutable' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước; bước thứ hai là trình biên dịch kiểm phép gán', run: function () { return CASES.every(function (k) { var st = steps({ case: k }); return st.length === 4 && st[1].logEvents[0].kind === 'check'; }); } },
+        { name: 'out: C<Doctor> gán được cho C<Staff>; bất biến: không; in: chỉ chiều ngược lại', run: function () { var A = function (k, i) { return steps({ case: k })[i].metrics.assign; }; return A('outList', 1) === M(m, 'a.ok') && A('invariantMutable', 1) === M(m, 'a.error') && A('inNotifier', 1) === M(m, 'a.ok') && A('inNotifier', 3) === M(m, 'a.error'); } },
+        { name: 'lý do MutableList bất biến: nếu cho phép thì ghi được phần tử sai kiểu, lỗi lúc chạy', run: function () { var s2 = steps({ case: 'invariantMutable' })[2]; return s2.type === 'pitfall' && s2.metrics.safe === M(m, 'safe.cce'); } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

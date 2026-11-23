@@ -42,6 +42,10 @@
   V('sequence', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.collFail', wait: K + 'fam.waiting', idle: K + 'fam.unused', run: K + 'fam.running' },
     nodes: [N('sequence', 'source', 0, 0, 'store', 'state'), N('sequence', 'filter', 3, 0, 'diamond', 'ui'), N('sequence', 'map', 6, 0, 'play', 'runtime'), N('sequence', 'terminal', 9, 0, 'target', 'job')],
     edges: [E('e1', 'source', 'filter'), E('e2', 'filter', 'map'), E('e3', 'map', 'terminal')], metrics: [T('sequence', 'ops'), T('sequence', 'inter'), T('sequence', 'touched')] });
+  /* K10: khai báo kiểu (out / in / bất biến) → phép gán → trình biên dịch kiểm → gọi hàm qua biến */
+  V('variance', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail' },
+    nodes: [N('variance', 'decl', 0, 0, 'layers', 'state'), N('variance', 'assign', 3, 0, 'source', 'ui'), N('variance', 'compiler', 6, 0, 'target', 'runtime'), N('variance', 'call', 9, 0, 'play', 'job')],
+    edges: [E('e1', 'decl', 'assign'), E('e2', 'assign', 'compiler'), E('e3', 'compiler', 'call')], metrics: [T('variance', 'variance'), T('variance', 'assign'), T('variance', 'safe')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],

@@ -22,5 +22,8 @@ ADE.addGlossary('vi', 'kotlin', {
   "non-local-return": { term: "non-local return", def: "return trần nằm trong lambda nhưng thoát hàm bao ngoài; chỉ được phép khi lambda được inline.", chapter: "kotlin/k8" },
   "sequence": { term: "Sequence", def: "Chuỗi xử lý lười: không chứa phần tử mà sinh ra khi duyệt; mỗi phần tử đi qua cả chuỗi thao tác trước phần tử sau, và chỉ chạy khi có thao tác cuối.", chapter: "kotlin/k9" },
   "terminal-operation": { term: "thao tác cuối (terminal)", def: "Thao tác trả về thứ không phải Sequence (toList, first, sum, forEach…); chỉ nó mới làm chuỗi Sequence thật sự chạy.", chapter: "kotlin/k9" },
+  "variance": { term: "variance (out / in)", def: "Quan hệ cha–con giữa C<Doctor> và C<Staff>: out (hiệp biến) giữ chiều, in (nghịch biến) đảo chiều, không ghi gì là bất biến (không liên quan).", chapter: "kotlin/k10" },
+  "type-erasure": { term: "type erasure", def: "Lúc chạy, object generic không mang kiểu tham số: List<Doctor> và List<Nurse> đều chỉ là List; nên không kiểm được is List<Doctor>.", chapter: "kotlin/k10" },
+  "star-projection": { term: "star-projection (*)", def: "C<*> nghĩa là \"C của một kiểu nào đó không biết\": đọc ra an toàn ở mức cận trên, không ghi vào được.", chapter: "kotlin/k10" },
   "when-expression": { term: "biểu thức when", def: "when trả về giá trị của nhánh khớp đầu tiên; khi dùng như biểu thức, các nhánh phải phủ đủ mọi trường hợp (thường bằng else).", chapter: "kotlin/k1" }
 });

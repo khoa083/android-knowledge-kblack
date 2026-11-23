@@ -298,6 +298,36 @@
     c('// sửa: cần một thao tác cuối (terminal) để chuỗi chạy', '// fix: a terminal operation is needed for the chain to run'),
     'appts.asSequence().filter { it.hour < 12 }.forEach { sendReminder(it) }'
   ]);
+  add('var.outList', [
+    'open class Staff(val name: String)',
+    'class Doctor(name: String) : Staff(name)',
+    c('// List được khai báo là List<out E>', '// List is declared as List<out E>'),
+    'val staff: List<Staff> = doctors           // doctors: List<Doctor>',
+    c('val first: Staff = staff[0]                // đọc ra: luôn là một Staff', 'val first: Staff = staff[0]                // reading: always a Staff'),
+    c('// staff.add(...) không tồn tại: List không có hàm nhận E', '// staff.add(...) does not exist: List has no function taking E'),
+    c('// Flow<out T> cũng vậy:', '// Flow<out T> works the same way:'),
+    'val staffUpdates: Flow<Staff> = doctorUpdates   // doctorUpdates: Flow<Doctor>'
+  ]);
+  add('var.invariantMutable', [
+    'class Nurse(name: String) : Staff(name)',
+    'val doctors: MutableList<Doctor> = mutableListOf(Doctor("An"))',
+    c('// MutableList được khai báo là MutableList<E>: bất biến', '// MutableList is declared as MutableList<E>: invariant'),
+    c('val staff: MutableList<Staff> = doctors      // lỗi biên dịch', 'val staff: MutableList<Staff> = doctors      // compile error'),
+    c('// nếu được phép:', '// if it were allowed:'),
+    c('staff.add(Nurse("Bình"))                     // một Nurse vào list bác sĩ', 'staff.add(Nurse("Binh"))                     // a Nurse in the doctors list'),
+    'val d: Doctor = doctors[1]                   // ClassCastException',
+    c('// sửa: chỉ đọc thì dùng List<Staff>; cần sửa thì sao chép', '// fix: List<Staff> if you only read; copy if you need to modify'),
+    'val staff: MutableList<Staff> = doctors.toMutableList<Staff>()'
+  ]);
+  add('var.inNotifier', [
+    'interface Notifier<in T> {',
+    '    fun send(to: T, message: String)',
+    '}',
+    c('val doctorNotifier: Notifier<Doctor> = staffNotifier   // được: chiều ngược lại', 'val doctorNotifier: Notifier<Doctor> = staffNotifier   // allowed: the opposite direction'),
+    c('doctorNotifier.send(Doctor("An"), "Có ca mới")         // một Doctor là một Staff', 'doctorNotifier.send(Doctor("An"), "New case")           // a Doctor is a Staff'),
+    c('// chiều kia thì không:', '// the other direction is not:'),
+    c('val anyStaff: Notifier<Staff> = doctorNotifier         // lỗi biên dịch', 'val anyStaff: Notifier<Staff> = doctorNotifier         // compile error')
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',

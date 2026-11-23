@@ -29,7 +29,7 @@ a('fam.na', 'không áp dụng', 'not applicable')
 for k, vi, en in [('observe', 'đọc mã', 'read code'), ('check', 'kiểm lúc biên dịch', 'compile-time check'), ('run', 'chạy', 'run'), ('write', 'gán', 'assign'), ('skip', 'bỏ qua', 'skip'), ('exception', 'ném ngoại lệ', 'exception thrown'), ('complete', 'hoàn tất', 'complete')]:
     a('kind.' + k, vi, en)
 
-MODULES = ('kotlin_v2_k1', 'kotlin_v2_k2', 'kotlin_v2_k3', 'kotlin_v2_k4', 'kotlin_v2_k5', 'kotlin_v2_k6', 'kotlin_v2_k7', 'kotlin_v2_k8', 'kotlin_v2_k9')   # giữ dấu phẩy cuối
+MODULES = ('kotlin_v2_k1', 'kotlin_v2_k2', 'kotlin_v2_k3', 'kotlin_v2_k4', 'kotlin_v2_k5', 'kotlin_v2_k6', 'kotlin_v2_k7', 'kotlin_v2_k8', 'kotlin_v2_k9', 'kotlin_v2_k10')   # giữ dấu phẩy cuối
 for mod in MODULES:
     assert os.path.exists(os.path.join(HERE, mod + '.py')), 'thiếu module ' + mod
     mm = __import__(mod)

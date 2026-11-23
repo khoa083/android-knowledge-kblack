@@ -22,5 +22,8 @@ ADE.addGlossary('en', 'kotlin', {
   "non-local-return": { term: "non-local return", def: "A bare return inside a lambda that exits the enclosing function; allowed only when the lambda is inlined.", chapter: "kotlin/k8" },
   "sequence": { term: "Sequence", def: "A lazy processing chain: holds no elements but produces them while iterating; each element goes through the whole chain before the next one, and nothing runs without a terminal operation.", chapter: "kotlin/k9" },
   "terminal-operation": { term: "terminal operation", def: "An operation returning something other than a Sequence (toList, first, sum, forEach…); only it makes a Sequence chain actually run.", chapter: "kotlin/k9" },
+  "variance": { term: "variance (out / in)", def: "The subtype relation between C<Doctor> and C<Staff>: out (covariant) keeps the direction, in (contravariant) reverses it, nothing means invariant (unrelated).", chapter: "kotlin/k10" },
+  "type-erasure": { term: "type erasure", def: "At runtime a generic object carries no type arguments: List<Doctor> and List<Nurse> are both just List; so is List<Doctor> cannot be checked.", chapter: "kotlin/k10" },
+  "star-projection": { term: "star-projection (*)", def: "C<*> means \"C of some unknown type\": reading is safe at the upper bound, writing is not possible.", chapter: "kotlin/k10" },
   "when-expression": { term: "when expression", def: "when returns the value of the first matching branch; used as an expression, its branches must cover every case (usually with else).", chapter: "kotlin/k1" }
 });
