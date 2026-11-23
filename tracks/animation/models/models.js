@@ -790,4 +790,54 @@
       } }]
     });
   })();
+
+  /* ================= VM (v2, chương mới): một frame của animator (Property Animation docs: elapsed → TimeInterpolator → TypeEvaluator) =================
+     0 → 40 px trong 40 ms, AccelerateDecelerate: f(t) = cos((t + 1)π)/2 + 0.5. property: ghi translationX thật; viewanim: chỉ dời hình vẽ
+     (vùng chạm ở 0); compose: ghi state, offset { } đọc ở bước đặt. */
+  (function () {
+    var m = 'vframe';
+    var SC = ['property', 'viewanim', 'compose'];
+    var AD = function (t) { return Math.cos((t + 1) * Math.PI) / 2 + 0.5; };
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'property', out = [], t = 0, ms = 0, e = 0, it = 0, v = 0;
+      var writes = sc === 'property' ? 'translationX' : sc === 'viewanim' ? 'draw matrix' : 'State<Float>';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = { ms: ms, e: Math.round(e * 100), i: Math.round(it * 100), v: v };
+        o.metrics = { elapsed: Math.round(e * 100), interp: Math.round(it * 100), value: Math.round(v * 10) };
+        o.stateAfter = [{ labelKey: M(m, 'st.drawn'), value: v + ' px' }, { labelKey: M(m, 'st.real'), value: (sc === 'viewanim' ? 0 : v) + ' px' }, { labelKey: M(m, 'st.writes'), value: writes }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'vf_' + sc, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 10, kind: o.kind || 'frame', subject: o.activeNodes[0] || 'clock', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var chain = [{ edge: 'e1', tok: 'runtime' }, { edge: 'e2', tok: 'anim' }, { edge: 'e3', tok: sc === 'viewanim' ? 'error' : 'ui' }];
+      var tick = function (msNow, extra) {
+        ms = msNow; e = ms / 40; it = AD(e); v = Math.round(40 * it * 10) / 10;
+        P('tick', { activeNodes: ['clock', 'interp', 'eval', 'target'], movingSignals: chain, lines: sc === 'compose' ? [2, 3] : [2, 3], callouts: extra });
+      };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['target'], lines: [1], kind: 'observe' });
+      tick(10, [{ kind: 'source', textKey: M(m, 'co.chain') }]);
+      if (sc === 'property') P('write.property', { activeNodes: ['target'], lines: [4], kind: 'act' });
+      else if (sc === 'viewanim') P('write.viewanim', { type: 'pitfall', activeNodes: ['target'], movingSignals: [{ edge: 'e3', tok: 'error' }], lines: [4], kind: 'draw', callouts: [{ kind: 'pitfall', textKey: M(m, 'co.viewanim') }] });
+      else P('write.compose', { activeNodes: ['target'], lines: [4], kind: 'layout', callouts: [{ kind: 'source', textKey: M(m, 'co.phase') }] });
+      [20, 30, 40].forEach(function (x) { tick(x); });
+      P('tap.' + sc, { type: sc === 'viewanim' ? 'pitfall' : 'mechanism', activeNodes: ['target'], lines: sc === 'viewanim' ? [4] : [], kind: 'settle' });
+      return out;
+    }
+    reg(m, {
+      codeId: 'vf_property',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'property' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 't = 10 ms: phân số 25% → khoảng 15% (tài liệu) → 5,9 px; cuối 40 px; view animation: vùng chạm vẫn 0 px; property: vùng chạm 40 px', run: function () {
+        var p = steps({ which: 'property' }), va = steps({ which: 'viewanim' });
+        var first = p[1], lp = p[p.length - 1], lv = va[va.length - 1];
+        return first.metrics.elapsed === 25 && first.metrics.interp === 15 && first.params.v === 5.9 && lp.params.v === 40 && lp.stateAfter[1].value === '40 px' && lv.stateAfter[1].value === '0 px' && lv.stateAfter[0].value === '40 px';
+      } }]
+    });
+  })();
 })();

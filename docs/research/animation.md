@@ -201,3 +201,17 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 | Lệnh vẽ Canvas (line, dash, rect, rotate, circle, gradient, arc, path, points, image, text); chương không animate | Essentials Ch.41 | Ví dụ của sách |
 | FavoriteButton: ValueAnimator.ofInt + updateLayoutParams, ObjectAnimator alpha, textSize; Ch.10 làm lại bằng Compose | AAT Ch.2, Ch.10 | Ví dụ của sách (hệ View) |
 | Sim `animation.avd`: 60/120/180°, đếm composition vector | Minh họa | selfCheck; ghi trong simp |
+
+### VM v2 (chương mới) · Trước Compose: animation trong hệ View (2026-11-23)
+
+Nguồn chính: AAT Ch.1–5 (PDF, đọc bằng pdftotext) và trang Property Animation overview (`views-prop`, HTTP 200). Chương đặt ngay sau c0 theo dàn chương.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Mỗi frame: phân số thời gian → TimeInterpolator → TypeEvaluator; t = 10 ms / 40 ms: 0,25 → khoảng 0,15; View gọi invalidate() khi thuộc tính đổi; mặc định 300 ms | `views-prop` | stable |
+| View animation chỉ đổi chỗ vẽ, vùng bấm không đổi; property animation đổi đối tượng thật | `views-prop`, AAT Ch.3 | stable / ví dụ sách |
+| ValueAnimator + update listener, ObjectAnimator (lớp con, tự gọi setter), các loại interpolator, interpolator đổi cảm giác | AAT Ch.1 | Ví dụ của sách |
+| res/anim vs res/animator, AnimationUtils vs AnimatorInflater, AnimatorSet `<set>` | AAT Ch.3 | Ví dụ của sách |
+| overridePendingTransition, nav enter/exit/popEnter/popExit; Transition framework trên ViewGroup, Fragment enter/exit/reenter/return, TransitionSet, addTarget/removeTarget, MaterialSharedAxis, dùng bản AndroidX | AAT Ch.4–5 | Ví dụ của sách |
+| Bảng View → Compose | Site tự lập, gắn nhãn "ánh xạ ý niệm, không phải bảng chính thức" | analogy |
+| AccelerateDecelerate = cos((t+1)π)/2 + 0,5 dùng trong sim; 0,25 → 0,146 khớp "khoảng 0,15" của tài liệu | Công thức chuẩn (site tự tính) | ghi trong simp |

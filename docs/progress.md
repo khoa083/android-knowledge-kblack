@@ -505,4 +505,9 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.avd` (Canvas, AVD tới cuối, AVD về đầu). 5 nguồn mới (`an-vectors`, `an-avdpainter-src`, `an-animator-src`, `an-aiv-src`, `ui-vectorpainter-src`), đều HTTP 200.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 119 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Tiếp theo:** vm (trước Compose: ValueAnimator, ObjectAnimator, interpolator, Transition framework, shared element View; AAT Ch.1–6), rồi c7, c8, c0.
+- **Animation v2 · VM chương mới (2026-11-23):**
+  - Nội dung (`animation_v2_vm.py`, đặt sau c0 trong manifest đúng dàn chương): ValueAnimator, ObjectAnimator, interpolator (AAT Ch.1), chuỗi tính mỗi frame theo tài liệu Property Animation, XML anim vs animator và cảnh báo view animation (AAT Ch.3), chuyển màn hình và Transition framework (AAT Ch.4–5), bảng đối chiếu View → Compose (gắn nhãn ánh xạ ý niệm); 2 bug, 1 bài tập (AnimatorSet → rememberTransition), tự trả lời 2 câu, quiz 4 câu.
+  - Sim mới `animation.vframe` (ObjectAnimator, TranslateAnimation, Compose; ví dụ 40 ms của tài liệu). 1 nguồn mới (`views-prop`, HTTP 200).
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 120 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
+  - **Tiếp theo:** c7 (frame clock và phase, giữ X1, X3; Runtime B5, B7, quick-guide), rồi c8, c0.
 

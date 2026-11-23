@@ -10,6 +10,7 @@ ADE.registerTrack({
   prerequisites: ['runtime'], languages: ['vi', 'en'],
   chapters: [
     { id: 'c0', titleKey: 'track.animation.c0.title', sims: ['animation.choose'], bridges: ['X7'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'vm', titleKey: 'track.animation.vm.title', sims: ['animation.vframe'], simAfter: 'animators', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 mới (AAT Ch.1–5; Property Animation docs)
     { id: 'c1', titleKey: 'track.animation.c1.title', sims: ['animation.aas', 'animation.retarget'], simAfter: 'inside', bridges: ['X1'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (AnimateAsState.kt @296313a4, Kunneth Ch.8, Essentials Ch.40, Tutorials Ch.12)
     { id: 'c2', titleKey: 'track.animation.c2.title', sims: ['animation.vector', 'animation.spec'], simAfter: 'vectors', bridges: ['X7'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (AnimationSpec.kt, Easing.kt, VectorConverters.kt, ColorVectorConverter.kt @296313a4; Essentials Ch.39–40; Kunneth Ch.8)
     { id: 'c3', titleKey: 'track.animation.c3.title', sims: ['animation.segment', 'animation.transition'], simAfter: 'state', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (Transition.kt @296313a4, Kunneth Ch.8, Tutorials Ch.12)

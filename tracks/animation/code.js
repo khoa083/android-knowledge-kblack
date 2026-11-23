@@ -238,4 +238,22 @@
     '    modifier = Modifier.clickable { atEnd = !atEnd }',
     ')'
   ]);
+  add('vf_property', [
+    'ObjectAnimator.ofFloat(button, "translationX", 0f, 40f).apply {',
+    '    duration = 40',
+    '    interpolator = AccelerateDecelerateInterpolator()',
+    { vi: '}.start()                       // gọi setTranslationX mỗi frame', en: '}.start()                       // calls setTranslationX every frame' }
+  ]);
+  add('vf_viewanim', [
+    'TranslateAnimation(0f, 40f, 0f, 0f).apply {',
+    '    duration = 40; fillAfter = true',
+    '    interpolator = AccelerateDecelerateInterpolator()',
+    { vi: '}.also { button.startAnimation(it) }   // ✗ chỉ dời hình vẽ', en: '}.also { button.startAnimation(it) }   // ✗ only moves the drawing' }
+  ]);
+  add('vf_compose', [
+    'val x by animateFloatAsState(if (moved) 40f else 0f,',
+    '    tween(durationMillis = 40,',
+    '        easing = Easing { t -> (cos((t + 1) * PI) / 2 + 0.5).toFloat() }), label = "x")',
+    { vi: 'Button(onClick, Modifier.offset { IntOffset(x.roundToInt(), 0) }) { … }   // đọc ở bước đặt', en: 'Button(onClick, Modifier.offset { IntOffset(x.roundToInt(), 0) }) { … }   // read at placement' }
+  ]);
 })();

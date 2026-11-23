@@ -95,6 +95,13 @@
     edges: [E('e1', 'state', 'anim'), E('e2', 'anim', 'reader'), E('e3', 'reader', 'screen')],
     metrics: [T('avd', 'comp'), T('avd', 'vector'), T('avd', 'draw'), T('avd', 'val')]
   });
+  /* VM (v2): phân số thời gian → interpolator → evaluator → nơi ghi giá trị. */
+  V('vframe', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('vframe', 'clock', 0, 0, 'frame', 'runtime'), N('vframe', 'interp', 4, 0, 'motion', 'anim'), N('vframe', 'eval', 8, 0, 'grid', 'anim'), N('vframe', 'target', 12, 0, 'phone', 'ui')],
+    edges: [E('e1', 'clock', 'interp'), E('e2', 'interp', 'eval'), E('e3', 'eval', 'target')],
+    metrics: [T('vframe', 'elapsed'), T('vframe', 'interp'), T('vframe', 'value')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });
