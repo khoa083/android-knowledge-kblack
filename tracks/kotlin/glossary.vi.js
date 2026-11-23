@@ -6,5 +6,7 @@ ADE.addGlossary('vi', 'kotlin', {
   "smart-cast": { term: "smart cast", def: "Trình biên dịch tự coi biến là kiểu hẹp hơn (ví dụ String thay vì String?) sau một phép kiểm, chỉ khi chứng minh được biến không đổi giữa lúc kiểm và lúc dùng.", chapter: "kotlin/k2" },
   "platform-type": { term: "platform type (T!)", def: "Kiểu của giá trị đến từ Java không có chú thích nullability; nghĩa là T hoặc T?. Kotlin nới kiểm tra null cho nó, nên có thể NPE lúc chạy.", chapter: "kotlin/k2" },
   "elvis": { term: "Elvis ?:", def: "Toán tử trả về vế trái nếu khác null, ngược lại trả vế phải; vế phải có thể là return hoặc throw.", chapter: "kotlin/k2" },
+  "lateinit": { term: "lateinit", def: "Đánh dấu một var không null sẽ được gán sau khi tạo object; đọc trước khi gán ném UninitializedPropertyAccessException. Không dùng cho kiểu nguyên thủy.", chapter: "kotlin/k3" },
+  "companion-object": { term: "companion object", def: "object gắn với một class, chứa thành viên gọi qua tên lớp (như static của Java); khởi tạo khi lớp được nạp.", chapter: "kotlin/k3" },
   "when-expression": { term: "biểu thức when", def: "when trả về giá trị của nhánh khớp đầu tiên; khi dùng như biểu thức, các nhánh phải phủ đủ mọi trường hợp (thường bằng else).", chapter: "kotlin/k1" }
 });

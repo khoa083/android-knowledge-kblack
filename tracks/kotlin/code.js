@@ -65,6 +65,49 @@
     c('// sửa: val title: String? = legacy.title rồi xử lý null', '// fix: val title: String? = legacy.title, then handle null'),
     c('// hoặc thêm @Nullable/@NonNull ở phía Java', '// or add @Nullable/@NonNull on the Java side')
   ]);
+  /* K3: thứ tự khởi tạo (Inheritance: Derived class initialization order; Classes: Initializer blocks; Object declarations; Properties: lateinit) */
+  add('init.order', [
+    'open class Entity(val id: String) {',
+    '    init { println("1. Entity.init") }',
+    '    open val tag: String = "E-$id".also { println("2. Entity.tag") }',
+    '}',
+    'class Appointment(id: String, val doctor: String) : Entity(id.uppercase()) {',
+    '    init { println("3. Appointment.init") }',
+    '    override val tag: String = (super.tag + doctor).also { println("4. Appointment.tag") }',
+    '}',
+    c('Appointment("a1", "Minh")   // in ra: 1, 2, 3, 4', 'Appointment("a1", "Minh")   // prints: 1, 2, 3, 4')
+  ]);
+  add('init.openCall', [
+    'open class Screen {',
+    c('    init { render() }                     // gọi hàm open khi đang khởi tạo', '    init { render() }                     // calls an open function during init'),
+    '    open fun render() {}',
+    '}',
+    'class DetailScreen : Screen() {',
+    c('    private val title: String = "Chi tiết"', '    private val title: String = "Details"'),
+    c('    override fun render() { println(title.length) }  // title chưa được gán', '    override fun render() { println(title.length) }  // title not assigned yet'),
+    '}',
+    c('DetailScreen()   // NullPointerException trong render()', 'DetailScreen()   // NullPointerException inside render()')
+  ]);
+  add('init.object', [
+    'object ClinicConfig {',
+    c('    init { println("ClinicConfig khởi tạo") }', '    init { println("ClinicConfig initialised") }'),
+    '    val baseUrl = "https://api.example.test"',
+    '}',
+    'fun main() {',
+    c('    println("App chạy")              // ClinicConfig chưa khởi tạo', '    println("App runs")              // ClinicConfig not initialised yet'),
+    c('    println(ClinicConfig.baseUrl)    // lần truy cập đầu: chạy init', '    println(ClinicConfig.baseUrl)    // first access: init runs'),
+    c('    println(ClinicConfig.baseUrl)    // không chạy lại', '    println(ClinicConfig.baseUrl)    // does not run again'),
+    '}'
+  ]);
+  add('init.lateinit', [
+    'class BookingScreen {',
+    '    lateinit var adapter: SlotAdapter',
+    '    fun onCreate() { adapter = SlotAdapter() }',
+    '    fun refresh() { adapter.notifyChanged() }',
+    '}',
+    c('BookingScreen().refresh()     // UninitializedPropertyAccessException', 'BookingScreen().refresh()     // UninitializedPropertyAccessException'),
+    c('// kiểm trước: if (::adapter.isInitialized) adapter.notifyChanged()', '// check first: if (::adapter.isInitialized) adapter.notifyChanged()')
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',

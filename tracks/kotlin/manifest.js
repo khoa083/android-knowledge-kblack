@@ -8,7 +8,8 @@ ADE.registerTrack({
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
     { id: 'k1', titleKey: 'track.kotlin.k1.title', sims: ['kotlin.eval'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'k2', titleKey: 'track.kotlin.k2.title', sims: ['kotlin.smartcast'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'k2', titleKey: 'track.kotlin.k2.title', sims: ['kotlin.smartcast'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'k3', titleKey: 'track.kotlin.k3.title', sims: ['kotlin.init'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'kotlin-int-division', model: 'kotlin.eval', titleKey: 'track.kotlin.preset.eval' }

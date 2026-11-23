@@ -14,6 +14,10 @@
   /* K1: mã nguồn → suy kiểu (biên dịch) → tính giá trị (chạy) → biến nhận kết quả */
   V('eval', { layout: 'pipeline', nodes: [N('eval', 'src', 0, 0, 'source', 'ui'), N('eval', 'types', 3, 0, 'target', 'state'), N('eval', 'eval', 6, 0, 'play', 'runtime'), N('eval', 'out', 9, 0, 'store', 'job')],
     edges: [E('e1', 'src', 'types'), E('e2', 'types', 'eval'), E('e3', 'eval', 'out')], metrics: [T('eval', 'type'), T('eval', 'value')] });
+  /* K3: điểm kích hoạt → khởi tạo lớp cha → khởi tạo lớp con / object → dùng */
+  V('init', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na', run: K + 'fam.running' },
+    nodes: [N('init', 'trigger', 0, 0, 'play', 'ui'), N('init', 'parent', 3, 0, 'layers', 'state'), N('init', 'child', 6, 0, 'square', 'runtime'), N('init', 'use', 9, 0, 'target', 'job')],
+    edges: [E('e1', 'trigger', 'parent'), E('e2', 'parent', 'child'), E('e3', 'child', 'use')], metrics: [T('init', 'inits')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],

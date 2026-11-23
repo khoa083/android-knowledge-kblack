@@ -57,6 +57,43 @@
         { name: 'chia nguyên và tràn số là bẫy (bước cuối loại pitfall)', run: function () { return steps({ case: 'intdiv' })[3].type === 'pitfall' && steps({ case: 'overflow' })[3].type === 'pitfall' && steps({ case: 'double' })[3].type === 'mechanism'; } }] });
   })();
 
+  /* ================= K3: thứ tự khởi tạo — lớp cha trước, khối init và property theo thứ tự khai báo, object khi truy cập lần đầu =================
+     Theo kotlinlang.org: Inheritance (Derived class initialization order), Classes (Initializer blocks), Object declarations, Properties (lateinit). */
+  (function () {
+    var m = 'init', CASES = ['order', 'openCall', 'object', 'lateinit'];
+    // mỗi bước: [node đang xét, trạng thái các node (hậu tố st.*), số khối khởi tạo đã chạy, loại bước, dòng mã, loại log]
+    var P = {
+      order: [[['trigger'], {}, 0, 'scenario', [9], 'observe'], [['parent'], { parent: 'running' }, 0, 'mechanism', [5, 9], 'run'],
+        [['parent'], { parent: 'done' }, 2, 'mechanism', [2, 3], 'run'], [['child', 'use'], { parent: 'done', child: 'done', use: 'done' }, 4, 'mechanism', [6, 7], 'write']],
+      openCall: [[['trigger'], {}, 0, 'scenario', [9], 'observe'], [['parent'], { parent: 'running' }, 0, 'mechanism', [2], 'run'],
+        [['child'], { parent: 'running', child: 'crashed' }, 0, 'pitfall', [6, 7], 'run'], [['parent', 'child'], { parent: 'done', child: 'done' }, 2, 'mechanism', [2, 3], 'write']],
+      object: [[['trigger'], { parent: 'skipped' }, 0, 'scenario', [6], 'observe'], [['child'], { parent: 'skipped', child: 'running' }, 0, 'mechanism', [7], 'run'],
+        [['child', 'use'], { parent: 'skipped', child: 'done', use: 'done' }, 1, 'mechanism', [2, 3], 'write'], [['use'], { parent: 'skipped', child: 'done', use: 'done' }, 1, 'mechanism', [8], 'skip']],
+      lateinit: [[['trigger'], { parent: 'skipped' }, 0, 'scenario', [1, 2], 'observe'], [['child'], { parent: 'skipped', child: 'done' }, 1, 'mechanism', [2, 6], 'run'],
+        [['use'], { parent: 'skipped', child: 'done', use: 'crashed' }, 1, 'pitfall', [4, 6], 'run'], [['use'], { parent: 'skipped', child: 'done', use: 'done' }, 1, 'mechanism', [3, 7], 'write']]
+    };
+    ADE.kotlinInit = P;
+    var EDGE = { trigger: null, parent: 'e1', child: 'e2', use: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var e = EDGE[p[0][0]];
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: { inits: p[2] }, codeHighlight: { snippet: 'init.' + s.case, lines: p[4] },
+          movingSignals: e ? [{ edge: e, tok: p[3] === 'pitfall' ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5], subject: p[0][0] }] });
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i === 2 || i === 3) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'order' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước; bước 2 (vị trí 2) là lúc khởi tạo bắt đầu', run: function () { return CASES.every(function (k) { var st = steps({ case: k }); return st.length === 4 && /running|done/.test(JSON.stringify(st[1].nodeStates)); }); } },
+        { name: 'lớp cha khởi tạo xong (2 khối) trước khi lớp con chạy (thêm 2 khối)', run: function () { var st = steps({ case: 'order' }); return st[2].metrics.inits === 2 && st[3].metrics.inits === 4 && !st[2].nodeStates.child; } },
+        { name: 'gọi hàm open trong init lớp cha và đọc lateinit trước khi gán đều là bẫy lúc chạy', run: function () { return steps({ case: 'openCall' })[2].type === 'pitfall' && steps({ case: 'lateinit' })[2].type === 'pitfall'; } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

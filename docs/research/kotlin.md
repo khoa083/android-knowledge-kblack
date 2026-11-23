@@ -35,3 +35,21 @@ Kiểm URL (curl, HTTP 200): 4 trang kotlinlang.org; leanpub.com/kotlin_develope
 | Sim `kotlin.smartcast`: ví dụ User/Patient/LegacyClinicApi hư cấu; khối "luật smart cast" gộp phân tích luồng dữ liệu | Minh họa | simp.1, simp.2 |
 
 Kiểm URL (curl, HTTP 200): null-safety.html, typecasts.html, java-interop.html.
+
+## K3 · Class, interface, object và thứ tự khởi tạo (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Khối init chạy theo thứ tự xuất hiện, xen với giá trị khởi tạo property | `kt-classes` (Initializer blocks) | stable |
+| Class final mặc định; open/override | `kt-inheritance` | stable |
+| Lớp cha khởi tạo là bước đầu, chỉ sau việc tính đối số cho constructor lớp cha; tránh dùng thành viên open trong constructor/initializer/init của lớp cha | `kt-inheritance` (Derived class initialization order) | stable |
+| Constructor lớp cha gọi open member dùng trạng thái chưa khởi tạo là một nguồn NPE | `kt-null-safety` | stable |
+| Interface có hàm có thân, không giữ trạng thái | `kt-interfaces` | stable |
+| object declaration khởi tạo lười ở lần truy cập đầu, an toàn luồng; object expression ngay tại chỗ; companion khi lớp được nạp (như static initializer) | `kt-objects` | stable |
+| Setter tự viết chạy mỗi lần gán, trừ lúc khởi tạo; field | `kt-properties` | stable |
+| lateinit: var, không null, không nguyên thủy; ngoại lệ nêu tên property; isInitialized | `kt-properties` | stable |
+| NPE cụ thể khi DetailScreen đọc title trong render() (field null trên JVM) | suy ra từ hai dòng trên; site chưa chạy | simplified |
+| object giữ Activity gây rò rỉ bộ nhớ | kiến thức Android chung, không trích nguồn | guideline |
+| Bài tập VaccineStock | dựa trên "Implementing the Product class", `book-kt-exercises`; lời giải tự viết | — |
+
+Kiểm URL (curl, HTTP 200): classes, inheritance, interfaces, object-declarations, properties.
