@@ -18,6 +18,7 @@ Website học tập tương tác, song ngữ Việt–Anh, chạy **offline**. C
 | F | Kotlin: cơ chế ngôn ngữ | Engineering | có |
 | G | Kiến trúc app Android | Engineering | đang viết |
 | H–K | Lưu dữ liệu; Thiết kế hệ thống phía mobile; Mã sạch; Lập trình hàm với Kotlin | Engineering | đã duyệt dàn ý, chưa viết (`docs/tracks/`) |
+| L | Gỡ lỗi và hiệu năng Android | Engineering | dàn ý chờ duyệt (`docs/tracks/`) |
 
 Mô phỏng là **mô hình giảng dạy** viết bằng JavaScript: không chạy Compose hay kotlinx.coroutines thật, không phải công cụ nghiên cứu người dùng hay kiểm định accessibility. Mỗi mô phỏng nêu rõ phần giản lược.
 
@@ -80,6 +81,7 @@ An interactive, bilingual (Vietnamese–English) learning site that runs **offli
 | F | Kotlin: How the Language Works | Engineering | available |
 | G | Android App Architecture | Engineering | in progress |
 | H–K | Saving Data; Mobile System Design; Clean Code and Craft; Functional Programming in Kotlin | Engineering | outlines approved, not yet written (`docs/tracks/`) |
+| L | Android Debugging and Performance | Engineering | outline awaiting approval (`docs/tracks/`) |
 
 The simulations are **teaching models** written in JavaScript: they do not run real Compose or kotlinx.coroutines, and they are not a user-research or accessibility-audit tool. Every simulation states what it simplifies.
 

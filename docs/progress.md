@@ -629,3 +629,7 @@ Trạng thái: `chưa / đang / xong`.
     - `README.md`: bảng track có thêm F, G, H–K kèm trạng thái.
   - **Không sửa mã site.** Tiếp theo: chờ người dùng duyệt H, I, J, K (và trả lời câu hỏi trong từng file), rồi viết G2.
 - **Duyệt H, I, J, K (2026-11-24, người dùng: "Duyệt cả bốn"):** ghi trạng thái ĐÃ DUYỆT vào bốn file spec. Các câu hỏi còn mở theo mặc định, người dùng đổi được: giữ h8, bỏ Firebase; giữ i2/i3 riêng, bài mẫu app nhắn tin; giữ j11, tên "Mã sạch và kỷ luật làm nghề"; dùng Arrow ở p5/p10, property-based testing OUT. Thứ tự xây: G → H → I → J → K.
+- **Dàn ý track L chờ duyệt (2026-11-24, người dùng đề xuất):** `docs/tracks/L-debugging-performance.md`, gồm 13 chương l0–l12 (gỡ lỗi, stack trace, R8/retrace, Layout/Database/Background Task Inspector, bộ nhớ và rò rỉ, trace và jank, ANR và StrictMode, mạng, đo hiệu năng). Mỗi chương có hình chính.
+  - Phần trùng với Runtime PF, I i2/i3/i11 và J j7 để OUT, kèm cầu nối.
+  - Đã thêm vào bảng trạng thái và thứ tự ưu tiên trong roadmap, cùng README, next-prompt và `docs/research/debugging.md`.
+  - Khi soạn cũng đưa cho người dùng danh sách chủ đề khác làm được từ sách trong kho: nền tảng Android, bảo mật, cấu trúc dữ liệu và giải thuật, phát hành và CI, hệ phân tán, KMP. Các chủ đề này chưa vào roadmap; chỉ thêm khi người dùng chọn.

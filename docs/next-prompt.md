@@ -10,6 +10,7 @@ Trạng thái:
 - Tạm dừng, KHÔNG đụng tới: D UX, E UI ("Sắp ra mắt"). Phần SM dở dang của UX nằm trong git stash.
 - Đang viết: G Kiến trúc app Android (track `arch`). Đã duyệt; G1 xong; tiếp theo G2. Spec: docs/tracks/G-clean-architecture.md.
 - Đã duyệt dàn ý (2026-11-24), CHƯA xây, làm theo thứ tự sau G: H docs/tracks/H-saving-data.md → I docs/tracks/I-mobile-system-design.md → J docs/tracks/J-clean-code.md → K docs/tracks/K-functional-kotlin.md.
+- Dàn ý chờ duyệt: L Gỡ lỗi và hiệu năng Android docs/tracks/L-debugging-performance.md (người dùng đề xuất 2026-11-24).
 
 Quy tắc đã chốt với người dùng:
 - Nội dung "cần và đủ": cơ chế sâu nhưng chọn lọc, không chép sách, không bám từng chương. Sách trong E:\AndroidBooks là nguồn giảng chính, cùng tài liệu chính thức; nguồn chính thức thắng khi mâu thuẫn.

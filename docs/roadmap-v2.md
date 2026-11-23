@@ -39,6 +39,7 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 | 6 | **Track mới: Saving Data on Android** | `Saving Data on Android….pdf` (SharedPreferences/DataStore, file, SQLite, Room, đồng bộ) |
 | 7 | **Track mới: Mobile System Design** | `deep_dive_kotlin/system-design/`: Mobile System Design (Tjeerd), DDIA (bản 1 và 2), Alex Xu tập 1 và 2, Acing the SDI, OS Concepts (chỉ phần áp dụng được cho mobile: tiến trình/luồng, bộ nhớ, đồng bộ hoá) |
 | 8 | **Track mới: Clean Code** (tuyển tập, người dùng bổ sung nguồn) | `deep_dive_kotlin/ggplaybook/`: *The Clean Coder*, *Clean Craftsmanship* (TDD, refactoring, simple design, kỷ luật), *Clean Architecture* (SOLID, nguyên lý thành phần, Dependency Rule; dùng chung với track 5), *Clean Agile*, *Code That Fits in Your Head* (Seemann: heuristic, checklist, đo độ phức tạp), *The Software Craftsman*; cùng với *Effective Kotlin* để có ví dụ Kotlin. Có thể dùng thêm *API Design Patterns* và *Fundamentals of Software Architecture* (cùng thư mục) cho phần thiết kế API và kiến trúc |
+| 10 | **Track mới: Gỡ lỗi và hiệu năng Android** (người dùng thêm 2026-11-24) | *Android Debugging by Tutorials* (PDF không có lớp text); *Android Test-Driven Development* ch.12–14 |
 | 9 | **Track mới: Functional Programming in Kotlin** ("Build Your Software Faster and Safer…") | `From Objects to Functions….pdf`, `Functional Programming in K_….pdf`, `Functional Programming in Kotlin by Tutorials.pdf`, Functional Kotlin |
 
 ## Trạng thái các track (cập nhật 2026-11-24)
@@ -56,6 +57,7 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 | I | Thiết kế hệ thống phía mobile (`sysdesign`) | **Đã duyệt** 2026-11-24, chưa xây (sau H) | `docs/tracks/I-mobile-system-design.md` |
 | J | Mã sạch và kỷ luật làm nghề (`cleancode`) | **Đã duyệt** 2026-11-24, chưa xây (sau I) | `docs/tracks/J-clean-code.md` |
 | K | Lập trình hàm với Kotlin (`fp`) | **Đã duyệt** 2026-11-24, chưa xây (sau J) | `docs/tracks/K-functional-kotlin.md` |
+| L | Gỡ lỗi và hiệu năng Android (`debugging`) | Dàn ý **chờ duyệt** (người dùng đề xuất 2026-11-24) | `docs/tracks/L-debugging-performance.md` |
 
 Mỗi dàn ý ghi cột **Hình chính** cho từng chương. Kiểu hình chọn theo nội dung, xem `docs/chapter-template-v2.md`, mục "Chọn kiểu hình theo nội dung". Một track chỉ được xây sau khi người dùng duyệt IN/OUT và dàn chương của nó.
 
