@@ -500,4 +500,9 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.shared` (cùng key, khác key, clip trước sharedElement). 4 nguồn mới (`an-shared`, `an-shared-custom`, `an-shared-nav`, `an-shared-src`), đều HTTP 200.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 118 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Tiếp theo:** cv (vẽ và vector động: Canvas + animation, AnimatedVectorDrawable; Essentials Ch.41, vectors docs, AAT Ch.2), rồi vm, c7, c8, c0.
+- **Animation v2 · CV chương mới (2026-11-23):**
+  - Nội dung (`animation_v2_cv.py`, thêm vào manifest giữa se và c7): hệ View (AAT Ch.2 FavoriteButton, Ch.10 làm lại bằng Compose) và cách nghĩ theo phase; Canvas và DrawScope (Essentials Ch.41) với giá trị animate đọc trong lambda vẽ, drawBehind cho màu (quick guide); AVD trong Compose và bên trong ở commit ghim (updateTransition(atEnd), animator XML → keyframes, spec đảo ngược, VectorPainter có Composition riêng với VectorApplier); 2 bug, 1 bài tập, tự trả lời 2 câu, quiz 4 câu.
+  - Sim mới `animation.avd` (Canvas, AVD tới cuối, AVD về đầu). 5 nguồn mới (`an-vectors`, `an-avdpainter-src`, `an-animator-src`, `an-aiv-src`, `ui-vectorpainter-src`), đều HTTP 200.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 119 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
+  - **Tiếp theo:** vm (trước Compose: ValueAnimator, ObjectAnimator, interpolator, Transition framework, shared element View; AAT Ch.1–6), rồi c7, c8, c0.
 

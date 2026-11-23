@@ -88,6 +88,13 @@
     edges: [E('e1', 'list', 'scope'), E('e2', 'scope', 'overlay'), E('e3', 'scope', 'detail'), E('e4', 'overlay', 'detail')],
     metrics: [T('shared', 'x'), T('shared', 'w'), T('shared', 'active')]
   });
+  /* CV (v2): state → animation → nơi đọc (lambda vẽ / composition vector) → màn hình. */
+  V('avd', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('avd', 'state', 0, 0, 'target', 'state'), N('avd', 'anim', 4, 0, 'motion', 'anim'), N('avd', 'reader', 8, 0, 'spark', 'runtime'), N('avd', 'screen', 12, 0, 'phone', 'ui')],
+    edges: [E('e1', 'state', 'anim'), E('e2', 'anim', 'reader'), E('e3', 'reader', 'screen')],
+    metrics: [T('avd', 'comp'), T('avd', 'vector'), T('avd', 'draw'), T('avd', 'val')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

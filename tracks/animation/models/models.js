@@ -742,4 +742,52 @@
       } }]
     });
   })();
+
+  /* ================= CV (v2, chương mới): vẽ động và AVD (AnimatedVectorPainterResources.android.kt, Animator.kt, VectorPainter.kt @296313a4) =================
+     canvas: progress → recompose 1 lần, sweep đọc trong Canvas → mỗi frame chỉ draw. forward: atEnd → true, updateTransition, giá trị đọc
+     trong composition riêng của vector, mỗi frame vector + draw. back: atEnd → false, spec.reversed. Số liệu minh họa. */
+  (function () {
+    var m = 'avd';
+    var SC = ['canvas', 'forward', 'back'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'canvas', out = [], t = 0, n = 0, c = { comp: 0, vector: 0, draw: 0 }, val = sc === 'back' ? 180 : 0;
+      var spec = sc === 'canvas' ? 'spring' : sc === 'back' ? 'keyframes.reversed' : 'keyframes', reader = sc === 'canvas' ? 'drawBehind' : 'vector composition';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = { n: n, v: val };
+        o.metrics = { comp: c.comp, vector: c.vector, draw: c.draw, val: val };
+        o.stateAfter = [{ labelKey: M(m, 'st.val'), value: val + '°' }, { labelKey: M(m, 'st.spec'), value: spec }, { labelKey: M(m, 'st.reader'), value: reader }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: sc === 'canvas' ? 'avd_canvas' : 'avd_vector', lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 16, kind: o.kind || 'frame', subject: o.activeNodes[0] || 'anim', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['state', 'anim'], lines: sc === 'canvas' ? [1, 2] : [1, 4], kind: 'observe', callouts: sc === 'canvas' ? undefined : [{ kind: 'source', textKey: M(m, 'co.transition') }] });
+      c.comp++;
+      P(sc === 'canvas' ? 'target.canvas' : 'target.avd', { activeNodes: ['state', 'anim'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: sc === 'canvas' ? [1] : [2, 6], kind: 'recompose' });
+      var vals = sc === 'back' ? [120, 60, 0] : [60, 120, 180];
+      vals.forEach(function (v, i) {
+        n++; val = v; c.draw++; if (sc !== 'canvas') c.vector++;
+        var key = sc === 'canvas' ? 'frame.canvas' : sc === 'back' ? 'frame.back' : 'frame.forward';
+        var co = i !== 0 ? undefined : sc === 'canvas' ? [{ kind: 'source', textKey: M(m, 'co.draw') }] : sc === 'back' ? [{ kind: 'source', textKey: M(m, 'co.reversed') }] : [{ kind: 'mechanism', textKey: M(m, 'co.vector') }];
+        P(key, { activeNodes: ['anim', 'reader', 'screen'], movingSignals: [{ edge: 'e2', tok: 'anim' }, { edge: 'e3', tok: 'ui' }], lines: sc === 'canvas' ? [5] : [4], callouts: co, kind: sc === 'canvas' ? 'draw' : 'recompose' });
+      });
+      P('done.' + sc, { activeNodes: ['screen'], lines: [], kind: 'settle' });
+      return out;
+    }
+    reg(m, {
+      codeId: 'avd_canvas',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'canvas' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'Canvas: 1 recompose, 3 lượt vẽ, 0 lượt composition của vector; AVD tới cuối: 3 lượt composition vector, kết thúc 180°; về đầu: spec đảo ngược, kết thúc 0°', run: function () {
+        var a = steps({ which: 'canvas' }), f = steps({ which: 'forward' }), b = steps({ which: 'back' });
+        var la = a[a.length - 1].metrics, lf = f[f.length - 1].metrics, lb = b[b.length - 1];
+        return la.comp === 1 && la.draw === 3 && la.vector === 0 && lf.vector === 3 && lf.val === 180 && lb.metrics.val === 0 && lb.stateAfter[1].value === 'keyframes.reversed';
+      } }]
+    });
+  })();
 })();

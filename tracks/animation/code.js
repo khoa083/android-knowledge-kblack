@@ -220,4 +220,22 @@
     { vi: '            .clip(RoundedCornerShape(16.dp))     // ✗ trước sharedElement', en: '            .clip(RoundedCornerShape(16.dp))     // ✗ before sharedElement' },
     '            .sharedElement(rememberSharedContentState(key = "image"), this@AnimatedContent)'
   ]).concat(seTail));
+  add('avd_canvas', [
+    'val sweep by animateFloatAsState(progress * 360f, label = "sweep")',
+    'Canvas(Modifier.size(64.dp)) {',
+    '    drawArc(',
+    '        color = Teal, startAngle = -90f,',
+    { vi: '        sweepAngle = sweep,                 // đọc trong lambda vẽ', en: '        sweepAngle = sweep,                 // read in the draw lambda' },
+    '        useCenter = false, style = Stroke(8.dp.toPx()))',
+    '}'
+  ]);
+  add('avd_vector', [
+    'val image = AnimatedImageVector.animatedVectorResource(R.drawable.ic_hourglass_animated)',
+    'var atEnd by remember { mutableStateOf(false) }',
+    'Image(',
+    { vi: '    painter = rememberAnimatedVectorPainter(image, atEnd),   // bên trong: updateTransition(atEnd)', en: '    painter = rememberAnimatedVectorPainter(image, atEnd),   // inside: updateTransition(atEnd)' },
+    '    contentDescription = "Timer",',
+    '    modifier = Modifier.clickable { atEnd = !atEnd }',
+    ')'
+  ]);
 })();

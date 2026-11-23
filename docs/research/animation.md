@@ -185,3 +185,19 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 | Navigation 3/2, predictive back theo API level, enableOnBackInvokedCallback | `an-shared-nav` | version |
 | transitionName, addSharedElement, sharedElementEnterTransition, ChangeBounds/ChangeTransform; tên trùng trong RecyclerView | AAT Ch.6 | Ví dụ của sách (hệ View) |
 | Sim `animation.shared`: 64×64 → 360×240, khung trung gian | Minh họa | selfCheck; ghi trong simp |
+
+### CV v2 (chương mới) · Vẽ và vector động (2026-11-23)
+
+Đọc ở commit ghim 296313a4: `animation-graphics` (`res/AnimatedVectorPainterResources.android.kt`, `vector/Animator.kt`, `vector/AnimatedImageVector.kt`); `ui/ui/.../graphics/vector/VectorPainter.kt`. Tài liệu `animation/vectors` (đọc 2026-11-23).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| rememberAnimatedVectorPainter = rememberVectorPainter { updateTransition(atEnd); target.animator.createVectorConfig(transition, totalDuration) }; thay đổi atEnd được animate | `an-avdpainter-src` | impl |
+| Animator XML → keyframes + transition.animateFloat; đích false → spec.reversed(overallDuration) | `an-animator-src` | impl |
+| AnimatedImageVector: imageVector + targets; totalDuration = animator dài nhất kể cả delay, repeat | `an-aiv-src` | impl |
+| VectorPainter dựng nội dung bằng Composition(VectorApplier(root), compositionContext) | `ui-vectorpainter-src` | impl |
+| Ba cách animate vector, animatedVectorResource + rememberAnimatedVectorPainter | `an-vectors` | stable |
+| drawBehind cho màu animate thay background | `an-quick` | guideline |
+| Lệnh vẽ Canvas (line, dash, rect, rotate, circle, gradient, arc, path, points, image, text); chương không animate | Essentials Ch.41 | Ví dụ của sách |
+| FavoriteButton: ValueAnimator.ofInt + updateLayoutParams, ObjectAnimator alpha, textSize; Ch.10 làm lại bằng Compose | AAT Ch.2, Ch.10 | Ví dụ của sách (hệ View) |
+| Sim `animation.avd`: 60/120/180°, đếm composition vector | Minh họa | selfCheck; ghi trong simp |
