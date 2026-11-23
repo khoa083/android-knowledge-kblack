@@ -3401,5 +3401,7 @@ ADE.addTrackStrings('runtime', 'vi', {
   "track.runtime.b10.quiz.q4.why": "Strong skipping tự remember lambda, nên vẫn là instance cũ (chương B8).",
   "track.runtime.b0.quiz.q3.q": "State bị mất khi xóa một mục trong LazyColumn: đọc chương nào trước?",
   "track.runtime.b0.quiz.q3.a": "LZ (key), rồi B3.",
-  "track.runtime.b0.quiz.q3.why": "Không có key thì state gắn với vị trí."
+  "track.runtime.b0.quiz.q3.why": "Không có key thì state gắn với vị trí.",
+  "track.runtime.vz.tab.slots": "Dãy group",
+  "track.runtime.vz.slots.cap": "Mỗi ô là một group theo đúng thứ tự trong SlotTable. So hàng \"cũ\" với hàng \"lần chạy mới gọi\" từ trái sang phải để thấy chỗ khớp, chỗ lệch; hàng có viền vừa đổi ở bước này."
 });

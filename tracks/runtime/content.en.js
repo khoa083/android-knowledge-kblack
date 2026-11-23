@@ -3401,5 +3401,7 @@ ADE.addTrackStrings('runtime', 'en', {
   "track.runtime.b10.quiz.q4.why": "Strong skipping auto-remembers the lambda, so it stays the old instance (chapter B8).",
   "track.runtime.b0.quiz.q3.q": "State is lost when deleting an item in a LazyColumn: which chapter first?",
   "track.runtime.b0.quiz.q3.a": "LZ (keys), then B3.",
-  "track.runtime.b0.quiz.q3.why": "Without keys, state is tied to position."
+  "track.runtime.b0.quiz.q3.why": "Without keys, state is tied to position.",
+  "track.runtime.vz.tab.slots": "Group sequence",
+  "track.runtime.vz.slots.cap": "Each chip is one group in SlotTable order. Compare the \"old\" row with the \"new run calls\" row left to right to see where they match and where they diverge; an outlined row just changed at this step."
 });
