@@ -672,13 +672,43 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 }
 @media print { .topbar, .toolbar, .rail, .controls, .drawer { display: none !important; } }
 /* Bản đồ cầu nối (P7) */
-.bridge-map-wrap { max-width: 100%; overflow: hidden; margin: 0 0 12px; }
-.bridge-map { width: 100%; max-width: 720px; height: auto; display: block; }
-.bridge-map .bm-edge { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 5 4; }
-.bridge-map .bm-label { font: 700 11px var(--mono); fill: var(--ink-2); }
-.bridge-map .bm-box { fill: var(--paper); stroke: var(--ink); stroke-width: 1.6; }
-.bridge-map .bm-code { font: 800 14px var(--mono); fill: var(--ink); }
-.bridge-map .bm-node:focus-visible .bm-box, .bridge-map .bm-node:hover .bm-box { stroke: var(--focus); stroke-width: 3; }
+/* đồ thị kiểu graph view (js/core/graph.js) */
+.gv { display: grid; gap: 6px; margin: 0 0 14px; }
+.gv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: 13px; color: var(--ink-2); }
+.gv-toggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.gv-tools { display: inline-flex; gap: 4px; margin-left: auto; }
+.gv-stage { position: relative; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--paper); overflow: hidden; max-width: 100%; }
+.gv-svg { display: block; width: 100%; height: 100%; touch-action: pan-y; cursor: grab; user-select: none; }
+.gv-svg:active { cursor: grabbing; }
+.gv-e { stroke: var(--line-strong); stroke-width: 1; opacity: .55; transition: opacity .15s, stroke-width .15s; }
+.gv-e-bridge { stroke: var(--brand); stroke-width: 2.4; opacity: .9; }
+.gv-e-path { stroke: var(--ink-3); stroke-dasharray: 5 4; stroke-width: 1.4; }
+.gv-e-term { stroke-width: .8; }
+.gv-n { cursor: pointer; touch-action: none; }
+.gv-n circle { fill: var(--ink-3); stroke: var(--paper); stroke-width: 1.5; transition: opacity .15s; }
+.gv-n-hub circle { stroke: var(--ink); stroke-width: 2; }
+.gv-n-term circle { fill: var(--paper-2); stroke: var(--ink-2); stroke-width: 1.2; }
+.gv-code { font: 800 12px var(--mono); fill: #fff; pointer-events: none; }
+.gv-label { font: 11px var(--mono); fill: var(--ink-2); pointer-events: none; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; opacity: 0; transition: opacity .15s; }
+.gv-n-hub .gv-label { font-weight: 700; fill: var(--ink); opacity: 1; }
+.gv-zoomed .gv-label, .gv-labels-all .gv-label, .gv-n.on .gv-label { opacity: 1; }
+.gv-focus .gv-n:not(.on) { opacity: .18; }
+.gv-focus .gv-e { opacity: .08; }
+.gv-focus .gv-e.on { opacity: 1; stroke-width: 2.6; }
+.gv-n.me circle, .gv-n:focus-visible circle { stroke: var(--focus); stroke-width: 3; }
+.gv-n:focus { outline: none; }
+.gv-info { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); min-height: 2.9em; }
+.gv-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); }
+.gv-lg { display: inline-flex; align-items: center; gap: 6px; }
+.gv-lg i { display: inline-block; width: 18px; height: 0; border-top: 1px solid var(--line-strong); }
+.gv-lg-hub i { width: 12px; height: 12px; border: 2px solid var(--ink); border-radius: 50%; background: var(--ink-3); }
+.gv-lg-leaf i { width: 8px; height: 8px; border: 0; border-radius: 50%; background: var(--ink-3); }
+.gv-lg-term i { width: 8px; height: 8px; border: 1.2px solid var(--ink-2); border-radius: 50%; background: var(--paper-2); }
+.gv-lg-bridge i { border-top: 2.4px solid var(--brand); }
+.gv-lg-path i { border-top: 1.4px dashed var(--ink-3); }
+.gv-details > summary { cursor: pointer; font-weight: 700; }
+.gv-details[open] > summary { margin-bottom: 10px; }
+@media (prefers-reduced-motion: reduce) { .gv-e, .gv-n circle, .gv-label { transition: none; } }
 
 /* Hình trực quan dạng bảng, ma trận, hộp lồng (ADE.registerScreen với opts; track kỹ thuật dùng) */
 .vz { width: 100%; max-width: 640px; display: grid; gap: 8px; }

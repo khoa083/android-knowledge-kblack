@@ -634,3 +634,15 @@ Trạng thái: `chưa / đang / xong`.
   - Đã thêm vào bảng trạng thái và thứ tự ưu tiên trong roadmap, cùng README, next-prompt và `docs/research/debugging.md`.
   - Khi soạn cũng đưa cho người dùng danh sách chủ đề khác làm được từ sách trong kho: nền tảng Android, bảo mật, cấu trúc dữ liệu và giải thuật, phát hành và CI, hệ phân tán, KMP. Các chủ đề này chưa vào roadmap; chỉ thêm khi người dùng chọn.
 - **Duyệt L (2026-11-24, người dùng: "Duyệt L"):** ghi ĐÃ DUYỆT vào spec. Mặc định: xây sau K; gỡ lỗi coroutine gộp vào l2/l4. Thứ tự xây: G → H → I → J → K → L.
+- **Đồ thị kiểu graph view (2026-11-24, người dùng yêu cầu):** thay bản đồ cầu nối tĩnh trên trang chủ bằng đồ thị tương tác giống graph view của Obsidian.
+  - Lõi chung `js/core/graph.js` (`ADE.graph.create`, xem `docs/core-api.md` §4.4): mô phỏng lực, kéo node, kéo nền, phóng to, làm nổi node lân cận, bấm để mở.
+  - Áp dụng ở ba nơi:
+    - trang chủ: track, chương, cầu nối, lộ trình học; có toggle "Hiện mọi chương" và "Hiện lộ trình học";
+    - trang track: đồ thị cục bộ, gồm chương của track và các chương nối cầu với nó;
+    - glossary: thuật ngữ → chương → track, mở bằng mục "Xem thuật ngữ dạng đồ thị".
+  - Thêm icon `minus` vào bộ icon và khóa `app.graph.*` (vi/en). Bỏ hàm `bridgeSvg` và CSS `.bridge-map` cũ.
+  - **Kiểm:**
+    - report 0 lỗi, 120 cảnh báo;
+    - routes-check 143 route, 0 vấn đề, không tràn ngang;
+    - focus-check bình thường;
+    - đã xem ảnh trang chủ ở 1280 và 360, trang track Kotlin, đồ thị glossary.

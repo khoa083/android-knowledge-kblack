@@ -418,7 +418,10 @@
     var bridges = ADE.bridgeList.filter(function (b) { return ADE.resolveRef(b.owner); });
     if (bridges.length) {
       var bs = h('section', { class: 'bridges' }, h('h2', { class: 'caps sec-h', text: ADE.t('app.bridgeMap') }));
-      bs.appendChild(bridgeSvg(bridges));
+      bs.appendChild(para(ADE.t('app.graph.homeIntro'), 'hint'));
+      bs.appendChild(mountGraph({ height: 440, label: ADE.t('app.bridgeMap'), data: function () { return graphData({ mode: 'global' }); },
+        toggles: [{ id: 'all', labelKey: 'app.graph.allChapters', get: function () { return gprefs.all; }, set: function (v) { gprefs.all = v; } },
+          { id: 'paths', labelKey: 'app.graph.showPaths', get: function () { return gprefs.paths; }, set: function (v) { gprefs.paths = v; } }] }));
       var ul = h('ul', { class: 'bridge-list' });
       bridges.forEach(function (b) {
         var o = ADE.resolveRef(b.owner), links = h('span', { class: 'chips' });
@@ -430,33 +433,62 @@
     }
     return wrap;
   }
-  /* Bản đồ cầu nối dạng SVG line-art (P7): mỗi track là một khối isometric (sinh từ registry, không biết id nào),
-     mỗi cầu nối là đường từ track chủ sở hữu tới track dẫn link, nhãn là mã cầu nối. Khối là link tới trang track. */
-  function bridgeSvg(bridges) {
-    var NS = 'http://www.w3.org/2000/svg', tracks = ADE.tracks.slice(), n = tracks.length, pos = {}, W = 640, H = 300;
-    tracks.forEach(function (t, i) { var ang = -Math.PI / 2 + i * 2 * Math.PI / n; pos[t.id] = [W / 2 + Math.cos(ang) * 230, H / 2 + Math.sin(ang) * 105]; });
-    var svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('class', 'bridge-map'); svg.setAttribute('role', 'group'); svg.setAttribute('aria-label', ADE.t('app.bridgeMap'));
-    var html = '<title>' + ADE.esc(ADE.t('app.bridgeMap')) + '</title>', pairs = {};
-    bridges.forEach(function (b) {
-      var o = ADE.resolveRef(b.owner); if (!o) return;
-      (b.links || []).forEach(function (ref) {
-        var r = ADE.resolveRef(ref); if (!r || r.track.id === o.track.id) return;
-        var key = [o.track.id, r.track.id].sort().join('|'); pairs[key] = pairs[key] || {}; pairs[key][b.id] = 1;
+  /* Đồ thị kiểu graph view (js/core/graph.js). Dữ liệu sinh từ registry, không biết id track nào:
+     hub = track, chấm = chương, cạnh = thuộc track / cầu nối / bước kế tiếp của lộ trình học / thuật ngữ định nghĩa ở chương.
+     Chương của track đang tạm đóng ("Sắp ra mắt") không hiện riêng; tham chiếu tới nó nối vào hub của track. */
+  var gprefs = { all: false, paths: true, gloAll: false };
+  function mountGraph(o) { var g = ADE.graph.create(o); cur.mounts.push(g); return g.el; }
+  function graphData(o) {
+    var nodes = [], edges = [], seen = {};
+    function hub(t) {
+      var id = 't:' + t.id;
+      if (!seen[id]) { seen[id] = 1; nodes.push({ id: id, kind: 'hub', label: ADE.t(t.titleKey), short: t.code, title: t.code + ' · ' + ADE.t(t.titleKey) + (ADE.trackOpen(t) ? '' : ' (' + ADE.t('app.status.soon') + ')'), href: href(t.id), color: t.accent }); }
+      return id;
+    }
+    function chap(t, c) {
+      if (!ADE.trackOpen(t)) return hub(t);
+      var id = 'c:' + t.id + '/' + c.id;
+      if (!seen[id]) {
+        seen[id] = 1;
+        nodes.push({ id: id, kind: 'leaf', label: c.id.toUpperCase(), title: t.code + ' · ' + ADE.t(c.titleKey), href: href(t.id + '/' + c.id), color: t.accent });
+        edges.push({ a: id, b: hub(t), kind: 'member' });
+      }
+      return id;
+    }
+    function refNode(ref) { var r = ADE.resolveRef(ref); if (!r) return null; return r.chapter ? chap(r.track, r.chapter) : hub(r.track); }
+    var only = o.trackId || null;
+    if (o.mode !== 'glossary') {
+      ADE.bridgeList.forEach(function (b) {
+        var own = ADE.resolveRef(b.owner); if (!own) return;
+        (b.links || []).forEach(function (ref) {
+          var r = ADE.resolveRef(ref); if (!r) return;
+          if (only && own.track.id !== only && r.track.id !== only) return;
+          var a = refNode(b.owner), z = refNode(ref);
+          if (a && z && a !== z) edges.push({ a: a, b: z, kind: 'bridge', label: b.id + ' · ' + ADE.t('shared.bridge.' + b.id + '.title') });
+        });
       });
-    });
-    Object.keys(pairs).forEach(function (key) {
-      var ids = key.split('|'), p = pos[ids[0]], q = pos[ids[1]], mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2 - 4;
-      html += '<line class="bm-edge" x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '"/>' +
-        '<text class="bm-label" x="' + mx.toFixed(1) + '" y="' + my.toFixed(1) + '" text-anchor="middle">' + ADE.esc(Object.keys(pairs[key]).sort().join(' ')) + '</text>';
-    });
-    tracks.forEach(function (t) {
-      var p = pos[t.id], x = p[0], y = p[1];
-      html += '<a href="' + ADE.esc(href(t.id)) + '" class="bm-node"><title>' + ADE.esc(ADE.t(t.titleKey)) + '</title>' +
-        '<path class="bm-box" d="M' + (x - 34) + ' ' + y + 'l34 -17 34 17 -34 17z M' + (x - 34) + ' ' + y + 'v10l34 17 34 -17v-10 M' + x + ' ' + (y + 17) + 'v10"/>' +
-        '<text class="bm-code" x="' + x + '" y="' + (y + 4) + '" text-anchor="middle">' + ADE.esc(t.code) + '</text></a>';
-    });
-    svg.innerHTML = html;
-    return h('div', { class: 'bridge-map-wrap' }, svg);
+    }
+    if (o.mode === 'global') {
+      ADE.tracks.forEach(function (t) { hub(t); if (gprefs.all && ADE.trackOpen(t)) t.chapters.forEach(function (c) { chap(t, c); }); });
+      if (gprefs.paths) ADE.pathList.forEach(function (p) {
+        var ids = p.steps.map(refNode).filter(Boolean);
+        for (var i = 1; i < ids.length; i++) if (ids[i] !== ids[i - 1]) edges.push({ a: ids[i - 1], b: ids[i], kind: 'path', label: ADE.t('shared.path.' + p.id + '.title') });
+      });
+    }
+    if (o.mode === 'track') { var t = ADE.getTrack(only); hub(t); t.chapters.forEach(function (c) { chap(t, c); }); }
+    if (o.mode === 'glossary') {
+      var meta = ADE.glossaryMeta[ADE.lang] || {};
+      ADE.glossaryIds.forEach(function (id) {
+        var m = meta[id] || {}, at = m.chapter ? refNode(m.chapter) : null;
+        if (!at && !gprefs.gloAll) return;
+        var nid = 'g:' + id; nodes.push({ id: nid, kind: 'term', label: ADE.glossaryTerm(id), title: ADE.glossaryTerm(id), href: href('glossary/' + id) });
+        if (at) edges.push({ a: nid, b: at, kind: 'term' });
+      });
+    }
+    return { nodes: nodes, edges: edges };
+  }
+  function trackHasBridge(t) {
+    return ADE.bridgeList.some(function (b) { var o = ADE.resolveRef(b.owner); return o && (o.track.id === t.id || (b.links || []).some(function (ref) { var r = ADE.resolveRef(ref); return r && r.track.id === t.id; })); });
   }
   function trackCard(t) {
     var tp = trackProgress(t);
@@ -495,6 +527,11 @@
     });
     wrap.appendChild(h('h2', { class: 'caps sec-h', text: ADE.t('app.chapters') }));
     wrap.appendChild(list);
+    if (trackHasBridge(t)) {
+      wrap.appendChild(h('h2', { class: 'caps sec-h', text: ADE.t('app.graph.localTitle') }));
+      wrap.appendChild(para(ADE.t('app.graph.localIntro'), 'hint'));
+      wrap.appendChild(mountGraph({ height: 380, labels: 'all', legendKinds: ['hub', 'leaf', 'bridge', 'member'], label: ADE.t('app.graph.localTitle'), data: function () { return graphData({ mode: 'track', trackId: t.id }); } }));
+    }
     if (t.presets.length) {
       var pr = h('div', { class: 'chips' });
       t.presets.forEach(function (p) { pr.appendChild(h('a', { class: 'chip btn', href: href('live?preset=' + p.id) }, icon('play', { size: 12 }), h('span', { text: ADE.t(p.titleKey) }))); });
@@ -688,6 +725,10 @@
     if (!ADE.glossaryIds.length) { wrap.appendChild(empty('app.noGloss')); return wrap; }
     var ids = ADE.glossaryIds.slice().sort(function (a, b) { return ADE.glossaryTerm(a).localeCompare(ADE.glossaryTerm(b), 'en', { sensitivity: 'base' }); });
     var letters = {}; ids.forEach(function (id) { letters[ADE.glossaryTerm(id).charAt(0).toUpperCase()] = 1; });
+    // đồ thị thuật ngữ → chương định nghĩa → track: dựng khi người dùng mở (lúc đó mới đo được bề rộng)
+    var gdet = h('details', { class: 'panel pad gv-details' }, h('summary', { class: 'caps', text: ADE.t('app.graph.glossTitle') }));
+    gdet.addEventListener('toggle', function () { if (gdet.open && !gdet._g) { gdet._g = 1; gdet.appendChild(mountGraph({ height: 460, label: ADE.t('app.graph.glossTitle'), legendKinds: ['hub', 'leaf', 'term', 'member'], data: function () { return graphData({ mode: 'glossary' }); } })); } });
+    wrap.appendChild(gdet);
     wrap.appendChild(h('nav', { class: 'abc', 'aria-label': ADE.t('app.letters') }, Object.keys(letters).map(function (L) { return h('a', { class: 'chip btn', href: '#', onclick: function (e) { e.preventDefault(); var el = document.getElementById('gl-' + L); if (el) el.scrollIntoView(); }, text: L }); })));
     var dl = h('dl', { class: 'gloss' }), lastL = '';
     ids.forEach(function (id) {

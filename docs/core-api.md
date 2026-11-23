@@ -118,6 +118,35 @@ Thành phần dùng chung trong `styles.css`: khung `ADE.ui.mockFrame`; lớp `m
 
 `status` của manifest thuộc `stable | draft | soon`. `ADE.trackOpen(t)` trả `false` cho track `soon`. Giao diện của track đóng: vẫn có thẻ trên trang chủ, chip trên thanh track và mục trong danh mục (nhãn "Sắp ra mắt / Coming soon", chip viền chấm), nhưng trang track chỉ có khung "Sắp ra mắt" (`data-fk="soon"`); đường dẫn chương chuyển sang trang track; không có cột chương, thanh tiến độ, chương trong danh mục, preset trong Live Explorer, hay chương/preset trong tìm kiếm. `resolveRef` và `allPresets` KHÔNG lọc, để `dev/report.html` vẫn kiểm đủ nội dung của track đóng. Thuật ngữ và hiểu lầm của track đóng vẫn hiện ở trang chung. Track-check chỉ chạy cho track đang mở. Đang dùng cho UX và UI (người dùng tạm dừng ngày 2026-11-23).
 
+### 4.4 Đồ thị kiểu graph view (thêm 2026-11-24)
+
+`js/core/graph.js` cung cấp `ADE.graph.create(opts)` và trả về `{ el, destroy }`. App gắn nó vào `cur.mounts` để hủy khi đổi trang.
+
+**`opts`:**
+- `data()`: trả `{ nodes, edges }`.
+  - **Node:** `{ id, kind: 'hub' | 'leaf' | 'term', label, title, href, color, short }`.
+  - **Cạnh:** `{ a, b, kind: 'member' | 'bridge' | 'path' | 'term', label }`.
+- `height`: chiều cao khung đồ thị.
+- `labels: 'all'`: luôn hiện nhãn mọi node.
+- `legendKinds`: các loại hiện trong chú giải.
+- `toggles`: `[{ id, labelKey, get, set }]`. Đổi toggle thì dựng lại dữ liệu và giữ vị trí của node cũ.
+
+**Tương tác:**
+- Mô phỏng lực, không dùng thư viện; vị trí ban đầu tất định.
+- Kéo node để sắp lại; kéo nền để di chuyển.
+- Phóng to bằng Ctrl/⌘ + cuộn hoặc nút + −. Cuộn thường vẫn cuộn trang.
+- Rê chuột hay focus vào node thì làm nổi các node lân cận và ghi tên chúng vào dòng `aria-live`.
+- Chỉ hub vào được bằng Tab. Mọi chương vẫn có trong danh sách văn bản bên dưới.
+- Giảm chuyển động: tính xong bố cục ngay, không chạy hoạt ảnh.
+- Dừng mô phỏng khi tab bị ẩn.
+
+**Lõi không biết id track nào.** `app.js` dựng dữ liệu từ registry:
+- **trang chủ:** mọi track, các chương có cầu nối hay nằm trong lộ trình học; có toggle "Hiện mọi chương" và "Hiện lộ trình học";
+- **trang track:** chương của track và các chương nối cầu với nó; chỉ hiện khi track có cầu nối;
+- **glossary:** thuật ngữ → chương định nghĩa → track, dựng khi mở mục `<details>`.
+
+Chương của track `soon` không hiện riêng; tham chiếu tới nó nối vào hub của track.
+
 ## 5. Route và lưu trữ
 
 `#/<lang>/<track>/<chapter>/<pos>` · `#/<lang>/live?preset=<id>&step=<n>`. Id cấm dùng làm id track: `app track job phase step badge a11y domain shared live misconceptions glossary sources about search dev`. Bước đổi bằng `history.replaceState`. `localStorage` có tiền tố `ade.` (`lang, theme, motion, sans, diagramOnly, rail, progress, last`), luôn bọc try/catch.

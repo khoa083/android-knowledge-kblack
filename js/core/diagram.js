@@ -13,6 +13,7 @@
   var FILL = ' fill="currentColor"';
   var ICONS = {
     add: P('M12 5v14M5 12h14'),
+    minus: P('M5 12h14'),
     set: P('M5 12h14M13 6l6 6-6 6'),
     remove: P('M6 6l12 12M18 6L6 18'),
     cross: P('M6 6l12 12M18 6L6 18'),
