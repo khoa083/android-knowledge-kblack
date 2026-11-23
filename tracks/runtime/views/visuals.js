@@ -45,4 +45,23 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: ADE.t(K + 'chain.cap') }),
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, h('th', { text: '#' }), th('colOld'), th('colNew'), th('colAct'))), tb))));
   }, { labelKey: K + 'tab.chain', icon: 'list' });
+
+  /* LZ runtime.lazy: dải item theo chỉ số. Viền = đang trong cửa sổ hiển thị (đã compose); ↺ = slot nằm trong pool chờ dùng lại;
+     mờ = chưa compose hay đã bỏ. Lấy nguyên từ stateAfter của model: active "a–b", pool "[#k·type, …]", op. */
+  ADE.registerScreen('runtime.lazy', function (box, ctx) {
+    var h = ADE.ui.h, steps = ctx.steps, i = ctx.step ? steps.indexOf(ctx.step) : (ctx.pos > ctx.N ? steps.length - 1 : 0), st = steps[i] || steps[0];
+    var val = function (k) { var r = (st.stateAfter || []).filter(function (x) { return x.labelKey.split('.').pop() === k; })[0]; return r ? String(r.value) : '—'; };
+    var act = val('active').match(/(\d+)\D+(\d+)/), a0 = act ? +act[1] : -1, a1 = act ? +act[2] : -2;
+    var pool = {};
+    (val('pool').match(/#\d+[^,\]]*/g) || []).forEach(function (x) { pool[+x.slice(1).split('·')[0]] = x.trim(); });
+    var poolMax = Object.keys(pool).reduce(function (mx, k) { return Math.max(mx, +k); }, -1);
+    var LAST = 19;   // danh sách mẫu có 20 tin nhắn (#0–#19) ở cả ba tình huống
+    var max = Math.min(Math.max(a1 + 3, poolMax + 1, 9), LAST), row = [];
+    for (var n = 0; n <= max; n++) {
+      var inV = n >= a0 && n <= a1, inP = pool[n] !== undefined;
+      row.push(h('span', { class: 'vz-chip' + (inV ? ' hl' : ''), style: inV || inP ? null : 'opacity:.45', title: inP ? pool[n] : null, text: '#' + n + (inP ? ' ↺' : '') }));
+    }
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: ADE.t(K + 'lazy.cap') }), h('div', null, row),
+      h('p', { class: 'vz-cap', text: ADE.t(K + 'lazy.op') + ': ' + val('op') }), h('div', { class: 'vz-legend', text: ADE.t(K + 'lazy.legend') })));
+  }, { labelKey: K + 'tab.lazy', icon: 'list' });
 })();

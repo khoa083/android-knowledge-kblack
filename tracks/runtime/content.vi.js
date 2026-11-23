@@ -3414,5 +3414,9 @@ ADE.addTrackStrings('runtime', 'vi', {
   "track.runtime.vz.chain.insert": "tạo mới (onAttach)",
   "track.runtime.vz.chain.remove": "gỡ (onDetach)",
   "track.runtime.vz.tab.records": "Dãy bản ghi",
-  "track.runtime.vz.records.cap": "Một state object giữ một danh sách bản ghi, mỗi bản ghi gắn id snapshot đã ghi nó. Hàng đầu là các bản ghi đang có; các hàng dưới là giá trị mà Global, snapshot A và snapshot B đọc thấy. Hàng có viền vừa đổi ở bước này."
+  "track.runtime.vz.records.cap": "Một state object giữ một danh sách bản ghi, mỗi bản ghi gắn id snapshot đã ghi nó. Hàng đầu là các bản ghi đang có; các hàng dưới là giá trị mà Global, snapshot A và snapshot B đọc thấy. Hàng có viền vừa đổi ở bước này.",
+  "track.runtime.vz.tab.lazy": "Cửa sổ danh sách",
+  "track.runtime.vz.lazy.cap": "Mỗi ô là một item theo chỉ số trong danh sách. Chỉ những item trong cửa sổ hiển thị mới được compose; item cuộn ra khỏi màn hình có thể vào pool để slot của nó được dùng lại cho item mới.",
+  "track.runtime.vz.lazy.op": "Vừa làm",
+  "track.runtime.vz.lazy.legend": "Ô viền: đang hiển thị (đã compose). ↺: nằm trong pool chờ dùng lại. Ô mờ: chưa compose, hoặc slot của nó đã được dùng lại cho mục mới hay bị bỏ."
 });

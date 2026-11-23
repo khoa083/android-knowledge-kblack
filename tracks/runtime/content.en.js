@@ -3414,5 +3414,9 @@ ADE.addTrackStrings('runtime', 'en', {
   "track.runtime.vz.chain.insert": "created (onAttach)",
   "track.runtime.vz.chain.remove": "removed (onDetach)",
   "track.runtime.vz.tab.records": "Record list",
-  "track.runtime.vz.records.cap": "A state object holds a list of records, each tagged with the id of the snapshot that wrote it. The top row lists the current records; the rows below are the values Global, snapshot A and snapshot B read. An outlined row just changed at this step."
+  "track.runtime.vz.records.cap": "A state object holds a list of records, each tagged with the id of the snapshot that wrote it. The top row lists the current records; the rows below are the values Global, snapshot A and snapshot B read. An outlined row just changed at this step.",
+  "track.runtime.vz.tab.lazy": "List window",
+  "track.runtime.vz.lazy.cap": "Each chip is a list item by index. Only items inside the visible window are composed; an item scrolled off screen may go into the pool so its slot can be reused for a new item.",
+  "track.runtime.vz.lazy.op": "Just did",
+  "track.runtime.vz.lazy.legend": "Outlined: visible (composed). ↺: in the pool, waiting for reuse. Faded: not composed, or its slot was already reused for a new item or dropped."
 });
