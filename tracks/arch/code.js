@@ -199,4 +199,34 @@
     c('// thử: @Singleton class SlotRepository @Inject constructor(private val activity: Activity)', '// try: @Singleton class SlotRepository @Inject constructor(private val activity: Activity)'),
     c('// Hilt báo lỗi khi biên dịch: SingletonComponent không có binding Activity', '// Hilt fails at compile time: SingletonComponent has no Activity binding')
   ]);
+  add('g7.streams', [
+    'val isLoading = MutableStateFlow(false)',
+    'val error = MutableStateFlow<String?>(null)',
+    'val appointments = MutableStateFlow<List<Appt>>(emptyList())',
+    'fun load() = viewModelScope.launch {',
+    '    isLoading.value = true',
+    '    try { appointments.value = repo.load(); isLoading.value = false }',
+    c('    catch (e: IOException) { error.value = "Mất mạng" }   // quên isLoading = false; thành công thì quên xóa lỗi', '    catch (e: IOException) { error.value = "Offline" }    // forgets isLoading = false; on success forgets to clear the error'),
+    '}'
+  ]);
+  add('g7.single', [
+    'data class ApptUiState(val isLoading: Boolean = false, val error: String? = null, val items: List<Appt> = emptyList())',
+    'val state = MutableStateFlow(ApptUiState())',
+    'fun load() = viewModelScope.launch {',
+    '    state.update { it.copy(isLoading = true, error = null) }',
+    '    val items = try { repo.load() } catch (e: IOException) { null }',
+    c('    state.update { if (items != null) it.copy(isLoading = false, items = items) else it.copy(isLoading = false, error = "Mất mạng") } }', '    state.update { if (items != null) it.copy(isLoading = false, items = items) else it.copy(isLoading = false, error = "Offline") } }'),
+    c('// một luồng, mỗi thay đổi là một lần cập nhật; nhưng kiểu vẫn cho phép isLoading = true cùng error != null', '// one stream, one update per change; but the type still allows isLoading = true with error != null')
+  ]);
+  add('g7.mvi', [
+    'sealed interface ApptState { data object Loading : ApptState; data class Content(val items: List<Appt>) : ApptState',
+    '    data class Refreshing(val items: List<Appt>) : ApptState; data class Error(val message: String) : ApptState }',
+    'sealed interface ApptIntent { data object Load : ApptIntent; data object Retry : ApptIntent }',
+    'sealed interface ApptResult { data class Loaded(val items: List<Appt>) : ApptResult; data class Failed(val message: String) : ApptResult }',
+    'fun reduce(s: ApptState, r: ApptResult): ApptState = when (r) {',
+    '    is ApptResult.Loaded -> ApptState.Content(r.items)',
+    '    is ApptResult.Failed -> ApptState.Error(r.message) }',
+    'fun onIntent(i: ApptIntent) = viewModelScope.launch { state.value = ApptState.Loading',
+    c('    val r = try { ApptResult.Loaded(repo.load()) } catch (e: IOException) { ApptResult.Failed("Mất mạng") }; state.value = reduce(state.value, r) }', '    val r = try { ApptResult.Loaded(repo.load()) } catch (e: IOException) { ApptResult.Failed("Offline") }; state.value = reduce(state.value, r) }')
+  ]);
 })();

@@ -428,4 +428,50 @@
           return CASES.every(function (c) { return [0, 1, 2, 3].every(function (i) { var d = D[c][i], band = {}; d.o.forEach(function (x) { band[x.id] = x.band; });
             return d.a.every(function (x) { return x.cls === '' ? rank[band[x.from]] >= rank[band[x.to]] : rank[band[x.from]] < rank[band[x.to]]; }); }); }); } }] });
   })();
+  /* ================= G7: MVVM và MVI: một trạng thái duy nhất =================
+     Theo UI layer (dùng một UI state cho các state liên quan nhau để tránh lệch; một luồng hay nhiều luồng tùy quan hệ giữa các
+     phần), Dumbravan ch.8 (MVVM: View phụ thuộc ViewModel, ViewModel phụ thuộc Model, quan sát được) và ch.9 (MVI: dữ liệu bất biến
+     gộp thành một state; intent đổi state qua một luồng dữ liệu phản ứng; MVI xây trên ViewModel, không thay nó).
+     Ba bit của tổ hợp: L = đang tải, E = có lỗi, D = có dữ liệu. Hợp lệ (theo màn Lịch của tôi): 000, 100, 101, 001, 010. */
+  (function () {
+    var m = 'mvi', CASES = ['streams', 'single', 'mvi'], KS = ['s1', 's2', 's3', 's4'];
+    var COMBOS = ['000', '100', '101', '001', '010', '110', '111', '011'];
+    var VALID = { '000': 1, '100': 1, '101': 1, '001': 1, '010': 1 };
+    var SEEN = { streams: ['100', '110', '011', '111'], single: ['100', '010', '100', '001'], mvi: ['100', '010', '100', '001'] };
+    var REPR = { streams: 8, single: 8, mvi: 4 };
+    var SEALED = { '100': 1, '101': 1, '001': 1, '010': 1 };   // Loading, Refreshing, Content, Error
+    ADE.archMvi = { COMBOS: COMBOS, valid: function (c) { return !!VALID[c]; }, inSealed: function (c) { return !!SEALED[c]; }, seen: function (c, i) { return SEEN[c].slice(0, i + 1); }, repr: function (c) { return REPR[c]; } };
+    var STEP = {   // [node sáng, trạng thái node, loại bước, dòng mã, loại log, chủ thể, tín hiệu]
+      streams: [[['ui', 'vm', 'state'], { ui: 'done', vm: 'done', state: 'done' }, 'scenario', [1, 5], 'write', 'vm', [{ edge: 'e1', tok: 'signal' }, { edge: 'e2', tok: 'state' }]],
+        [['vm', 'state', 'ui'], { ui: 'surprise', vm: 'done', state: 'surprise' }, 'pitfall', [7], 'exception', 'vm', [{ edge: 'e2', tok: 'state' }, { edge: 'e3', tok: 'state' }]],
+        [['vm', 'state', 'ui'], { ui: 'surprise', vm: 'done', state: 'surprise' }, 'pitfall', [2, 6], 'write', 'vm', [{ edge: 'e1', tok: 'signal' }, { edge: 'e3', tok: 'state' }]],
+        [['state', 'ui'], { ui: 'surprise', vm: 'done', state: 'surprise' }, 'pitfall', [1, 2, 5], 'observe', 'ui', [{ edge: 'e3', tok: 'state' }]]],
+      single: [[['ui', 'vm', 'state'], { ui: 'done', vm: 'done', state: 'done' }, 'scenario', [1, 2, 4], 'write', 'vm', [{ edge: 'e1', tok: 'signal' }, { edge: 'e2', tok: 'state' }]],
+        [['vm', 'state', 'ui'], { ui: 'done', vm: 'done', state: 'done' }, 'mechanism', [5, 6], 'exception', 'vm', [{ edge: 'e2', tok: 'state' }, { edge: 'e3', tok: 'state' }]],
+        [['ui', 'vm'], { ui: 'done', vm: 'done', state: 'done' }, 'mechanism', [4], 'write', 'ui', [{ edge: 'e1', tok: 'signal' }]],
+        [['vm', 'state', 'ui'], { ui: 'done', vm: 'done', state: 'surprise' }, 'mechanism', [6, 7], 'complete', 'state', [{ edge: 'e3', tok: 'state' }]]],
+      mvi: [[['ui', 'vm'], { ui: 'done', vm: 'done', state: 'done' }, 'scenario', [3, 8], 'write', 'ui', [{ edge: 'e1', tok: 'signal' }]],
+        [['vm', 'state'], { ui: 'done', vm: 'done', state: 'done' }, 'mechanism', [4, 5, 7, 9], 'exception', 'vm', [{ edge: 'e2', tok: 'state' }]],
+        [['ui', 'vm'], { ui: 'done', vm: 'done', state: 'done' }, 'mechanism', [3, 8], 'write', 'ui', [{ edge: 'e1', tok: 'signal' }]],
+        [['vm', 'state', 'ui'], { ui: 'done', vm: 'done', state: 'done' }, 'mechanism', [1, 2, 6], 'complete', 'state', [{ edge: 'e2', tok: 'state' }, { edge: 'e3', tok: 'state' }]]]
+    };
+    var STREAMS = { streams: 3, single: 1, mvi: 1 };
+    function steps(s) {
+      return STEP[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var bad = ADE.archMvi.seen(s.case, i).filter(function (c) { return !VALID[c]; }).length;
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[0], nodeStates: ns,
+          metrics: { streams: STREAMS[s.case], bad: bad, repr: REPR[s.case] },
+          codeHighlight: { snippet: 'g7.' + s.case, lines: p[3] }, movingSignals: p[6], logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (p[2] === 'pitfall' ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'streams' }; }, act: setter(['case']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'ba luồng riêng: tổ hợp sai xuất hiện (đang tải cùng lỗi)', run: function () { return steps({ case: 'streams' })[3].metrics.bad >= 2 && SEEN.streams.indexOf('110') >= 0; } },
+        { name: 'một UiState: không tổ hợp sai trong kịch bản, nhưng kiểu vẫn biểu diễn được 8 tổ hợp', run: function () { var x = steps({ case: 'single' })[3].metrics; return x.bad === 0 && x.repr === 8; } },
+        { name: 'MVI với sealed state: chỉ 4 trạng thái biểu diễn được, đều hợp lệ', run: function () { var x = steps({ case: 'mvi' })[3].metrics; return x.bad === 0 && x.repr === 4; } }] });
+  })();
 })();

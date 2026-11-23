@@ -12,7 +12,8 @@ ADE.registerTrack({
     { id: 'g3', titleKey: 'track.arch.g3.title', sims: ['arch.events'], simAfter: 'hook', bridges: ['X12'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'g4', titleKey: 'track.arch.g4.title', sims: ['arch.offline'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'g5', titleKey: 'track.arch.g5.title', sims: ['arch.usecase'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'g6', titleKey: 'track.arch.g6.title', sims: ['arch.di'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'g6', titleKey: 'track.arch.g6.title', sims: ['arch.di'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'g7', titleKey: 'track.arch.g7.title', sims: ['arch.mvi'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'arch-god-activity', model: 'arch.god', titleKey: 'track.arch.preset.god' },
@@ -20,7 +21,8 @@ ADE.registerTrack({
     { id: 'arch-events', model: 'arch.events', titleKey: 'track.arch.preset.events' },
     { id: 'arch-offline', model: 'arch.offline', titleKey: 'track.arch.preset.offline' },
     { id: 'arch-usecase', model: 'arch.usecase', titleKey: 'track.arch.preset.usecase' },
-    { id: 'arch-di', model: 'arch.di', titleKey: 'track.arch.preset.di' }
+    { id: 'arch-di', model: 'arch.di', titleKey: 'track.arch.preset.di' },
+    { id: 'arch-mvi', model: 'arch.mvi', titleKey: 'track.arch.preset.mvi' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

@@ -39,4 +39,8 @@
   V('di', { layout: 'pipeline', nodes: [N('di', 'act', 0, 0, 'screen', 'ui'), N('di', 'vm', 3, 0, 'layers', 'state'), N('di', 'repo', 6, 0, 'store', 'runtime'), N('di', 'db', 9, 0, 'store', 'job')],
     edges: [E('e1', 'act', 'vm'), E('e2', 'vm', 'repo'), E('e3', 'repo', 'db'), E('e4', 'act', 'repo')],
     metrics: [T('di', 'inst'), T('di', 'hold'), T('di', 'when')] });
+  /* G7: vòng màn hình → ViewModel (reducer) → state → màn hình */
+  V('mvi', { layout: 'cycle', nodes: [N('mvi', 'ui', 0, 3, 'screen', 'ui'), N('mvi', 'vm', 4, 0, 'layers', 'runtime'), N('mvi', 'state', 8, 3, 'store', 'state')],
+    edges: [E('e1', 'ui', 'vm'), E('e2', 'vm', 'state'), E('e3', 'state', 'ui')],
+    metrics: [T('mvi', 'streams'), T('mvi', 'bad'), T('mvi', 'repr')] });
 })();

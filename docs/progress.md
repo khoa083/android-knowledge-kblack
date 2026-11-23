@@ -719,3 +719,12 @@ Trạng thái: `chưa / đang / xong`.
     - track-check arch 0 ở 1280 và 360;
     - đã xem ảnh. Đã sửa nhãn dải tràn, mũi tên đi lên trong cùng dải, và ép nhãn dài vừa hộp.
   - **Tiếp theo:** G7 (MVVM và MVI).
+- **Kiến trúc · G7 (2026-11-24):** MVVM và MVI (`arch_v2_g7.py`, 8 mục). Nội dung:
+  - MVVM trên Android (Dumbravan ch.8);
+  - một luồng hay nhiều luồng state (UI layer);
+  - MVI: intent, reducer thuần, sealed state (Dumbravan ch.9);
+  - 2 bug (vừa tải vừa lỗi; lỗi cũ còn sau khi thử lại); bài tập bảng test cho reducer và nhánh Refreshing; quiz 4 câu.
+  - **Sim `arch.mvi`:** ba tình huống (ba StateFlow riêng, một UiState, MVI). Tab chính là **ma trận** 8 tổ hợp đang tải × lỗi × dữ liệu: tổ hợp đã xuất hiện ở bước nào, tổ hợp vô nghĩa tô đỏ; với sealed state, tổ hợp ngoài kiểu hiện "không biểu diễn được". Sơ đồ node dạng vòng.
+  - Thêm 1 thuật ngữ, 1 preset; nguồn Dumbravan bổ sung ch.8–9.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; đã xem ảnh hai tình huống.
+  - **Tiếp theo:** G8 (lỗi qua các tầng).

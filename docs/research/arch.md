@@ -89,3 +89,13 @@ Kiểm URL: topic/architecture/data-layer/offline-first HTTP 200 (curl), đọc 
 | Binding mặc định không scope (mỗi lần một instance); có scope thì một lần mỗi instance component; hạn chế scope | `ax-hilt` | stable |
 | Binding mặc định: Singleton có Application; ViewModel có SavedStateHandle; Activity có Application, Activity; @ApplicationContext, @ActivityContext | `ax-hilt` | stable |
 | Đưa Activity vào @Singleton thì lỗi biên dịch | suy ra từ bảng binding mặc định và quy tắc component cha con trong `ax-hilt` | simplified |
+
+## G7 · MVVM và MVI (2026-11-24)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Một UI state cho các state liên quan: ít lệch hơn; hai luồng có thể một cái cập nhật, một cái chưa; thuộc tính suy ra từ nhiều trường | `ax-ui-layer` | stable |
+| Một luồng hay nhiều luồng: tùy quan hệ; tách khi không liên quan hay khác tần suất; UiState nhiều trường có thể cần distinctUntilChanged | `ax-ui-layer` | stable |
+| MVVM: View phụ thuộc ViewModel, ViewModel phụ thuộc Model, quan sát được; nhiều View dùng chung ViewModel | `book-dumbravan` ch.8 (epub, đọc 2026-11-24) | guideline |
+| MVI: dữ liệu bất biến gộp thành một state; thay đổi qua luồng phản ứng; Intent khác android Intent; MVI xây trên ViewModel | `book-dumbravan` ch.9 | guideline |
+| Tám tổ hợp L/E/D, năm tổ hợp có nghĩa, sealed state bốn trạng thái | định nghĩa của site cho màn Lịch của tôi | simplified |

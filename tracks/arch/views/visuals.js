@@ -172,4 +172,22 @@
       h('div', { class: 'vz-legend' }, h('span', { class: 'vz-dg-lg' }, h('i', { class: 'e' }), h('span', { text: T('di.lg.hold') })),
         h('span', { class: 'vz-dg-lg' }, h('i', { class: 'e bad' }), h('span', { text: T('di.lg.leak') })))));
   }, { labelKey: K + 'tab.di', icon: 'layers' });
+
+  /* ---------- G7: ma trận tổ hợp đang tải × lỗi × dữ liệu ---------- */
+  ADE.registerScreen('arch.mvi', function (box, ctx) {
+    var h = ADE.ui.h, c = ctx.state.case, i = Math.max(0, idx(ctx)), X = ADE.archMvi, seen = X.seen(c, i), sealed = X.repr(c) < 8;
+    var head = h('tr', null, ['L', 'E', 'D', 'screen', 'valid', 'seen'].map(function (k) { return h('th', { text: T('mvi.col.' + k) }); }));
+    var tb = h('tbody'), yn = function (b) { return T(b === '1' ? 'mvi.yes' : 'mvi.no'); };
+    X.COMBOS.forEach(function (cb) {
+      var ok = X.valid(cb), at = [];
+      seen.forEach(function (x, k) { if (x === cb) at.push(String(k + 1)); });
+      var gone = sealed && !X.inSealed(cb);   // kiểu sealed không có trạng thái này
+      var now = seen[seen.length - 1] === cb, cls = !ok && at.length ? 'bad' : (now ? 'hl' : (gone ? 'dim' : null));
+      tb.appendChild(h('tr', null, h('td', { class: cls, text: yn(cb[0]) }), h('td', { class: cls, text: yn(cb[1]) }), h('td', { class: cls, text: yn(cb[2]) }),
+        h('td', { class: cls, text: T('mvi.screen.' + cb) }), h('td', { class: cls, text: gone ? T('mvi.impossible') : T(ok ? 'mvi.ok' : 'mvi.wrong') }),
+        h('td', { class: cls, text: at.length ? T('mvi.atStep') + ' ' + at.join(', ') : '·' })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('mvi.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)),
+      h('div', { class: 'vz-legend', text: T('mvi.legend') })));
+  }, { labelKey: K + 'tab.mvi', icon: 'grid' });
 })();
