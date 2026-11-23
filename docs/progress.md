@@ -728,3 +728,12 @@ Trạng thái: `chưa / đang / xong`.
   - Thêm 1 thuật ngữ, 1 preset; nguồn Dumbravan bổ sung ch.8–9.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; đã xem ảnh hai tình huống.
   - **Tiếp theo:** G8 (lỗi qua các tầng).
+- **Kiến trúc · G8 (2026-11-24):** lỗi qua các tầng (`arch_v2_g8.py`, 8 mục). Nội dung:
+  - failure và exception (Boudjnah ch.6);
+  - đổi lỗi ở repository (Data layer: Expose errors);
+  - hiện lỗi trên màn hình (UI layer);
+  - 2 bug (crash khi mất mạng; "HTTP 409" lộ ra người dùng); bài tập phân loại năm lỗi; quiz 4 câu.
+  - **Sim `arch.failure`:** ba tình huống (để nguyên rồi bắt tất cả, đổi thành failure, bắt Exception rộng). Tab chính là **bảng ánh xạ lỗi**: loại lỗi × repository × ViewModel × người dùng thấy, hàng hiện dần theo bước.
+  - Thêm 1 thuật ngữ, 1 hiểu lầm (đổi id thành `catch-exception-layers` vì trùng track Kotlin), 1 preset.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; đã xem ảnh ba tình huống.
+  - **Dừng phiên ở đây** (hạn mức 5 giờ gần chạm ngưỡng). Đã push mọi commit. Tiếp theo: G9 (module hóa; dùng lại hình đồ thị phụ thuộc của G2), G10, G11, G0, rồi chuyển track G sang stable.

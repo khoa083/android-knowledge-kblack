@@ -1,7 +1,7 @@
 # TRACK G — Kiến trúc app Android / Android App Architecture (`arch`)
 
 > **ĐÃ DUYỆT (2026-11-23).** Người dùng duyệt dàn chương bên dưới. Hai câu hỏi cuối chưa có trả lời nên theo đề xuất: **giữ g11** và **chỉ dạy Hilt**. Người dùng có thể đổi hai điều này bất cứ lúc nào.
-> Track id `arch`, mã G, order 70, đang viết: **G1 xong** (2026-11-23), **G2 xong** (2026-11-24), **G3 xong** (2026-11-24), **G4 xong** (2026-11-24), **G5 xong** (2026-11-24), hết Phần 1; **G6 xong**, **G7 xong** (2026-11-24); tiếp theo G8.
+> Track id `arch`, mã G, order 70, đang viết: **G1 xong** (2026-11-23), **G2 xong** (2026-11-24), **G3 xong** (2026-11-24), **G4 xong** (2026-11-24), **G5 xong** (2026-11-24), hết Phần 1; **G6 xong**, **G7 xong**, **G8 xong** (2026-11-24); tiếp theo G9.
 > Cập nhật 2026-11-24: thêm cột **Hình chính** cho từng chương. Kiểu hình nào hợp thì mình tự chọn (người dùng cho phép, xem `docs/chapter-template-v2.md`, mục "Chọn kiểu hình").
 > Nguyên tắc chọn nội dung giống track Kotlin: **cần và đủ**, không bám từng chương sách. Mỗi chương bắt đầu từ một lỗi thật trên Android.
 
@@ -79,7 +79,7 @@ Cột **Hình chính** là tab mặc định của chương. Sơ đồ node củ
 |---|---|---|---|---|---|
 | g6 ✅ | Dependency injection: thủ công và Hilt | Hai instance repository khác nhau; singleton giữ Activity context | `arch.di`: đồ thị tạo object theo scope (Singleton, ViewModel, Activity) | (1) **Đồ thị phụ thuộc MỚI** (dùng lại của g2), node tô màu theo scope; cạnh "dài hơn vòng đời" tô đỏ. (2) **Dãy ô** vòng đời của từng scope theo thời gian | Dependency injection (chính thức); Dagger by Tutorials; Dumbravan ch4 |
 | g7 ✅ | MVVM và MVI | Màn hình vừa "đang tải" vừa "lỗi" | `arch.mvi`: intent → reducer → một state duy nhất, so với nhiều StateFlow riêng | (1) **Ma trận** tổ hợp loading × error × data: 8 ô, ô vô nghĩa tô đỏ. Ma trận cho thấy vì sao một state duy nhất loại được chúng. (2) **Vòng** intent, reducer, state | Dumbravan ch8–9 |
-| g8 | Lỗi qua các tầng | IOException lọt lên UI làm crash; "HTTP 500" hiện cho người dùng | `arch.failure`: ngoại lệ ở data source → đổi thành Failure ở repository → UiState.Error | **Luồng** qua bốn tầng, kèm **bảng ánh xạ** ngoại lệ → Failure → câu cho người dùng | Boudjnah ch6; Kotlin K6 (cầu nối) |
+| g8 ✅ | Lỗi qua các tầng | IOException lọt lên UI làm crash; "HTTP 500" hiện cho người dùng | `arch.failure`: ngoại lệ ở data source → đổi thành Failure ở repository → UiState.Error | **Luồng** qua bốn tầng, kèm **bảng ánh xạ** ngoại lệ → Failure → câu cho người dùng | Boudjnah ch6; Kotlin K6 (cầu nối) |
 | g9 | Module hóa | Feature A dùng lớp nội bộ của feature B; vòng phụ thuộc giữa module | `arch.modules`: đồ thị module, thêm một phụ thuộc sai | **Đồ thị phụ thuộc MỚI**: module là node; vòng phụ thuộc và cạnh feature → feature tô đỏ | Modularization (chính thức); Dumbravan ch8, ch10 |
 | g10 | Kiểm thử theo tầng | Test ViewModel gọi mạng thật nên lúc qua lúc trượt | `arch.testing`: thay data source thật bằng fake ở từng tầng | **Ma trận** tầng × loại test (chạy ở JVM hay thiết bị, nhanh hay chậm, cần fake gì) | Boudjnah ch4–5; Dumbravan ch10; Coroutines A9 (cầu nối) |
 | g11 | Thêm tính năng mới và di trú dự án cũ | Viết lại cả app để đổi kiến trúc rồi bỏ dở | `arch.feature`: tính năng "Hủy lịch" đi qua từng tầng; di trú từng màn từ MVVM cũ | (1) **Luồng** tính năng qua các tầng. (2) **Dãy ô** các màn hình được chuyển dần sang kiến trúc mới | Boudjnah ch7–8 |

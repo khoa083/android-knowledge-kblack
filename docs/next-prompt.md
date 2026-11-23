@@ -8,7 +8,7 @@
 Trạng thái:
 - Đã xong và stable: A Coroutines, B Runtime, C Animation (v2), F Kotlin (14 chương).
 - Tạm dừng, KHÔNG đụng tới: D UX, E UI ("Sắp ra mắt"). Phần SM dở dang của UX nằm trong git stash.
-- Đang viết: G Kiến trúc app Android (track `arch`). Đã duyệt; G1 xong; tiếp theo G2. Spec: docs/tracks/G-clean-architecture.md.
+- Đang viết: G Kiến trúc app Android (track `arch`). Đã duyệt; G1–G8 xong; tiếp theo G9 (module hóa), G10, G11, G0. Spec: docs/tracks/G-clean-architecture.md.
 - Đã duyệt dàn ý (2026-11-24), CHƯA xây, làm theo thứ tự sau G: H docs/tracks/H-saving-data.md → I docs/tracks/I-mobile-system-design.md → J docs/tracks/J-clean-code.md → K docs/tracks/K-functional-kotlin.md.
 - Sau K: L Gỡ lỗi và hiệu năng Android docs/tracks/L-debugging-performance.md (đã duyệt 2026-11-24).
 
@@ -36,5 +36,5 @@ Git:
 
 Hạn mức: kiểm usage định kỳ, dừng ở khoảng 90–98% của cửa sổ 5 giờ. Trước khi dừng: commit, push, ghi vào docs/progress.md đang dừng ở đâu.
 
-Việc tiếp theo: viết G2 theo spec G: đồ thị phụ thuộc MỚI cho phần tầng và vòng cho UDF. Rồi viết G3 → G11, G0 sau cùng; sau G0 chuyển track sang stable và thêm cầu nối.
+Việc tiếp theo: viết G9 theo spec G (đồ thị module, dùng lại cách vẽ đồ thị phụ thuộc của G2 trong tracks/arch/views/visuals.js), rồi G10, G11, G0 sau cùng; sau G0 chuyển track sang stable và thêm cầu nối còn thiếu (G6↔K11, G8↔K6, G10↔A9/B9). Mỗi chương arch: module dev/gen/arch_v2_<id>.py + patch model/view/code/visuals; script patch mẫu: xem các commit G3–G8.
 ```

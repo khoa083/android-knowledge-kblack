@@ -43,4 +43,8 @@
   V('mvi', { layout: 'cycle', nodes: [N('mvi', 'ui', 0, 3, 'screen', 'ui'), N('mvi', 'vm', 4, 0, 'layers', 'runtime'), N('mvi', 'state', 8, 3, 'store', 'state')],
     edges: [E('e1', 'ui', 'vm'), E('e2', 'vm', 'state'), E('e3', 'state', 'ui')],
     metrics: [T('mvi', 'streams'), T('mvi', 'bad'), T('mvi', 'repr')] });
+  /* G8: ngoại lệ đi ngược từ nguồn dữ liệu lên màn hình */
+  V('failure', { layout: 'pipeline', nodes: [N('failure', 'ui', 0, 0, 'screen', 'ui'), N('failure', 'vm', 3, 0, 'layers', 'state'), N('failure', 'repo', 6, 0, 'store', 'runtime'), N('failure', 'source', 9, 0, 'source', 'job')],
+    edges: [E('e1', 'ui', 'vm'), E('e2', 'vm', 'repo'), E('e3', 'repo', 'source')],
+    metrics: [T('failure', 'crash'), T('failure', 'text'), T('failure', 'hidden')] });
 })();

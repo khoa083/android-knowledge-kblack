@@ -229,4 +229,31 @@
     'fun onIntent(i: ApptIntent) = viewModelScope.launch { state.value = ApptState.Loading',
     c('    val r = try { ApptResult.Loaded(repo.load()) } catch (e: IOException) { ApptResult.Failed("Mất mạng") }; state.value = reduce(state.value, r) }', '    val r = try { ApptResult.Loaded(repo.load()) } catch (e: IOException) { ApptResult.Failed("Offline") }; state.value = reduce(state.value, r) }')
   ]);
+  add('g8.raw', [
+    c('class SlotRepository(private val api: SlotApi) { suspend fun book(s: Slot) = api.book(s) }   // ném gì ném nấy', 'class SlotRepository(private val api: SlotApi) { suspend fun book(s: Slot) = api.book(s) }   // throws whatever it gets'),
+    'fun onBook(s: Slot) = viewModelScope.launch {',
+    c('    repo.book(s)                                       // IOException không ai bắt: app crash', '    repo.book(s)                                       // nobody catches the IOException: the app crashes'),
+    '}',
+    c('// "sửa" vội: bắt tất cả, hiện nguyên message', '// a hasty "fix": catch everything, show the raw message'),
+    'fun onBook(s: Slot) = viewModelScope.launch { try { repo.book(s) } catch (e: Exception) { state.update { it.copy(userMessage = e.message) } } }',
+    c('// người dùng thấy "HTTP 500 Internal Server Error"; lỗi lập trình (NPE) cũng bị nuốt', '// the user sees "HTTP 500 Internal Server Error"; programming errors (NPE) are swallowed too')
+  ]);
+  add('g8.mapped', [
+    'sealed interface BookingFailure { data object Offline : BookingFailure; data object SlotTaken : BookingFailure; data object ServerProblem : BookingFailure }',
+    'sealed interface BookResult { data object Booked : BookResult; data class Failed(val reason: BookingFailure) : BookResult }',
+    'suspend fun book(s: Slot): BookResult = try { api.book(s); BookResult.Booked }',
+    '    catch (e: IOException) { BookResult.Failed(BookingFailure.Offline) }',
+    '    catch (e: HttpException) { BookResult.Failed(if (e.code() == 409) BookingFailure.SlotTaken else BookingFailure.ServerProblem) }',
+    c('// ViewModel: đổi failure thành câu cho người dùng (chuỗi trong tài nguyên)', '// ViewModel: turn the failure into a sentence for the user (a string resource)'),
+    'is BookResult.Failed -> state.update { it.copy(userMessage = messageFor(r.reason)) }',
+    c('// NullPointerException không bị bắt ở đây: đó là lỗi lập trình, để crash report ghi lại', '// NullPointerException is not caught here: it is a programming error, let crash reporting record it')
+  ]);
+  add('g8.swallow', [
+    'suspend fun slots(day: LocalDate): List<Slot> = try { api.slots(day) }',
+    c('    catch (e: Exception) { emptyList() }               // mất mạng thành "không có giờ trống"', '    catch (e: Exception) { emptyList() }               // offline becomes "no free slots"'),
+    'suspend fun book(s: Slot): Boolean = try { api.book(s); true } catch (e: Exception) { false }',
+    c('// rời màn hình: viewModelScope bị hủy, CancellationException cũng bị bắt ở đây', '// leaving the screen: viewModelScope is cancelled, and CancellationException is caught here too'),
+    c('// nên mã sau đó vẫn chạy như chưa bị hủy', '// so the code after it keeps running as if nothing was cancelled'),
+    c('// NullPointerException trong api.slots bị nuốt: không có crash report nào', '// a NullPointerException in api.slots is swallowed: no crash report at all')
+  ]);
 })();

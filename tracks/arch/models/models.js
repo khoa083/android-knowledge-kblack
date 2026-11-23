@@ -474,4 +474,56 @@
         { name: 'một UiState: không tổ hợp sai trong kịch bản, nhưng kiểu vẫn biểu diễn được 8 tổ hợp', run: function () { var x = steps({ case: 'single' })[3].metrics; return x.bad === 0 && x.repr === 8; } },
         { name: 'MVI với sealed state: chỉ 4 trạng thái biểu diễn được, đều hợp lệ', run: function () { var x = steps({ case: 'mvi' })[3].metrics; return x.bad === 0 && x.repr === 4; } }] });
   })();
+  /* ================= G8: lỗi đi qua các tầng =================
+     Theo Data layer (tầng data hiểu các loại lỗi và lộ chúng bằng ngoại lệ riêng hay kiểu Result), UI layer (lỗi trên màn hình là
+     state có kèm thông điệp và hành động thử lại), Boudjnah ch.6 (failure: dự đoán được, phục hồi được, xử lý như giá trị bằng sealed
+     class; exception: bất ngờ, không có cách phục hồi rõ, ghi log và theo dõi). Bảng ánh xạ của hình lấy từ ADE.archFailure. */
+  (function () {
+    var m = 'failure', CASES = ['raw', 'mapped', 'swallow'], KS = ['s1', 's2', 's3', 's4'];
+    var ROWS = ['io', 'conflict', 'server', 'cancel', 'bug'];
+    // mỗi hàng: [repository, ViewModel, người dùng thấy, kiểu ô người dùng ('', 'bad')]
+    var MAP = {
+      raw: { io: ['rethrow', 'noCatch', 'crash', 'bad'], server: ['rethrow', 'catchAllMsg', 'http500', 'bad'], conflict: ['rethrow', 'catchAllMsg', 'http409', 'bad'], bug: ['rethrow', 'catchAllMsg', 'nullText', 'bad'] },
+      mapped: { io: ['toOffline', 'msgFor', 'offlineMsg', ''], conflict: ['toTaken', 'msgFor', 'takenMsg', ''], server: ['toServer', 'msgFor', 'serverMsg', ''], bug: ['notCaught', 'notCaught', 'crashReport', ''] },
+      swallow: { io: ['emptyList', 'showsList', 'noSlots', 'bad'], conflict: ['returnFalse', 'genericFail', 'genericMsg', 'bad'], cancel: ['caughtCancel', 'keepsRunning', 'afterLeave', 'bad'], bug: ['emptyList', 'showsList', 'silent', 'bad'] }
+    };
+    var ORDER = { raw: ['io', 'server', 'conflict', 'bug'], mapped: ['io', 'conflict', 'server', 'bug'], swallow: ['io', 'conflict', 'cancel', 'bug'] };
+    ADE.archFailure = { ROWS: ROWS, order: function (c) { return ORDER[c]; }, cell: function (c, r) { return MAP[c][r] || null; } };
+    var MET = {   // {crash, text: lộ chữ kỹ thuật, hidden: lỗi bị giấu}
+      raw: [{ crash: 'yes', text: 'no', hidden: 'no' }, { crash: 'no', text: 'yes', hidden: 'no' }, { crash: 'no', text: 'yes', hidden: 'no' }, { crash: 'no', text: 'yes', hidden: 'yes' }],
+      mapped: [{ crash: 'no', text: 'no', hidden: 'no' }, { crash: 'no', text: 'no', hidden: 'no' }, { crash: 'no', text: 'no', hidden: 'no' }, { crash: 'report', text: 'no', hidden: 'no' }],
+      swallow: [{ crash: 'no', text: 'no', hidden: 'yes' }, { crash: 'no', text: 'no', hidden: 'yes' }, { crash: 'no', text: 'no', hidden: 'yes' }, { crash: 'no', text: 'no', hidden: 'yes' }]
+    };
+    var STEP = {   // [node sáng, trạng thái node, loại bước, dòng mã, loại log, chủ thể, tín hiệu]
+      raw: [[['source', 'repo', 'vm', 'ui'], { source: 'broken', repo: 'done', vm: 'surprise', ui: 'broken' }, 'pitfall', [1, 2, 3], 'exception', 'source', [{ edge: 'e3', tok: 'error', reverse: true }, { edge: 'e2', tok: 'error', reverse: true }, { edge: 'e1', tok: 'error', reverse: true }]],
+        [['vm', 'ui'], { source: 'broken', repo: 'done', vm: 'surprise', ui: 'surprise' }, 'pitfall', [5, 6], 'exception', 'vm', [{ edge: 'e1', tok: 'error', reverse: true }]],
+        [['vm', 'ui'], { source: 'broken', repo: 'done', vm: 'surprise', ui: 'surprise' }, 'pitfall', [6, 7], 'exception', 'vm', [{ edge: 'e1', tok: 'error', reverse: true }]],
+        [['vm', 'ui'], { source: 'broken', repo: 'done', vm: 'surprise', ui: 'surprise' }, 'pitfall', [6, 7], 'exception', 'vm', [{ edge: 'e1', tok: 'error', reverse: true }]]],
+      mapped: [[['source', 'repo'], { source: 'broken', repo: 'done', vm: 'done', ui: 'done' }, 'scenario', [1, 2, 3, 4], 'exception', 'source', [{ edge: 'e3', tok: 'error', reverse: true }, { edge: 'e2', tok: 'state', reverse: true }]],
+        [['repo', 'vm', 'ui'], { source: 'broken', repo: 'done', vm: 'done', ui: 'done' }, 'mechanism', [5, 7], 'run', 'repo', [{ edge: 'e2', tok: 'state', reverse: true }, { edge: 'e1', tok: 'state', reverse: true }]],
+        [['repo', 'vm', 'ui'], { source: 'broken', repo: 'done', vm: 'done', ui: 'done' }, 'mechanism', [5, 6, 7], 'run', 'vm', [{ edge: 'e1', tok: 'state', reverse: true }]],
+        [['source', 'repo'], { source: 'broken', repo: 'done', vm: 'done', ui: 'done' }, 'mechanism', [8], 'exception', 'source', [{ edge: 'e3', tok: 'error', reverse: true }]]],
+      swallow: [[['repo', 'ui'], { source: 'broken', repo: 'surprise', vm: 'done', ui: 'surprise' }, 'pitfall', [1, 2], 'skip', 'repo', [{ edge: 'e2', tok: 'state', reverse: true }]],
+        [['repo', 'ui'], { source: 'broken', repo: 'surprise', vm: 'done', ui: 'surprise' }, 'pitfall', [3], 'skip', 'repo', [{ edge: 'e2', tok: 'state', reverse: true }]],
+        [['repo', 'vm'], { source: 'done', repo: 'surprise', vm: 'surprise', ui: 'skipped' }, 'pitfall', [3, 4, 5], 'skip', 'repo', []],
+        [['source', 'repo'], { source: 'broken', repo: 'surprise', vm: 'done', ui: 'surprise' }, 'pitfall', [1, 2, 6], 'skip', 'repo', []]]
+    };
+    function steps(s) {
+      return STEP[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var x = MET[s.case][i];
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[0], nodeStates: ns,
+          metrics: { crash: M(m, 'crash.' + x.crash), text: M(m, 'yn.' + x.text), hidden: M(m, 'yn.' + x.hidden) },
+          codeHighlight: { snippet: 'g8.' + s.case, lines: p[3] }, movingSignals: p[6], logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (p[2] === 'pitfall' ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'raw' }; }, act: setter(['case']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'không bắt: mất mạng làm crash; bắt tất cả rồi hiện message: lộ chữ kỹ thuật', run: function () { var a = steps({ case: 'raw' }); return a[0].metrics.crash === M(m, 'crash.yes') && a[1].metrics.text === M(m, 'yn.yes'); } },
+        { name: 'ánh xạ ở repository: không crash, không lộ chữ kỹ thuật; lỗi lập trình vẫn được báo', run: function () { var a = steps({ case: 'mapped' }); return a.every(function (s) { return s.metrics.text === M(m, 'yn.no'); }) && a[3].metrics.crash === M(m, 'crash.report'); } },
+        { name: 'bắt Exception rộng: mọi lỗi bị giấu, kể cả hủy coroutine', run: function () { return steps({ case: 'swallow' }).every(function (s) { return s.metrics.hidden === M(m, 'yn.yes'); }) && ORDER.swallow.indexOf('cancel') >= 0; } }] });
+  })();
 })();

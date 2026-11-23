@@ -190,4 +190,21 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('mvi.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)),
       h('div', { class: 'vz-legend', text: T('mvi.legend') })));
   }, { labelKey: K + 'tab.mvi', icon: 'grid' });
+
+  /* ---------- G8: bảng ánh xạ lỗi qua các tầng ---------- */
+  ADE.registerScreen('arch.failure', function (box, ctx) {
+    var h = ADE.ui.h, c = ctx.state.case, i = Math.max(0, idx(ctx)), F = ADE.archFailure, order = F.order(c);
+    var head = h('tr', null, ['src', 'repo', 'vm', 'user'].map(function (k) { return h('th', { text: T('fl.col.' + k) }); }));
+    var tb = h('tbody');
+    order.forEach(function (r, k) {
+      var cell = F.cell(c, r), on = k === i, shown = k <= i;
+      var cls = function (bad) { return !shown ? 'dim' : (bad ? 'bad' : (on ? 'hl' : null)); };
+      tb.appendChild(h('tr', null, h('th', { class: on ? 'hl' : null, text: T('fl.row.' + r) }),
+        h('td', { class: cls(false), text: shown ? T('fl.v.' + cell[0]) : '·' }),
+        h('td', { class: cls(false), text: shown ? T('fl.v.' + cell[1]) : '·' }),
+        h('td', { class: cls(cell[3] === 'bad'), text: shown ? T('fl.v.' + cell[2]) : '·' })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('fl.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)), h('div', { class: 'vz-legend', text: T('fl.legend') })));
+  }, { labelKey: K + 'tab.fl', icon: 'grid' });
 })();

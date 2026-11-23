@@ -99,3 +99,14 @@ Kiểm URL: topic/architecture/data-layer/offline-first HTTP 200 (curl), đọc 
 | MVVM: View phụ thuộc ViewModel, ViewModel phụ thuộc Model, quan sát được; nhiều View dùng chung ViewModel | `book-dumbravan` ch.8 (epub, đọc 2026-11-24) | guideline |
 | MVI: dữ liệu bất biến gộp thành một state; thay đổi qua luồng phản ứng; Intent khác android Intent; MVI xây trên ViewModel | `book-dumbravan` ch.9 | guideline |
 | Tám tổ hợp L/E/D, năm tổ hợp có nghĩa, sealed state bốn trạng thái | định nghĩa của site cho màn Lịch của tôi | simplified |
+
+## G8 · Lỗi qua các tầng (2026-11-24)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Tương tác với repository có thể thành công hay ném ngoại lệ; coroutine dùng try/catch khi phù hợp, Flow dùng catch; tầng data lộ lỗi bằng ngoại lệ riêng hay Result | `ax-data-layer` | stable |
+| Lỗi trên màn hình là state, thường kèm thông điệp và hành động thử lại, mô hình bằng data class | `ax-ui-layer` | stable |
+| Failure: dự đoán được, phục hồi được, xử lý như giá trị; exception: bất ngờ, cờ đỏ, ghi log và theo dõi; biết cách xử lý thì thành failure | `book-boudjnah` ch.6 (epub, đọc 2026-11-24) | guideline |
+| Sealed class tốt hơn Boolean cho failure (đặt tên, mở rộng) | `book-boudjnah` ch.6 | guideline |
+| catch (e: Exception) bắt cả CancellationException | sự thật về kiểu (CancellationException là một Exception); giải thích ở track Coroutines A5, Kotlin K6 | stable |
+| HttpException, mã 409/500 | ví dụ với Retrofit | simplified |
