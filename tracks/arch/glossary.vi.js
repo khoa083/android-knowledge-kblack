@@ -8,5 +8,6 @@ ADE.addGlossary('vi', 'arch', {
   "dependency-rule": {"term": "Dependency Rule", "def": "Quy tắc trung tâm của Clean Architecture (Robert C. Martin, Boudjnah trình bày cho Android): mũi tên phụ thuộc chỉ hướng vào trong, về domain; lớp bên trong không biết gì về lớp bên ngoài.", "chapter": "arch/g2"},
   "dependency-inversion": {"term": "đảo phụ thuộc", "def": "Đặt một interface ở phía cần dùng (ví dụ repository interface cạnh use case) và để lớp cài đặt phụ thuộc vào interface đó, nên mũi tên phụ thuộc đổi chiều so với chiều gọi.", "chapter": "arch/g2"},
   "ui-state": {"term": "UI state", "def": "Bản chụp bất biến của mọi thứ màn hình cần hiển thị, do state holder (thường là ViewModel) tạo ra; thông báo thoáng qua cũng là một phần của nó.", "chapter": "arch/g3"},
-  "viewmodel-event": {"term": "sự kiện từ ViewModel", "def": "Hành động UI bắt nguồn từ ViewModel (đặt xong, lỗi, điều hướng). Theo hướng dẫn chính thức, nó luôn phải thành một cập nhật UI state.", "chapter": "arch/g3"}
+  "viewmodel-event": {"term": "sự kiện từ ViewModel", "def": "Hành động UI bắt nguồn từ ViewModel (đặt xong, lỗi, điều hướng). Theo hướng dẫn chính thức, nó luôn phải thành một cập nhật UI state.", "chapter": "arch/g3"},
+  "use-case": {"term": "use case", "def": "Lớp ở tầng domain gói một việc nghiệp vụ duy nhất (ví dụ IsSlotBookableUseCase), không giữ dữ liệu thay đổi, gọi an toàn từ main thread. Chỉ thêm khi logic phức tạp hay được nhiều nơi dùng lại.", "chapter": "arch/g5"}
 });

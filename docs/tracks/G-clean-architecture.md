@@ -1,7 +1,7 @@
 # TRACK G — Kiến trúc app Android / Android App Architecture (`arch`)
 
 > **ĐÃ DUYỆT (2026-11-23).** Người dùng duyệt dàn chương bên dưới. Hai câu hỏi cuối chưa có trả lời nên theo đề xuất: **giữ g11** và **chỉ dạy Hilt**. Người dùng có thể đổi hai điều này bất cứ lúc nào.
-> Track id `arch`, mã G, order 70, đang viết: **G1 xong** (2026-11-23), **G2 xong** (2026-11-24), **G3 xong** (2026-11-24), **G4 xong** (2026-11-24), tiếp theo G5.
+> Track id `arch`, mã G, order 70, đang viết: **G1 xong** (2026-11-23), **G2 xong** (2026-11-24), **G3 xong** (2026-11-24), **G4 xong** (2026-11-24), **G5 xong** (2026-11-24), hết Phần 1; tiếp theo G6.
 > Cập nhật 2026-11-24: thêm cột **Hình chính** cho từng chương. Kiểu hình nào hợp thì mình tự chọn (người dùng cho phép, xem `docs/chapter-template-v2.md`, mục "Chọn kiểu hình").
 > Nguyên tắc chọn nội dung giống track Kotlin: **cần và đủ**, không bám từng chương sách. Mỗi chương bắt đầu từ một lỗi thật trên Android.
 
@@ -72,7 +72,7 @@ Cột **Hình chính** là tab mặc định của chương. Sơ đồ node củ
 | g2 ✅ | Các tầng, hướng phụ thuộc, SSOT, UDF | Repository import một lớp UI; hai nơi cùng sửa một dữ liệu | `arch.layers`: thêm một phụ thuộc sai chiều; hai nơi cùng ghi | (1) **Đồ thị phụ thuộc MỚI** cho phần tầng: cạnh sai chiều tô đỏ, vì hướng mũi tên mới là điều cần thấy. (2) **Vòng** cho phần UDF: sự kiện đi lên, state đi xuống | Guide to app architecture; Boudjnah ch2; Martin *Clean Architecture* ch22 (Dependency Rule) |
 | g3 ✅ | UI layer: UiState, ViewModel, sự kiện | Toast "Đặt lịch thành công" hiện lại sau khi xoay màn hình | `arch.uiEvents`: sự kiện → ViewModel → state → UI qua một lần xoay màn hình; sự kiện là state so với Channel | **Làn thời gian**: làn UI, ViewModel, vòng đời Activity; thấy Activity cũ chết, Activity mới đọc lại state, và sự kiện "rơi" vào chỗ nào | UI layer; UI events; State holders; Boudjnah ch3 |
 | g4 ✅ | Data layer: repository, data source, offline-first | Danh sách hiện dữ liệu cũ dù mạng đã trả mới | `arch.ssot`: đọc từ DB làm SSOT; làm mới từ mạng thì ghi vào DB; UI quan sát DB | **Làn thời gian** ba làn mạng, DB, UI: thấy UI chỉ đổi khi DB đổi | Data layer; Offline-first; Dumbravan ch6–7 |
-| g5 | Domain layer (tùy chọn) và use case | Cùng một quy tắc "giờ hợp lệ" viết ở hai ViewModel và lệch nhau | `arch.useCase`: hai ViewModel tự viết quy tắc so với dùng chung một use case | (1) **Bảng**: quy tắc × nơi viết, ô lệch tô đỏ. (2) **Cây quyết định** "có cần use case không" | Domain layer; Dumbravan ch5; Boudjnah ch2 |
+| g5 ✅ | Domain layer (tùy chọn) và use case | Cùng một quy tắc "giờ hợp lệ" viết ở hai ViewModel và lệch nhau | `arch.useCase`: hai ViewModel tự viết quy tắc so với dùng chung một use case | (1) **Bảng**: quy tắc × nơi viết, ô lệch tô đỏ. (2) **Cây quyết định** "có cần use case không" | Domain layer; Dumbravan ch5; Boudjnah ch2 |
 
 ### Phần 2: Thực hành sâu
 | Id | Chương | Lỗi dẫn dắt | Sim | Hình chính (vì sao hợp) | Nguồn chính |

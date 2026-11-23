@@ -292,4 +292,69 @@
         { name: 'DB là nguồn sự thật: UI chỉ đọc DB và có bản mới sau khi DB được ghi', run: function () { var x = steps({ case: 'ssot' }); return x.every(function (s) { return s.metrics.src === M(m, 'src.db'); }) && x[2].metrics.ui === M(m, 'fresh.yes'); } },
         { name: 'ghi lười: UI thấy thay đổi ngay cả khi mất mạng', run: function () { return ADE.archOffline.at('lazy', 1).net[0] === 'offline' && steps({ case: 'lazy' })[1].metrics.ui === M(m, 'fresh.yes'); } }] });
   })();
+  /* ================= G5: domain layer tùy chọn và use case =================
+     Theo Domain layer (domain tùy chọn; gói logic phức tạp hay logic đơn giản dùng lại ở nhiều ViewModel; mỗi use case một việc,
+     không giữ dữ liệu thay đổi; main-safe; đặt tên động từ + danh từ + UseCase; chỉ thêm khi cần; giới hạn truy cập tầng data
+     có thể buộc viết use case chỉ chuyển tiếp). Bảng quy tắc và cây quyết định của hình "Quy tắc và nơi viết" lấy từ ADE.archUseCase.
+     Ví dụ: lúc 8:00 xem giờ 9:30; quy tắc cũ "đặt trước ít nhất 1 giờ", quy tắc mới "ít nhất 2 giờ". */
+  (function () {
+    var m = 'usecase', CASES = ['duplicated', 'shared', 'passthrough'], KS = ['s1', 's2', 's3', 's4'];
+    // bảng: cột choose, resched, uc; mỗi ô {past, hours, lead, ans} — giá trị: 'y' có kiểm, '1h'/'2h' ngưỡng đặt trước, 'use' dùng use case, '-' không có, 'fwd' chỉ chuyển tiếp
+    var COLS = ['choose', 'resched', 'uc'];
+    var R = function (p, h, l, a) { return { past: p, hours: h, lead: l, ans: a }; };
+    var NONE = R('-', '-', '-', '-'), USE = function (a) { return R('use', 'use', 'use', a); };
+    var T = {
+      duplicated: [{ choose: R('y', 'y', '1h', 'yes'), resched: NONE, uc: NONE },
+        { choose: R('y', 'y', '1h', 'yes'), resched: R('y', 'y', '1h', 'yes'), uc: NONE },
+        { choose: R('y', 'y', '2h', 'no'), resched: R('y', 'y', '1h', 'yes'), uc: NONE },
+        { choose: R('y', 'y', '2h', 'no'), resched: R('y', 'y', '1h', 'yes'), uc: NONE }],
+      shared: [{ choose: USE('yes'), resched: NONE, uc: R('y', 'y', '1h', '-') },
+        { choose: USE('yes'), resched: USE('yes'), uc: R('y', 'y', '1h', '-') },
+        { choose: USE('no'), resched: USE('no'), uc: R('y', 'y', '2h', '-') },
+        { choose: USE('no'), resched: USE('no'), uc: R('y', 'y', '2h', '-') }],
+      passthrough: [{ choose: NONE, resched: NONE, uc: R('fwd', 'fwd', 'fwd', '-') },
+        { choose: R('use', 'use', 'use', '-'), resched: NONE, uc: R('fwd', 'fwd', 'fwd', '-') },
+        { choose: R('use', 'use', 'use', '-'), resched: NONE, uc: R('fwd', 'fwd', 'fwd', '-') },
+        { choose: NONE, resched: NONE, uc: NONE }]
+    };
+    // đường đi trong cây quyết định: reuse (dùng lại ở nhiều nơi?), complex (phức tạp, gộp nhiều repository?) -> lá
+    var PATH = { duplicated: { reuse: 'yes', leaf: 'useCase' }, shared: { reuse: 'yes', leaf: 'useCase' }, passthrough: { reuse: 'no', complex: 'no', leaf: 'none' } };
+    var MET = {
+      duplicated: [{ copies: 1, agree: 'na', extra: 0 }, { copies: 2, agree: 'yes', extra: 0 }, { copies: 2, agree: 'no', extra: 0 }, { copies: 2, agree: 'no', extra: 0 }],
+      shared: [{ copies: 1, agree: 'na', extra: 0 }, { copies: 1, agree: 'yes', extra: 0 }, { copies: 1, agree: 'yes', extra: 0 }, { copies: 1, agree: 'yes', extra: 0 }],
+      passthrough: [{ copies: 0, agree: 'na', extra: 1 }, { copies: 0, agree: 'na', extra: 1 }, { copies: 0, agree: 'na', extra: 1 }, { copies: 0, agree: 'na', extra: 0 }]
+    };
+    var STEP = {   // [node sáng, trạng thái node, loại bước, dòng mã, loại log, chủ thể, tín hiệu]
+      duplicated: [[['choose', 'repo'], { choose: 'done', resched: 'skipped', uc: 'skipped', repo: 'done' }, 'scenario', [1, 2], 'write', 'choose', [{ edge: 'e4', tok: 'signal' }]],
+        [['resched', 'repo'], { choose: 'done', resched: 'done', uc: 'skipped', repo: 'done' }, 'mechanism', [4, 5], 'write', 'resched', [{ edge: 'e5', tok: 'signal' }]],
+        [['choose', 'resched'], { choose: 'done', resched: 'surprise', uc: 'skipped', repo: 'done' }, 'pitfall', [2, 5], 'write', 'choose', []],
+        [['choose', 'resched'], { choose: 'done', resched: 'surprise', uc: 'skipped', repo: 'done' }, 'pitfall', [7], 'observe', 'resched', []]],
+      shared: [[['uc', 'choose'], { choose: 'done', resched: 'skipped', uc: 'done', repo: 'done' }, 'scenario', [1, 2, 3, 5], 'write', 'uc', [{ edge: 'e1', tok: 'signal' }]],
+        [['choose', 'resched', 'uc'], { choose: 'done', resched: 'done', uc: 'done', repo: 'done' }, 'mechanism', [5, 6], 'write', 'resched', [{ edge: 'e1', tok: 'signal' }, { edge: 'e2', tok: 'signal' }]],
+        [['uc'], { choose: 'done', resched: 'done', uc: 'done', repo: 'done' }, 'mechanism', [3], 'write', 'uc', []],
+        [['uc', 'choose', 'resched'], { choose: 'done', resched: 'done', uc: 'done', repo: 'done' }, 'mechanism', [7, 8], 'complete', 'uc', [{ edge: 'e1', tok: 'state', reverse: true }, { edge: 'e2', tok: 'state', reverse: true }]]],
+      passthrough: [[['uc', 'repo'], { choose: 'skipped', resched: 'skipped', uc: 'surprise', repo: 'done' }, 'scenario', [1, 2, 3], 'write', 'uc', [{ edge: 'e3', tok: 'signal' }]],
+        [['choose', 'uc', 'repo'], { choose: 'done', resched: 'skipped', uc: 'surprise', repo: 'done' }, 'pitfall', [4], 'run', 'choose', [{ edge: 'e1', tok: 'signal' }, { edge: 'e3', tok: 'signal' }]],
+        [['uc'], { choose: 'done', resched: 'skipped', uc: 'surprise', repo: 'done' }, 'mechanism', [1, 4], 'observe', 'uc', []],
+        [['choose', 'repo'], { choose: 'done', resched: 'skipped', uc: 'skipped', repo: 'done' }, 'mechanism', [5, 6], 'complete', 'choose', [{ edge: 'e4', tok: 'signal' }]]]
+    };
+    ADE.archUseCase = { COLS: COLS, ROWS: ['past', 'hours', 'lead', 'ans'], at: function (c, i) { return T[c][i]; }, path: function (c) { return PATH[c]; } };
+    function steps(s) {
+      return STEP[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var x = MET[s.case][i];
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[0], nodeStates: ns,
+          metrics: { copies: x.copies, agree: M(m, 'agree.' + x.agree), extra: x.extra },
+          codeHighlight: { snippet: 'g5.' + s.case, lines: p[3] }, movingSignals: p[6], logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (p[2] === 'pitfall' ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'duplicated' }; }, act: setter(['case']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'quy tắc chép ở hai ViewModel: đổi một chỗ thì hai màn trả lời khác nhau', run: function () { var t = ADE.archUseCase.at('duplicated', 3); return t.choose.ans !== t.resched.ans && steps({ case: 'duplicated' })[3].metrics.agree === M(m, 'agree.no'); } },
+        { name: 'dùng chung một use case: một chỗ viết, hai màn cùng đáp án', run: function () { var t = ADE.archUseCase.at('shared', 3); return t.choose.ans === t.resched.ans && steps({ case: 'shared' })[3].metrics.copies === 1; } },
+        { name: 'use case chỉ chuyển tiếp: bỏ đi thì bớt một lớp, không mất quy tắc nào', run: function () { var a = steps({ case: 'passthrough' }); return a[0].metrics.extra === 1 && a[3].metrics.extra === 0 && ADE.archUseCase.path('passthrough').leaf === 'none'; } }] });
+  })();
 })();

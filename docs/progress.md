@@ -698,3 +698,12 @@ Trạng thái: `chưa / đang / xong`.
   - Thêm 1 nguồn (Build an offline-first app) và 1 preset.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; đã xem ảnh ba tình huống G4, và ảnh G3 sau khi gom hàm vẽ.
   - **Tiếp theo:** G5 (domain layer tùy chọn và use case).
+- **Kiến trúc · G5 (2026-11-24):** domain layer tùy chọn và use case (`arch_v2_g5.py`, 8 mục). Nội dung:
+  - khi nào cần domain;
+  - hình dạng một use case (một việc, main-safe, operator invoke, nhận Clock);
+  - có nên buộc mọi truy cập qua domain;
+  - 2 bug (quy tắc chép ở hai ViewModel lệch nhau; test phụ thuộc giờ thật); bài tập phân loại bốn đoạn logic; quiz 4 câu.
+  - **Sim `arch.usecase`:** ba tình huống (chép quy tắc, use case dùng chung, use case chỉ chuyển tiếp). Tab chính "Quy tắc và nơi viết": **bảng** điều kiện × nơi viết, kèm **cây quyết định** có viền nhánh.
+  - Thêm 1 thuật ngữ, 1 hiểu lầm, 1 preset.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; đã xem ảnh hai tình huống.
+  - **Xong Phần 1 của track G.** Tiếp theo: G6 (DI thủ công và Hilt).

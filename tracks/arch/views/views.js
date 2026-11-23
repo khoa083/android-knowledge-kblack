@@ -31,4 +31,8 @@
   V('offline', { layout: 'pipeline', nodes: [N('offline', 'ui', 0, 0, 'screen', 'ui'), N('offline', 'repo', 3, 0, 'store', 'runtime'), N('offline', 'db', 6, 0, 'store', 'state'), N('offline', 'net', 6, 3, 'source', 'job')],
     edges: [E('e1', 'ui', 'repo'), E('e2', 'repo', 'db'), E('e3', 'repo', 'net')],
     metrics: [T('offline', 'src'), T('offline', 'ui'), T('offline', 'db')] });
+  /* G5: hai ViewModel, một use case, repository */
+  V('usecase', { layout: 'pipeline', nodes: [N('usecase', 'choose', 0, 0, 'layers', 'state'), N('usecase', 'resched', 0, 3, 'layers', 'state'), N('usecase', 'uc', 4, 1.5, 'mechanism', 'runtime'), N('usecase', 'repo', 8, 1.5, 'store', 'job')],
+    edges: [E('e1', 'choose', 'uc'), E('e2', 'resched', 'uc'), E('e3', 'uc', 'repo'), E('e4', 'choose', 'repo'), E('e5', 'resched', 'repo')],
+    metrics: [T('usecase', 'copies'), T('usecase', 'agree'), T('usecase', 'extra')] });
 })();

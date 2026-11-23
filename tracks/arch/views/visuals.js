@@ -103,4 +103,33 @@
   }
   laneScreen('arch.events', function () { return ADE.archEvents; }, 'ev', 'tab.ev');       // G3: qua một lần xoay màn hình
   laneScreen('arch.offline', function () { return ADE.archOffline; }, 'off', 'tab.off');   // G4: mạng, database, repository, UI
+
+  /* ---------- G5: bảng quy tắc theo nơi viết, và cây "có cần use case không" ---------- */
+  ADE.registerScreen('arch.usecase', function (box, ctx) {
+    var h = ADE.ui.h, c = ctx.state.case, i = Math.max(0, idx(ctx)), U = ADE.archUseCase, t = U.at(c, i);
+    var head = h('tr', null, h('th', { text: T('uc.colRule') }), U.COLS.map(function (col) { return h('th', { text: T('uc.col.' + col) }); }));
+    var tb = h('tbody');
+    U.ROWS.forEach(function (row) {
+      var tr = h('tr', null, h('th', { text: T('uc.row.' + row) }));
+      U.COLS.forEach(function (col) {
+        var v = t[col][row], cls = v === '-' ? 'dim' : null;
+        if (row === 'lead' && v === '1h' && U.COLS.some(function (o) { return t[o].lead === '2h'; })) cls = 'bad';   // ngưỡng cũ còn sót
+        if (row === 'ans' && (v === 'yes' || v === 'no') && U.COLS.some(function (o) { var w = t[o].ans; return (w === 'yes' || w === 'no') && w !== v; })) cls = 'bad';
+        if (v === 'fwd') cls = 'bad';
+        tr.appendChild(h('td', { class: cls, text: T('uc.v.' + v) }));
+      });
+      tb.appendChild(tr);
+    });
+    var tbl = h('table', { class: 'vz-table' }, h('thead', null, head), tb);
+    // cây quyết định: hộp lồng, nhánh trên đường đi được viền
+    var p = U.path(c), show = i >= 3 || c !== 'duplicated';
+    var leaf = function (k, on) { return h('div', { class: 'vz-box' + (on ? ' hl' : '') }, h('span', { class: 'vz-h', text: T('uc.leaf.' + k) })); };
+    var tree = h('div', { class: 'vz-box' }, h('span', { class: 'vz-h', text: T('uc.q.reuse') }),
+      h('div', { class: 'vz-box' + (show && p.reuse === 'yes' ? ' hl' : '') }, h('span', { text: T('uc.yes') }), leaf('useCase', show && p.reuse === 'yes')),
+      h('div', { class: 'vz-box' + (show && p.reuse === 'no' ? ' hl' : '') }, h('span', { text: T('uc.no') + ' · ' + T('uc.q.complex') }),
+        h('div', { class: 'vz-box' }, h('span', { text: T('uc.yes') }), leaf('useCaseOrRepo', false)),
+        h('div', { class: 'vz-box' + (show && p.complex === 'no' ? ' hl' : '') }, h('span', { text: T('uc.no') }), leaf('none', show && p.leaf === 'none'))));
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('uc.cap') }), h('div', { class: 'vz-scroll' }, tbl),
+      h('p', { class: 'vz-cap', text: T('uc.treeCap') }), tree, h('div', { class: 'vz-legend', text: T('uc.legend') })));
+  }, { labelKey: K + 'tab.uc', icon: 'grid' });
 })();

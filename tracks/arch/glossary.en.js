@@ -8,5 +8,6 @@ ADE.addGlossary('en', 'arch', {
   "dependency-rule": {"term": "Dependency Rule", "def": "The central rule of Clean Architecture (Robert C. Martin, presented for Android by Boudjnah): dependency arrows point only inward, toward the domain; inner layers know nothing about outer ones.", "chapter": "arch/g2"},
   "dependency-inversion": {"term": "dependency inversion", "def": "Put an interface on the side that uses it (for example a repository interface next to the use case) and make the implementation depend on that interface, so the dependency arrow points against the direction of the call.", "chapter": "arch/g2"},
   "ui-state": {"term": "UI state", "def": "An immutable snapshot of everything the screen needs to display, produced by a state holder (usually a ViewModel); transient messages are part of it too.", "chapter": "arch/g3"},
-  "viewmodel-event": {"term": "ViewModel event", "def": "A UI action that originates from the ViewModel (booked, error, navigate). Per the official guide, it must always result in a UI state update.", "chapter": "arch/g3"}
+  "viewmodel-event": {"term": "ViewModel event", "def": "A UI action that originates from the ViewModel (booked, error, navigate). Per the official guide, it must always result in a UI state update.", "chapter": "arch/g3"},
+  "use-case": {"term": "use case", "def": "A domain-layer class wrapping a single business action (for example IsSlotBookableUseCase), holding no mutable data, safe to call from the main thread. Add one only when logic is complex or reused in several places.", "chapter": "arch/g5"}
 });

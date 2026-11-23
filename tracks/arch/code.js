@@ -142,4 +142,31 @@
     '}',
     c('// SyncCancelWorker: gọi api.cancel(id); xong thì dao.clearPending(id), lỗi thì Result.retry()', '// SyncCancelWorker: calls api.cancel(id); on success dao.clearPending(id), on failure Result.retry()')
   ]);
+  add('g5.duplicated', [
+    'class ChooseTimeViewModel(private val repo: SlotRepository) : ViewModel() {',
+    '    fun bookable(s: Slot, now: LocalDateTime) = s.start > now && s.start.hour in 7..17 && ChronoUnit.MINUTES.between(now, s.start) >= 120',
+    '}',
+    'class RescheduleViewModel(private val repo: SlotRepository) : ViewModel() {',
+    c('    fun bookable(s: Slot, now: LocalDateTime) = s.start > now && s.start.hour in 7..17 && ChronoUnit.MINUTES.between(now, s.start) >= 60  // bản chép cũ', '    fun bookable(s: Slot, now: LocalDateTime) = s.start > now && s.start.hour in 7..17 && ChronoUnit.MINUTES.between(now, s.start) >= 60  // the old copy'),
+    '}',
+    c('// 8:00 xem giờ 9:30: màn Chọn giờ nói không, màn Đổi lịch nói có', '// at 8:00 looking at 9:30: Choose a time says no, Reschedule says yes')
+  ]);
+  add('g5.shared', [
+    'class IsSlotBookableUseCase(private val clock: Clock) {',
+    '    operator fun invoke(s: Slot): Boolean { val now = LocalDateTime.now(clock)',
+    '        return s.start > now && s.start.hour in 7..17 && ChronoUnit.MINUTES.between(now, s.start) >= 120 }',
+    '}',
+    'class ChooseTimeViewModel(private val isBookable: IsSlotBookableUseCase) : ViewModel()',
+    'class RescheduleViewModel(private val isBookable: IsSlotBookableUseCase) : ViewModel()',
+    c('// test một lần, với đồng hồ cố định lúc 8:00', '// test once, with a clock fixed at 8:00'),
+    'val uc = IsSlotBookableUseCase(Clock.fixed(at8am, zone)); assertFalse(uc(slot930))'
+  ]);
+  add('g5.passthrough', [
+    'class GetSlotsUseCase(private val repo: SlotRepository) {',
+    c('    operator fun invoke(day: LocalDate) = repo.slots(day)   // chỉ chuyển tiếp', '    operator fun invoke(day: LocalDate) = repo.slots(day)   // only forwards'),
+    '}',
+    'class ChooseTimeViewModel(private val getSlots: GetSlotsUseCase) : ViewModel()',
+    c('// không thêm quy tắc nào: bỏ use case, ViewModel nhận thẳng repository', '// adds no rule: drop the use case, the ViewModel takes the repository directly'),
+    'class ChooseTimeViewModel(private val repo: SlotRepository) : ViewModel()'
+  ]);
 })();

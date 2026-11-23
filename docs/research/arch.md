@@ -64,3 +64,17 @@ Kiểm URL: ui-layer/events, ui-layer/stateholders, ui-layer/state-production HT
 | Dữ liệu 9:00, 9:30, lịch 10:00 trong sim | ví dụ của site | simplified |
 
 Kiểm URL: topic/architecture/data-layer/offline-first HTTP 200 (curl), đọc bản text 2026-11-24. Sách Dumbravan ch6–7 chưa đọc thân chương nên chưa trích.
+
+## G5 · Domain layer (tùy chọn) và use case (2026-11-24)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Domain tùy chọn, gói logic phức tạp hay logic đơn giản dùng lại ở nhiều ViewModel; chỉ dùng khi cần | `ax-domain-layer` | stable |
+| Lợi ích: tránh trùng lặp, dễ đọc, dễ test, tách lớp lớn | `ax-domain-layer` | stable |
+| "Domain layer" của Android khác nghĩa domain trong Clean Architecture | `ax-domain-layer` | stable |
+| Mỗi use case một việc, không chứa dữ liệu thay đổi; tên động từ + danh từ + UseCase; operator invoke; không có vòng đời riêng | `ax-domain-layer` | stable |
+| Use case main-safe; việc nặng chuyển dispatcher hay để ở tầng data nếu cần cache | `ax-domain-layer` | stable |
+| Gộp nhiều repository: use case; nếu Room tự gộp được thì repository riêng | `ax-domain-layer` | stable |
+| Use case tốt hơn hàm tĩnh trong lớp Util | `ax-domain-layer` | guideline |
+| Chặn UI truy cập data: lợi (không đi vòng analytics) và giá (use case chỉ chuyển tiếp); thêm khi cần | `ax-domain-layer` | guideline |
+| Quy tắc giờ đặt được (60/120 phút, 7:00 tới 17:59) và cây quyết định | ví dụ và tóm tắt của site | simplified |
