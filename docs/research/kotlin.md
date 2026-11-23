@@ -20,3 +20,18 @@ Spec: `docs/tracks/F-kotlin.md`. Trang kotlinlang.org đọc nội dung ngày 20
 | Sim `kotlin.eval`: giá trị là kết quả tài liệu nêu, không chạy Kotlin trong trang | Minh họa | simp.1, simp.2 |
 
 Kiểm URL (curl, HTTP 200): 4 trang kotlinlang.org; leanpub.com/kotlin_developers (tiêu đề "Kotlin Essentials"), /effectivekotlin, /kotlin_exercises (tiêu đề "Kotlin Exercises").
+
+## K2 · Null safety, smart cast, platform type (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Kiểu nullable, ?., chuỗi ?., ?:, !!, let, as?; danh sách nguyên nhân NPE (throw, !!, khởi tạo dở, Java interop) | `kt-null-safety` | stable |
+| Bảng điều kiện smart cast: val cục bộ luôn (trừ local delegated); val property nếu private/internal/cùng module, không với open hay getter tự viết; var cục bộ nếu không sửa giữa chừng và không bị lambda sửa bắt giữ; var property không bao giờ | `kt-typecasts` (Smart cast prerequisites) | stable |
+| Smart cast qua && / || và trong catch/finally | `kt-typecasts` | stable |
+| Platform type T!, nới kiểm tra null; gán vào kiểu non-null thì trình biên dịch chèn kiểm tra (assertion) | `kt-java-interop` | stable |
+| Các họ chú thích nullability, gồm Android (androidx.annotation, android.annotation, android.support.annotation) và JSpecify | `kt-java-interop` | stable |
+| Loại bỏ platform type càng sớm càng tốt | `book-effective-kotlin` Item 3 | guideline |
+| Bài tập patientLabel | dựa trên "Person details display", `book-kt-exercises`; lời giải tự viết | — |
+| Sim `kotlin.smartcast`: ví dụ User/Patient/LegacyClinicApi hư cấu; khối "luật smart cast" gộp phân tích luồng dữ liệu | Minh họa | simp.1, simp.2 |
+
+Kiểm URL (curl, HTTP 200): null-safety.html, typecasts.html, java-interop.html.

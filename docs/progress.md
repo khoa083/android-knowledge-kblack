@@ -556,3 +556,6 @@ Trạng thái: `chưa / đang / xong`.
   - Sim `kotlin.eval` (chia nguyên, chia cho 2.0, tràn Int, when): mã nguồn → suy kiểu → tính giá trị → biến; goal g1 = bước 2 (suy kiểu).
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck 3/3 PASS; track-check Kotlin 1280/360 0 vấn đề; routes-check 123 route 0 vấn đề (sửa một lỗi lộ khóa `app.kind.check` bằng nhãn loại sự kiện của track); goal kiểm trong trang; đã xem ảnh sim.
   - **Tiếp theo:** K2 (null safety, smart cast, platform type).
+- **Kotlin · K2 (2026-11-23):** null safety, smart cast, platform type (`kotlin_v2_k2.py`, 8 mục): kiểu nullable và 5 cách làm việc với nó, nguồn gây NPE theo tài liệu, bảng điều kiện smart cast, platform type T! và chú thích nullability (có Android, JSpecify); 2 bug (!! để qua lỗi smart cast; NPE xa chỗ gọi Java), bài tập dựa trên "Person details display", tự trả lời 2 câu, quiz 4 câu. Sim `kotlin.smartcast` (val cục bộ, var property, property open, var bị lambda sửa, platform type). 3 nguồn mới, 3 thuật ngữ, 2 hiểu lầm.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck 6/6 PASS (cả track); track-check Kotlin 1280/360 0 vấn đề; routes-check 124 route 0 vấn đề; đã xem ảnh sim.
+  - **Tiếp theo:** K3 (class, interface, object, thứ tự khởi tạo).
