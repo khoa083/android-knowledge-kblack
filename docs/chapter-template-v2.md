@@ -57,6 +57,26 @@
   - tắt chuyển động vẫn hiểu được;
   - chuyển cảnh trang/bước/chỉ số/log do lõi lo, xem `docs/design-principles.md` §5.1. Sim mới phải dùng `movingSignals` hoặc `nodeStates` thay đổi giữa các bước để sơ đồ có chuyển động thật, không chỉ đổi chữ.
 
+## Chọn kiểu hình theo nội dung (2026-11-24)
+
+Người dùng giao quyền (2026-11-23): mỗi chương, và mỗi phần trong chương, dùng kiểu hình dễ hình dung nhất cho đúng nội dung đó, không mặc định là luồng bốn khối. Riêng UI/UX đang tạm dừng nên không áp dụng ở đó. Sơ đồ node của sim vẫn giữ làm tab phụ, để dòng sự kiện và trạng thái node còn đó. Chương có hai cơ chế khác nhau thì có hai hình.
+
+| Kiểu hình | Hợp với | Cách vẽ hiện có |
+|---|---|---|
+| Luồng (pipeline) | dữ liệu hay lời gọi đi qua các khâu theo một chiều | lõi `layout: 'pipeline'` |
+| Làn thời gian (lanes) | nhiều luồng, tiến trình hay tác nhân chạy song song theo thời gian | lõi `layout: 'lanes'` (Coroutines) |
+| Vòng (cycle) | vòng lặp: sự kiện lên, state xuống; red, green, refactor | lõi `layout: 'cycle'` |
+| Cây (tree), cây quyết định | phân cấp; chọn A hay B theo câu hỏi | lõi `layout: 'tree'`; cây hộp lồng `.vz-box` (Animation C0) |
+| Bảng, ma trận | so nhiều trường hợp theo hai chiều; bảng tra triệu chứng | `.vz-table` (Kotlin K4, K10, K0) |
+| Bảng tính | công thức có số thay vào và ví dụ kiểm chứng | `.vz-table` |
+| Hộp lồng | phạm vi lồng nhau: receiver, lõi và vỏ, scope | `.vz-box` (Kotlin K12) |
+| Dãy ô (strip) | phần tử theo vị trí: danh sách, trang, khúc tệp, phiên bản | `.vz-chip` (Runtime B3, B4, LZ) |
+| **Đồ thị phụ thuộc** | node có cạnh có hướng; cạnh sai chiều hay vòng phụ thuộc tô đỏ | **MỚI**: SVG tự vẽ trong `tracks/<t>/views/visuals.js`, không sửa lõi |
+| **Sơ đồ tuần tự** | client, server và dịch vụ trao đổi theo thời gian; tin bị mất, trùng hay đến muộn | **MỚI**: như trên |
+| **Đường ray (railway)** | hai đường thành công và lỗi; giá trị rẽ sang đường lỗi rồi đi tiếp tới cuối | **MỚI**: như trên |
+
+Hình **MỚI** viết một lần trong track đầu tiên cần nó. Nếu track thứ hai cũng cần, chuyển lên `shared/` thay vì chép lại. Mỗi dàn ý track (`docs/tracks/*.md`) ghi rõ kiểu hình của từng chương ở cột "Hình chính".
+
 ## Nguồn nghiên cứu về cách học
 
 - Dunlosky et al. (2013), *Improving Students' Learning With Effective Learning Techniques*, Psychological Science in the Public Interest 14(1).

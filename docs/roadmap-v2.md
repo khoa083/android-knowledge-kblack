@@ -41,6 +41,24 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 | 8 | **Track mới: Clean Code** (tuyển tập, người dùng bổ sung nguồn) | `deep_dive_kotlin/ggplaybook/`: *The Clean Coder*, *Clean Craftsmanship* (TDD, refactoring, simple design, kỷ luật), *Clean Architecture* (SOLID, nguyên lý thành phần, Dependency Rule; dùng chung với track 5), *Clean Agile*, *Code That Fits in Your Head* (Seemann: heuristic, checklist, đo độ phức tạp), *The Software Craftsman*; cùng với *Effective Kotlin* để có ví dụ Kotlin. Có thể dùng thêm *API Design Patterns* và *Fundamentals of Software Architecture* (cùng thư mục) cho phần thiết kế API và kiến trúc |
 | 9 | **Track mới: Functional Programming in Kotlin** ("Build Your Software Faster and Safer…") | `From Objects to Functions….pdf`, `Functional Programming in K_….pdf`, `Functional Programming in Kotlin by Tutorials.pdf`, Functional Kotlin |
 
+## Trạng thái các track (cập nhật 2026-11-24)
+
+| Mã | Track (id) | Trạng thái | Dàn ý / spec |
+|---|---|---|---|
+| A | Coroutines (`coroutines`) | **Xong v2**, stable | mục "Coroutines v2" bên dưới |
+| B | Compose Runtime (`runtime`) | **Xong v2**, stable; đã đổi hình B3, B4, MD, LZ | mục "Compose Runtime v2" bên dưới |
+| C | Compose Animation (`animation`) | **Xong v2**, stable; đã đổi hình C0 | mục "Compose Animation v2" bên dưới |
+| D | UX (`ux`) | **Tạm dừng** ("Sắp ra mắt"); dàn v2 đã đối chiếu sách | mục "UX v2" bên dưới |
+| E | UI (`ui`) | **Tạm dừng** ("Sắp ra mắt"); dàn v2 đã đối chiếu sách | mục "UI v2" bên dưới |
+| F | Kotlin (`kotlin`) | **Xong**, stable, 14 chương; đã đổi hình K4, K9, K10, K12, K0 | `docs/tracks/F-kotlin.md` |
+| G | Kiến trúc app Android (`arch`) | **Đã duyệt**, đang viết (G1 xong), draft | `docs/tracks/G-clean-architecture.md` |
+| H | Lưu dữ liệu (`storage`) | Dàn ý **chờ duyệt** | `docs/tracks/H-saving-data.md` |
+| I | Thiết kế hệ thống phía mobile (`sysdesign`) | Dàn ý **chờ duyệt** | `docs/tracks/I-mobile-system-design.md` |
+| J | Mã sạch và kỷ luật làm nghề (`cleancode`) | Dàn ý **chờ duyệt** | `docs/tracks/J-clean-code.md` |
+| K | Lập trình hàm với Kotlin (`fp`) | Dàn ý **chờ duyệt** | `docs/tracks/K-functional-kotlin.md` |
+
+Mỗi dàn ý ghi cột **Hình chính** cho từng chương. Kiểu hình chọn theo nội dung, xem `docs/chapter-template-v2.md`, mục "Chọn kiểu hình theo nội dung". Một track chỉ được xây sau khi người dùng duyệt IN/OUT và dàn chương của nó.
+
 Thêm track mới theo `E:\AndroidDeepDiveExplorer-Prompts\P-NEW-TRACK.md` và `TRACK-TEMPLATE.md`. Lõi không phải sửa.
 
 ## Coroutines v2: dàn chương (đã đối chiếu mục lục thật của *Kotlin Coroutines: Deep Dive*, 2026-11-22; số trang là trang PDF)
@@ -313,80 +331,16 @@ Thứ tự viết: e1 → e2 → e3 → e4 → ia → e5 → e6 → e7 → dv �
 - **Dưới mui xe:** bytecode của lambda, inline, data class, `object`, `companion`, `lateinit`, `by lazy`.
 - Bài tập lấy từ *Kotlin Exercises*.
 
-### Clean Android Architecture (track mới)
-- Vì sao cần kiến trúc: mã dính vào framework, khó test.
-- Clean Architecture (Martin):
-  - SOLID;
-  - Dependency Rule;
-  - entity/use case/interface adapter/framework;
-  - boundary.
-- Tầng trên Android (Dumbravan, Boudjnah):
-  - domain (use case, model);
-  - data (repository, data source);
-  - presentation (MVVM/MVI, ViewModel, UI state).
-- Module hoá: feature module, quy tắc phụ thuộc giữa các module.
-- DI: thủ công → Dagger/Hilt (*Dagger by Tutorials*), scope, component.
-- *Advanced Android App Architecture*: MVC → MVP → MVVM → MVI → VIPER, so sánh trên cùng một app.
-- Test theo tầng.
-- *Fundamentals of Software Architecture*: đặc tính kiến trúc, trade-off.
+### Các track mới G–K: đã có dàn ý riêng (2026-11-24)
 
-### Saving Data on Android (track mới)
-- SharedPreferences → DataStore (Preferences/Proto): luồng ghi, đọc qua Flow, tính nhất quán.
-- File: internal/external, scoped storage.
-- SQLite thuần: transaction, index.
-- Room:
-  - entity, DAO, quan hệ;
-  - migration;
-  - Flow/LiveData;
-  - test.
-- Đồng bộ dữ liệu với server, cache, offline-first, xung đột.
-- Bảo mật dữ liệu lưu trên máy.
+Dàn nháp cũ (2026-11-21) của Clean Android Architecture, Saving Data, Mobile System Design, Clean Code và Functional Programming đã được thay bằng dàn ý có đối chiếu mục lục sách thật, IN/OUT có lý do, và kiểu hình cho từng chương:
+- G: `docs/tracks/G-clean-architecture.md` (đã duyệt, đang viết)
+- H: `docs/tracks/H-saving-data.md`
+- I: `docs/tracks/I-mobile-system-design.md`
+- J: `docs/tracks/J-clean-code.md`
+- K: `docs/tracks/K-functional-kotlin.md`
 
-### Mobile System Design (track mới)
-- **Khung phỏng vấn:** làm rõ yêu cầu → API → luồng dữ liệu → kiến trúc client → các chủ đề sâu.
-- **Bài mẫu** (*Mobile System Design*, Alex Xu tập 1 và 2, *Acing the SDI*, chỉ phần client):
-  - feed, chat, ảnh/video;
-  - thông báo đẩy;
-  - đồng bộ offline;
-  - phân trang.
-- **Dữ liệu** (DDIA):
-  - mô hình dữ liệu;
-  - đồng bộ, nhất quán;
-  - replication;
-  - log, idempotency, retry.
-- **Mạng:** REST/GraphQL/WebSocket, cache HTTP, backoff, giới hạn băng thông và pin.
-- **Hệ điều hành** (OS Concepts, phần áp dụng cho mobile):
-  - tiến trình/luồng, lập lịch;
-  - bộ nhớ (từ đó suy ra LMK trên Android);
-  - đồng bộ hoá, deadlock.
-- **Phi chức năng:** hiệu năng, khởi động app, kích thước, quan sát (log/metric), feature flag, phát hành từng phần.
-
-### Clean Code (track mới, tuyển tập)
-- **Mã sạch ở mức dòng/hàm:**
-  - đặt tên, hàm nhỏ;
-  - comment;
-  - xử lý lỗi;
-  - mã Kotlin minh hoạ lấy từ *Effective Kotlin*.
-- **Kỷ luật** (*Clean Craftsmanship*):
-  - TDD (3 luật, chu trình red-green-refactor);
-  - refactoring;
-  - simple design;
-  - lập trình theo cặp.
-- *Code That Fits in Your Head*: giới hạn trí nhớ làm việc, checklist, đo độ phức tạp, quy tắc 80/24.
-- **Tính chuyên nghiệp** (*The Clean Coder*, *The Software Craftsman*): nói "không", ước lượng, áp lực, luyện tập.
-- *Clean Agile*: các thực hành kỹ thuật của XP.
-- **Thiết kế** (*Clean Architecture*, phần SOLID): dùng chung với track Clean Android Architecture, có liên kết qua lại.
-
-### Functional Programming in Kotlin (track mới)
-- **Nền tảng:**
-  - hàm thuần, bất biến;
-  - referential transparency;
-  - hàm bậc cao, composition, currying.
-- **Kiểu dữ liệu:**
-  - ADT với sealed class;
-  - Option/Either/Result;
-  - xử lý lỗi không dùng exception.
-- **Trừu tượng:** functor, applicative, monad (giảng bằng ví dụ, không bắt đầu từ lý thuyết), fold/recursion, lazy evaluation.
-- **Hiệu ứng:** tách hiệu ứng ra rìa (functional core, imperative shell).
-- **Từ OOP sang FP** (*From Objects to Functions*): dựng một app thật theo kiểu hàm.
-- **FP trên Android** (*FP in Kotlin by Tutorials*): Arrow, state bất biến cho UI.
+Thay đổi so với dàn nháp cũ, đáng chú ý:
+- Clean Code không dạy theo cuốn *Clean Code* (2008), vì cuốn đó không có trong kho.
+- Mobile System Design nhìn từ phía client. Phần scale backend để OUT.
+- FP bỏ các phần đã có ở track Kotlin (lambda, inline, collection, Sequence) và Coroutines (Flow).

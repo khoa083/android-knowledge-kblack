@@ -610,3 +610,21 @@ Trạng thái: `chưa / đang / xong`.
 - **Runtime MD · hình "Đối chiếu chuỗi" (2026-11-23):** bảng chuỗi modifier cũ và mới theo vị trí, cột hành động trên node (giữ, cập nhật, tạo mới onAttach, gỡ onDetach) hiện dần theo số đo của bước; thêm vào `tracks/runtime/views/visuals.js`, chuỗi ở `dev/gen/runtime_vz.py`. Kiểm: report 0/120, track-check Runtime 0 ở 1280/360, đã xem ảnh (thứ tự hàng khớp thứ tự bước của model). Còn lại: Runtime B4 (bản ghi state), LZ (cửa sổ lazy list), rồi G2.
 - **Runtime B4 · hình "Dãy bản ghi" (2026-11-23):** gom cách vẽ dãy ô của B3 thành hàm chung `chipRows` trong `tracks/runtime/views/visuals.js`; B4 `runtime.records` hiện các bản ghi của state, giá trị Global/A/B đọc thấy và bộ ba previous/current/applied khi apply, hàng vừa đổi có viền. Kiểm: report 0/120, track-check Runtime 0 ở 1280/360, đã xem ảnh. Còn lại: Runtime LZ (cửa sổ lazy list), rồi G2.
 - **Runtime LZ · hình "Cửa sổ danh sách" (2026-11-23):** dải 20 tin nhắn (#0–#19) theo chỉ số: ô viền là item trong cửa sổ hiển thị (đã compose), ↺ là slot nằm trong pool chờ dùng lại, ô mờ là chưa compose hay slot đã dùng lại cho mục mới; kèm thao tác vừa làm. Lấy từ stateAfter của `runtime.lazy`. Đã xem ảnh cả ba tình huống (same, types, column); sửa lỗi vẽ thừa #20–#22 ở tình huống Column trước khi commit. Kiểm: report 0/120, track-check Runtime 0 ở 1280/360. **Xong đợt đổi hình đã liệt kê** (Kotlin K4/K9/K10/K12/K0, Runtime B3/B4/MD/LZ, Animation C0). Tiếp theo: G2.
+- **Dàn ý các chủ đề còn lại, chờ duyệt (2026-11-24, người dùng yêu cầu trước khi viết G2):**
+  - **Track mới:**
+    - I Thiết kế hệ thống phía mobile (`docs/tracks/I-mobile-system-design.md`): 14 chương i0–i13, nhìn từ phía client. Scale backend để OUT.
+    - J Mã sạch và kỷ luật làm nghề (`docs/tracks/J-clean-code.md`): 12 chương j0–j11. Ghi rõ không có cuốn *Clean Code* (2008) trong kho.
+    - K Lập trình hàm với Kotlin (`docs/tracks/K-functional-kotlin.md`): 11 chương p0–p10. Phần đã có ở track Kotlin và Coroutines để OUT.
+  - **Cập nhật:**
+    - H Saving Data: thêm manifest đề xuất và cột hình.
+    - G: thêm cột "Hình chính" từng chương. Bỏ mục "gợi ý sơ đồ, chưa đổi" đã lỗi thời. Ghi hai mặc định: giữ g11, chỉ dạy Hilt.
+  - **Mỗi chương có cột "Hình chính (vì sao hợp)"**, chương có hai cơ chế thì có hai hình. Bảng kiểu hình dùng chung ghi ở `docs/chapter-template-v2.md`, mục "Chọn kiểu hình theo nội dung"; trong đó đánh dấu ba cách vẽ MỚI cần viết: đồ thị phụ thuộc, sơ đồ tuần tự, đường ray.
+  - **Nguồn:**
+    - đọc mục lục thật: Tjeerd, Xu tập 1 và 2, Acing, DDIA bản 2, OS Concepts, API Design Patterns, Seemann, Clean Craftsmanship, Clean Architecture, Clean Coder, Clean Agile, Software Craftsman, Effective Kotlin, Android TDD, FP by Tutorials, Manning FP in Kotlin, From Objects to Functions;
+    - URL chính thức kiểm HTTP 200 bằng curl. Trang concept-options của FCM trả 404 nên dùng các trang FCM khác.
+    - Ghi vào `docs/research/{storage,sysdesign,cleancode,fp}.md`.
+  - **Tài liệu khác:**
+    - `docs/roadmap-v2.md`: thêm bảng trạng thái mọi track; thay dàn nháp cũ của G–K bằng liên kết tới spec.
+    - `docs/next-prompt.md`: viết lại theo trạng thái hiện tại.
+    - `README.md`: bảng track có thêm F, G, H–K kèm trạng thái.
+  - **Không sửa mã site.** Tiếp theo: chờ người dùng duyệt H, I, J, K (và trả lời câu hỏi trong từng file), rồi viết G2.

@@ -6,15 +6,18 @@
 
 ## Tiếng Việt
 
-Website học tập tương tác, song ngữ Việt–Anh, chạy **offline**. Năm track:
+Website học tập tương tác, song ngữ Việt–Anh, chạy **offline**. Các track:
 
-| Mã | Track | Lĩnh vực |
-|---|---|---|
-| A | Kotlin Coroutines Explorer | Engineering |
-| B | Compose Runtime Explorer | Engineering |
-| C | Compose Animation Lab | Engineering |
-| D | Thiết kế cho cách con người nghĩ (UX) | Design |
-| E | Giao diện Android: từ nguyên lý đến design system (UI) | Design |
+| Mã | Track | Lĩnh vực | Trạng thái |
+|---|---|---|---|
+| A | Kotlin Coroutines Explorer | Engineering | có |
+| B | Compose Runtime Explorer | Engineering | có |
+| C | Compose Animation Lab | Engineering | có |
+| D | Thiết kế cho cách con người nghĩ (UX) | Design | sắp ra mắt |
+| E | Giao diện Android: từ nguyên lý đến design system (UI) | Design | sắp ra mắt |
+| F | Kotlin: cơ chế ngôn ngữ | Engineering | có |
+| G | Kiến trúc app Android | Engineering | đang viết |
+| H–K | Lưu dữ liệu; Thiết kế hệ thống phía mobile; Mã sạch; Lập trình hàm với Kotlin | Engineering | dàn ý chờ duyệt (`docs/tracks/`) |
 
 Mô phỏng là **mô hình giảng dạy** viết bằng JavaScript: không chạy Compose hay kotlinx.coroutines thật, không phải công cụ nghiên cứu người dùng hay kiểm định accessibility. Mỗi mô phỏng nêu rõ phần giản lược.
 
@@ -38,7 +41,7 @@ shared/                            nguồn chung, glossary, cầu nối X1–X8,
 tracks/<id>/                       manifest, content.vi/en, code, sources, glossary, misconceptions, models/, views/
 dev/report.html                    báo cáo kiểm tra (song ngữ, registry, nguồn, ví dụ kiểm chứng)
 dev/tools/                         công cụ kiểm thử (Chrome headless qua CDP), sinh sources.md
-dev/gen/                           script sinh content.vi/en.js của track B–E từ một nguồn (công cụ phát triển, site không cần)
+dev/gen/                           script sinh content.vi/en.js của các track từ một nguồn (công cụ phát triển, site không cần)
 docs/                              tiến độ, hợp đồng lõi, nghiên cứu từng track, checklist
 sources.md                         danh sách nguồn song ngữ (sinh bằng node dev/tools/sources-md.js)
 ```
@@ -65,15 +68,18 @@ Không cần sửa `js/core` hay `app.js`: catalog, điều hướng, tìm kiế
 
 ## English
 
-An interactive, bilingual (Vietnamese–English) learning site that runs **offline**. Five tracks:
+An interactive, bilingual (Vietnamese–English) learning site that runs **offline**. Tracks:
 
-| Code | Track | Domain |
-|---|---|---|
-| A | Kotlin Coroutines Explorer | Engineering |
-| B | Compose Runtime Explorer | Engineering |
-| C | Compose Animation Lab | Engineering |
-| D | Designing for How People Think (UX) | Design |
-| E | Android UI: From Principles to Design Systems (UI) | Design |
+| Code | Track | Domain | Status |
+|---|---|---|---|
+| A | Kotlin Coroutines Explorer | Engineering | available |
+| B | Compose Runtime Explorer | Engineering | available |
+| C | Compose Animation Lab | Engineering | available |
+| D | Designing for How People Think (UX) | Design | coming soon |
+| E | Android UI: From Principles to Design Systems (UI) | Design | coming soon |
+| F | Kotlin: How the Language Works | Engineering | available |
+| G | Android App Architecture | Engineering | in progress |
+| H–K | Saving Data; Mobile System Design; Clean Code and Craft; Functional Programming in Kotlin | Engineering | outlines awaiting approval (`docs/tracks/`) |
 
 The simulations are **teaching models** written in JavaScript: they do not run real Compose or kotlinx.coroutines, and they are not a user-research or accessibility-audit tool. Every simulation states what it simplifies.
 
