@@ -973,6 +973,7 @@
     var API = { icon: 'AnimatedVectorDrawable', spinner: 'rememberInfiniteTransition', screen: 'composable() + enter/exitTransition', expand: 'Modifier.animateContentSize', together: 'updateTransition', swipe: 'Animatable' };
     var CH = { icon: 'cv', spinner: 'if', screen: 'c4 · se', expand: 'c5', together: 'c3', swipe: 'c6' };
     var SC = Object.keys(PATHS);
+    ADE.animTree = { PATHS: PATHS, API: API, CH: CH };   // cho hình cây quyết định (views/visuals.js)
     function steps(s) {
       var sc = PATHS[s.which] ? s.which : 'icon', out = [], t = 0, depth = 0, ans = '—', api = '—';
       var P = function (titleKey, explainKey, o) {

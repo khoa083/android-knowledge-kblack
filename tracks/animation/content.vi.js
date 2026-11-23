@@ -2149,5 +2149,10 @@ ADE.addTrackStrings('animation', 'vi', {
   "track.animation.c0.quiz.q3.why": "Nhánh layout → đổi nội dung → Navigation-Compose.",
   "track.animation.c0.quiz.q4.q": "Icon micro-animation từ SVG đơn giản dùng gì?",
   "track.animation.c0.quiz.q4.a": "AnimatedVectorDrawable.",
-  "track.animation.c0.quiz.q4.why": "Nhánh đầu tiên: dựa trên hình → SVG đơn giản."
+  "track.animation.c0.quiz.q4.why": "Nhánh đầu tiên: dựa trên hình → SVG đơn giản.",
+  "track.animation.vz.tab.tree": "Cây quyết định",
+  "track.animation.vz.tree.cap": "Cây được ghép từ các nhánh mà sáu tình huống mẫu đi qua trên trang \"Choose an animation API\". Mỗi hộp là một câu hỏi; ▸ đánh dấu nhánh đã chọn; hộp viền là câu hỏi vừa trả lời, hay API ở bước cuối.",
+  "track.animation.vz.tree.yes": "Có",
+  "track.animation.vz.tree.no": "Không",
+  "track.animation.vz.tree.chapter": "chương {ch}"
 });

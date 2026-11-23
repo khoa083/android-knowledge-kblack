@@ -2149,5 +2149,10 @@ ADE.addTrackStrings('animation', 'en', {
   "track.animation.c0.quiz.q3.why": "Branch layout → switching content → Navigation-Compose.",
   "track.animation.c0.quiz.q4.q": "What fits a micro-animated icon from a simple SVG?",
   "track.animation.c0.quiz.q4.a": "AnimatedVectorDrawable.",
-  "track.animation.c0.quiz.q4.why": "The first branch: art-based → simple SVG."
+  "track.animation.c0.quiz.q4.why": "The first branch: art-based → simple SVG.",
+  "track.animation.vz.tab.tree": "Decision tree",
+  "track.animation.vz.tree.cap": "The tree is assembled from the branches the six sample situations take on the \"Choose an animation API\" page. Each box is a question; ▸ marks the branch taken; the outlined box is the question just answered, or the API at the last step.",
+  "track.animation.vz.tree.yes": "Yes",
+  "track.animation.vz.tree.no": "No",
+  "track.animation.vz.tree.chapter": "chapter {ch}"
 });
