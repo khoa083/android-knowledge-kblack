@@ -168,6 +168,48 @@
         { name: 'valueOf với tên không khớp chính xác là ngoại lệ lúc chạy', run: function () { return steps({ case: 'valueOf' })[2].nodeStates.screen === K + 'st.crashed'; } }] });
   })();
 
+  /* ================= K6: ngoại lệ — ném, lan ngược qua chuỗi gọi tới catch khớp đầu tiên; finally / use đóng tài nguyên =================
+     Theo trang Exceptions (try là biểu thức, catch khớp đầu tiên theo kiểu, finally luôn chạy) và hàm use của stdlib (tag v2.1.0, Closeable.kt). */
+  (function () {
+    var m = 'exception', CASES = ['uncaught', 'swallow', 'resource'];
+    // mỗi bước: [node, trạng thái node, số đo, loại bước, dòng mã, loại log, chủ thể log]
+    var P = {
+      uncaught: [[['call'], {}, { exc: 'none', skipped: 0, closed: 'na' }, 'scenario', [3, 4], 'observe', 'call'],
+        [['fn'], { fn: 'crashed' }, { exc: 'nfe', skipped: 1, closed: 'na' }, 'mechanism', [1], 'exception', 'fn'],
+        [['fn', 'handler', 'call'], { fn: 'crashed', handler: 'skipped', call: 'crashed' }, { exc: 'nfe', skipped: 3, closed: 'na' }, 'pitfall', [2, 4, 5], 'exception', 'call'],
+        [['handler', 'call'], { fn: 'crashed', handler: 'done', call: 'done' }, { exc: 'nfe', skipped: 2, closed: 'na' }, 'mechanism', [8, 9], 'write', 'handler']],
+      swallow: [[['call'], {}, { exc: 'none', skipped: 0, closed: 'na' }, 'scenario', [1, 2, 3], 'observe', 'call'],
+        [['fn'], { fn: 'crashed' }, { exc: 'nfe', skipped: 1, closed: 'na' }, 'mechanism', [3], 'exception', 'fn'],
+        [['handler', 'call'], { fn: 'crashed', handler: 'surprise', call: 'surprise' }, { exc: 'nfe', skipped: 1, closed: 'na' }, 'pitfall', [4, 5, 7], 'run', 'handler'],
+        [['handler', 'call'], { fn: 'crashed', handler: 'done', call: 'done' }, { exc: 'nfe', skipped: 1, closed: 'na' }, 'mechanism', [9, 10, 11], 'write', 'handler']],
+      resource: [[['call', 'fn'], {}, { exc: 'none', skipped: 0, closed: 'no' }, 'scenario', [1, 2], 'observe', 'call'],
+        [['fn'], { fn: 'crashed' }, { exc: 'ioe', skipped: 1, closed: 'no' }, 'mechanism', [3], 'exception', 'fn'],
+        [['cleanup'], { fn: 'crashed', cleanup: 'surprise' }, { exc: 'ioe', skipped: 2, closed: 'no' }, 'pitfall', [4], 'skip', 'cleanup'],
+        [['cleanup', 'call'], { fn: 'crashed', cleanup: 'done' }, { exc: 'ioe', skipped: 2, closed: 'yes' }, 'mechanism', [8], 'complete', 'cleanup']]
+    };
+    ADE.kotlinExc = P;
+    var EDGE = { call: null, fn: 'e1', handler: 'e2', cleanup: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var met = { exc: M(m, 'exc.' + p[2].exc), skipped: p[2].skipped, closed: M(m, 'closed.' + p[2].closed) };
+        var e = EDGE[p[0][0]] || EDGE[p[0][1]], bad = p[5] === 'exception' || p[3] === 'pitfall';
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: met, codeHighlight: { snippet: 'exc.' + s.case, lines: p[4] },
+          movingSignals: e ? [{ edge: e, tok: bad ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5], subject: p[6] }] });
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i >= 2) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'uncaught' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước; bước thứ hai là lúc ngoại lệ được ném', run: function () { return CASES.every(function (k) { var st = steps({ case: k }); return st.length === 4 && st[1].logEvents[0].kind === 'exception'; }); } },
+        { name: 'không có catch khớp thì lan tới nơi gọi (crash); catch Exception thì không crash nhưng cho kết quả sai', run: function () { var a = steps({ case: 'uncaught' })[2], b = steps({ case: 'swallow' })[2]; return a.nodeStates.call === K + 'st.crashed' && a.metrics.skipped > 1 && b.nodeStates.call === K + 'st.surprise' && b.type === 'pitfall'; } },
+        { name: 'close() viết tay bị bỏ qua khi có ngoại lệ; use đóng tài nguyên nhưng không nuốt ngoại lệ', run: function () { var r = steps({ case: 'resource' }); return r[2].metrics.closed === M(m, 'closed.no') && r[3].metrics.closed === M(m, 'closed.yes') && r[3].metrics.exc === M(m, 'exc.ioe') && r[3].metrics.skipped === 2; } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

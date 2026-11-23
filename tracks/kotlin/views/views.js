@@ -26,6 +26,10 @@
   V('sealed', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', run: K + 'fam.running' },
     nodes: [N('sealed', 'def', 0, 0, 'layers', 'state'), N('sealed', 'when', 3, 0, 'diamond', 'ui'), N('sealed', 'compiler', 6, 0, 'target', 'runtime'), N('sealed', 'screen', 9, 0, 'phone', 'job')],
     edges: [E('e1', 'def', 'when'), E('e2', 'when', 'compiler'), E('e3', 'compiler', 'screen')], metrics: [T('sealed', 'covered'), T('sealed', 'total')] });
+  /* K6: nơi gọi → hàm trong chuỗi gọi (ném) → try/catch khớp → finally / close */
+  V('exception', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.excFail', idle: K + 'fam.na' },
+    nodes: [N('exception', 'call', 0, 0, 'play', 'ui'), N('exception', 'fn', 3, 0, 'layers', 'state'), N('exception', 'handler', 6, 0, 'diamond', 'runtime'), N('exception', 'cleanup', 9, 0, 'store', 'job')],
+    edges: [E('e1', 'call', 'fn'), E('e2', 'fn', 'handler'), E('e3', 'handler', 'cleanup')], metrics: [T('exception', 'exc'), T('exception', 'skipped'), T('exception', 'closed')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],

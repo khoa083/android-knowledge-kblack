@@ -82,3 +82,23 @@ Kiểm URL (curl, HTTP 200): data-classes.html, equality.html.
 | Bài tập ClinicDay | dựa trên "Days of the week enum", `book-kt-exercises`; lời giải tự viết | — |
 
 Kiểm URL (curl, HTTP 200): sealed-classes.html, enum-classes.html.
+
+## K6 · Ngoại lệ, require/check và use (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Kotlin coi mọi ngoại lệ là unchecked; ngoại lệ là lớp con của Exception/Throwable | `kt-exceptions-lang` | stable |
+| require → IllegalArgumentException; check, error() → IllegalStateException; require/check cho phép smart cast sau khi kiểm | `kt-exceptions-lang`, API require | stable |
+| Catch khớp đầu tiên theo kiểu hoặc lớp cha; xếp từ cụ thể tới chung; try-catch là biểu thức; finally luôn chạy, không đổi kết quả | `kt-exceptions-lang` | stable |
+| throw có kiểu Nothing (kiểu con của mọi kiểu); TODO() ném NotImplementedError | `kt-exceptions-lang` | stable |
+| Không tạo ngoại lệ bằng object vì stack trace gắn với chỗ tạo | `kt-exceptions-lang` (Kotlin Essentials có ví dụ dùng object; theo tài liệu chính thức, ghi trong mục trung thực) | stable |
+| Ngoại lệ kết thúc hàm ngay, quá trình lặp lại ở hàm gọi cho tới try có catch phù hợp | `book-kt-essentials` | guideline |
+| use đóng Closeable dù có ngoại lệ hay không | `kt-use` | stable |
+| use bắt Throwable để nhớ rồi ném lại; closeFinally: lỗi của close() được addSuppressed vào lỗi chính | `kt-stdlib-closeable` (tag v2.1.0, đã đọc mã) | version |
+| runCatching bắt mọi Throwable thành Result thất bại | `kt-runcatching` | stable |
+| NumberFormatException là lớp con của IllegalArgumentException | `jdk-nfe` (Java SE 17 API) | stable |
+| Đặt require/check ở đầu hàm, trước khi sửa trạng thái; ưu tiên lỗi chuẩn; đóng tài nguyên bằng use; GC dọn tài nguyên chưa đóng sau một thời gian | `book-effective-kotlin` Items 5, 6, 8 | guideline |
+| catch rộng trong coroutine bắt cả CancellationException | chỉ trỏ sang track Coroutines, không khẳng định chi tiết ở đây | — |
+| Bài tập slotOf/parseInput | dựa trên "Catching exceptions" và "Specify expectations", `book-kt-exercises`; lời giải tự viết | — |
+
+Kiểm URL (curl, HTTP 200): exceptions.html, API use, require, run-catching; Closeable.kt ở tag v2.1.0 (raw và blob); trang Oracle NumberFormatException (Java 17). Id `kt-exceptions` đã dùng ở track Coroutines (trang Coroutine exceptions handling), nên trang ngôn ngữ dùng id `kt-exceptions-lang`.

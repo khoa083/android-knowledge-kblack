@@ -176,6 +176,41 @@
     c('// an toàn hơn:', '// safer:'),
     'val safe = Status.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }'
   ]);
+  add('exc.uncaught', [
+    'fun parseSlot(raw: String): Int = raw.substringBefore(":").toInt()',
+    'fun loadSlots(raws: List<String>): List<Int> = raws.map { parseSlot(it) }',
+    'fun onShowSlots(raws: List<String>) {',
+    '    val slots = loadSlots(raws)          // raws = ["09:00", "9h30"]',
+    c('    render(slots)                        // không bao giờ chạy', '    render(slots)                        // never runs'),
+    '}',
+    c('// sửa: bắt ở tầng quyết định màn hình hiện gì', '// fix: catch where the screen state is decided'),
+    'val state = try { UiState.Success(loadSlots(raws)) }',
+    '    catch (e: NumberFormatException) { UiState.Error(e.message) }'
+  ]);
+  add('exc.swallow', [
+    'fun loadSlots(raws: List<String>): List<Int> =',
+    '    try {',
+    '        raws.map { parseSlot(it) }',
+    '    } catch (e: Exception) {',
+    c('        emptyList()                      // nuốt mọi lỗi', '        emptyList()                      // swallows every error'),
+    '    }',
+    c('// màn hình: slots.isEmpty() -> "Chưa có giờ trống"', '// screen: slots.isEmpty() -> "No free slots yet"'),
+    c('// sửa: bắt đúng loại, ghi log, trả trạng thái lỗi', '// fix: catch the right type, log it, return an error state'),
+    '    } catch (e: NumberFormatException) {',
+    '        Log.w(TAG, "Bad slot from server", e)',
+    '        UiState.Error(e.message)',
+    '    }'
+  ]);
+  add('exc.resource', [
+    'fun readCache(file: File): String {',
+    '    val reader = file.bufferedReader()',
+    c('    val text = reader.readText()         // có thể ném IOException', '    val text = reader.readText()         // may throw IOException'),
+    c('    reader.close()                       // bị bỏ qua nếu dòng 3 ném', '    reader.close()                       // skipped if line 3 throws'),
+    '    return text',
+    '}',
+    c('// sửa: use đóng reader dù có ngoại lệ hay không', '// fix: use closes the reader whether or not an exception occurs'),
+    'fun readCache(file: File): String = file.bufferedReader().use { it.readText() }'
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',

@@ -12,5 +12,8 @@ ADE.addGlossary('vi', 'kotlin', {
   "hash-table": { term: "bảng băm (hash table)", def: "Cấu trúc bên dưới HashSet/HashMap: mảng các bucket; hashCode chọn bucket, equals so trong bucket. Phần tử bị sửa sau khi thêm có thể nằm sai bucket.", chapter: "kotlin/k4" },
   "sealed": { term: "sealed class / interface", def: "Kiểu có tập kiểu con trực tiếp cố định, biết lúc biên dịch (cùng package và module); when trên nó có thể phủ đủ mà không cần else.", chapter: "kotlin/k5" },
   "exhaustive": { term: "phủ đủ (exhaustive)", def: "when xử lý mọi trường hợp có thể của subject; bắt buộc khi when là biểu thức.", chapter: "kotlin/k5" },
+  "nothing-type": { term: "Nothing", def: "Kiểu của biểu thức không bao giờ hoàn tất bình thường, như throw hay TODO(); là kiểu con của mọi kiểu, nên dùng được sau ?: hay trong một nhánh when.", chapter: "kotlin/k6" },
+  "precondition": { term: "require / check / error", def: "Hàm kiểm điều kiện của stdlib: require cho tham số (IllegalArgumentException), check cho trạng thái (IllegalStateException), error() ném IllegalStateException ngay.", chapter: "kotlin/k6" },
+  "use-function": { term: "use", def: "Hàm mở rộng trên Closeable: chạy khối rồi luôn đóng tài nguyên, kể cả khi khối ném ngoại lệ; ngoại lệ vẫn được ném tiếp.", chapter: "kotlin/k6" },
   "when-expression": { term: "biểu thức when", def: "when trả về giá trị của nhánh khớp đầu tiên; khi dùng như biểu thức, các nhánh phải phủ đủ mọi trường hợp (thường bằng else).", chapter: "kotlin/k1" }
 });
