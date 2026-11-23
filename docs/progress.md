@@ -707,3 +707,15 @@ Trạng thái: `chưa / đang / xong`.
   - Thêm 1 thuật ngữ, 1 hiểu lầm, 1 preset.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; đã xem ảnh hai tình huống.
   - **Xong Phần 1 của track G.** Tiếp theo: G6 (DI thủ công và Hilt).
+- **Kiến trúc · G6 (2026-11-24):** DI thủ công và Hilt (`arch_v2_g6.py`, 8 mục). Nội dung:
+  - DI là gì, vì sao;
+  - DI thủ công với container trong Application;
+  - Hilt: component, scope, vòng đời, binding mặc định;
+  - 2 bug (hai instance repository; singleton giữ Activity); bài tập chọn scope cho bốn lớp; quiz 4 câu.
+  - **Sim `arch.di`:** ba tình huống (tự tạo rồi container thủ công, Hilt @Singleton, singleton giữ Activity). Tab chính là hình **sơ đồ phạm vi MỚI**: ba dải theo thời gian sống, mũi tên "giữ tham chiếu"; mũi tên từ dải sống lâu sang dải sống ngắn tô đỏ, có selfCheck.
+  - Thêm 3 nguồn (DI overview, Manual DI, Hilt), 1 thuật ngữ, 1 hiểu lầm, 1 preset.
+  - **Kiểm:**
+    - report 0 lỗi, 120 cảnh báo (sửa 8 chuỗi vi trùng en);
+    - track-check arch 0 ở 1280 và 360;
+    - đã xem ảnh. Đã sửa nhãn dải tràn, mũi tên đi lên trong cùng dải, và ép nhãn dài vừa hộp.
+  - **Tiếp theo:** G7 (MVVM và MVI).

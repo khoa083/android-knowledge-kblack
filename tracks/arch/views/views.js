@@ -35,4 +35,8 @@
   V('usecase', { layout: 'pipeline', nodes: [N('usecase', 'choose', 0, 0, 'layers', 'state'), N('usecase', 'resched', 0, 3, 'layers', 'state'), N('usecase', 'uc', 4, 1.5, 'mechanism', 'runtime'), N('usecase', 'repo', 8, 1.5, 'store', 'job')],
     edges: [E('e1', 'choose', 'uc'), E('e2', 'resched', 'uc'), E('e3', 'uc', 'repo'), E('e4', 'choose', 'repo'), E('e5', 'resched', 'repo')],
     metrics: [T('usecase', 'copies'), T('usecase', 'agree'), T('usecase', 'extra')] });
+  /* G6: Activity, ViewModel, repository, database theo chiều "ai giữ ai" */
+  V('di', { layout: 'pipeline', nodes: [N('di', 'act', 0, 0, 'screen', 'ui'), N('di', 'vm', 3, 0, 'layers', 'state'), N('di', 'repo', 6, 0, 'store', 'runtime'), N('di', 'db', 9, 0, 'store', 'job')],
+    edges: [E('e1', 'act', 'vm'), E('e2', 'vm', 'repo'), E('e3', 'repo', 'db'), E('e4', 'act', 'repo')],
+    metrics: [T('di', 'inst'), T('di', 'hold'), T('di', 'when')] });
 })();

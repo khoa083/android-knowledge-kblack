@@ -357,4 +357,75 @@
         { name: 'dùng chung một use case: một chỗ viết, hai màn cùng đáp án', run: function () { var t = ADE.archUseCase.at('shared', 3); return t.choose.ans === t.resched.ans && steps({ case: 'shared' })[3].metrics.copies === 1; } },
         { name: 'use case chỉ chuyển tiếp: bỏ đi thì bớt một lớp, không mất quy tắc nào', run: function () { var a = steps({ case: 'passthrough' }); return a[0].metrics.extra === 1 && a[3].metrics.extra === 0 && ADE.archUseCase.path('passthrough').leaf === 'none'; } }] });
   })();
+  /* ================= G6: dependency injection thủ công và Hilt; scope và vòng đời =================
+     Theo Dependency injection in Android (DI giúp dùng lại, refactor, test; Hilt kiểm phụ thuộc lúc biên dịch), Manual DI (container
+     dùng chung đặt trong Application, không phải singleton kiểu object), Hilt (component theo lớp Android và vòng đời của chúng;
+     binding mặc định không scope: mỗi lần yêu cầu là một instance mới; binding có scope tạo một lần cho mỗi instance component;
+     binding mặc định: SingletonComponent có Application, ActivityComponent có Application và Activity; @ApplicationContext).
+     Ô và mũi tên của hình "Sơ đồ phạm vi" lấy từ ADE.archDi. */
+  (function () {
+    var m = 'di', CASES = ['manual', 'hilt', 'leak'], KS = ['s1', 's2', 's3', 's4'];
+    // ô: [id, mã nhãn, dải (app | vm | act), hàng, kiểu ('', 'bad', 'dim')]; mũi tên: [từ, tới, kiểu ('', 'bad', 'err')]
+    var O = function (id, k, band, row, cls) { return { id: id, k: k, band: band, row: row, cls: cls || '' }; };
+    var A = function (f, t, cls) { return { from: f, to: t, cls: cls || '' }; };
+    var D = {
+      manual: [
+        { o: [O('vm1', 'vmChoose', 'vm', 0), O('repo1', 'repo1', 'vm', 1), O('db1', 'db1', 'vm', 2)], a: [A('vm1', 'repo1'), A('repo1', 'db1')] },
+        { o: [O('vm1', 'vmChoose', 'vm', 0), O('repo1', 'repo1', 'vm', 1), O('db1', 'db1', 'vm', 2), O('vm2', 'vmResched', 'vm', 3), O('repo2', 'repo2', 'vm', 4), O('db2', 'db2', 'vm', 5)], a: [A('vm1', 'repo1'), A('repo1', 'db1'), A('vm2', 'repo2'), A('repo2', 'db2')] },
+        { o: [O('vm1', 'vmChoose', 'vm', 0), O('repo1', 'repo1Fresh', 'vm', 1), O('db1', 'db1', 'vm', 2), O('vm2', 'vmResched', 'vm', 3), O('repo2', 'repo2Stale', 'vm', 4, 'bad'), O('db2', 'db2', 'vm', 5)], a: [A('vm1', 'repo1'), A('repo1', 'db1'), A('vm2', 'repo2'), A('repo2', 'db2')] },
+        { o: [O('cont', 'appContainer', 'app', 0), O('repo', 'repoShared', 'app', 1), O('db', 'dbShared', 'app', 2), O('vm1', 'vmChoose', 'vm', 0), O('vm2', 'vmResched', 'vm', 1)], a: [A('cont', 'repo'), A('repo', 'db'), A('vm1', 'repo'), A('vm2', 'repo')] }],
+      hilt: [
+        { o: [O('app', 'hiltApp', 'app', 0), O('repo', 'repoSingleton', 'app', 1), O('db', 'dbShared', 'app', 2)], a: [A('repo', 'db')] },
+        { o: [O('app', 'hiltApp', 'app', 0), O('repo', 'repoSingleton', 'app', 1), O('db', 'dbShared', 'app', 2), O('vm1', 'vmChooseHilt', 'vm', 0)], a: [A('repo', 'db'), A('vm1', 'repo')] },
+        { o: [O('app', 'hiltApp', 'app', 0), O('repo', 'repoSingleton', 'app', 1), O('db', 'dbShared', 'app', 2), O('vm1', 'vmChooseHilt', 'vm', 0), O('vm2', 'vmReschedHilt', 'vm', 1)], a: [A('repo', 'db'), A('vm1', 'repo'), A('vm2', 'repo')] },
+        { o: [O('app', 'hiltApp', 'app', 0), O('repo', 'repoSingleton', 'app', 1), O('db', 'dbShared', 'app', 2), O('vm1', 'vmChooseHilt', 'vm', 0), O('vm2', 'vmReschedHilt', 'vm', 1), O('act', 'actEntry', 'act', 0)], a: [A('repo', 'db'), A('vm1', 'repo'), A('vm2', 'repo'), A('act', 'vm1')] }],
+      leak: [
+        { o: [O('cont', 'objectContainer', 'app', 0), O('repo', 'repoCtx', 'app', 1, 'bad'), O('act1', 'act1', 'act', 0)], a: [A('cont', 'repo'), A('repo', 'act1', 'bad')] },
+        { o: [O('cont', 'objectContainer', 'app', 0), O('repo', 'repoCtx', 'app', 1, 'bad'), O('act1', 'act1Dead', 'act', 0, 'bad'), O('act2', 'act2', 'act', 1)], a: [A('cont', 'repo'), A('repo', 'act1', 'bad')] },
+        { o: [O('appCtx', 'application', 'app', 0), O('repo', 'repoAppCtx', 'app', 1), O('act2', 'act2', 'act', 1)], a: [A('repo', 'appCtx')] },
+        { o: [O('appCtx', 'application', 'app', 0), O('repo', 'repoActInject', 'app', 1, 'bad'), O('act2', 'act2', 'act', 1)], a: [A('repo', 'appCtx'), A('repo', 'act2', 'err')] }]
+    };
+    var MET = {   // {inst: số instance SlotRepository, hold: giữ Activity đã hủy, when: lỗi lộ ra lúc}
+      manual: [{ inst: 1, hold: 'no', when: 'na' }, { inst: 2, hold: 'no', when: 'na' }, { inst: 2, hold: 'no', when: 'runtime' }, { inst: 1, hold: 'no', when: 'na' }],
+      hilt: [{ inst: 1, hold: 'no', when: 'na' }, { inst: 1, hold: 'no', when: 'na' }, { inst: 1, hold: 'no', when: 'na' }, { inst: 1, hold: 'no', when: 'na' }],
+      leak: [{ inst: 1, hold: 'no', when: 'na' }, { inst: 1, hold: 'yes', when: 'runtime' }, { inst: 1, hold: 'no', when: 'na' }, { inst: 1, hold: 'no', when: 'compile' }]
+    };
+    var STEP = {   // [node sáng, trạng thái node, loại bước, dòng mã, loại log, chủ thể, tín hiệu]
+      manual: [[['vm', 'repo'], { act: 'done', vm: 'done', repo: 'done', db: 'done' }, 'scenario', [1, 2], 'write', 'vm', [{ edge: 'e2', tok: 'signal' }]],
+        [['vm', 'repo', 'db'], { act: 'done', vm: 'done', repo: 'surprise', db: 'surprise' }, 'pitfall', [3, 4], 'write', 'repo', [{ edge: 'e2', tok: 'signal' }, { edge: 'e3', tok: 'signal' }]],
+        [['repo'], { act: 'done', vm: 'done', repo: 'surprise', db: 'done' }, 'pitfall', [5], 'observe', 'repo', []],
+        [['repo', 'vm'], { act: 'done', vm: 'done', repo: 'done', db: 'done' }, 'mechanism', [6, 7, 8], 'complete', 'repo', [{ edge: 'e2', tok: 'signal' }]]],
+      hilt: [[['repo', 'db'], { act: 'done', vm: 'done', repo: 'done', db: 'done' }, 'scenario', [1, 2, 3], 'write', 'repo', []],
+        [['vm', 'repo'], { act: 'done', vm: 'done', repo: 'done', db: 'done' }, 'mechanism', [4, 5], 'run', 'vm', [{ edge: 'e2', tok: 'signal' }]],
+        [['vm', 'repo'], { act: 'done', vm: 'done', repo: 'done', db: 'done' }, 'mechanism', [5, 6], 'run', 'vm', [{ edge: 'e2', tok: 'signal' }]],
+        [['act', 'vm', 'repo'], { act: 'done', vm: 'done', repo: 'done', db: 'done' }, 'mechanism', [7, 8], 'complete', 'act', [{ edge: 'e1', tok: 'signal' }, { edge: 'e2', tok: 'signal' }]]],
+      leak: [[['repo', 'act'], { act: 'done', vm: 'skipped', repo: 'surprise', db: 'done' }, 'scenario', [1, 2, 3], 'write', 'act', [{ edge: 'e4', tok: 'signal' }]],
+        [['act', 'repo'], { act: 'surprise', vm: 'skipped', repo: 'surprise', db: 'done' }, 'pitfall', [4], 'observe', 'act', []],
+        [['repo'], { act: 'done', vm: 'skipped', repo: 'done', db: 'done' }, 'mechanism', [5, 6], 'write', 'repo', []],
+        [['repo', 'act'], { act: 'done', vm: 'skipped', repo: 'broken', db: 'done' }, 'mechanism', [7, 8], 'exception', 'repo', []]]
+    };
+    ADE.archDi = { at: function (c, i) { return D[c][i]; } };
+    function steps(s) {
+      return STEP[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var x = MET[s.case][i];
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[0], nodeStates: ns,
+          metrics: { inst: x.inst, hold: M(m, 'hold.' + x.hold), when: M(m, 'when.' + x.when) },
+          codeHighlight: { snippet: 'g6.' + s.case, lines: p[3] }, movingSignals: p[6], logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (p[2] === 'pitfall' ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'manual' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'mỗi ViewModel tự tạo repository: hai instance; container dùng chung: một', run: function () { var a = steps({ case: 'manual' }); return a[1].metrics.inst === 2 && a[3].metrics.inst === 1; } },
+        { name: 'Hilt @Singleton: hai ViewModel nhận cùng một instance', run: function () { return steps({ case: 'hilt' }).every(function (s) { return s.metrics.inst === 1; }); } },
+        { name: 'singleton giữ Activity: sau khi xoay vẫn giữ Activity đã hủy; @ApplicationContext thì không', run: function () { var a = steps({ case: 'leak' }); return a[1].metrics.hold === M(m, 'hold.yes') && a[2].metrics.hold === M(m, 'hold.no'); } },
+        { name: 'mũi tên đỏ chỉ đi từ dải sống lâu hơn sang dải sống ngắn hơn', run: function () {
+          var rank = { app: 0, vm: 1, act: 2 };
+          return CASES.every(function (c) { return [0, 1, 2, 3].every(function (i) { var d = D[c][i], band = {}; d.o.forEach(function (x) { band[x.id] = x.band; });
+            return d.a.every(function (x) { return x.cls === '' ? rank[band[x.from]] >= rank[band[x.to]] : rank[band[x.from]] < rank[band[x.to]]; }); }); }); } }] });
+  })();
 })();

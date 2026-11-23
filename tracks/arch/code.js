@@ -169,4 +169,34 @@
     c('// không thêm quy tắc nào: bỏ use case, ViewModel nhận thẳng repository', '// adds no rule: drop the use case, the ViewModel takes the repository directly'),
     'class ChooseTimeViewModel(private val repo: SlotRepository) : ViewModel()'
   ]);
+  add('g6.manual', [
+    'class ChooseTimeViewModel : ViewModel() {',
+    c('    private val repo = SlotRepository(SlotApi(), Room.databaseBuilder(app, AppDatabase::class.java, "app.db").build())', '    private val repo = SlotRepository(SlotApi(), Room.databaseBuilder(app, AppDatabase::class.java, "app.db").build())'),
+    c('class RescheduleViewModel : ViewModel() {   // chép cùng dòng tạo', 'class RescheduleViewModel : ViewModel() {   // copies the same construction'),
+    '    private val repo = SlotRepository(SlotApi(), Room.databaseBuilder(app, AppDatabase::class.java, "app.db").build())',
+    c('// repository #1 cache "9:30 đã đặt"; repository #2 vẫn cache cũ', '// repository #1 caches "9:30 booked"; repository #2 still has the old cache'),
+    c('class AppContainer(app: Application) {      // container dùng chung, đặt trong Application', 'class AppContainer(app: Application) {      // shared container, held by the Application'),
+    '    val slotRepository by lazy { SlotRepository(SlotApi(), AppDatabase.create(app)) } }',
+    'class ClinicApp : Application() { val container by lazy { AppContainer(this) } }'
+  ]);
+  add('g6.hilt', [
+    '@HiltAndroidApp class ClinicApp : Application()',
+    '@Singleton',
+    'class SlotRepository @Inject constructor(private val api: SlotApi, private val dao: SlotDao)',
+    '@HiltViewModel',
+    'class ChooseTimeViewModel @Inject constructor(private val repo: SlotRepository) : ViewModel()',
+    c('class RescheduleViewModel @Inject constructor(private val repo: SlotRepository) : ViewModel()   // cùng instance', 'class RescheduleViewModel @Inject constructor(private val repo: SlotRepository) : ViewModel()   // the same instance'),
+    '@AndroidEntryPoint class ChooseTimeActivity : ComponentActivity() {',
+    '    private val vm: ChooseTimeViewModel by viewModels() }'
+  ]);
+  add('g6.leak', [
+    c('object AppContainer {                        // object: sống suốt tiến trình', 'object AppContainer {                        // object: lives for the whole process'),
+    '    lateinit var repo: SlotRepository }',
+    c('// trong ChooseTimeActivity.onCreate: AppContainer.repo = SlotRepository(this)   // this = Activity', '// in ChooseTimeActivity.onCreate: AppContainer.repo = SlotRepository(this)   // this = the Activity'),
+    c('// xoay màn hình: Activity #1 bị hủy, nhưng AppContainer.repo vẫn giữ nó', '// rotate: Activity #1 is destroyed, but AppContainer.repo still holds it'),
+    '@Singleton class SlotRepository @Inject constructor(',
+    c('    @ApplicationContext private val context: Context)   // context của Application, sống cùng singleton', '    @ApplicationContext private val context: Context)   // the Application context, lives as long as the singleton'),
+    c('// thử: @Singleton class SlotRepository @Inject constructor(private val activity: Activity)', '// try: @Singleton class SlotRepository @Inject constructor(private val activity: Activity)'),
+    c('// Hilt báo lỗi khi biên dịch: SingletonComponent không có binding Activity', '// Hilt fails at compile time: SingletonComponent has no Activity binding')
+  ]);
 })();

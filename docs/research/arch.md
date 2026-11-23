@@ -78,3 +78,14 @@ Kiểm URL: topic/architecture/data-layer/offline-first HTTP 200 (curl), đọc 
 | Use case tốt hơn hàm tĩnh trong lớp Util | `ax-domain-layer` | guideline |
 | Chặn UI truy cập data: lợi (không đi vòng analytics) và giá (use case chỉ chuyển tiếp); thêm khi cần | `ax-domain-layer` | guideline |
 | Quy tắc giờ đặt được (60/120 phút, 7:00 tới 17:59) và cây quyết định | ví dụ và tóm tắt của site | simplified |
+
+## G6 · Dependency injection: thủ công và Hilt (2026-11-24)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| DI: nhận phụ thuộc từ ngoài (constructor, field); lợi: dùng lại, refactor, test; Hilt kiểm lúc biên dịch | `ax-di` | stable |
+| DI thủ công: AppContainer dùng chung trong Application; không phải object singleton; singleton làm test khó | `ax-di-manual` | stable |
+| Component Hilt theo lớp Android; vòng đời: Singleton (Application.onCreate tới hủy), Activity (onCreate tới onDestroy), ViewModel (cùng ViewModel) | `ax-hilt` | stable |
+| Binding mặc định không scope (mỗi lần một instance); có scope thì một lần mỗi instance component; hạn chế scope | `ax-hilt` | stable |
+| Binding mặc định: Singleton có Application; ViewModel có SavedStateHandle; Activity có Application, Activity; @ApplicationContext, @ActivityContext | `ax-hilt` | stable |
+| Đưa Activity vào @Singleton thì lỗi biên dịch | suy ra từ bảng binding mặc định và quy tắc component cha con trong `ax-hilt` | simplified |

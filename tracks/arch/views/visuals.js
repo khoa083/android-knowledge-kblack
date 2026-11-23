@@ -12,6 +12,8 @@
     return ctx.pos > ctx.N ? 3 : 0;
   }
   function esc(s) { return ADE.esc(String(s)); }
+  // chữ monospace 11px rộng khoảng 6.6px mỗi ký tự; nhãn dài hơn hộp thì ép vừa hộp thay vì tràn ra ngoài
+  function fitText(str, w) { return String(str).length * 6.6 > w ? ' textLength="' + w + '" lengthAdjust="spacingAndGlyphs"' : ''; }
 
   /* ---------- G2: đồ thị phụ thuộc giữa các tầng ---------- */
   var BW = 240, BH = 38;
@@ -132,4 +134,42 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('uc.cap') }), h('div', { class: 'vz-scroll' }, tbl),
       h('p', { class: 'vz-cap', text: T('uc.treeCap') }), tree, h('div', { class: 'vz-legend', text: T('uc.legend') })));
   }, { labelKey: K + 'tab.uc', icon: 'grid' });
+
+  /* ---------- G6: sơ đồ phạm vi: ba dải sống lâu tới ngắn; mũi tên "giữ tham chiếu" ---------- */
+  // Mũi tên từ dải sống lâu hơn sang dải sống ngắn hơn là rò rỉ (đỏ); mũi tên đứt đỏ là lỗi Hilt bắt lúc biên dịch.
+  var BANDS = ['app', 'vm', 'act'], BX = { app: 8, vm: 204, act: 400 }, BWD = 188, RH = 44, OH = 34;
+  ADE.registerScreen('arch.di', function (box, ctx) {
+    var h = ADE.ui.h, c = ctx.state.case, i = Math.max(0, idx(ctx)), d = ADE.archDi.at(c, i);
+    var uid = 'sc' + Math.random().toString(36).slice(2, 8), rows = 1;
+    d.o.forEach(function (x) { rows = Math.max(rows, x.row + 1); });
+    var H = 40 + rows * RH + 10, pos = {};
+    var svg = '<svg viewBox="0 0 596 ' + H + '" class="vz-dg" role="img" aria-label="' + esc(T('di.cap')) + '"><title>' + esc(T('di.cap')) + '</title>' +
+      '<defs><marker id="' + uid + 'a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-dg-head"/></marker>' +
+      '<marker id="' + uid + 'b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-dg-head bad"/></marker></defs>';
+    BANDS.forEach(function (b) {
+      svg += '<rect class="vz-dg-mod" x="' + BX[b] + '" y="6" width="' + BWD + '" height="' + (H - 12) + '" rx="8"/>' +
+        '<text class="vz-dg-modt" x="' + (BX[b] + BWD / 2) + '" y="24" text-anchor="middle">' + esc(T('di.band.' + b)) + '</text>';
+    });
+    d.o.forEach(function (x) { pos[x.id] = [BX[x.band] + 10, 38 + x.row * RH, BWD - 20, OH]; });
+    d.a.forEach(function (a) {
+      var p = pos[a.from], q = pos[a.to]; if (!p || !q) return;
+      var x1, y1 = p[1] + OH / 2, x2, y2 = q[1] + OH / 2;
+      if (p[0] === q[0] && q[1] > p[1]) { x1 = p[0] + p[2] - 14; y1 = p[1] + OH; x2 = q[0] + q[2] - 14; y2 = q[1] - 2; }
+      else if (p[0] === q[0]) { x1 = p[0] + p[2] - 14; y1 = p[1]; x2 = q[0] + q[2] - 14; y2 = q[1] + OH + 2; }
+      else if (p[0] < q[0]) { x1 = p[0] + p[2]; x2 = q[0] - 2; }
+      else { x1 = p[0]; x2 = q[0] + q[2] + 2; }
+      svg += '<path class="vz-dg-e' + (a.cls ? ' bad' : '') + '" d="M' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2 + '" marker-end="url(#' + uid + (a.cls ? 'b' : 'a') + ')"/>';
+      if (a.cls === 'err') svg += '<text class="vz-dg-badt" x="' + ((x1 + x2) / 2) + '" y="' + (Math.min(y1, y2) - 6) + '" text-anchor="middle">' + esc(T('di.compileErr')) + '</text>';
+    });
+    d.o.forEach(function (x) {
+      var p = pos[x.id];
+      svg += '<g class="vz-dg-n' + (x.cls === 'bad' ? ' bad' : '') + '"><rect x="' + p[0] + '" y="' + p[1] + '" width="' + p[2] + '" height="' + p[3] + '" rx="5"/>' +
+        '<text x="' + (p[0] + p[2] / 2) + '" y="' + (p[1] + 21) + '" text-anchor="middle" class="vz-dg-s"' + fitText(T('di.o.' + x.k), p[2] - 12) + '>' + esc(T('di.o.' + x.k)) + '</text></g>';
+    });
+    svg += '</svg>';
+    var holder = h('div', { class: 'vz-scroll' }); holder.innerHTML = svg;
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('di.cap') }), holder,
+      h('div', { class: 'vz-legend' }, h('span', { class: 'vz-dg-lg' }, h('i', { class: 'e' }), h('span', { text: T('di.lg.hold') })),
+        h('span', { class: 'vz-dg-lg' }, h('i', { class: 'e bad' }), h('span', { text: T('di.lg.leak') })))));
+  }, { labelKey: K + 'tab.di', icon: 'layers' });
 })();
