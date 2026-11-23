@@ -646,3 +646,19 @@ Trạng thái: `chưa / đang / xong`.
     - routes-check 143 route, 0 vấn đề, không tràn ngang;
     - focus-check bình thường;
     - đã xem ảnh trang chủ ở 1280 và 360, trang track Kotlin, đồ thị glossary.
+- **Kiến trúc · G2 (2026-11-24):** các tầng, hướng phụ thuộc, SSOT, UDF (`arch_v2_g2.py`, 8 mục). Nội dung:
+  - tầng UI, data và domain tùy chọn;
+  - mũi tên là phụ thuộc, không phải chiều dữ liệu;
+  - ai giữ hướng phụ thuộc: trong một module không ai bắt; tách module Gradle thì thành lỗi biên dịch, và Gradle chặn vòng phụ thuộc;
+  - đảo phụ thuộc theo Boudjnah;
+  - SSOT và UDF;
+  - 2 bug (repository import lớp UI; hai màn hình giữ hai bản danh sách); bài tập phân loại sáu import theo bốn module; quiz 4 câu.
+  - **Hai sim:**
+    - `arch.layers`: bốn tình huống (chuẩn, một module, tách module, đảo phụ thuộc). Tab chính là hình **đồ thị phụ thuộc MỚI** (`tracks/arch/views/visuals.js`, CSS `.vz-dg-*`): cạnh sai chiều đỏ đứt nét, khung module, dòng Build, dữ liệu đi ngược lên.
+    - `arch.ssot`: layout vòng; nhiều bản danh sách so với một nguồn sự thật.
+  - Thêm 6 nguồn, 4 thuật ngữ, 2 hiểu lầm, 1 preset.
+  - **Kiểm:**
+    - report 0 lỗi, 120 cảnh báo (sửa 7 chuỗi vi trùng en);
+    - track-check arch 0 vấn đề ở 1280 và 360;
+    - đã xem ảnh đồ thị ở các tình huống một module, tách module và đảo phụ thuộc, và ảnh vòng SSOT. Đã sửa chữ tràn hộp và nhãn module đè lên cạnh sai.
+  - **Tiếp theo:** G3 (UI layer: UiState, ViewModel, sự kiện).

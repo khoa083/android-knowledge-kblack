@@ -21,7 +21,7 @@ a('fam.done', 'làm đúng việc', 'doing its job'); a('fam.fail', 'có vấn �
 for k, vi, en in [('observe', 'quan sát', 'observe'), ('run', 'chạy', 'run'), ('write', 'sửa mã', 'edit code'), ('skip', 'bỏ qua', 'skip'), ('exception', 'ném ngoại lệ', 'exception thrown'), ('complete', 'hoàn tất', 'complete')]:
     a('kind.' + k, vi, en)
 
-MODULES = ('arch_v2_g1',)   # giữ dấu phẩy cuối
+MODULES = ('arch_v2_g1', 'arch_v2_g2')   # giữ dấu phẩy cuối
 for mod in MODULES:
     assert os.path.exists(os.path.join(HERE, mod + '.py')), 'thiếu module ' + mod
     mm = __import__(mod)

@@ -31,7 +31,7 @@ Kỹ thuật:
 Git:
 - Commit bằng khoa083, KHÔNG thêm dòng Co-Authored-By hay ghi công Claude/Anthropic.
 - git add đúng file đã sửa (không -A).
-- Push origin main sau mỗi commit, không force push.
+- Commit sau mỗi phần xong; chỉ push origin main khi hạn mức 5 giờ sắp chạm giới hạn (ngay trước khi dừng). Không force push.
 - Repo công khai: không đưa thông tin nhạy cảm, đường dẫn cục bộ hay email lên site.
 
 Hạn mức: kiểm usage định kỳ, dừng ở khoảng 90–98% của cửa sổ 5 giờ. Trước khi dừng: commit, push, ghi vào docs/progress.md đang dừng ở đâu.

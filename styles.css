@@ -729,3 +729,28 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 .vz-box > .vz-h { font-weight: 700; color: var(--ink-2); }
 .vz-box .vz-box { margin-left: 14px; background: var(--paper-2); }
 .vz-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-2); }
+/* đồ thị phụ thuộc (hình trực quan theo bước, ví dụ track G chương G2): mũi tên = "A biết về B" */
+.vz-dg { display: block; width: 100%; min-width: 420px; height: auto; font-family: var(--mono); }
+.vz-dg-n rect { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.vz-dg-n.bad rect { stroke: var(--tok-error); stroke-width: 2.2; }
+.vz-dg-n.skip rect { fill: none; stroke: var(--line-strong); stroke-dasharray: 4 4; }
+.vz-dg-t { font-size: 12.5px; font-weight: 700; fill: var(--ink); }
+.vz-dg-s { font-size: 11px; fill: var(--ink-2); }
+.vz-dg-n.skip .vz-dg-t { fill: var(--ink-3); font-weight: 400; }
+.vz-dg-e { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+.vz-dg-e.up { stroke: var(--brand); stroke-width: 2.2; }
+.vz-dg-e.bad { stroke: var(--tok-error); stroke-width: 2.2; stroke-dasharray: 6 4; }
+.vz-dg-head { fill: var(--ink); }
+.vz-dg-head.bad { fill: var(--tok-error); }
+.vz-dg-head.data { fill: var(--tok-state); }
+.vz-dg-data { fill: none; stroke: var(--tok-state); stroke-width: 1.8; stroke-dasharray: 2 4; }
+.vz-dg-datat { font-size: 11px; fill: var(--tok-state); font-weight: 700; }
+.vz-dg-badt { font-size: 11px; fill: var(--tok-error); font-weight: 700; }
+.vz-dg-mod { fill: var(--paper-2); stroke: var(--line-strong); stroke-dasharray: 5 4; }
+.vz-dg-modt { font-size: 11px; font-weight: 700; fill: var(--ink-2); }
+.vz-dg-build.bad { color: var(--tok-error); }
+.vz-dg-lg { display: inline-flex; align-items: center; gap: 6px; }
+.vz-dg-lg i { display: inline-block; width: 20px; border-top: 1.6px solid var(--ink); }
+.vz-dg-lg i.bad { border-top: 2.2px dashed var(--tok-error); }
+.vz-dg-lg i.data { border-top: 1.8px dotted var(--tok-state); }
+.vz-dg-lg i.m { width: 14px; height: 10px; border: 1px dashed var(--line-strong); background: var(--paper-2); }

@@ -15,3 +15,23 @@ Trang developer.android.com đọc ngày 2026-11-23. Sách: Dumbravan, *Clean An
 | Số file phải sửa (3 so với 1) | đếm trong app mẫu, ghi trong simp.1 và mục trung thực | simplified |
 
 Kiểm URL: 4 trang developer.android.com HTTP 200 (curl); O'Reilly và BPB qua trình duyệt.
+
+## G2 · Các tầng, hướng phụ thuộc, SSOT, UDF (2026-11-24)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Ít nhất hai tầng: UI hiển thị dữ liệu; data chứa business logic và lộ dữ liệu. Domain là tầng tùy chọn ở giữa, lớp gọi là use case | `ax-arch-guide`, `ax-domain-layer` | stable |
+| Mũi tên trong sơ đồ của hướng dẫn là phụ thuộc giữa các lớp ("domain phụ thuộc lớp của data") | `ax-arch-guide` | stable |
+| SSOT là chủ của dữ liệu, chỉ nó được sửa, lộ ra kiểu bất biến; lợi ích: gom thay đổi, bảo vệ dữ liệu, dễ lần lỗi; offline-first thường lấy database làm SSOT, có khi là ViewModel | `ax-arch-guide` | stable |
+| UDF: state đi từ phạm vi rộng xuống phạm vi hẹp, sự kiện đi ngược lên tới SSOT | `ax-arch-guide` | stable |
+| Vòng UDF ở tầng UI: ViewModel giữ và lộ state, UI báo sự kiện, ViewModel cập nhật state, state quay về UI | `ax-ui-layer` | stable |
+| Repository là lối vào duy nhất của data layer; state holder không nhận thẳng data source; mỗi repository một SSOT; dữ liệu lộ ra bất biến | `ax-data-layer` | stable |
+| Use case thường phụ thuộc repository | `ax-domain-layer` | stable |
+| internal: thấy trong cùng module; module là tập file biên dịch cùng nhau (vd. Gradle source set) | `kt-visibility` | stable |
+| Module cho phép kiểm soát chặt phần lộ ra (internal/private) | `ax-modularization` | stable |
+| Hai module không thể gọi thẳng lẫn nhau vì phụ thuộc vòng, cần module trung gian; module cao và module cài đặt cùng phụ thuộc module trừu tượng | `ax-modularization-patterns` | stable |
+| Dependency Rule: mũi tên là "biết về", hướng vào domain; đảo phụ thuộc bằng interface repository đặt cạnh use case, cài đặt nằm nơi khác | `book-boudjnah` ch1 | guideline |
+| Domain là tầng trong cùng, gồm use case, mô hình domain, interface repository; nên dựa vào ít thư viện nhất có thể | `book-boudjnah` ch2 | guideline |
+| Trong một module, import sai chiều vẫn biên dịch; khi tách module Gradle, import tới module không khai báo là lỗi biên dịch; Gradle không build vòng phụ thuộc giữa project | suy ra từ `kt-visibility` và `ax-modularization-patterns`; câu chữ lỗi trong sim là mô tả, không trích nguyên văn | simplified |
+
+Kiểm URL: các trang developer.android.com và kotlinlang HTTP 200 (curl), tải về và đọc bản text ngày 2026-11-24. Boudjnah đọc từ epub trong kho (ch1, ch2).

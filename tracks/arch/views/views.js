@@ -14,4 +14,13 @@
   /* G1: màn hình → state holder (ViewModel) → repository → nguồn dữ liệu */
   V('god', { layout: 'pipeline', nodes: [N('god', 'ui', 0, 0, 'screen', 'ui'), N('god', 'vm', 3, 0, 'layers', 'state'), N('god', 'repo', 6, 0, 'store', 'runtime'), N('god', 'source', 9, 0, 'source', 'job')],
     edges: [E('e1', 'ui', 'vm'), E('e2', 'vm', 'repo'), E('e3', 'repo', 'source')], metrics: [T('god', 'keep'), T('god', 'files'), T('god', 'test')] });
+  /* G2a: đồ thị phụ thuộc giữa các tầng (tab phụ; tab chính là hình đồ thị ở views/visuals.js) */
+  V('layers', { layout: 'pipeline', nodes: [N('layers', 'ui', 0, 0, 'screen', 'ui'), N('layers', 'vm', 3, 0, 'layers', 'state'), N('layers', 'uc', 6, 0, 'mechanism', 'runtime'),
+      N('layers', 'repo', 9, 0, 'store', 'runtime'), N('layers', 'api', 12, 0, 'source', 'job'), N('layers', 'dao', 12, 3, 'store', 'job')],
+    edges: [E('e1', 'ui', 'vm'), E('e2', 'vm', 'uc'), E('e3', 'uc', 'repo'), E('e4', 'repo', 'api'), E('e5', 'repo', 'dao')],
+    metrics: [T('layers', 'wrong'), T('layers', 'caught'), T('layers', 'test')] });
+  /* G2b: vòng UDF: sự kiện đi lên nguồn sự thật, state đi xuống hai màn hình */
+  V('ssot', { layout: 'cycle', nodes: [N('ssot', 'choose', 0, 3, 'screen', 'ui'), N('ssot', 'repo', 4, 0, 'store', 'state'), N('ssot', 'mine', 8, 3, 'screen', 'ui')],
+    edges: [E('e1', 'choose', 'repo'), E('e2', 'repo', 'choose'), E('e3', 'mine', 'repo'), E('e4', 'repo', 'mine')],
+    metrics: [T('ssot', 'copies'), T('ssot', 'writers'), T('ssot', 'agree')] });
 })();
