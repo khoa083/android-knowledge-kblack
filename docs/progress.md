@@ -687,3 +687,14 @@ Trạng thái: `chưa / đang / xong`.
     - track-check arch 0 ở 1280 và 360; Runtime 0; Coroutines 4 (lỗi cũ đã biết);
     - đã xem ảnh ba tình huống. Đã sửa để chỉ viền cột của bước đang xem.
   - **Tiếp theo:** G4 (data layer: repository, data source, offline-first).
+- **Kiến trúc · G4 (2026-11-24):** data layer: repository, data source, offline-first (`arch_v2_g4.py`, 8 mục). Nội dung:
+  - repository và hai data source; nguồn cục bộ là nguồn sự thật;
+  - đọc: quan sát database, mạng chỉ ghi vào; lỗi theo từng nguồn;
+  - ghi: ba chiến lược (chỉ online, hàng đợi, ghi lười);
+  - 2 bug (kết quả làm mới không ghi DB nên bản cũ quay lại; mất mạng làm danh sách trống); bài tập chọn chiến lược ghi cho bốn thao tác; quiz 4 câu.
+  - **Sim `arch.offline`:** ba tình huống: UI đọc cả mạng lẫn DB, DB là nguồn sự thật, ghi lười lúc mất mạng.
+    - Hình **làn thời gian** dùng chung với G3: đã gom thành hàm `laneScreen` trong `tracks/arch/views/visuals.js`.
+    - Làn: máy chủ, database, repository, màn hình.
+  - Thêm 1 nguồn (Build an offline-first app) và 1 preset.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; đã xem ảnh ba tình huống G4, và ảnh G3 sau khi gom hàm vẽ.
+  - **Tiếp theo:** G5 (domain layer tùy chọn và use case).

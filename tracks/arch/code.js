@@ -114,4 +114,32 @@
     'state.userMessage?.let { msg -> LaunchedEffect(msg) { snackbarHostState.showSnackbar(msg)',
     '    vm.messageShown() } }'
   ]);
+  add('g4.mixed', [
+    'class SlotRepository(private val api: SlotApi, private val dao: SlotDao) {',
+    c('    fun slots(day: LocalDate): Flow<List<Slot>> = dao.observe(day)      // mở màn: đọc DB', '    fun slots(day: LocalDate): Flow<List<Slot>> = dao.observe(day)      // screen opens: read the DB'),
+    c('    suspend fun refresh(day: LocalDate): List<Slot> = api.slots(day)    // trả thẳng kết quả mạng', '    suspend fun refresh(day: LocalDate): List<Slot> = api.slots(day)    // hands back the network result'),
+    '}',
+    c('// ViewModel: hiện kết quả refresh, nhưng DB vẫn giữ bản cũ', '// ViewModel: shows the refresh result, but the DB still holds the old copy'),
+    'fun onRefresh() = viewModelScope.launch { state.update { it.copy(slots = repo.refresh(day)) } }',
+    c('// mở lại màn, hay màn khác đọc dao.observe(day): thấy bản cũ', '// reopen the screen, or another screen reading dao.observe(day): sees the old copy')
+  ]);
+  add('g4.ssot', [
+    'class OfflineFirstSlotRepository(private val api: SlotApi, private val dao: SlotDao) {',
+    c('    fun slots(day: LocalDate): Flow<List<Slot>> = dao.observe(day)      // chỉ đọc từ DB', '    fun slots(day: LocalDate): Flow<List<Slot>> = dao.observe(day)      // reads only from the DB'),
+    '    suspend fun refresh(day: LocalDate) {',
+    c('        val fresh = api.slots(day)                                      // có thể ném lỗi khi mất mạng', '        val fresh = api.slots(day)                                      // may throw when offline'),
+    c('        dao.replace(day, fresh)                                         // ghi vào DB; DB báo cho mọi người đọc', '        dao.replace(day, fresh)                                         // write to the DB; the DB notifies every reader'),
+    '    }',
+    '}',
+    'val slots = repo.slots(day).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())'
+  ]);
+  add('g4.lazy', [
+    'suspend fun cancel(id: Long) {',
+    c('    dao.markCancelled(id, pending = true)                 // ghi DB trước: UI thấy ngay', '    dao.markCancelled(id, pending = true)                 // write the DB first: the UI sees it at once'),
+    c('    WorkManager.getInstance(context).enqueueUniqueWork(   // xếp việc đồng bộ, chạy khi có mạng', '    WorkManager.getInstance(context).enqueueUniqueWork(   // queue the sync, runs when online'),
+    '        "sync-cancel-$id", ExistingWorkPolicy.KEEP,',
+    '        OneTimeWorkRequestBuilder<SyncCancelWorker>().setConstraints(onlineOnly).build())',
+    '}',
+    c('// SyncCancelWorker: gọi api.cancel(id); xong thì dao.clearPending(id), lỗi thì Result.retry()', '// SyncCancelWorker: calls api.cancel(id); on success dao.clearPending(id), on failure Result.retry()')
+  ]);
 })();

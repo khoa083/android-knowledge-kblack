@@ -78,25 +78,29 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('dg.cap') }), holder, build, legend));
   }, { labelKey: K + 'tab.dg', icon: 'layers' });
 
-  /* ---------- G3: làn thời gian qua một lần xoay màn hình ---------- */
-  // Hàng là các "làn" (Activity lần 1, ViewModel, Activity lần 2, người dùng thấy), cột là bốn bước; cột sau bước hiện tại để trống.
-  ADE.registerScreen('arch.events', function (box, ctx) {
-    var h = ADE.ui.h, c = ctx.state.case, i = idx(ctx), E = ADE.archEvents;
-    var head = h('tr', null, h('th', { text: T('ev.lane') }), [0, 1, 2, 3].map(function (k) { return h('th', { class: k === i ? 'hl' : null, text: T('ev.col.' + c + '.' + k) }); }));
-    var tb = h('tbody');
-    E.LANES.forEach(function (ln) {
-      var tr = h('tr', null, h('th', { text: T('ev.lane.' + ln) }));
-      for (var k = 0; k < 4; k++) {
-        if (k > i) { tr.appendChild(h('td', { class: 'dim', text: '·' })); continue; }
-        var cell = E.at(c, k)[ln], cls = cell[1] || '';
-        if (k < i && cls === 'hl') cls = '';   // chỉ cột của bước đang xem được viền
-        if (k === i && cls === '') cls = 'ok';
-        tr.appendChild(h('td', { class: cls || null, text: T('ev.cell.' + cell[0]) }));
-      }
-      tb.appendChild(tr);
-    });
-    var tbl = h('table', { class: 'vz-table vz-lanes' }, h('thead', null, head), tb);
-    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('ev.cap') }), h('div', { class: 'vz-scroll' }, tbl),
-      h('div', { class: 'vz-legend', text: T('ev.legend') })));
-  }, { labelKey: K + 'tab.ev', icon: 'clock' });
+  /* ---------- Làn thời gian (G3, G4): hàng là các làn, cột là bốn bước; cột sau bước hiện tại để trống ---------- */
+  // src = { LANES, at(case, step) -> { lane: [mã ô, kiểu ô] } }; chuỗi: vz.<p>.cap, .legend, .lane, .lane.<làn>, .col.<case>.<k>, .cell.<mã>
+  function laneScreen(modelId, getSrc, p, tabKey) {
+    ADE.registerScreen(modelId, function (box, ctx) {
+      var h = ADE.ui.h, c = ctx.state.case, i = idx(ctx), E = getSrc();
+      var head = h('tr', null, h('th', { text: T(p + '.lane') }), [0, 1, 2, 3].map(function (k) { return h('th', { class: k === i ? 'hl' : null, text: T(p + '.col.' + c + '.' + k) }); }));
+      var tb = h('tbody');
+      E.LANES.forEach(function (ln) {
+        var tr = h('tr', null, h('th', { text: T(p + '.lane.' + ln) }));
+        for (var k = 0; k < 4; k++) {
+          if (k > i) { tr.appendChild(h('td', { class: 'dim', text: '·' })); continue; }
+          var cell = E.at(c, k)[ln], cls = cell[1] || '';
+          if (k < i && cls === 'hl') cls = '';   // chỉ cột của bước đang xem được viền
+          if (k === i && cls === '') cls = 'ok';
+          tr.appendChild(h('td', { class: cls || null, text: T(p + '.cell.' + cell[0]) }));
+        }
+        tb.appendChild(tr);
+      });
+      var tbl = h('table', { class: 'vz-table vz-lanes' }, h('thead', null, head), tb);
+      box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T(p + '.cap') }), h('div', { class: 'vz-scroll' }, tbl),
+        h('div', { class: 'vz-legend', text: T(p + '.legend') })));
+    }, { labelKey: K + tabKey, icon: 'clock' });
+  }
+  laneScreen('arch.events', function () { return ADE.archEvents; }, 'ev', 'tab.ev');       // G3: qua một lần xoay màn hình
+  laneScreen('arch.offline', function () { return ADE.archOffline; }, 'off', 'tab.off');   // G4: mạng, database, repository, UI
 })();

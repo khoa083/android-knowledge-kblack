@@ -27,4 +27,8 @@
   V('events', { layout: 'cycle', nodes: [N('events', 'act', 0, 3, 'screen', 'ui'), N('events', 'vm', 4, 0, 'layers', 'state'), N('events', 'flow', 8, 3, 'queue', 'state'), N('events', 'toast', 4, 6, 'phone', 'ui')],
     edges: [E('e1', 'act', 'vm'), E('e4', 'vm', 'flow'), E('e2', 'flow', 'act'), E('e3', 'act', 'toast')],
     metrics: [T('events', 'shown'), T('events', 'lost'), T('events', 'truth')] });
+  /* G4: UI hỏi repository; repository đọc và ghi database, gọi mạng; dữ liệu đi ngược lên */
+  V('offline', { layout: 'pipeline', nodes: [N('offline', 'ui', 0, 0, 'screen', 'ui'), N('offline', 'repo', 3, 0, 'store', 'runtime'), N('offline', 'db', 6, 0, 'store', 'state'), N('offline', 'net', 6, 3, 'source', 'job')],
+    edges: [E('e1', 'ui', 'repo'), E('e2', 'repo', 'db'), E('e3', 'repo', 'net')],
+    metrics: [T('offline', 'src'), T('offline', 'ui'), T('offline', 'db')] });
 })();

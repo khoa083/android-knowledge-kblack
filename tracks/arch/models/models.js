@@ -230,4 +230,66 @@
         { name: 'SharedFlow không replay, phát lúc không có subscriber: thông báo mất', run: function () { var x = steps({ case: 'shared' })[3].metrics; return x.shown === 0 && x.lost === M(m, 'lost.yes'); } },
         { name: 'thông báo là UI state, UI báo đã hiện: đúng một lần, không mất', run: function () { return steps({ case: 'state' }).every(function (s) { return s.metrics.shown === 1 && s.metrics.lost === M(m, 'lost.no'); }); } }] });
   })();
+  /* ================= G4: data layer offline-first: database là nguồn sự thật =================
+     Theo Build an offline-first app (đọc chỉ từ nguồn cục bộ, là nguồn sự thật chuẩn; ghi cập nhật vào nguồn cục bộ trước để nó
+     báo cho người đọc; đọc qua Flow; ghi qua suspend; ba chiến lược ghi: chỉ online, hàng đợi, ghi lười với WorkManager),
+     Data layer (mỗi repository một SSOT). Hàng của hình "Làn thời gian" lấy từ ADE.archOffline. */
+  (function () {
+    var m = 'offline', CASES = ['mixed', 'ssot', 'lazy'], KS = ['s1', 's2', 's3', 's4'];
+    var LANES = ['net', 'db', 'repo', 'ui'];
+    var G = {
+      mixed: [
+        { net: ['idle', 'dim'], db: ['oldList', ''], repo: ['readDb', 'hl'], ui: ['showOld', ''] },
+        { net: ['returnsNew', 'hl'], db: ['stillOld', 'bad'], repo: ['passThrough', 'bad'], ui: ['showNew', 'hl'] },
+        { net: ['idle', 'dim'], db: ['stillOld', 'bad'], repo: ['readDb', ''], ui: ['showOldAgain', 'bad'] },
+        { net: ['offline', 'dim'], db: ['stillOld', 'bad'], repo: ['readDb', ''], ui: ['showOldOffline', 'bad'] }],
+      ssot: [
+        { net: ['idle', 'dim'], db: ['oldList', ''], repo: ['readDb', 'hl'], ui: ['showOld', ''] },
+        { net: ['returnsNew', 'hl'], db: ['written', 'hl'], repo: ['writeDb', 'hl'], ui: ['showOld', 'dim'] },
+        { net: ['idle', 'dim'], db: ['emits', 'hl'], repo: ['flowEmits', ''], ui: ['showNew', 'hl'] },
+        { net: ['offline', 'dim'], db: ['keepNew', ''], repo: ['refreshFail', 'hl'], ui: ['showNewOffline', 'hl'] }],
+      lazy: [
+        { net: ['offline', 'dim'], db: ['markPending', 'hl'], repo: ['writeLocalFirst', 'hl'], ui: ['tapCancel', ''] },
+        { net: ['offline', 'dim'], db: ['emitsPending', ''], repo: ['flowEmits', ''], ui: ['showPending', 'hl'] },
+        { net: ['offline', 'dim'], db: ['pending', ''], repo: ['queued', 'hl'], ui: ['showPending', ''] },
+        { net: ['receivesCancel', 'hl'], db: ['clearPending', 'hl'], repo: ['workerRuns', 'hl'], ui: ['showSynced', 'hl'] }]
+    };
+    var MET = {   // {src, ui, db}: UI đọc từ đâu, UI có bản mới nhất không, DB có bản mới nhất không
+      mixed: [{ src: 'db', ui: 'no', db: 'no' }, { src: 'net', ui: 'yes', db: 'no' }, { src: 'db', ui: 'no', db: 'no' }, { src: 'db', ui: 'no', db: 'no' }],
+      ssot: [{ src: 'db', ui: 'no', db: 'no' }, { src: 'db', ui: 'no', db: 'yes' }, { src: 'db', ui: 'yes', db: 'yes' }, { src: 'db', ui: 'yes', db: 'yes' }],
+      lazy: [{ src: 'db', ui: 'no', db: 'yes' }, { src: 'db', ui: 'yes', db: 'yes' }, { src: 'db', ui: 'yes', db: 'yes' }, { src: 'db', ui: 'yes', db: 'yes' }]
+    };
+    var STEP = {   // [node sáng, trạng thái node, loại bước, dòng mã, loại log, chủ thể, tín hiệu]
+      mixed: [[['ui', 'repo', 'db'], { ui: 'done', repo: 'done', db: 'done', net: 'skipped' }, 'scenario', [1, 2], 'observe', 'ui', [{ edge: 'e2', tok: 'state', reverse: true }]],
+        [['repo', 'net', 'ui'], { ui: 'done', repo: 'surprise', db: 'surprise', net: 'done' }, 'pitfall', [3, 6], 'run', 'repo', [{ edge: 'e3', tok: 'state', reverse: true }, { edge: 'e1', tok: 'state', reverse: true }]],
+        [['ui', 'db'], { ui: 'surprise', repo: 'done', db: 'surprise', net: 'skipped' }, 'pitfall', [2, 7], 'observe', 'ui', [{ edge: 'e2', tok: 'state', reverse: true }]],
+        [['ui', 'db'], { ui: 'surprise', repo: 'done', db: 'surprise', net: 'broken' }, 'pitfall', [2], 'observe', 'ui', [{ edge: 'e2', tok: 'state', reverse: true }]]],
+      ssot: [[['ui', 'repo', 'db'], { ui: 'done', repo: 'done', db: 'done', net: 'skipped' }, 'scenario', [2, 8], 'observe', 'ui', [{ edge: 'e2', tok: 'state', reverse: true }]],
+        [['repo', 'net', 'db'], { ui: 'done', repo: 'done', db: 'done', net: 'done' }, 'mechanism', [3, 4, 5], 'write', 'repo', [{ edge: 'e3', tok: 'state', reverse: true }, { edge: 'e2', tok: 'signal' }]],
+        [['db', 'repo', 'ui'], { ui: 'done', repo: 'done', db: 'done', net: 'done' }, 'mechanism', [5, 8], 'observe', 'db', [{ edge: 'e2', tok: 'state', reverse: true }, { edge: 'e1', tok: 'state', reverse: true }]],
+        [['repo', 'net', 'ui'], { ui: 'done', repo: 'done', db: 'done', net: 'broken' }, 'mechanism', [2, 4], 'exception', 'net', [{ edge: 'e2', tok: 'state', reverse: true }]]],
+      lazy: [[['ui', 'repo', 'db'], { ui: 'done', repo: 'done', db: 'done', net: 'broken' }, 'scenario', [1, 2], 'write', 'ui', [{ edge: 'e1', tok: 'signal' }, { edge: 'e2', tok: 'signal' }]],
+        [['db', 'ui'], { ui: 'done', repo: 'done', db: 'done', net: 'broken' }, 'mechanism', [2], 'observe', 'ui', [{ edge: 'e2', tok: 'state', reverse: true }, { edge: 'e1', tok: 'state', reverse: true }]],
+        [['repo'], { ui: 'done', repo: 'done', db: 'done', net: 'broken' }, 'mechanism', [3, 4, 5], 'skip', 'repo', []],
+        [['repo', 'net', 'db', 'ui'], { ui: 'done', repo: 'done', db: 'done', net: 'done' }, 'mechanism', [7], 'complete', 'net', [{ edge: 'e3', tok: 'signal' }, { edge: 'e2', tok: 'signal' }]]]
+    };
+    ADE.archOffline = { LANES: LANES, at: function (c, i) { return G[c][i]; } };
+    function steps(s) {
+      return STEP[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var x = MET[s.case][i];
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[0], nodeStates: ns,
+          metrics: { src: M(m, 'src.' + x.src), ui: M(m, 'fresh.' + x.ui), db: M(m, 'fresh.' + x.db) },
+          codeHighlight: { snippet: 'g4.' + s.case, lines: p[3] }, movingSignals: p[6], logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (p[2] === 'pitfall' ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'mixed' }; }, act: setter(['case']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'trả thẳng kết quả mạng cho UI: DB vẫn cũ, mở lại màn thấy bản cũ', run: function () { var x = steps({ case: 'mixed' }); return x[1].metrics.ui === M(m, 'fresh.yes') && x[2].metrics.ui === M(m, 'fresh.no') && x[2].metrics.db === M(m, 'fresh.no'); } },
+        { name: 'DB là nguồn sự thật: UI chỉ đọc DB và có bản mới sau khi DB được ghi', run: function () { var x = steps({ case: 'ssot' }); return x.every(function (s) { return s.metrics.src === M(m, 'src.db'); }) && x[2].metrics.ui === M(m, 'fresh.yes'); } },
+        { name: 'ghi lười: UI thấy thay đổi ngay cả khi mất mạng', run: function () { return ADE.archOffline.at('lazy', 1).net[0] === 'offline' && steps({ case: 'lazy' })[1].metrics.ui === M(m, 'fresh.yes'); } }] });
+  })();
 })();

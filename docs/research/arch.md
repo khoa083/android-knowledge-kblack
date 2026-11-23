@@ -50,3 +50,17 @@ Kiểm URL: các trang developer.android.com và kotlinlang HTTP 200 (curl), t�
 | Thời điểm xoay và request xong trong sim | đặt sẵn để thấy từng trường hợp | simplified |
 
 Kiểm URL: ui-layer/events, ui-layer/stateholders, ui-layer/state-production HTTP 200 (curl), đọc bản text 2026-11-24; trang API kotlinx (StateFlow, SharedFlow, MutableSharedFlow) HTTP 200, phiên bản ghi trên trang 1.11.0. Sách Boudjnah ch3 chưa đọc thân chương nên chưa trích.
+
+## G4 · Data layer: repository, data source, offline-first (2026-11-24)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Tầng data gồm repository, mỗi cái gộp không hoặc nhiều data source; tầng khác không dùng thẳng data source; mỗi repository một nguồn sự thật | `ax-data-layer` | stable |
+| App offline-first tối thiểu đọc được khi không có mạng; repository có mạng phải có nguồn cục bộ; ít nhất hai data source | `ax-offline-first` | stable |
+| Nguồn cục bộ là nguồn sự thật chuẩn và là nơi duy nhất tầng trên đọc; nguồn mạng là trạng thái thật, hai bên có thể lệch nhau | `ax-offline-first` | stable |
+| Đọc qua Flow từ nguồn cục bộ; chỉ báo người đọc bằng cách cập nhật nguồn cục bộ trước; ViewModel dùng stateIn | `ax-offline-first` | stable |
+| Lỗi: catch trên Flow nguồn cục bộ; lỗi mạng thử lại với exponential backoff hay chờ có mạng | `ax-offline-first` | stable |
+| Ghi qua suspend; ba chiến lược: chỉ online, hàng đợi, ghi lười; rút hàng đợi giao cho WorkManager | `ax-offline-first` | stable |
+| Dữ liệu 9:00, 9:30, lịch 10:00 trong sim | ví dụ của site | simplified |
+
+Kiểm URL: topic/architecture/data-layer/offline-first HTTP 200 (curl), đọc bản text 2026-11-24. Sách Dumbravan ch6–7 chưa đọc thân chương nên chưa trích.
