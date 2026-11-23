@@ -54,6 +54,10 @@
   V('scope', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.collFail', idle: K + 'fam.na' },
     nodes: [N('scope', 'name', 0, 0, 'source', 'ui'), N('scope', 'near', 3, 0, 'target', 'state'), N('scope', 'far', 6, 0, 'layers', 'runtime'), N('scope', 'result', 9, 0, 'square', 'job')],
     edges: [E('e1', 'name', 'near'), E('e2', 'near', 'far'), E('e3', 'far', 'result')], metrics: [T('scope', 'recv'), T('scope', 'res'), T('scope', 'out')] });
+  /* K13: khai báo Kotlin → trình biên dịch → thành viên JVM được sinh → lời gọi từ Java */
+  V('jvm', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail' },
+    nodes: [N('jvm', 'kotlin', 0, 0, 'source', 'ui'), N('jvm', 'compiler', 3, 0, 'target', 'state'), N('jvm', 'jvm', 6, 0, 'layers', 'runtime'), N('jvm', 'java', 9, 0, 'play', 'job')],
+    edges: [E('e1', 'kotlin', 'compiler'), E('e2', 'compiler', 'jvm'), E('e3', 'jvm', 'java')], metrics: [T('jvm', 'sig'), T('jvm', 'call'), T('jvm', 'annot')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],

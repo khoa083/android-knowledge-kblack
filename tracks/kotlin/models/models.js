@@ -471,6 +471,49 @@
         { name: '@DslMarker biến lời gọi ngầm tới receiver ngoài thành lỗi biên dịch', run: function () { var d = steps({ case: 'dslMarker' }); return d[2].metrics.res === M(m, 'res.formSection') && d[3].metrics.res === M(m, 'res.compileError'); } }] });
   })();
 
+  /* ================= K13: Java interop — một khai báo Kotlin được trình biên dịch biến thành gì để Java gọi =================
+     Theo Calling Kotlin from Java (companion → Companion, @JvmStatic; tham số mặc định chỉ thấy chữ ký đầy đủ, @JvmOverloads;
+     hàm public kiểm null lúc chạy cho tham số non-null). */
+  (function () {
+    var m = 'jvm', CASES = ['companion', 'overloads', 'nullFromJava'];
+    // mỗi bước: [node, trạng thái node, số đo {sig, call, annot}, loại bước, dòng mã, loại log, chủ thể log]
+    var P = {
+      companion: [[['kotlin'], {}, { sig: 'none', call: 'none', annot: 'none' }, 'scenario', [1, 2, 3, 4], 'observe', 'kotlin'],
+        [['kotlin', 'compiler', 'jvm'], { compiler: 'done', jvm: 'done' }, { sig: 'companionInstance', call: 'none', annot: 'none' }, 'mechanism', [2, 3], 'check', 'compiler'],
+        [['jvm', 'java'], { compiler: 'done', jvm: 'done', java: 'broken' }, { sig: 'companionInstance', call: 'compileError', annot: 'none' }, 'pitfall', [5, 6], 'check', 'java'],
+        [['kotlin', 'jvm', 'java'], { compiler: 'done', jvm: 'done', java: 'done' }, { sig: 'staticFormat', call: 'ok', annot: 'jvmStatic' }, 'mechanism', [7, 8], 'write', 'kotlin']],
+      overloads: [[['kotlin'], {}, { sig: 'none', call: 'none', annot: 'none' }, 'scenario', [1], 'observe', 'kotlin'],
+        [['compiler', 'jvm'], { compiler: 'done', jvm: 'done' }, { sig: 'fullOnly', call: 'none', annot: 'none' }, 'mechanism', [1, 2], 'check', 'compiler'],
+        [['jvm', 'java'], { compiler: 'done', jvm: 'done', java: 'broken' }, { sig: 'fullOnly', call: 'compileError', annot: 'none' }, 'pitfall', [3, 4], 'check', 'java'],
+        [['kotlin', 'jvm', 'java'], { compiler: 'done', jvm: 'done', java: 'done' }, { sig: 'overloads', call: 'ok', annot: 'jvmOverloads' }, 'mechanism', [5, 6, 7], 'write', 'kotlin']],
+      nullFromJava: [[['kotlin'], {}, { sig: 'none', call: 'none', annot: 'none' }, 'scenario', [1], 'observe', 'kotlin'],
+        [['compiler', 'jvm'], { compiler: 'done', jvm: 'done' }, { sig: 'checked', call: 'none', annot: 'none' }, 'mechanism', [1, 2], 'check', 'compiler'],
+        [['jvm', 'java'], { compiler: 'done', jvm: 'crashed', java: 'done' }, { sig: 'checked', call: 'npe', annot: 'none' }, 'pitfall', [3, 4], 'exception', 'jvm'],
+        [['kotlin', 'jvm', 'java'], { compiler: 'done', jvm: 'done', java: 'done' }, { sig: 'nullableParam', call: 'ok', annot: 'nullable' }, 'mechanism', [5, 6], 'write', 'kotlin']]
+    };
+    ADE.kotlinJvm = P;
+    var EDGE = { kotlin: null, compiler: 'e1', jvm: 'e2', java: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var met = { sig: M(m, 'sig.' + p[2].sig), call: M(m, 'call.' + p[2].call), annot: M(m, 'annot.' + p[2].annot) };
+        var e = EDGE[p[0][0]] || EDGE[p[0][1]], bad = p[3] === 'pitfall';
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: met, codeHighlight: { snippet: 'jvm.' + s.case, lines: p[4] },
+          movingSignals: e ? [{ edge: e, tok: bad ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5], subject: p[6] }] });
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i >= 2) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'companion' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước; bước thứ ba là bẫy, bước cuối Java gọi được', run: function () { return CASES.every(function (k) { var st = steps({ case: k }); return st.length === 4 && st[2].type === 'pitfall' && st[3].metrics.call === M(m, 'call.ok'); } ); } },
+        { name: 'không có chú thích: Java không gọi tĩnh được hàm companion và không thấy overload; có chú thích thì được', run: function () { var a = steps({ case: 'companion' }), b = steps({ case: 'overloads' }); return a[2].metrics.call === M(m, 'call.compileError') && a[3].metrics.annot === M(m, 'annot.jvmStatic') && b[2].metrics.sig === M(m, 'sig.fullOnly') && b[3].metrics.sig === M(m, 'sig.overloads'); } },
+        { name: 'Java truyền null cho tham số non-null: kiểm tra Kotlin chèn vào ném NPE ngay khi gọi', run: function () { var c = steps({ case: 'nullFromJava' })[2]; return c.metrics.call === M(m, 'call.npe') && c.nodeStates.jvm === K + 'st.crashed'; } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

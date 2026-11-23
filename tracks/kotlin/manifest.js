@@ -18,7 +18,8 @@ ADE.registerTrack({
     { id: 'k9', titleKey: 'track.kotlin.k9.title', sims: ['kotlin.sequence'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'k10', titleKey: 'track.kotlin.k10.title', sims: ['kotlin.variance'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'k11', titleKey: 'track.kotlin.k11.title', sims: ['kotlin.delegate'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'k12', titleKey: 'track.kotlin.k12.title', sims: ['kotlin.scope'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'k12', titleKey: 'track.kotlin.k12.title', sims: ['kotlin.scope'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'k13', titleKey: 'track.kotlin.k13.title', sims: ['kotlin.jvm'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'kotlin-int-division', model: 'kotlin.eval', titleKey: 'track.kotlin.preset.eval' }

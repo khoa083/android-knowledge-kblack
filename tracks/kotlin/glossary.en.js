@@ -30,5 +30,7 @@ ADE.addGlossary('en', 'kotlin', {
   "scope-function": { term: "scope function", def: "let, run, with, apply, also: run a lambda on an object; they differ in how the object is referenced (this or it) and what is returned (the lambda result or the object).", chapter: "kotlin/k12" },
   "lambda-with-receiver": { term: "lambda with receiver (T.() -> R)", def: "A lambda that runs as if it were a function of T: inside, this is the T object and T's members need no prefix; the basis of apply, run, with and DSLs.", chapter: "kotlin/k12" },
   "dsl-marker": { term: "@DslMarker", def: "An annotation marking a DSL's receiver types; then inside a lambda only the nearest receiver's members can be called implicitly.", chapter: "kotlin/k12" },
+  "jvm-static": { term: "@JvmStatic", def: "Also generates a static method for a function in an object or companion object, so Java can call Class.fn() instead of Class.Companion.fn().", chapter: "kotlin/k13" },
+  "jvm-overloads": { term: "@JvmOverloads", def: "Generates extra overloads for a function or constructor with default parameters, so Java can call it without passing every argument.", chapter: "kotlin/k13" },
   "when-expression": { term: "when expression", def: "when returns the value of the first matching branch; used as an expression, its branches must cover every case (usually with else).", chapter: "kotlin/k1" }
 });

@@ -381,6 +381,33 @@
     '@DslMarker annotation class FormDsl',
     c('@FormDsl class Form { … }   @FormDsl class Section { … }   // giờ dòng 5 là lỗi biên dịch', '@FormDsl class Form { … }   @FormDsl class Section { … }   // now line 5 is a compile error')
   ]);
+  add('jvm.companion', [
+    'class SlotFormatter {',
+    '    companion object {',
+    '        fun format(hour: Int): String = "%02d:00".format(hour)',
+    '    }',
+    '}',
+    c('// Java: SlotFormatter.format(9);              ← lỗi biên dịch Java', '// Java: SlotFormatter.format(9);              ← Java compile error'),
+    c('// sửa: sinh thêm phương thức static', '// fix: also generate a static method'),
+    c('        @JvmStatic fun format(hour: Int): String = …   // Java: SlotFormatter.format(9)', '        @JvmStatic fun format(hour: Int): String = …   // Java: SlotFormatter.format(9) works')
+  ]);
+  add('jvm.overloads', [
+    'fun book(hour: Int, minute: Int = 0, note: String = ""): Booking',
+    c('// Java chỉ thấy: book(int hour, int minute, String note)', '// Java sees only: book(int hour, int minute, String note)'),
+    c('// Java: BookingsKt.book(9);                   ← lỗi biên dịch Java', '// Java: BookingsKt.book(9);                   ← Java compile error'),
+    c('// (phải truyền đủ: BookingsKt.book(9, 0, ""))', '// (must pass everything: BookingsKt.book(9, 0, ""))'),
+    c('// sửa:', '// fix:'),
+    '@JvmOverloads fun book(hour: Int, minute: Int = 0, note: String = ""): Booking',
+    c('// sinh thêm: book(int) và book(int, int)', '// also generates: book(int) and book(int, int)')
+  ]);
+  add('jvm.nullFromJava', [
+    'fun bookFor(patient: Patient, note: String): Booking',
+    c('// trình biên dịch chèn kiểm tra null ở đầu hàm cho patient và note', '// the compiler inserts null checks for patient and note at the start'),
+    c('// Java: BookingsKt.bookFor(p, null);          ← biên dịch được trong Java', '// Java: BookingsKt.bookFor(p, null);          ← compiles in Java'),
+    c('//       → NullPointerException ngay khi gọi', '//       → NullPointerException right at the call'),
+    c('// sửa: nếu null là hợp lệ thì nói rõ trong kiểu', '// fix: if null is valid, say so in the type'),
+    'fun bookFor(patient: Patient, note: String?): Booking'
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',

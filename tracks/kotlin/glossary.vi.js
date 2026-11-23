@@ -30,5 +30,7 @@ ADE.addGlossary('vi', 'kotlin', {
   "scope-function": { term: "scope function", def: "let, run, with, apply, also: chạy một lambda trên một object; khác nhau ở cách gọi object (this hay it) và giá trị trả về (kết quả lambda hay chính object).", chapter: "kotlin/k12" },
   "lambda-with-receiver": { term: "lambda có receiver (T.() -> R)", def: "Lambda chạy như thể là hàm của T: bên trong, this là object T, gọi thành viên của T không cần tiền tố; nền của apply, run, with và DSL.", chapter: "kotlin/k12" },
   "dsl-marker": { term: "@DslMarker", def: "Chú thích đánh dấu các kiểu receiver của một DSL; khi đó trong lambda chỉ gọi ngầm được thành viên của receiver gần nhất.", chapter: "kotlin/k12" },
+  "jvm-static": { term: "@JvmStatic", def: "Sinh thêm phương thức static cho hàm trong object hay companion object, để Java gọi được Lớp.hàm() thay vì Lớp.Companion.hàm().", chapter: "kotlin/k13" },
+  "jvm-overloads": { term: "@JvmOverloads", def: "Sinh thêm các overload cho hàm hay constructor có tham số mặc định, để Java gọi được mà không truyền đủ mọi tham số.", chapter: "kotlin/k13" },
   "when-expression": { term: "biểu thức when", def: "when trả về giá trị của nhánh khớp đầu tiên; khi dùng như biểu thức, các nhánh phải phủ đủ mọi trường hợp (thường bằng else).", chapter: "kotlin/k1" }
 });

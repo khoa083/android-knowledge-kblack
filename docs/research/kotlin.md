@@ -185,3 +185,16 @@ Kiểm URL (curl, HTTP 200): delegated-properties, delegation; Lazy.kt và LazyJ
 | Bài tập DSL lịch làm việc | dựa trên "HTML table DSL" và "Using scope functions", `book-kt-exercises`; lời giải tự viết | — |
 
 Kiểm URL (curl, HTTP 200): scope-functions, type-safe-builders.
+
+## K13 · Java interop và dưới mui xe (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Property → getter/setter/field private; quy tắc is (isOpen(), setOpen()); hàm cấp file → static của TênFileKt, @file:JvmName; @JvmField (điều kiện: có backing field, không private/open/override/const/delegated); field static của object/companion thường private, lộ ra qua @JvmField, lateinit, const; @JvmStatic trên companion sinh static ở lớp bao ngoài và giữ bản instance; @JvmName cho xung đột chữ ký do erasure, @get:/@set:JvmName; tham số mặc định chỉ thấy chữ ký đầy đủ, @JvmOverloads sinh overload bỏ dần tham số bên phải, không dùng cho abstract/interface; lớp có mặc định cho mọi tham số constructor có constructor không tham số; @Throws; kiểm null lúc chạy cho hàm public có tham số non-null | `kt-kotlin-from-java` | stable |
+| Companion khởi tạo khi lớp chứa được nạp (nhắc lại K3) | `kt-objects` | stable |
+| Đọc thêm: reflection, KSP, contracts (chỉ tổng quan, không khẳng định chi tiết) | `kt-reflection`, `kt-ksp`, `kt-contracts` | stable |
+| Chữ ký JVM viết dạng Java cho dễ đọc, không phải bytecode thật (không có kotlinc/javap) | ghi trong simp.1 và mục trung thực | simplified |
+| Bài tập Fee cho Java | dựa trên "Adjust Kotlin for Java usage", `book-kt-exercises`; lời giải tự viết | — |
+
+Không khẳng định thư viện cụ thể nào dùng KSP (bỏ câu "như Room/Moshi" vì trang đã đọc không nêu).
+Kiểm URL (curl, HTTP 200): java-to-kotlin-interop, reflection, ksp-overview, API kotlin.contracts.
