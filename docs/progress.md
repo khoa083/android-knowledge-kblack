@@ -674,3 +674,16 @@ Trạng thái: `chưa / đang / xong`.
     - token ≥ 5.729, màu tô mã ≥ 4.646;
     - accent track ≥ 3.472. Nền được chọn tối hơn bản nháp để accent G không tụt dưới 3.427.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; đã xem ảnh trang chủ (đồ thị) và chương K8 ở theme dark mới.
+- **Kiến trúc · G3 (2026-11-24):** UI layer: UiState, ViewModel, sự kiện (`arch_v2_g3.py`, 8 mục). Nội dung:
+  - UI state bất biến và ViewModel (sống qua tái tạo Activity, không qua process death);
+  - sự kiện UI và sự kiện từ ViewModel: sự kiện từ ViewModel luôn thành UI state, UI báo lại khi đã xử lý;
+  - vì sao không dùng Channel hay SharedFlow cho sự kiện một lần;
+  - 2 bug (Toast lặp sau khi xoay; xác nhận mất rồi đặt trùng); bài tập viết lại màn đăng nhập; quiz 4 câu.
+  - **Sim `arch.events`:** ba cách báo (cờ StateFlow không xóa, MutableSharedFlow(), thông báo trong UI state). Tab chính là hình **làn thời gian** (bảng làn: Activity lần 1, ViewModel, Activity lần 2, người dùng thấy × bốn bước); sơ đồ node dạng vòng.
+  - **Cầu nối mới X12:** G3 → Coroutines A8 và Runtime SH, đã thêm vào manifest của cả ba track.
+  - Thêm 4 nguồn (UI events, State holders, StateFlow và SharedFlow API 1.11.0), 2 thuật ngữ, 1 hiểu lầm, 1 preset.
+  - **Kiểm:**
+    - report 0 lỗi, 120 cảnh báo; đã sửa trùng id nguồn kx-stateflow (đổi thành kx-stateflow-api) và 1 chuỗi vi trùng en;
+    - track-check arch 0 ở 1280 và 360; Runtime 0; Coroutines 4 (lỗi cũ đã biết);
+    - đã xem ảnh ba tình huống. Đã sửa để chỉ viền cột của bước đang xem.
+  - **Tiếp theo:** G4 (data layer: repository, data source, offline-first).

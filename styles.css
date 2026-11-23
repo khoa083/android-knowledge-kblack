@@ -734,6 +734,8 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 .vz-box > .vz-h { font-weight: 700; color: var(--ink-2); }
 .vz-box .vz-box { margin-left: 14px; background: var(--paper-2); }
 .vz-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--ink-2); }
+.vz-lanes th:first-child { min-width: 88px; }
+.vz-lanes td { min-width: 96px; font-size: 12.5px; }
 /* đồ thị phụ thuộc (hình trực quan theo bước, ví dụ track G chương G2): mũi tên = "A biết về B" */
 .vz-dg { display: block; width: 100%; min-width: 420px; height: auto; font-family: var(--mono); }
 .vz-dg-n rect { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }

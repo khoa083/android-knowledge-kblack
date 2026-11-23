@@ -20,5 +20,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X10.title': 'Variance của Flow',
   'shared.bridge.X10.summary': 'Flow<out T> hiệp biến: Flow<Doctor> dùng được ở chỗ cần Flow<Staff>, vì Flow chỉ trả T ra. Chương chủ sở hữu giải thích out, in và bất biến.',
   'shared.bridge.X11.title': 'by remember và State.getValue',
-  'shared.bridge.X11.summary': 'var x by remember { mutableStateOf(…) } chỉ là một delegate: đọc x là gọi State.getValue, tức đọc state.value mà Compose theo dõi.'
+  'shared.bridge.X11.summary': 'var x by remember { mutableStateOf(…) } chỉ là một delegate: đọc x là gọi State.getValue, tức đọc state.value mà Compose theo dõi.',
+  'shared.bridge.X12.title': 'Sự kiện một lần và UI state',
+  'shared.bridge.X12.summary': 'Thông báo hay điều hướng phát từ ViewModel nên là một phần của UI state, và UI báo lại khi đã xử lý; đừng gửi qua Channel hay SharedFlow. Chương chủ sở hữu cho thấy thông báo lặp lại và bị mất qua một lần xoay màn hình.'
 });

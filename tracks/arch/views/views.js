@@ -23,4 +23,8 @@
   V('ssot', { layout: 'cycle', nodes: [N('ssot', 'choose', 0, 3, 'screen', 'ui'), N('ssot', 'repo', 4, 0, 'store', 'state'), N('ssot', 'mine', 8, 3, 'screen', 'ui')],
     edges: [E('e1', 'choose', 'repo'), E('e2', 'repo', 'choose'), E('e3', 'mine', 'repo'), E('e4', 'repo', 'mine')],
     metrics: [T('ssot', 'copies'), T('ssot', 'writers'), T('ssot', 'agree')] });
+  /* G3: Activity gửi sự kiện lên ViewModel; state hay sự kiện đi qua một kênh (StateFlow / SharedFlow) về Activity; Activity hiện thông báo */
+  V('events', { layout: 'cycle', nodes: [N('events', 'act', 0, 3, 'screen', 'ui'), N('events', 'vm', 4, 0, 'layers', 'state'), N('events', 'flow', 8, 3, 'queue', 'state'), N('events', 'toast', 4, 6, 'phone', 'ui')],
+    edges: [E('e1', 'act', 'vm'), E('e4', 'vm', 'flow'), E('e2', 'flow', 'act'), E('e3', 'act', 'toast')],
+    metrics: [T('events', 'shown'), T('events', 'lost'), T('events', 'truth')] });
 })();

@@ -163,4 +163,71 @@
         { name: 'nhiều nơi giữ và sửa dữ liệu: hai màn hình lệch nhau', run: function () { var x = steps({ case: 'twowriters' })[3].metrics; return x.copies > 1 && x.writers > 1 && x.agree === M(m, 'agree.no'); } },
         { name: 'một nguồn sự thật: một bản, một chỗ sửa, hai màn hình khớp', run: function () { var x = steps({ case: 'ssot' })[3].metrics; return x.copies === 1 && x.writers === 1 && x.agree === M(m, 'agree.yes'); } }] });
   })();
+  /* ================= G3: thông báo "Đã đặt lịch" qua một lần xoay màn hình =================
+     Theo UI events (ViewModel event phải thành cập nhật UI state; UI báo lại khi đã hiện thông báo; Channel và stream khác
+     không bảo đảm giao khi ViewModel sống lâu hơn UI), State holders (ViewModel sống qua tái tạo Activity), kotlinx.coroutines
+     1.11.0 API: StateFlow phát lại giá trị mới nhất cho subscriber mới; MutableSharedFlow() không replay, emit trả về ngay khi
+     không có subscriber (giá trị bị bỏ). Bốn cột của hình "Làn thời gian" lấy từ ADE.archEvents. */
+  (function () {
+    var m = 'events', CASES = ['sticky', 'shared', 'state'], KS = ['s1', 's2', 's3', 's4'];
+    // mỗi ô: [mã chuỗi, kiểu ô] — kiểu: '' bình thường, 'hl' đang xảy ra, 'bad' lỗi, 'dim' không còn/không có
+    // hàng: a1 = Activity lần 1, a2 = Activity lần 2 (sau xoay), vm = ViewModel, user = người dùng thấy
+    var LANES = ['a1', 'vm', 'a2', 'user'];
+    var G = {
+      sticky: [
+        { a1: ['tap', 'hl'], vm: ['setMsg', 'hl'], a2: ['none', 'dim'], user: ['toast1', ''] },
+        { a1: ['destroyed', 'dim'], vm: ['keepMsg', 'bad'], a2: ['created', 'hl'], user: ['nothing', 'dim'] },
+        { a1: ['destroyed', 'dim'], vm: ['replay', 'bad'], a2: ['collect', 'hl'], user: ['toast2', 'bad'] },
+        { a1: ['destroyed', 'dim'], vm: ['keepMsg', 'bad'], a2: ['rotateAgain', 'hl'], user: ['toast3', 'bad'] }],
+      shared: [
+        { a1: ['tap', 'hl'], vm: ['request', 'hl'], a2: ['none', 'dim'], user: ['waiting', ''] },
+        { a1: ['destroyed', 'dim'], vm: ['request', ''], a2: ['notYet', 'dim'], user: ['nothing', 'dim'] },
+        { a1: ['destroyed', 'dim'], vm: ['emitNoSub', 'bad'], a2: ['notYet', 'dim'], user: ['nothing', 'dim'] },
+        { a1: ['destroyed', 'dim'], vm: ['emptyFlow', 'bad'], a2: ['collectNothing', 'hl'], user: ['bookAgain', 'bad'] }],
+      state: [
+        { a1: ['tap', 'hl'], vm: ['setMsg', 'hl'], a2: ['none', 'dim'], user: ['toast1', ''] },
+        { a1: ['shownCall', 'hl'], vm: ['cleared', 'hl'], a2: ['none', 'dim'], user: ['toast1', 'dim'] },
+        { a1: ['destroyed', 'dim'], vm: ['noMsg', ''], a2: ['collectClean', 'hl'], user: ['nothing', ''] },
+        { a1: ['destroyed', 'dim'], vm: ['pendingMsg', 'hl'], a2: ['collectPending', 'hl'], user: ['toastOnce', ''] }]
+    };
+    // số đo theo bước: {shown, lost, truth}
+    var MET = {
+      sticky: [{ shown: 1, lost: 'no', truth: 'flag' }, { shown: 1, lost: 'no', truth: 'flag' }, { shown: 2, lost: 'no', truth: 'flag' }, { shown: 3, lost: 'no', truth: 'flag' }],
+      shared: [{ shown: 0, lost: 'na', truth: 'stream' }, { shown: 0, lost: 'na', truth: 'stream' }, { shown: 0, lost: 'yes', truth: 'stream' }, { shown: 0, lost: 'yes', truth: 'stream' }],
+      state: [{ shown: 1, lost: 'no', truth: 'state' }, { shown: 1, lost: 'no', truth: 'state' }, { shown: 1, lost: 'no', truth: 'state' }, { shown: 1, lost: 'no', truth: 'state' }]
+    };
+    var STEP = {   // [node sáng, trạng thái node, loại bước, dòng mã, loại log, chủ thể, tín hiệu]
+      sticky: [[['act', 'vm', 'flow', 'toast'], { act: 'done', vm: 'done', flow: 'done', toast: 'done' }, 'scenario', [2, 3, 6], 'write', 'vm', [{ edge: 'e1', tok: 'signal' }, { edge: 'e2', tok: 'state' }]],
+        [['act', 'vm'], { act: 'skipped', vm: 'done', flow: 'done', toast: 'skipped' }, 'mechanism', [1, 2], 'observe', 'act', []],
+        [['flow', 'act', 'toast'], { act: 'done', vm: 'done', flow: 'surprise', toast: 'surprise' }, 'pitfall', [5, 6], 'observe', 'act', [{ edge: 'e2', tok: 'state' }, { edge: 'e3', tok: 'signal' }]],
+        [['flow', 'toast'], { act: 'done', vm: 'done', flow: 'surprise', toast: 'surprise' }, 'pitfall', [5, 6], 'observe', 'toast', [{ edge: 'e3', tok: 'signal' }]]],
+      shared: [[['act', 'vm'], { act: 'done', vm: 'done', flow: 'done', toast: 'skipped' }, 'scenario', [2, 3], 'write', 'vm', [{ edge: 'e1', tok: 'signal' }]],
+        [['act'], { act: 'skipped', vm: 'done', flow: 'done', toast: 'skipped' }, 'mechanism', [1], 'observe', 'act', []],
+        [['vm', 'flow'], { act: 'skipped', vm: 'done', flow: 'surprise', toast: 'skipped' }, 'pitfall', [3, 4], 'skip', 'flow', []],
+        [['act', 'flow', 'toast'], { act: 'done', vm: 'done', flow: 'surprise', toast: 'surprise' }, 'pitfall', [7], 'observe', 'toast', [{ edge: 'e2', tok: 'state' }]]],
+      state: [[['act', 'vm', 'flow', 'toast'], { act: 'done', vm: 'done', flow: 'done', toast: 'done' }, 'scenario', [3, 5, 7], 'write', 'vm', [{ edge: 'e1', tok: 'signal' }, { edge: 'e2', tok: 'state' }]],
+        [['toast', 'act', 'vm'], { act: 'done', vm: 'done', flow: 'done', toast: 'done' }, 'mechanism', [4, 8], 'write', 'act', [{ edge: 'e1', tok: 'signal' }]],
+        [['flow', 'act'], { act: 'done', vm: 'done', flow: 'done', toast: 'done' }, 'mechanism', [1, 3], 'observe', 'act', [{ edge: 'e2', tok: 'state' }]],
+        [['flow', 'act', 'toast'], { act: 'done', vm: 'done', flow: 'done', toast: 'done' }, 'mechanism', [7, 8], 'complete', 'toast', [{ edge: 'e2', tok: 'state' }, { edge: 'e3', tok: 'signal' }]]]
+    };
+    ADE.archEvents = { LANES: LANES, at: function (c, i) { return G[c][i]; } };
+    function steps(s) {
+      return STEP[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var x = MET[s.case][i];
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[0], nodeStates: ns,
+          metrics: { shown: x.shown, lost: M(m, 'lost.' + x.lost), truth: M(m, 'truth.' + x.truth) },
+          codeHighlight: { snippet: 'g3.' + s.case, lines: p[3] }, movingSignals: p[6], logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (p[2] === 'pitfall' ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'sticky' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'cờ trong StateFlow không xóa: thông báo hiện lại sau mỗi lần xoay', run: function () { var a = steps({ case: 'sticky' }); return a[3].metrics.shown > a[0].metrics.shown; } },
+        { name: 'SharedFlow không replay, phát lúc không có subscriber: thông báo mất', run: function () { var x = steps({ case: 'shared' })[3].metrics; return x.shown === 0 && x.lost === M(m, 'lost.yes'); } },
+        { name: 'thông báo là UI state, UI báo đã hiện: đúng một lần, không mất', run: function () { return steps({ case: 'state' }).every(function (s) { return s.metrics.shown === 1 && s.metrics.lost === M(m, 'lost.no'); }); } }] });
+  })();
 })();

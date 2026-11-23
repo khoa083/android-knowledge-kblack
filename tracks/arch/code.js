@@ -87,4 +87,31 @@
     'class MyBookingsViewModel(private val repo: BookingRepository) : ViewModel() { val state = repo.bookings.stateIn(viewModelScope, WhileSubscribed(5_000), emptyList()) }',
     c('// hai màn hình đọc cùng một nguồn: sự kiện đi lên, state đi xuống', '// both screens read the same source: events go up, state comes down')
   ]);
+  add('g3.sticky', [
+    'class BookingViewModel(private val repo: BookingRepository) : ViewModel() {',
+    '    val state = MutableStateFlow(BookingState())',
+    '    fun book(slot: Slot) = viewModelScope.launch { repo.book(slot); state.update { it.copy(showSuccess = true) } }',
+    '}',
+    c('// Activity (trong repeatOnLifecycle(STARTED)): mỗi lần nhận showSuccess = true thì hiện Toast', '// Activity (inside repeatOnLifecycle(STARTED)): show a Toast whenever showSuccess = true arrives'),
+    'vm.state.collect { if (it.showSuccess) Toast.makeText(this, R.string.booked, Toast.LENGTH_SHORT).show() }'
+  ]);
+  add('g3.shared', [
+    'class BookingViewModel(private val repo: BookingRepository) : ViewModel() {',
+    c('    val events = MutableSharedFlow<String>()           // không replay, không buffer', '    val events = MutableSharedFlow<String>()           // no replay, no buffer'),
+    '    fun book(slot: Slot) = viewModelScope.launch {',
+    c('        repo.book(slot); events.emit("booked")         // không ai thu thập: trả về ngay, giá trị bị bỏ', '        repo.book(slot); events.emit("booked")         // nobody collecting: returns at once, the value is dropped'),
+    '    }',
+    '}',
+    c('// Activity mới bắt đầu thu thập sau khi emit đã xảy ra: không nhận được gì', '// the new Activity starts collecting after the emit happened: it receives nothing')
+  ]);
+  add('g3.state', [
+    'data class BookingState(val slots: List<Slot> = emptyList(), val userMessage: String? = null)',
+    'class BookingViewModel(private val repo: BookingRepository) : ViewModel() {',
+    '    val state = MutableStateFlow(BookingState())',
+    c('    fun messageShown() = state.update { it.copy(userMessage = null) }   // UI báo: đã hiện xong', '    fun messageShown() = state.update { it.copy(userMessage = null) }   // the UI reports: shown'),
+    '    fun book(slot: Slot) = viewModelScope.launch { repo.book(slot); state.update { it.copy(userMessage = "booked") } } }',
+    '// UI (Compose)',
+    'state.userMessage?.let { msg -> LaunchedEffect(msg) { snackbarHostState.showSnackbar(msg)',
+    '    vm.messageShown() } }'
+  ]);
 })();

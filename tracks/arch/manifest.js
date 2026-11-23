@@ -8,11 +8,13 @@ ADE.registerTrack({
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
     { id: 'g1', titleKey: 'track.arch.g1.title', sims: ['arch.god'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'g2', titleKey: 'track.arch.g2.title', sims: ['arch.layers', 'arch.ssot'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
+    { id: 'g2', titleKey: 'track.arch.g2.title', sims: ['arch.layers', 'arch.ssot'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'g3', titleKey: 'track.arch.g3.title', sims: ['arch.events'], simAfter: 'hook', bridges: ['X12'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'arch-god-activity', model: 'arch.god', titleKey: 'track.arch.preset.god' },
-    { id: 'arch-layers', model: 'arch.layers', titleKey: 'track.arch.preset.layers' }
+    { id: 'arch-layers', model: 'arch.layers', titleKey: 'track.arch.preset.layers' },
+    { id: 'arch-events', model: 'arch.events', titleKey: 'track.arch.preset.events' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

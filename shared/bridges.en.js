@@ -20,5 +20,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X10.title': 'Flow variance',
   'shared.bridge.X10.summary': 'Flow<out T> is covariant: a Flow<Doctor> can be used where a Flow<Staff> is expected, because Flow only gives T out. The owner chapter explains out, in and invariance.',
   'shared.bridge.X11.title': 'by remember and State.getValue',
-  'shared.bridge.X11.summary': 'var x by remember { mutableStateOf(…) } is just a delegate: reading x calls State.getValue, which reads the state.value that Compose tracks.'
+  'shared.bridge.X11.summary': 'var x by remember { mutableStateOf(…) } is just a delegate: reading x calls State.getValue, which reads the state.value that Compose tracks.',
+  'shared.bridge.X12.title': 'One-off events and UI state',
+  'shared.bridge.X12.summary': 'Messages or navigation coming from the ViewModel should be part of UI state, with the UI reporting back once handled; do not send them through a Channel or SharedFlow. The owner chapter shows the message repeating and getting lost across a rotation.'
 });
