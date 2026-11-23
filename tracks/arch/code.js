@@ -284,4 +284,22 @@
     c('// :app phụ thuộc :core:data-impl và nối DI (@Binds, chương G6)', '// :app depends on :core:data-impl and wires DI (@Binds, chapter G6)'),
     c('// đổi mã Room trong data-impl: :feature:booking không phụ thuộc module đó', '// changing Room code in data-impl: :feature:booking does not depend on that module')
   ]);
+  add('g10.real', [
+    '@Test fun booking_showsSlots() = runTest {',
+    c('    val vm = BookingViewModel(SlotRepository(RetrofitSlotApi(BASE_URL), realDao))   // mạng thật', '    val vm = BookingViewModel(SlotRepository(RetrofitSlotApi(BASE_URL), realDao))   // the real network'),
+    '    vm.load(today)',
+    c('    assertEquals(2, vm.state.value.slots.size)        // hôm nay 2 giờ trống; mai có thể khác', '    assertEquals(2, vm.state.value.slots.size)        // 2 free slots today; tomorrow may differ'),
+    '}',
+    c('// mất mạng, máy chủ chậm, dữ liệu đổi: test lúc qua lúc trượt', '// offline, a slow server, changed data: the test passes or fails at random')
+  ]);
+  add('g10.fakes', [
+    c('class FakeSlotRepository : SlotRepository {          // trong source set test', 'class FakeSlotRepository : SlotRepository {          // in the test source set'),
+    '    val slots = MutableStateFlow(listOf(slot9h, slot930))',
+    '    override fun slots(day: LocalDate) = slots }',
+    '@Test fun booking_showsSlots() = runTest {',
+    '    val vm = BookingViewModel(FakeSlotRepository()); vm.load(today)',
+    c('    assertEquals(2, vm.state.value.slots.size) }      // chạy trên JVM, rất nhanh, luôn cùng kết quả', '    assertEquals(2, vm.state.value.slots.size) }      // runs on the JVM, fast, same result every time'),
+    c('// repository: FakeSlotApi + FakeSlotDao; DAO: Room.inMemoryDatabaseBuilder trên thiết bị hay Robolectric', '// repository: FakeSlotApi + FakeSlotDao; DAO: Room.inMemoryDatabaseBuilder on a device or Robolectric'),
+    c('// UI: createComposeRule(), ViewModel nhận repository giả', '// UI: createComposeRule(), the ViewModel gets a fake repository')
+  ]);
 })();

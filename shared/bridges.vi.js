@@ -22,5 +22,11 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X11.title': 'by remember và State.getValue',
   'shared.bridge.X11.summary': 'var x by remember { mutableStateOf(…) } chỉ là một delegate: đọc x là gọi State.getValue, tức đọc state.value mà Compose theo dõi.',
   'shared.bridge.X12.title': 'Sự kiện một lần và UI state',
-  'shared.bridge.X12.summary': 'Thông báo hay điều hướng phát từ ViewModel nên là một phần của UI state, và UI báo lại khi đã xử lý; đừng gửi qua Channel hay SharedFlow. Chương chủ sở hữu cho thấy thông báo lặp lại và bị mất qua một lần xoay màn hình.'
+  'shared.bridge.X12.summary': 'Thông báo hay điều hướng phát từ ViewModel nên là một phần của UI state, và UI báo lại khi đã xử lý; đừng gửi qua Channel hay SharedFlow. Chương chủ sở hữu cho thấy thông báo lặp lại và bị mất qua một lần xoay màn hình.',
+  'shared.bridge.X13.title': 'Kiểm thử theo tầng',
+  'shared.bridge.X13.summary': 'Mỗi tầng test được riêng nhờ nhận phụ thuộc qua constructor: ViewModel và repository chạy trên JVM với fake, coroutine chạy bằng runTest, giao diện dùng test Compose. Chương chủ sở hữu đặt chúng vào tháp kiểm thử.',
+  'shared.bridge.X14.title': 'Ngoại lệ và lỗi qua các tầng',
+  'shared.bridge.X14.summary': 'catch quá rộng nuốt cả lỗi lập trình và CancellationException. Chương chủ sở hữu giảng cơ chế ngoại lệ của Kotlin; chương kiến trúc dùng nó để đổi lỗi dự đoán được thành failure ở repository.',
+  'shared.bridge.X15.title': 'by viewModels() và DI',
+  'shared.bridge.X15.summary': 'by viewModels() là một delegate (ViewModelLazy) lấy ViewModel từ ViewModelStore; với Hilt, ViewModel nhận phụ thuộc qua @Inject constructor. Chương chủ sở hữu giảng delegate.'
 });

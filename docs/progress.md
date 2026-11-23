@@ -750,3 +750,15 @@ Trạng thái: `chưa / đang / xong`.
   - Nút và chip đang chọn dùng màu nhấn `--brand` thay cho `--ink` ở cả hai theme.
   - Số đo ghi ở `docs/research/global.md` §5.y.
   - Kiểm: report 0 lỗi, 120 cảnh báo; đã xem ảnh chương K8 ở cả hai theme.
+- **Kiến trúc · G10 (2026-11-24, phiên sau khi reset):** kiểm thử theo tầng (`arch_v2_g10.py`, 8 mục). Nội dung:
+  - tháp kiểm thử;
+  - test double (fake được ưu tiên);
+  - mỗi tầng test thế nào;
+  - 2 bug (CI chập chờn vì gọi máy chủ thật; tháp lộn ngược); bài tập FakeSlotApi; quiz 4 câu.
+  - **Sim `arch.testing`:** hai cách (phụ thuộc thật, fake từng tầng). Tab chính là **ma trận** tầng × chạy ở, phụ thuộc thay bằng, thời gian, kết quả.
+  - **Cầu nối mới** (đã thêm vào manifest các track liên quan):
+    - X13: G10 → Coroutines A9 và Runtime B9;
+    - X14: Kotlin K6 → G8;
+    - X15: Kotlin K11 → G6.
+  - Thêm 2 nguồn, 1 thuật ngữ, 1 preset.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch, kotlin, runtime 0; coroutines 4 (lỗi cũ); routes-check không lỗi; đã xem ảnh.

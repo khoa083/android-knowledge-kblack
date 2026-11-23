@@ -13,5 +13,8 @@ ADE.addBridges([
   { id: 'X9', owner: 'kotlin/k8', links: ['coroutines/a8'] },
   { id: 'X10', owner: 'kotlin/k10', links: ['coroutines/fl'] },
   { id: 'X11', owner: 'kotlin/k11', links: ['runtime/b4'] },
-  { id: 'X12', owner: 'arch/g3', links: ['coroutines/a8', 'runtime/sh'] }
+  { id: 'X12', owner: 'arch/g3', links: ['coroutines/a8', 'runtime/sh'] },
+  { id: 'X13', owner: 'arch/g10', links: ['coroutines/a9', 'runtime/b9'] },
+  { id: 'X14', owner: 'kotlin/k6', links: ['arch/g8'] },
+  { id: 'X15', owner: 'kotlin/k11', links: ['arch/g6'] }
 ]);

@@ -122,3 +122,14 @@ Kiểm URL: topic/architecture/data-layer/offline-first HTTP 200 (curl), đọc 
 | Module cao và module cài đặt cùng phụ thuộc module trừu tượng | `ax-modularization-patterns` | stable |
 | internal: thấy trong cùng module | `kt-visibility` | stable |
 | Kết quả build (vòng, internal, chỉ build lại data-impl) | mô tả theo quy tắc trên; site không chạy Gradle | simplified |
+
+## G10 · Kiểm thử theo tầng (2026-11-24)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Tháp: test nhỏ nhanh và tin cậy, test lớn trung thực hơn nhưng khó giữ; nhiều test nhỏ, ít test lớn; lỗi bắt bằng unit test sửa trong vài phút | `ax-test-strategies` | stable |
+| Test local chạy trên máy phát triển; instrumented chạy trên thiết bị | `ax-test-fundamentals` | stable |
+| Fake (cài đặt chạy được, chỉ cho test) được ưu tiên; mock có kỳ vọng tương tác; stub, dummy, spy, shadow; định nghĩa khác nhau giữa các nguồn (Fowler) | `ax-test-doubles` | stable |
+| Thời gian chạy (mili giây, giây, phút) | cấp độ minh họa | simplified |
+
+Cầu nối mới: X13 (G10 → Coroutines A9, Runtime B9), X14 (Kotlin K6 → G8), X15 (Kotlin K11 → G6).

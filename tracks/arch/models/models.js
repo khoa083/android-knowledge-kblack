@@ -594,4 +594,46 @@
         { name: 'đánh dấu internal: feature dùng DAO thành lỗi biên dịch', run: function () { return G.visibility[2].build === 'internal' && G.visibility[2].e.some(function (x) { return x.cls === 'err'; }); } },
         { name: 'module trừu tượng: feature chỉ phụ thuộc data-api, không phụ thuộc data-impl', run: function () { var e = G.abstraction[2].e; return e.some(function (x) { return x.from === 'book' && x.to === 'api'; }) && !e.some(function (x) { return x.from === 'book' && x.to === 'impl'; }); } }] });
   })();
+  /* ================= G10: kiểm thử theo tầng =================
+     Theo Fundamentals of testing (test local chạy trên máy phát triển, instrumented chạy trên thiết bị), Testing strategies (tháp:
+     nhiều test nhỏ nhanh và tin cậy, ít test lớn có độ trung thực cao; lỗi bắt bằng unit test sửa trong vài phút), Test doubles
+     (fake có cài đặt chạy được nhưng chỉ hợp cho test, được ưu tiên; mock có kỳ vọng về tương tác; stub, dummy, spy).
+     Bảng của hình "Ma trận kiểm thử" lấy từ ADE.archTesting. */
+  (function () {
+    var m = 'testing', CASES = ['real', 'fakes'], KS = ['s1', 's2', 's3', 's4'];
+    var ROWS = ['vm', 'repo', 'dao', 'ui'];
+    // mỗi hàng: [chạy ở, phụ thuộc thay bằng, thời gian, ổn định, kiểu ô ('', 'bad')]
+    var T = {
+      real: { vm: ['jvmNet', 'realRepo', 'seconds', 'flaky', 'bad'], repo: ['jvmNet', 'realApi', 'seconds', 'flaky', 'bad'], dao: ['device', 'roomTemp', 'seconds', 'stable', ''], ui: ['device', 'wholeApp', 'minutes', 'flaky', 'bad'] },
+      fakes: { vm: ['jvm', 'fakeRepo', 'millis', 'stable', ''], repo: ['jvm', 'fakeApiDao', 'millis', 'stable', ''], dao: ['deviceOrRobo', 'roomMemory', 'seconds', 'stable', ''], ui: ['device', 'fakeVmRepo', 'seconds', 'stable', ''] }
+    };
+    ADE.archTesting = { ROWS: ROWS, cell: function (c, r) { return T[c][r]; } };
+    var STEP = {   // [node sáng, trạng thái node, loại bước, dòng mã, loại log, chủ thể]
+      real: [[['test', 'vm', 'repo', 'api'], { test: 'done', vm: 'done', repo: 'done', api: 'surprise', dao: 'done' }, 'pitfall', [1, 2, 3, 4], 'run', 'test'],
+        [['repo', 'api'], { test: 'done', vm: 'done', repo: 'surprise', api: 'surprise', dao: 'done' }, 'pitfall', [2, 6], 'exception', 'api'],
+        [['repo', 'dao'], { test: 'done', vm: 'skipped', repo: 'done', api: 'skipped', dao: 'done' }, 'mechanism', [2], 'run', 'dao'],
+        [['test', 'vm', 'repo', 'api', 'dao'], { test: 'surprise', vm: 'done', repo: 'done', api: 'surprise', dao: 'done' }, 'pitfall', [6], 'observe', 'test']],
+      fakes: [[['test', 'vm', 'repo'], { test: 'done', vm: 'done', repo: 'done', api: 'skipped', dao: 'skipped' }, 'scenario', [1, 2, 3, 4, 5, 6], 'complete', 'test'],
+        [['repo', 'api', 'dao'], { test: 'done', vm: 'skipped', repo: 'done', api: 'done', dao: 'done' }, 'mechanism', [7], 'complete', 'repo'],
+        [['dao'], { test: 'done', vm: 'skipped', repo: 'skipped', api: 'skipped', dao: 'done' }, 'mechanism', [7], 'run', 'dao'],
+        [['test', 'vm'], { test: 'done', vm: 'done', repo: 'done', api: 'skipped', dao: 'skipped' }, 'mechanism', [8], 'complete', 'test']]
+    };
+    var SIG = [{ edge: 'e1', tok: 'signal' }, { edge: 'e2', tok: 'signal' }];
+    function steps(s) {
+      return STEP[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var row = T[s.case][ROWS[i]];
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[0], nodeStates: ns,
+          metrics: { where: M(m, 'where.' + row[0]), time: M(m, 'time.' + row[2]), stable: M(m, 'stable.' + row[3]) },
+          codeHighlight: { snippet: 'g10.' + s.case, lines: p[3] }, movingSignals: SIG, logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (p[2] === 'pitfall' ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'real' }; }, act: setter(['case']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi cách có 4 bước, một bước cho mỗi tầng', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === ROWS.length; }); } },
+        { name: 'dùng mạng thật: test ViewModel chập chờn', run: function () { return steps({ case: 'real' })[0].metrics.stable === M(m, 'stable.flaky'); } },
+        { name: 'dùng fake: test ViewModel và repository chạy trên JVM, ổn định', run: function () { var a = steps({ case: 'fakes' }); return a[0].metrics.where === M(m, 'where.jvm') && a[1].metrics.where === M(m, 'where.jvm') && a.every(function (s) { return s.metrics.stable === M(m, 'stable.stable'); }); } }] });
+  })();
 })();

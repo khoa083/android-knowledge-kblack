@@ -247,4 +247,22 @@
       h('div', { class: 'vz-legend' }, h('span', { class: 'vz-dg-lg' }, h('i', { class: 'e' }), h('span', { text: T('md.lg.dep') })),
         h('span', { class: 'vz-dg-lg' }, h('i', { class: 'e bad' }), h('span', { text: T('md.lg.bad') })))));
   }, { labelKey: K + 'tab.md', icon: 'layers' });
+
+  /* ---------- G10: ma trận tầng × cách chạy test ---------- */
+  ADE.registerScreen('arch.testing', function (box, ctx) {
+    var h = ADE.ui.h, c = ctx.state.case, i = Math.max(0, idx(ctx)), X = ADE.archTesting;
+    var head = h('tr', null, ['layer', 'where', 'double', 'time', 'stable'].map(function (k) { return h('th', { text: T('ts.col.' + k) }); }));
+    var tb = h('tbody');
+    X.ROWS.forEach(function (r, k) {
+      var cell = X.cell(c, r), shown = k <= i, on = k === i;
+      var cls = function (bad) { return !shown ? 'dim' : (bad ? 'bad' : (on ? 'hl' : null)); };
+      tb.appendChild(h('tr', null, h('th', { class: on ? 'hl' : null, text: T('ts.row.' + r) }),
+        h('td', { class: cls(cell[4] === 'bad' && cell[0] === 'jvmNet'), text: shown ? T('ts.where.' + cell[0]) : '·' }),
+        h('td', { class: cls(false), text: shown ? T('ts.double.' + cell[1]) : '·' }),
+        h('td', { class: cls(false), text: shown ? T('ts.time.' + cell[2]) : '·' }),
+        h('td', { class: cls(cell[3] === 'flaky'), text: shown ? T('ts.stable.' + cell[3]) : '·' })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('ts.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)), h('div', { class: 'vz-legend', text: T('ts.legend') })));
+  }, { labelKey: K + 'tab.ts', icon: 'grid' });
 })();

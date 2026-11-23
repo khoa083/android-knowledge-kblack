@@ -12,10 +12,11 @@ ADE.registerTrack({
     { id: 'g3', titleKey: 'track.arch.g3.title', sims: ['arch.events'], simAfter: 'hook', bridges: ['X12'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'g4', titleKey: 'track.arch.g4.title', sims: ['arch.offline'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'g5', titleKey: 'track.arch.g5.title', sims: ['arch.usecase'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'g6', titleKey: 'track.arch.g6.title', sims: ['arch.di'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'g6', titleKey: 'track.arch.g6.title', sims: ['arch.di'], simAfter: 'hook', bridges: ['X15'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'g7', titleKey: 'track.arch.g7.title', sims: ['arch.mvi'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'g8', titleKey: 'track.arch.g8.title', sims: ['arch.failure'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'g9', titleKey: 'track.arch.g9.title', sims: ['arch.modules'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
+    { id: 'g8', titleKey: 'track.arch.g8.title', sims: ['arch.failure'], simAfter: 'hook', bridges: ['X14'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'g9', titleKey: 'track.arch.g9.title', sims: ['arch.modules'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'g10', titleKey: 'track.arch.g10.title', sims: ['arch.testing'], simAfter: 'hook', bridges: ['X13'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'arch-god-activity', model: 'arch.god', titleKey: 'track.arch.preset.god' },
@@ -26,7 +27,8 @@ ADE.registerTrack({
     { id: 'arch-di', model: 'arch.di', titleKey: 'track.arch.preset.di' },
     { id: 'arch-mvi', model: 'arch.mvi', titleKey: 'track.arch.preset.mvi' },
     { id: 'arch-failure', model: 'arch.failure', titleKey: 'track.arch.preset.failure' },
-    { id: 'arch-modules', model: 'arch.modules', titleKey: 'track.arch.preset.modules' }
+    { id: 'arch-modules', model: 'arch.modules', titleKey: 'track.arch.preset.modules' },
+    { id: 'arch-testing', model: 'arch.testing', titleKey: 'track.arch.preset.testing' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

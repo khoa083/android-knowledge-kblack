@@ -51,4 +51,8 @@
   V('modules', { layout: 'pipeline', nodes: [N('modules', 'app', 0, 0, 'android', 'ui'), N('modules', 'feat', 3, 0, 'screen', 'state'), N('modules', 'data', 6, 0, 'store', 'job')],
     edges: [E('e1', 'app', 'feat'), E('e2', 'feat', 'data')],
     metrics: [T('modules', 'ff'), T('modules', 'cycle'), T('modules', 'impl')] });
+  /* G10: test → ViewModel → repository → mạng và database */
+  V('testing', { layout: 'pipeline', nodes: [N('testing', 'test', 0, 0, 'check', 'job'), N('testing', 'vm', 3, 0, 'layers', 'state'), N('testing', 'repo', 6, 0, 'store', 'runtime'), N('testing', 'api', 9, 0, 'source', 'job'), N('testing', 'dao', 9, 3, 'store', 'state')],
+    edges: [E('e1', 'test', 'vm'), E('e2', 'vm', 'repo'), E('e3', 'repo', 'api'), E('e4', 'repo', 'dao')],
+    metrics: [T('testing', 'where'), T('testing', 'time'), T('testing', 'stable')] });
 })();
