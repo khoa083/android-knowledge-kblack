@@ -15,15 +15,19 @@ ADE.registerTrack({
     { id: 'k5', titleKey: 'track.kotlin.k5.title', sims: ['kotlin.sealed'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'k6', titleKey: 'track.kotlin.k6.title', sims: ['kotlin.exception'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'k7', titleKey: 'track.kotlin.k7.title', sims: ['kotlin.collections'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'k8', titleKey: 'track.kotlin.k8.title', sims: ['kotlin.inline'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'k8', titleKey: 'track.kotlin.k8.title', sims: ['kotlin.inline'], simAfter: 'hook', bridges: ['X9'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'k9', titleKey: 'track.kotlin.k9.title', sims: ['kotlin.sequence'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'k10', titleKey: 'track.kotlin.k10.title', sims: ['kotlin.variance'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'k11', titleKey: 'track.kotlin.k11.title', sims: ['kotlin.delegate'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'k10', titleKey: 'track.kotlin.k10.title', sims: ['kotlin.variance'], simAfter: 'hook', bridges: ['X10'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'k11', titleKey: 'track.kotlin.k11.title', sims: ['kotlin.delegate'], simAfter: 'hook', bridges: ['X11'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'k12', titleKey: 'track.kotlin.k12.title', sims: ['kotlin.scope'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'k13', titleKey: 'track.kotlin.k13.title', sims: ['kotlin.jvm'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
-    { id: 'kotlin-int-division', model: 'kotlin.eval', titleKey: 'track.kotlin.preset.eval' }
+    { id: 'kotlin-int-division', model: 'kotlin.eval', titleKey: 'track.kotlin.preset.eval' },
+    { id: 'kotlin-smart-cast', model: 'kotlin.smartcast', titleKey: 'track.kotlin.preset.smartcast' },
+    { id: 'kotlin-hashset-lost', model: 'kotlin.hashset', titleKey: 'track.kotlin.preset.hashset' },
+    { id: 'kotlin-foreach-return', model: 'kotlin.inline', titleKey: 'track.kotlin.preset.inline' },
+    { id: 'kotlin-sequence-lazy', model: 'kotlin.sequence', titleKey: 'track.kotlin.preset.sequence' }
   ],
   logKinds: ['observe', 'check', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

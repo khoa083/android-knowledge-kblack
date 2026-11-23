@@ -14,5 +14,11 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X7.title': 'Motion with purpose',
   'shared.bridge.X7.summary': 'Material motion principles connect to the Compose animation mechanism: what motion is for and how it runs.',
   'shared.bridge.X8.title': 'UX writing and localization',
-  'shared.bridge.X8.summary': 'Interface text has to survive several languages: length, grammar, plurals and how strings are organized on Android.'
+  'shared.bridge.X8.summary': 'Interface text has to survive several languages: length, grammar, plurals and how strings are organized on Android.',
+  'shared.bridge.X9.title': 'Lambdas holding objects, and lifecycle-aware collection',
+  'shared.bridge.X9.summary': 'A lambda kept for a long time holds its whole closure, including an Activity\'s this. Receive updates through a Flow collected with the lifecycle instead of a global callback.',
+  'shared.bridge.X10.title': 'Flow variance',
+  'shared.bridge.X10.summary': 'Flow<out T> is covariant: a Flow<Doctor> can be used where a Flow<Staff> is expected, because Flow only gives T out. The owner chapter explains out, in and invariance.',
+  'shared.bridge.X11.title': 'by remember and State.getValue',
+  'shared.bridge.X11.summary': 'var x by remember { mutableStateOf(…) } is just a delegate: reading x calls State.getValue, which reads the state.value that Compose tracks.'
 });

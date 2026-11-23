@@ -14,5 +14,11 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X7.title': 'Chuyển động có mục đích',
   'shared.bridge.X7.summary': 'Nguyên tắc chuyển động của Material nối với cơ chế animation của Compose: chuyển động dùng để làm gì và chạy ra sao.',
   'shared.bridge.X8.title': 'UX writing và bản địa hóa',
-  'shared.bridge.X8.summary': 'Chữ trong giao diện phải sống được qua nhiều ngôn ngữ: độ dài, ngữ pháp, số nhiều và cách tổ chức chuỗi trên Android.'
+  'shared.bridge.X8.summary': 'Chữ trong giao diện phải sống được qua nhiều ngôn ngữ: độ dài, ngữ pháp, số nhiều và cách tổ chức chuỗi trên Android.',
+  'shared.bridge.X9.title': 'Lambda giữ object và thu thập theo vòng đời',
+  'shared.bridge.X9.summary': 'Một lambda được lưu lâu dài giữ cả closure của nó, kể cả this của Activity. Nhận cập nhật qua Flow thu thập theo vòng đời thay vì một callback toàn cục.',
+  'shared.bridge.X10.title': 'Variance của Flow',
+  'shared.bridge.X10.summary': 'Flow<out T> hiệp biến: Flow<Doctor> dùng được ở chỗ cần Flow<Staff>, vì Flow chỉ trả T ra. Chương chủ sở hữu giải thích out, in và bất biến.',
+  'shared.bridge.X11.title': 'by remember và State.getValue',
+  'shared.bridge.X11.summary': 'var x by remember { mutableStateOf(…) } chỉ là một delegate: đọc x là gọi State.getValue, tức đọc state.value mà Compose theo dõi.'
 });
