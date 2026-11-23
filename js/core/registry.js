@@ -11,7 +11,7 @@
   ADE.reservedIds = RESERVED_PREFIX.concat(RESERVED_ROUTES);
 
   var LEVELS = ['beginner', 'intermediate', 'advanced'];
-  var STATUSES = ['stable', 'draft'];
+  var STATUSES = ['stable', 'draft', 'soon'];   // soon: track tạm đóng ("Sắp ra mắt"); nội dung vẫn nạp để report kiểm, nhưng giao diện không mở chương
 
   ADE.tracks = [];
   ADE.trackMap = {};
@@ -121,6 +121,8 @@
     return out;
   };
   ADE.domainLabel = function (id) { return ADE.hasKey('domain.' + id) ? ADE.t('domain.' + id) : id; };
+  /* Track có mở cho người đọc không (status 'soon' = tạm đóng). Giao diện chặn chương, preset, tìm kiếm của track đóng; resolveRef/allPresets giữ nguyên để report kiểm đủ. */
+  ADE.trackOpen = function (t) { return !!t && t.status !== 'soon'; };
   ADE.allPresets = function () {
     var out = [];
     ADE.tracks.forEach(function (t) { t.presets.forEach(function (p) { out.push({ track: t, preset: p }); }); });

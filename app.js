@@ -142,7 +142,7 @@
     if (trk) {
       var tp = trackProgress(trk);
       ctx.appendChild(h('span', { class: 'ctx-track' }, h('i', { class: 'accent-dot', style: 'background:' + trk.accent, 'aria-hidden': 'true' }), h('span', { text: ADE.t(trk.titleKey) })));
-      ctx.appendChild(h('span', { class: 'ctx-prog', title: ADE.t('app.progress') }, h('progress', { max: String(tp.total), value: String(tp.done), 'aria-label': ADE.t('app.progress') }), h('span', { text: tp.done + '/' + tp.total })));
+      if (ADE.trackOpen(trk)) ctx.appendChild(h('span', { class: 'ctx-prog', title: ADE.t('app.progress') }, h('progress', { max: String(tp.total), value: String(tp.done), 'aria-label': ADE.t('app.progress') }), h('span', { text: tp.done + '/' + tp.total })));
     }
     var langSeg = h('div', { class: 'seg', role: 'group', 'aria-label': ADE.t('app.language') });
     ADE.langs.forEach(function (l) {
@@ -199,6 +199,7 @@
   function renderRail(r) {
     ui.clear(rail);
     var trk = r.page === 'track' ? ADE.getTrack(r.track) : null;
+    if (trk && !ADE.trackOpen(trk)) trk = null;   // track tạm đóng: không có cột chương
     shell.classList.toggle('has-rail', !!trk);
     if (!trk) return;
     var collapsed = root.classList.contains('rail-collapsed');
@@ -249,7 +250,7 @@
       if (drawerDomain !== 'all' && t.domain !== drawerDomain) return;
       var det = h('details', { class: 'acc' }, h('summary', null, h('i', { class: 'accent-dot', style: 'background:' + t.accent, 'aria-hidden': 'true' }), h('span', { text: t.code + ' · ' + ADE.t(t.titleKey) })));
       det.appendChild(h('a', { class: 'acc-link', href: href(t.id), onclick: function () { toggleDrawer(false); }, text: ADE.t('app.overview') }));
-      t.chapters.forEach(function (c) {
+      if (ADE.trackOpen(t)) t.chapters.forEach(function (c) {
         var steps = stepTitles(c);
         var ch = h('details', { class: 'acc sub' }, h('summary', null, h('span', { text: ADE.t(c.titleKey) })));
         ch.appendChild(h('a', { class: 'acc-link', href: href(t.id + '/' + c.id), onclick: function () { toggleDrawer(false); }, text: ADE.t('app.openChapter') }));
@@ -381,7 +382,7 @@
       return h('label', { class: 'field inline', for: id }, h('span', { text: ADE.t(labelKey) }), s);
     };
     fb.appendChild(sel('f-level', 'app.filterLevel', [['all', ADE.t('app.all')], ['beginner', ADE.t('app.level.beginner')], ['intermediate', ADE.t('app.level.intermediate')], ['advanced', ADE.t('app.level.advanced')]]));
-    fb.appendChild(sel('f-status', 'app.filterStatus', [['all', ADE.t('app.all')], ['stable', ADE.t('app.status.stable')], ['draft', ADE.t('app.status.draft')]]));
+    fb.appendChild(sel('f-status', 'app.filterStatus', [['all', ADE.t('app.all')], ['stable', ADE.t('app.status.stable')], ['draft', ADE.t('app.status.draft')], ['soon', ADE.t('app.status.soon')]]));
     cat.appendChild(fb);
     var shown = 0;
     doms.forEach(function (d) {
@@ -465,7 +466,7 @@
       h('span', { class: 'card-t', text: ADE.t(t.titleKey) }),
       h('span', { class: 'card-s', text: ADE.t(t.summaryKey) }),
       metaChips(t),
-      h('span', { class: 'card-p' }, h('progress', { max: String(tp.total), value: String(tp.done), 'aria-label': ADE.t('app.progress') }), h('span', { text: ADE.t('app.chaptersDone', { n: tp.done, total: tp.total }) })));
+      !ADE.trackOpen(t) ? null : h('span', { class: 'card-p' }, h('progress', { max: String(tp.total), value: String(tp.done), 'aria-label': ADE.t('app.progress') }), h('span', { text: ADE.t('app.chaptersDone', { n: tp.done, total: tp.total }) })));
   }
 
   /* ================= track ================= */
@@ -480,6 +481,10 @@
       var pl = h('p', { class: 'hint' }, ADE.t('app.prereq') + ': ');
       t.prerequisites.forEach(function (p, i) { var pt = ADE.getTrack(p); if (pt) { if (i) pl.appendChild(document.createTextNode(', ')); pl.appendChild(h('a', { href: href(p), text: ADE.t(pt.titleKey) })); } });
       wrap.appendChild(pl);
+    }
+    if (!ADE.trackOpen(t)) {   // track tạm đóng: chỉ báo "Sắp ra mắt", không liệt kê chương
+      wrap.appendChild(h('section', { class: 'panel pad soon-panel', 'data-fk': 'soon' }, h('h2', { class: 'caps', text: ADE.t('app.soonTitle') }), para(ADE.t('app.soonBody'))));
+      return wrap;
     }
     var list = h('ol', { class: 'chapter-list' });
     t.chapters.forEach(function (c, i) {
@@ -547,6 +552,7 @@
   function pageChapter(r) {
     var info = ADE.getChapter(r.track, r.chapter);
     if (!info) return pageNotFound();
+    if (!ADE.trackOpen(info.track)) return pageTrack({ track: info.track.id });
     var t = info.track, c = info.chapter, i = info.index, base = ADE.chapterKey(t.id, c.id);
     var title = ADE.t(c.titleKey);
     setTitle(title + ' · ' + ADE.t(t.titleKey));
@@ -626,14 +632,14 @@
   /* ================= Live Explorer ================= */
   function pageLive(r) {
     setTitle(ADE.t('app.live'));
-    var all = ADE.allPresets();
+    var all = ADE.allPresets().filter(function (x) { return ADE.trackOpen(x.track); });
     var wrap = h('article', { class: 'page live' });
     wrap.appendChild(h('header', { class: 'page-h' }, h('h1', { class: 'caps', text: ADE.t('app.live') }), para(ADE.t('app.liveDesc'))));
     if (!all.length) { wrap.appendChild(empty('app.noPresets')); return wrap; }
     var pid = r.query.preset, cur0 = all.filter(function (x) { return x.preset.id === pid; })[0] || all[0];
     var sel = h('select', { id: 'preset', 'data-fk': 'preset', class: 'sel wide', onchange: function () { ADE.router.go({ page: 'live', query: { preset: sel.value } }); } });
     ADE.tracks.forEach(function (t) {
-      if (!t.presets.length) return;
+      if (!t.presets.length || !ADE.trackOpen(t)) return;
       var og = h('optgroup', { label: t.code + ' · ' + ADE.t(t.titleKey) });
       t.presets.forEach(function (p) { og.appendChild(h('option', { value: p.id, selected: p.id === cur0.preset.id ? true : null, text: ADE.t(p.titleKey) })); });
       sel.appendChild(og);

@@ -15,6 +15,7 @@
     ADE.tracks.forEach(function (t) {
       var tt = ADE.t(t.titleKey);
       out.push({ type: 'track', title: tt, text: tt + ' ' + ADE.t(t.summaryKey), href: href(t.id), meta: ADE.domainLabel(t.domain) });
+      if (!ADE.trackOpen(t)) return;   // track tạm đóng: chỉ tìm được trang track
       t.chapters.forEach(function (c) {
         var ct = ADE.t(c.titleKey), es = ADE.t(ADE.chapterKey(t.id, c.id, 'essence'));
         out.push({ type: 'chapter', title: ct, text: ct + ' ' + strip(es), snippet: strip(es), href: href(t.id + '/' + c.id), meta: tt });

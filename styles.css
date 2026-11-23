@@ -127,6 +127,8 @@ html.dev .i18n-missing { outline: 2px dashed var(--tok-error); outline-offset: 1
 .chip.on { background: var(--ink); color: var(--paper); font-weight: 700; }
 .chip b { font-weight: 700; padding-left: 4px; border-left: 1px solid currentColor; }
 .chip.status-draft { border-style: dashed; }
+.chip.status-soon { border-style: dotted; font-weight: 700; }
+.soon-panel { margin-top: 16px; border-left: 4px solid var(--accent, var(--line-strong)); }
 .badge { display: inline-block; padding: 1px 8px; font: 600 11px/1.5 var(--mono); border: 1px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); text-transform: uppercase; letter-spacing: .05em; }
 .badge-impl, .badge-android-impl, .badge-version, .badge-experimental { border-style: dashed; }
 .badge-simplified, .badge-quant-model { border-style: dotted; border-width: 2px; }

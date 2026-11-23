@@ -114,6 +114,10 @@ Thành phần dùng chung trong `styles.css`: khung `ADE.ui.mockFrame`; lớp `m
 
 **Quyết định của người dùng (2026-11-23):** chỉ track UI và UX dùng màn hình mẫu, vì chủ thể là màn hình và con người. Các track kỹ thuật (Coroutines, Runtime, Animation) và mọi track mới giữ sơ đồ node. Muốn đổi kiểu sơ đồ của track nào khác thì phải hỏi người dùng trước. Sim đầu tiên dùng: `ux.glance` (D1).
 
+### 4.3 Trạng thái track `soon` (thêm 2026-11-23)
+
+`status` của manifest thuộc `stable | draft | soon`. `ADE.trackOpen(t)` trả `false` cho track `soon`. Giao diện của track đóng: vẫn có thẻ trên trang chủ, chip trên thanh track và mục trong danh mục (nhãn "Sắp ra mắt / Coming soon", chip viền chấm), nhưng trang track chỉ có khung "Sắp ra mắt" (`data-fk="soon"`); đường dẫn chương chuyển sang trang track; không có cột chương, thanh tiến độ, chương trong danh mục, preset trong Live Explorer, hay chương/preset trong tìm kiếm. `resolveRef` và `allPresets` KHÔNG lọc, để `dev/report.html` vẫn kiểm đủ nội dung của track đóng. Thuật ngữ và hiểu lầm của track đóng vẫn hiện ở trang chung. Track-check chỉ chạy cho track đang mở. Đang dùng cho UX và UI (người dùng tạm dừng ngày 2026-11-23).
+
 ## 5. Route và lưu trữ
 
 `#/<lang>/<track>/<chapter>/<pos>` · `#/<lang>/live?preset=<id>&step=<n>`. Id cấm dùng làm id track: `app track job phase step badge a11y domain shared live misconceptions glossary sources about search dev`. Bước đổi bằng `history.replaceState`. `localStorage` có tiền tố `ade.` (`lang, theme, motion, sans, diagramOnly, rail, progress, last`), luôn bọc try/catch.

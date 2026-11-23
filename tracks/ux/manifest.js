@@ -3,7 +3,7 @@ ADE.registerTrack({
   id: 'ux', code: 'D', order: 40, domain: 'design',
   accent: '#C75976', icon: 'eye',
   titleKey: 'track.ux.title', summaryKey: 'track.ux.summary',
-  level: 'beginner', estMinutes: 360, status: 'stable',
+  level: 'beginner', estMinutes: 360, status: 'soon',
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
     { id: 'd0', titleKey: 'track.ux.d0.title', sims: ['ux.classify', 'ux.diamond'], bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
