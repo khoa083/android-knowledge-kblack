@@ -350,6 +350,37 @@
     c('// sửa: nhiều luồng thì dùng chế độ mặc định', '// fix: with several threads, use the default mode'),
     'val db: ClinicDb by lazy { openDb(context) }'
   ]);
+  add('scope.nestedApply', [
+    'fun draft() = Booking().apply {          // this = Booking',
+    c('    title = "Khám tổng quát"', '    title = "General checkup"'),
+    '    patient = Patient().apply {           // this = Patient',
+    '        name = "An"',
+    c('        title = "Bà"                     // Patient không có title!', '        title = "Mrs"                     // Patient has no title!'),
+    c('    }                                     // → gán vào Booking.title', '    }                                     // → assigns Booking.title'),
+    '}',
+    c('// booking.title bây giờ là "Bà"', '// booking.title is now "Mrs"'),
+    c('// sửa: đặt tên tham số để lỗi lộ ra lúc biên dịch', '// fix: name the parameter so the mistake shows at compile time'),
+    '    patient = Patient().also { p ->',
+    c('        p.name = "An"; p.salutation = "Bà"   // p.title sẽ là lỗi biên dịch', '        p.name = "An"; p.salutation = "Mrs"  // p.title would be a compile error')
+  ]);
+  add('scope.letElvis', [
+    'prefs.token?.let { api.refresh(it) } ?: logout()',
+    c('// refresh() trả null khi mất mạng → vế ?: cũng chạy', '// refresh() returns null when offline → the ?: side runs too'),
+    c('// sửa: tách hai trường hợp cho rõ', '// fix: separate the two cases explicitly'),
+    'val token = prefs.token',
+    'if (token == null) logout() else api.refresh(token) ?: showRetry()'
+  ]);
+  add('scope.dslMarker', [
+    'bookingForm {                                // this = Form',
+    c('    section("Bệnh nhân") {                   // this = Section', '    section("Patient") {                     // this = Section'),
+    '        field("name")',
+    '        field("phone")',
+    c('        section("Ghi chú") { }               // Section không có section() → Form.section!', '        section("Notes") { }                 // Section has no section() → Form.section!'),
+    '    }',
+    c('// sửa: gắn cùng một @DslMarker cho Form và Section', '// fix: put the same @DslMarker on Form and Section'),
+    '@DslMarker annotation class FormDsl',
+    c('@FormDsl class Form { … }   @FormDsl class Section { … }   // giờ dòng 5 là lỗi biên dịch', '@FormDsl class Form { … }   @FormDsl class Section { … }   // now line 5 is a compile error')
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',

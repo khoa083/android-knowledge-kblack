@@ -50,6 +50,10 @@
   V('delegate', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.collFail', run: K + 'fam.running' },
     nodes: [N('delegate', 'access', 0, 0, 'source', 'ui'), N('delegate', 'delegate', 3, 0, 'layers', 'state'), N('delegate', 'init', 6, 0, 'play', 'runtime'), N('delegate', 'value', 9, 0, 'store', 'job')],
     edges: [E('e1', 'access', 'delegate'), E('e2', 'delegate', 'init'), E('e3', 'init', 'value')], metrics: [T('delegate', 'mode'), T('delegate', 'runs'), T('delegate', 'instances')] });
+  /* K12: tên viết trong lambda → receiver / tham số gần nhất → receiver bên ngoài → kết quả */
+  V('scope', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.collFail', idle: K + 'fam.na' },
+    nodes: [N('scope', 'name', 0, 0, 'source', 'ui'), N('scope', 'near', 3, 0, 'target', 'state'), N('scope', 'far', 6, 0, 'layers', 'runtime'), N('scope', 'result', 9, 0, 'square', 'job')],
+    edges: [E('e1', 'name', 'near'), E('e2', 'near', 'far'), E('e3', 'far', 'result')], metrics: [T('scope', 'recv'), T('scope', 'res'), T('scope', 'out')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],

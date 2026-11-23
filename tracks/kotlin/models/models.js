@@ -428,6 +428,49 @@
         { name: 'NONE với hai luồng: các luồng có thể nhận object khác nhau (bẫy)', run: function () { var c = steps({ case: 'none' })[2]; return c.type === 'pitfall' && c.metrics.instances > 1; } }] });
   })();
 
+  /* ================= K12: scope function và DSL — một tên trong lambda được hiểu theo receiver gần nhất, rồi tới receiver bên ngoài =================
+     Theo Scope functions (bảng this/it, giá trị trả về; khuyên tránh lồng), Type-safe builders (@DslMarker: chỉ receiver gần nhất),
+     Null safety (?. và ?: — vế phải chạy khi vế trái null). */
+  (function () {
+    var m = 'scope', CASES = ['nestedApply', 'letElvis', 'dslMarker'];
+    // mỗi bước: [node, trạng thái node, số đo {recv, res, out}, loại bước, dòng mã, loại log, chủ thể log]
+    var P = {
+      nestedApply: [[['name'], {}, { recv: 'none', res: 'none', out: 'none' }, 'scenario', [1, 2, 3, 4, 5, 6, 7, 8], 'observe', 'name'],
+        [['name', 'near'], { near: 'done' }, { recv: 'booking', res: 'bookingTitle', out: 'titleOk' }, 'mechanism', [2, 3], 'write', 'near'],
+        [['near', 'far', 'result'], { near: 'skipped', far: 'surprise', result: 'surprise' }, { recv: 'patient', res: 'bookingTitle', out: 'titleLost' }, 'pitfall', [4, 5, 6], 'write', 'far'],
+        [['name', 'near', 'result'], { near: 'done', far: 'skipped', result: 'done' }, { recv: 'patientIt', res: 'patientSalutation', out: 'titleOk' }, 'mechanism', [9, 10, 11], 'write', 'near']],
+      letElvis: [[['name'], {}, { recv: 'none', res: 'none', out: 'none' }, 'scenario', [1], 'observe', 'name'],
+        [['name', 'near'], { near: 'done' }, { recv: 'itToken', res: 'none', out: 'none' }, 'mechanism', [1], 'run', 'near'],
+        [['near', 'far', 'result'], { near: 'done', far: 'surprise', result: 'surprise' }, { recv: 'itToken', res: 'letNull', out: 'loggedOut' }, 'pitfall', [1, 2], 'run', 'far'],
+        [['name', 'result'], { near: 'done', far: 'skipped', result: 'done' }, { recv: 'none', res: 'refreshNull', out: 'retry' }, 'mechanism', [3, 4, 5], 'write', 'result']],
+      dslMarker: [[['name'], {}, { recv: 'none', res: 'none', out: 'none' }, 'scenario', [1, 2, 3, 4, 5, 6], 'observe', 'name'],
+        [['name', 'near'], { near: 'done' }, { recv: 'section', res: 'none', out: 'none' }, 'mechanism', [3, 4], 'run', 'near'],
+        [['near', 'far', 'result'], { near: 'skipped', far: 'surprise', result: 'surprise' }, { recv: 'section', res: 'formSection', out: 'wrongPlace' }, 'pitfall', [5], 'run', 'far'],
+        [['near', 'far', 'result'], { near: 'done', far: 'broken', result: 'done' }, { recv: 'section', res: 'compileError', out: 'explicit' }, 'mechanism', [7, 8, 9], 'check', 'far']]
+    };
+    ADE.kotlinScope = P;
+    var EDGE = { name: null, near: 'e1', far: 'e2', result: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var met = { recv: M(m, 'recv.' + p[2].recv), res: M(m, 'res.' + p[2].res), out: M(m, 'out.' + p[2].out) };
+        var e = EDGE[p[0][0]] || EDGE[p[0][1]], bad = p[3] === 'pitfall';
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: met, codeHighlight: { snippet: 'scope.' + s.case, lines: p[4] },
+          movingSignals: e ? [{ edge: e, tok: bad ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5], subject: p[6] }] });
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i >= 2) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'nestedApply' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước; bước thứ ba là bẫy', run: function () { return CASES.every(function (k) { var st = steps({ case: k }); return st.length === 4 && st[2].type === 'pitfall'; }); } },
+        { name: 'apply lồng: receiver gần nhất không có tên thì tên được hiểu theo receiver bên ngoài', run: function () { var a = steps({ case: 'nestedApply' })[2]; return a.metrics.recv === M(m, 'recv.patient') && a.metrics.res === M(m, 'res.bookingTitle') && a.nodeStates.near === K + 'st.skipped'; } },
+        { name: '@DslMarker biến lời gọi ngầm tới receiver ngoài thành lỗi biên dịch', run: function () { var d = steps({ case: 'dslMarker' }); return d[2].metrics.res === M(m, 'res.formSection') && d[3].metrics.res === M(m, 'res.compileError'); } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

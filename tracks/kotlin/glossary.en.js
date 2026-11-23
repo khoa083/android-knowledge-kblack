@@ -27,5 +27,8 @@ ADE.addGlossary('en', 'kotlin', {
   "star-projection": { term: "star-projection (*)", def: "C<*> means \"C of some unknown type\": reading is safe at the upper bound, writing is not possible.", chapter: "kotlin/k10" },
   "delegated-property": { term: "delegated property (by)", def: "A property whose getter/setter forward to another object through getValue/setValue; the compiler keeps that object in a hidden prop$delegate field.", chapter: "kotlin/k11" },
   "lazy-mode": { term: "LazyThreadSafetyMode", def: "The lazy modes: SYNCHRONIZED (default, locks, the initializer runs once), PUBLICATION (may run several times, only one value is used), NONE (no locking, single thread only).", chapter: "kotlin/k11" },
+  "scope-function": { term: "scope function", def: "let, run, with, apply, also: run a lambda on an object; they differ in how the object is referenced (this or it) and what is returned (the lambda result or the object).", chapter: "kotlin/k12" },
+  "lambda-with-receiver": { term: "lambda with receiver (T.() -> R)", def: "A lambda that runs as if it were a function of T: inside, this is the T object and T's members need no prefix; the basis of apply, run, with and DSLs.", chapter: "kotlin/k12" },
+  "dsl-marker": { term: "@DslMarker", def: "An annotation marking a DSL's receiver types; then inside a lambda only the nearest receiver's members can be called implicitly.", chapter: "kotlin/k12" },
   "when-expression": { term: "when expression", def: "when returns the value of the first matching branch; used as an expression, its branches must cover every case (usually with else).", chapter: "kotlin/k1" }
 });

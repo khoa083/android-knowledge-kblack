@@ -172,3 +172,16 @@ Kiểm URL (curl, HTTP 200): generics.html; Collections.kt (raw và blob, v2.1.0
 | Bài tập mutableLazy | dựa trên "Mutable lazy delegate", `book-kt-exercises`; lời giải tự viết (không đồng bộ, ghi rõ) | — |
 
 Kiểm URL (curl, HTTP 200): delegated-properties, delegation; Lazy.kt và LazyJVM.kt (raw, blob, v2.1.0); ActivityViewModelLazy.kt và ViewModelLazy.kt (gitiles ở commit ghim).
+
+## K12 · Scope function và DSL (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Bảng let/run/with/apply/also (this hay it, kết quả lambda hay object); gợi ý chọn; khi bỏ this khó phân biệt thành viên receiver với object ngoài; khuyên tránh lồng scope function và cẩn thận khi nối chuỗi; takeIf/takeUnless | `kt-scope-functions` | stable |
+| Lambda có receiver T.() -> R | `kt-lambdas` (Function literals with receiver) | stable |
+| Không marker: gọi được thành viên của mọi receiver ngầm (head trong head); @DslMarker: chỉ receiver gần nhất, receiver ngoài phải ghi this@…; marker có tác dụng ở CLASS, TYPE, TYPEALIAS; gắn ở lớp cha là đủ | `kt-type-safe-builders` | stable |
+| ?: trả vế phải khi vế trái null (áp dụng cho ?.let { } ?: …) | `kt-null-safety` + bảng giá trị trả về của let | stable |
+| "Tên tìm ở receiver gần nhất trước rồi ra ngoài" là trình bày giản lược; quy tắc đầy đủ ở đặc tả ngôn ngữ, chương không khẳng định chi tiết hơn | ghi trong mục trung thực | simplified |
+| Bài tập DSL lịch làm việc | dựa trên "HTML table DSL" và "Using scope functions", `book-kt-exercises`; lời giải tự viết | — |
+
+Kiểm URL (curl, HTTP 200): scope-functions, type-safe-builders.

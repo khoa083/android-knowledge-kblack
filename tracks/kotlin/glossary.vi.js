@@ -27,5 +27,8 @@ ADE.addGlossary('vi', 'kotlin', {
   "star-projection": { term: "star-projection (*)", def: "C<*> nghĩa là \"C của một kiểu nào đó không biết\": đọc ra an toàn ở mức cận trên, không ghi vào được.", chapter: "kotlin/k10" },
   "delegated-property": { term: "delegated property (by)", def: "Property mà getter/setter chuyển cho một object khác qua getValue/setValue; trình biên dịch giữ object đó trong trường ẩn prop$delegate.", chapter: "kotlin/k11" },
   "lazy-mode": { term: "LazyThreadSafetyMode", def: "Chế độ của lazy: SYNCHRONIZED (mặc định, khóa, initializer chạy một lần), PUBLICATION (có thể chạy nhiều lần, chỉ một giá trị được dùng), NONE (không khóa, chỉ cho một luồng).", chapter: "kotlin/k11" },
+  "scope-function": { term: "scope function", def: "let, run, with, apply, also: chạy một lambda trên một object; khác nhau ở cách gọi object (this hay it) và giá trị trả về (kết quả lambda hay chính object).", chapter: "kotlin/k12" },
+  "lambda-with-receiver": { term: "lambda có receiver (T.() -> R)", def: "Lambda chạy như thể là hàm của T: bên trong, this là object T, gọi thành viên của T không cần tiền tố; nền của apply, run, with và DSL.", chapter: "kotlin/k12" },
+  "dsl-marker": { term: "@DslMarker", def: "Chú thích đánh dấu các kiểu receiver của một DSL; khi đó trong lambda chỉ gọi ngầm được thành viên của receiver gần nhất.", chapter: "kotlin/k12" },
   "when-expression": { term: "biểu thức when", def: "when trả về giá trị của nhánh khớp đầu tiên; khi dùng như biểu thức, các nhánh phải phủ đủ mọi trường hợp (thường bằng else).", chapter: "kotlin/k1" }
 });
