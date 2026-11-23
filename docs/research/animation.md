@@ -169,3 +169,19 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 | Tap → animateTo; swipeToDismiss: stop, snapTo + VelocityTracker, splineBasedDecay.calculateTargetValue, updateBounds, animateTo(0, v) / animateDecay + onDismissed; bọc trong Modifier.composed | `an-advanced` | stable (ví dụ chính thức) |
 | draggable + rememberDraggableState, detectDragGestures cộng dồn offset | Essentials Ch.50.5–50.6 | Ví dụ của sách |
 | Sim `animation.mutex`: 40 px / 250 px/s, đích decay 190 và 900, biên 300 | Minh họa | selfCheck; ghi trong simp |
+
+### SE v2 (chương mới) · Shared element (2026-11-23)
+
+Đọc ở commit ghim 296313a4: `animation/animation/.../SharedTransitionScope.kt` (thư mục còn SharedElement.kt, SharedContentNode.kt, SharedTransitionStateMachine.kt, ExperimentalSharedTransitionApi.kt). Tài liệu: shared-elements, /customize, /navigation (đọc 2026-11-23, HTTP 200).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| SharedTransitionLayout = SharedTransitionScope { Box(modifier.then(m)) }; SharedTransitionScope bắt đầu bằng LookaheadScope | `an-shared-src` | impl |
+| Scope: không gian tọa độ; overlay vẽ shared element trong lúc chuyển tới khi isTransitionActive = false; khớp key không qua scope khác; isMatchFound chỉ true sau khi phần tử mới được compose (lazy: trong lượt đo) | `an-shared-src` (KDoc) | impl |
+| Clip/fade phải đặt sau modifier shared; zIndexInOverlay, clipInOverlayDuringTransition, placeholderSize (AnimatedSize đo lại cha mỗi frame); DefaultSpring StiffnessMediumLow | `an-shared-src` | impl |
+| Tại commit ghim, SharedTransitionScope.kt không mang @ExperimentalSharedTransitionApi; không khẳng định thời điểm ổn định | `an-shared-src` (grep 0 lần) | version |
+| sharedElement vs sharedBounds, Text dùng sharedBounds, key data class, thứ tự modifier, requiredSize, giới hạn | `an-shared` | stable |
+| scaleToBounds vs RemeasureToBounds, boundsTransform keyframes ArcMode | `an-shared-custom` | stable |
+| Navigation 3/2, predictive back theo API level, enableOnBackInvokedCallback | `an-shared-nav` | version |
+| transitionName, addSharedElement, sharedElementEnterTransition, ChangeBounds/ChangeTransform; tên trùng trong RecyclerView | AAT Ch.6 | Ví dụ của sách (hệ View) |
+| Sim `animation.shared`: 64×64 → 360×240, khung trung gian | Minh họa | selfCheck; ghi trong simp |

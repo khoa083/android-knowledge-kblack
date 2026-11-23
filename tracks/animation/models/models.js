@@ -684,4 +684,62 @@
       } }]
     });
   })();
+
+  /* ================= SE (v2, chương mới): shared element (SharedTransitionScope.kt @296313a4, shared-elements docs) =================
+     match: cùng key → khớp, lookahead cho khung đích, bay trong overlay (16,64) → (0,360), xong về cây thường.
+     nomatch: khác key → không khớp, chỉ fade của AnimatedContent. clip: clip trước sharedElement → góc vuông khi bay. Số liệu minh họa. */
+  (function () {
+    var m = 'shared';
+    var SC = ['match', 'nomatch', 'clip'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'match', out = [], t = 0, x = 16, w = 64, active = 0, match = 'false', drawn = 'tree', corner = '16dp';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = { x: x, w: w };
+        o.metrics = { x: x, w: w, active: active };
+        o.stateAfter = [{ labelKey: M(m, 'st.match'), value: match }, { labelKey: M(m, 'st.drawn'), value: drawn }, { labelKey: M(m, 'st.corner'), value: corner }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'shared_' + sc, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 16, kind: o.kind || 'frame', subject: o.activeNodes[0] || 'scope', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['list'], lines: [3, 4, 5], kind: 'observe' });
+      P('navigate', { activeNodes: ['list', 'detail'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: [2], kind: 'target-change' });
+      if (sc === 'nomatch') {
+        P('nomatchStep', { type: 'pitfall', activeNodes: ['scope', 'list', 'detail'], movingSignals: [{ edge: 'e1', tok: 'error' }], lines: [4], kind: 'skip', callouts: [{ kind: 'source', textKey: M(m, 'co.key') }] });
+        x = 0; w = 360;
+        P('fade', { activeNodes: ['list', 'detail'], lines: [2] });
+        P('done.nomatch', { type: 'pitfall', activeNodes: ['detail'], lines: [4], kind: 'settle', callouts: [{ kind: 'source', textKey: M(m, 'co.match') }] });
+        return out;
+      }
+      active = 1; match = 'true'; drawn = 'overlay';
+      P('matched', { activeNodes: ['scope', 'list', 'detail'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e3', tok: 'state' }], lines: [4], kind: 'observe', callouts: [{ kind: 'source', textKey: M(m, 'co.key') }] });
+      if (sc === 'clip') corner = '0';
+      [[10, 160], [4, 280], [0, 360]].forEach(function (p, i) {
+        x = p[0]; w = p[1];
+        P(sc === 'clip' ? 'flyClip' : 'fly', { type: sc === 'clip' ? 'pitfall' : 'mechanism', activeNodes: ['overlay', 'scope'], movingSignals: [{ edge: 'e2', tok: sc === 'clip' ? 'error' : 'anim' }], lines: sc === 'clip' ? [4, 5] : [4, 6],
+          callouts: i === 0 ? [{ kind: sc === 'clip' ? 'pitfall' : 'source', textKey: M(m, sc === 'clip' ? 'co.clip' : 'co.overlay') }] : undefined });
+      });
+      P('fade', { activeNodes: ['list', 'detail'], lines: [2] });
+      active = 0; drawn = 'tree'; corner = '16dp';
+      P('done.' + sc, { activeNodes: ['detail'], movingSignals: [{ edge: 'e4', tok: 'ui' }], lines: [5], kind: 'settle' });
+      return out;
+    }
+    reg(m, {
+      codeId: 'shared_match',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'match' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'cùng key: khớp, bay trong overlay tới 360, xong về cây thường; khác key: không khớp, không có bước bay; clip trước: góc 0 khi bay, 16dp khi xong', run: function () {
+        var a = steps({ which: 'match' }), b = steps({ which: 'nomatch' }), c = steps({ which: 'clip' });
+        var fa = a.filter(function (x) { return /^fly/.test(x.id); }), fc = c.filter(function (x) { return /^flyClip/.test(x.id); }), la = a[a.length - 1], lc = c[c.length - 1];
+        return fa.length === 3 && fa[2].metrics.w === 360 && fa[0].stateAfter[1].value === 'overlay' && la.stateAfter[1].value === 'tree' && la.metrics.active === 0 &&
+          !b.some(function (x) { return /^fly/.test(x.id); }) && b[b.length - 1].stateAfter[0].value === 'false' &&
+          fc.length === 3 && fc[0].stateAfter[2].value === '0' && lc.stateAfter[2].value === '16dp';
+      } }]
+    });
+  })();
 })();

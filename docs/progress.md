@@ -495,4 +495,9 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.mutex` (đổi đích giữa chừng, thả chậm trượt về, hất mạnh chạm biên). 2 nguồn mới (`an-animatable-src`, `an-mutex-src`), đều HTTP 200.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 117 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Tiếp theo:** se (shared element: SharedTransitionLayout, sharedElement/sharedBounds, navigation; shared-elements docs, AAT Ch.4–6, `SharedTransitionScope.kt`), rồi cv, vm, c7, c8, c0.
+- **Animation v2 · SE chương mới (2026-11-23):**
+  - Nội dung (`animation_v2_se.py`, thêm vào manifest giữa c6 và c7): trước Compose (AAT Ch.6: transitionName, addSharedElement, ChangeBounds) và đối chiếu; ba API chính, sharedElement vs sharedBounds, key data class; bên trong ở commit ghim (LookaheadScope, overlay, khớp key trong một scope, isTransitionActive, isMatchFound; ghi chú phiên bản về opt-in thử nghiệm); thứ tự modifier và resizeMode; navigation và predictive back, giới hạn; 3 bug, 1 bài tập, tự trả lời 2 câu, quiz 4 câu.
+  - Sim mới `animation.shared` (cùng key, khác key, clip trước sharedElement). 4 nguồn mới (`an-shared`, `an-shared-custom`, `an-shared-nav`, `an-shared-src`), đều HTTP 200.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 118 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
+  - **Tiếp theo:** cv (vẽ và vector động: Canvas + animation, AnimatedVectorDrawable; Essentials Ch.41, vectors docs, AAT Ch.2), rồi vm, c7, c8, c0.
 

@@ -81,6 +81,13 @@
     edges: [E('e1', 'finger', 'anim'), E('e2', 'anim', 'value'), E('e3', 'anim', 'job')],
     metrics: [T('mutex', 'value'), T('mutex', 'velocity')]
   });
+  /* SE (v2): màn danh sách → scope (khớp key) → overlay → màn chi tiết. */
+  V('shared', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('shared', 'list', 0, 0, 'phone', 'ui'), N('shared', 'scope', 4, 0, 'layers', 'runtime'), N('shared', 'overlay', 8, -3, 'spark', 'anim'), N('shared', 'detail', 12, 0, 'phone', 'ui')],
+    edges: [E('e1', 'list', 'scope'), E('e2', 'scope', 'overlay'), E('e3', 'scope', 'detail'), E('e4', 'overlay', 'detail')],
+    metrics: [T('shared', 'x'), T('shared', 'w'), T('shared', 'active')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

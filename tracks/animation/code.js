@@ -206,4 +206,18 @@
     'if (target.absoluteValue <= width) offsetX.animateTo(0f, initialVelocity = velocity)',
     'else { offsetX.animateDecay(velocity, decay); onDismissed() }'
   ]);
+  var seHead = ['SharedTransitionLayout {', '    AnimatedContent(showDetails, label = "screen") { details ->', '        Image(painter, null, Modifier'];
+  var seTail = ['            .size(if (details) DpSize(360.dp, 240.dp) else DpSize(64.dp, 64.dp)))', '    }', '}'];
+  add('shared_match', seHead.concat([
+    '            .sharedElement(rememberSharedContentState(key = "image"), this@AnimatedContent)',
+    { vi: '            .clip(RoundedCornerShape(16.dp))     // ✓ sau sharedElement', en: '            .clip(RoundedCornerShape(16.dp))     // ✓ after sharedElement' }
+  ]).concat(seTail));
+  add('shared_nomatch', seHead.concat([
+    { vi: '            .sharedElement(rememberSharedContentState(key = if (details) "img-1" else "image"), this@AnimatedContent)   // ✗ khác key', en: '            .sharedElement(rememberSharedContentState(key = if (details) "img-1" else "image"), this@AnimatedContent)   // ✗ different keys' },
+    '            .clip(RoundedCornerShape(16.dp))'
+  ]).concat(seTail));
+  add('shared_clip', seHead.concat([
+    { vi: '            .clip(RoundedCornerShape(16.dp))     // ✗ trước sharedElement', en: '            .clip(RoundedCornerShape(16.dp))     // ✗ before sharedElement' },
+    '            .sharedElement(rememberSharedContentState(key = "image"), this@AnimatedContent)'
+  ]).concat(seTail));
 })();
