@@ -541,4 +541,70 @@
       } }]
     });
   })();
+
+  /* ================= IF (v2, chương mới): lặp lại và vô hạn (AnimationSpec.kt, InfiniteTransition.kt @296313a4) =================
+     restart3 / reverse3 / reverse2: repeatable(n, tween(300, Linear), mode); mỗi bước là một lượt. reverse2 (số chẵn) kết thúc ở 0, KDoc: có thể nhảy tới giá trị cuối.
+     infinite: rememberInfiniteTransition + infiniteRepeatable(Reverse): 3 lượt, durationScale = 0 → skipToEnd và treo, tỉ lệ khác 0 → chạy lại từ 0, rời composition → hủy. */
+  (function () {
+    var m = 'repeat';
+    var SC = ['restart3', 'reverse3', 'reverse2', 'infinite'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'restart3', out = [], t = 0, ms = 0, iter = 0, val = 0;
+      var inf = sc === 'infinite', n = sc === 'reverse2' ? 2 : 3, mode = sc === 'restart3' ? 'Restart' : 'Reverse';
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = o.params || {}; o.params.i = iter;
+        o.metrics = { ms: ms, iter: iter, value: Math.round(val * 100) };
+        o.stateAfter = [{ labelKey: M(m, 'st.value'), value: val.toFixed(1) }, { labelKey: M(m, 'st.iter'), value: iter + '/' + (inf ? '∞' : n) }, { labelKey: M(m, 'st.mode'), value: mode }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: 'rep_' + sc, lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 10, kind: o.kind || 'frame', subject: o.activeNodes[0] || 'spec', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var sig = [{ edge: 'e1', tok: 'runtime' }, { edge: 'e2', tok: 'anim' }];
+      if (!inf) {
+        P('intro', { type: 'scenario', activeNodes: ['spec', 'value'], lines: [3, 4, 5], kind: 'observe', callouts: [{ kind: 'source', textKey: M(m, 'co.durationOnly') }] });
+        for (var i = 1; i <= n; i++) {
+          var back = mode === 'Reverse' && i % 2 === 0, from = back ? 1 : 0, to = back ? 0 : 1;
+          iter = i; ms += 300; val = to;
+          P(back ? 'iter.back' : (i > 1 && mode === 'Restart' ? 'iter.restart' : 'iter.fwd'), { activeNodes: ['spec', 'clock', 'value'], movingSignals: sig, lines: [5, 6], params: { from: from, to: to } });
+        }
+        if (mode === 'Reverse' && n % 2 === 0) {
+          val = 1;
+          P('jumpEnd', { type: 'pitfall', activeNodes: ['value'], movingSignals: [{ edge: 'e2', tok: 'error' }], lines: [4, 6], kind: 'settle', callouts: [{ kind: 'pitfall', textKey: M(m, 'co.odd') }] });
+        }
+        P('done', { activeNodes: ['value'], lines: [2], kind: 'settle', params: { to: val } });
+        return out;
+      }
+      P('inf.start', { type: 'scenario', activeNodes: ['clock', 'spec'], lines: [1, 2], kind: 'observe', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.frames') }] });
+      for (var k = 1; k <= 3; k++) {
+        var bk = k % 2 === 0; iter = k; ms += 300; val = bk ? 0 : 1;
+        P('inf.iter', { activeNodes: ['clock', 'spec', 'value'], movingSignals: sig, lines: [5, 6, 7], params: { from: bk ? 1 : 0, to: bk ? 0 : 1 } });
+      }
+      val = 1;
+      P('inf.scale0', { type: 'pitfall', activeNodes: ['policy', 'clock', 'value'], movingSignals: [{ edge: 'e3', tok: 'state' }], lines: [4], kind: 'skip', callouts: [{ kind: 'source', textKey: M(m, 'co.scale') }] });
+      ms = 0; iter = 0; val = 0;
+      P('inf.scaleBack', { activeNodes: ['policy', 'clock', 'spec'], movingSignals: [{ edge: 'e3', tok: 'state' }, { edge: 'e1', tok: 'runtime' }], lines: [3], kind: 'target-change' });
+      P('inf.leave', { activeNodes: ['clock'], lines: [1], kind: 'interrupt', callouts: [{ kind: 'source', textKey: M(m, 'co.leave') }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'rep_restart3',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'restart3' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'repeatable 3 lượt = 900 ms, kết thúc ở 1; Reverse 2 lượt kết thúc lượt cuối ở 0 rồi nhảy tới 1; vô hạn: scale 0 → giá trị = đích, rồi chạy lại từ 0, rồi rời composition', run: function () {
+        var a = steps({ which: 'restart3' }), b = steps({ which: 'reverse3' }), d = steps({ which: 'reverse2' }), f = steps({ which: 'infinite' });
+        var la = a[a.length - 1], lb = b[b.length - 1];
+        var jump = d.filter(function (x) { return /^jumpEnd/.test(x.id); });
+        var s0 = f.filter(function (x) { return /^inf_scale0/.test(x.id); })[0], sb = f.filter(function (x) { return /^inf_scaleBack/.test(x.id); })[0];
+        return la.metrics.ms === 900 && la.metrics.value === 100 && lb.metrics.value === 100 && !b.some(function (x) { return /^jumpEnd/.test(x.id); }) &&
+          jump.length === 1 && d[d.indexOf(jump[0]) - 1].metrics.value === 0 && jump[0].metrics.value === 100 &&
+          s0.metrics.value === 100 && sb.metrics.ms === 0 && /^inf_leave/.test(f[f.length - 1].id);
+      } }]
+    });
+  })();
 })();

@@ -140,3 +140,18 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 | Overview READ MORE với Column.animateContentSize | AAT Ch.10 | Ví dụ của sách |
 | notifyItemRemoved/Inserted, DefaultItemAnimator, bốn hàm của ItemAnimator | AAT Ch.7 | Ví dụ của sách (hệ View) |
 | Sim `animation.acs`: 40/160 px, giá trị từng frame 85/128/152/160 | Minh họa | selfCheck; ghi trong simp |
+
+### IF v2 (chương mới) · repeatable, infiniteRepeatable, InfiniteTransition (2026-11-23)
+
+Đọc ở commit ghim 296313a4: `animation-core/.../AnimationSpec.kt` (RepeatableSpec, InfiniteRepeatableSpec, RepeatMode, StartOffset), `InfiniteTransition.kt`, `SuspendAnimation.kt`; `ui/ui/.../platform/InfiniteAnimationPolicy.kt` (đường dẫn tìm bằng `?format=JSON`).
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| repeatable/infiniteRepeatable chỉ nhận DurationBasedAnimationSpec; TODO "Consider supporting repeating spring specs"; Reverse nên dùng số lượt lẻ, nếu không có thể nhảy tới giá trị cuối; initialStartOffset không lặp, delay trong spec thì lặp; StartOffsetType Delay/FastForward; InfiniteRepeatableSpec ném IllegalArgumentException khi thời lượng 0; không bao giờ tự xong, dừng khi composable bị gỡ | `an-spec-src` | impl |
+| rememberInfiniteTransition = remember + run(); LaunchedEffect lặp withInfiniteAnimationFrameNanos; play time / durationScale; scale = 0 → skipToEnd + snapshotFlow chờ > 0; đổi scale → reset từ 0; con: TransitionAnimationState, DisposableEffect thêm/gỡ, SideEffect tạo lại khi initial/target đổi (không giữ liên tục) | `an-inftrans-src` | impl |
+| callWithFrameNanos: isInfinite → withInfiniteAnimationFrameNanos, ngược lại withFrameNanos | `an-suspend-src` | impl |
+| InfiniteAnimationPolicy: áp cho animation lấy frame qua withInfiniteAnimationFrameNanos/Millis; mặc định không cài, trừ ComposeTestRule | `ui-infpolicy-src` | impl |
+| ComposeTestRule không chạy infiniteRepeatable, vẽ bằng giá trị ban đầu | `an-customize` (đã dùng ở C8) | stable |
+| repeatable(10, tween(2000), Reverse) cho fadeIn (số chẵn: chính là trường hợp KDoc cảnh báo) | Essentials 39.5 vs `an-spec-src` | Ví dụ của sách, ghi rõ trong bài |
+| InfiniteRepeatableDemo (rotate, keyframes 0→359, Reverse + khoảng nghỉ); progress indicator dùng InfiniteRepeatableSpec | Kunneth Ch.8 | Ví dụ của sách; ghi chú rotate đọc ở composition |
+| Sim `animation.repeat`: 300 ms Linear mỗi lượt; bước "nhảy tới giá trị cuối" theo câu chữ KDoc | Minh họa | selfCheck; ghi trong simp |

@@ -159,4 +159,29 @@
     { vi: '        .height(if (expanded) 160.dp else 40.dp)       // ✗ modifier kích thước đứng ngoài', en: '        .height(if (expanded) 160.dp else 40.dp)       // ✗ the size modifier is outside' },
     '        .animateContentSize(finishedListener = { from, to -> log(from, to) })'
   ].concat(acsTail));
+  [['rep_restart3', 3, 'Restart'], ['rep_reverse3', 3, 'Reverse'], ['rep_reverse2', 2, 'Reverse']].forEach(function (c) {
+    add(c[0], [
+      'val v by animateFloatAsState(',
+      '    targetValue = if (on) 1f else 0f,',
+      '    animationSpec = repeatable(',
+      '        iterations = ' + c[1] + ',',
+      '        animation = tween(300, easing = LinearEasing),',
+      '        repeatMode = RepeatMode.' + c[2],
+      '    ),',
+      '    label = "v"',
+      ')'
+    ]);
+  });
+  add('rep_infinite', [
+    'val infinite = rememberInfiniteTransition(label = "pulse")',
+    'val v by infinite.animateFloat(',
+    '    initialValue = 0f,',
+    '    targetValue = 1f,',
+    '    animationSpec = infiniteRepeatable(',
+    '        animation = tween(300, easing = LinearEasing),',
+    '        repeatMode = RepeatMode.Reverse',
+    '    ),',
+    '    label = "v"',
+    ')'
+  ]);
 })();

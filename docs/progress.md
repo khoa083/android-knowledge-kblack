@@ -484,3 +484,10 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.acs` (trước height, sau height, đổi ý giữa chừng). 4 nguồn mới (`an-acs-src`, `an-lazyscope-src`, `an-lazyanim-src`, `book-aat`), đều HTTP 200. Sửa hai mô tả nguồn en còn ghi "read 2026-11-21".
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 116 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Tiếp theo:** if (lặp và vô hạn: repeatable, infiniteRepeatable, rememberInfiniteTransition, InfiniteAnimationPolicy; Essentials 39.5, `InfiniteTransition.kt`, `InfiniteAnimationPolicy.kt`), rồi c6, se, cv, vm, c7, c8, c0.
+- **Animation v2 · C5 sửa độ chính xác (2026-11-23):** goal g1 trung tính (đúng với cả ba cách viết); câu về mặc định `spring()` của Kunneth viết lại trung tính (sách viết cho phiên bản cũ, không khẳng định phiên bản nào đổi); trích đúng nguyên văn ghi chú TODO.
+- **Animation v2 · IF chương mới (2026-11-23):**
+  - Nội dung (`animation_v2_if.py`, thêm vào manifest giữa c5 và c6): repeatable (Essentials 39.5, customize; chỉ DurationBased, số lượt lẻ với Reverse, StartOffset), infiniteRepeatable và rememberInfiniteTransition (Kunneth Ch.8, value-based; ghi chú rotate đọc ở composition → graphicsLayer), bên trong InfiniteTransition ở commit ghim (LaunchedEffect + withInfiniteAnimationFrameNanos, durationScale, SideEffect/DisposableEffect, không giữ liên tục), InfiniteAnimationPolicy và kiểm thử (nối C8); 3 bug, 2 bài tập, tự trả lời 3 câu, quiz 4 câu.
+  - Sim mới `animation.repeat` (Restart 3, Reverse 3, Reverse 2, vô hạn với durationScale 0 và rời composition). 3 nguồn mới (`an-inftrans-src`, `an-suspend-src`, `ui-infpolicy-src`), đều HTTP 200.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 117 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
+  - **Tiếp theo:** c6 (Animatable và gesture: animateTo/snapTo/animateDecay/stop, mutex, VelocityTracker, fling; advanced docs, Essentials Ch.50, AAT Ch.9, `Animatable.kt`, `DecayAnimationSpec.kt`), rồi se, cv, vm, c7, c8, c0.
+

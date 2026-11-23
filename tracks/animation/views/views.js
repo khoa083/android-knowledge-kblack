@@ -67,6 +67,13 @@
     edges: [E('e1', 'state', 'child'), E('e2', 'child', 'node'), E('e3', 'node', 'parent')],
     metrics: [T('acs', 'comp'), T('acs', 'layout'), T('acs', 'child'), T('acs', 'reported')]
   });
+  /* IF (v2): đồng hồ frame → spec lặp → giá trị; tỉ lệ thời lượng / chính sách can thiệp vào đồng hồ. */
+  V('repeat', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('repeat', 'clock', 0, 0, 'frame', 'runtime'), N('repeat', 'spec', 4, 0, 'layers', 'anim'), N('repeat', 'value', 8, 0, 'spark', 'ui'), N('repeat', 'policy', 0, 4, 'target', 'state')],
+    edges: [E('e1', 'clock', 'spec'), E('e2', 'spec', 'value'), E('e3', 'policy', 'clock')],
+    metrics: [T('repeat', 'ms'), T('repeat', 'iter'), T('repeat', 'value')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });
