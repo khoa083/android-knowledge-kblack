@@ -55,4 +55,8 @@
   V('testing', { layout: 'pipeline', nodes: [N('testing', 'test', 0, 0, 'check', 'job'), N('testing', 'vm', 3, 0, 'layers', 'state'), N('testing', 'repo', 6, 0, 'store', 'runtime'), N('testing', 'api', 9, 0, 'source', 'job'), N('testing', 'dao', 9, 3, 'store', 'state')],
     edges: [E('e1', 'test', 'vm'), E('e2', 'vm', 'repo'), E('e3', 'repo', 'api'), E('e4', 'repo', 'dao')],
     metrics: [T('testing', 'where'), T('testing', 'time'), T('testing', 'stable')] });
+  /* G11: màn hình, ViewModel, use case, repository: tính năng đi qua từng tầng */
+  V('feature', { layout: 'pipeline', nodes: [N('feature', 'ui', 0, 0, 'screen', 'ui'), N('feature', 'vm', 3, 0, 'layers', 'state'), N('feature', 'uc', 6, 0, 'mechanism', 'runtime'), N('feature', 'repo', 9, 0, 'store', 'job')],
+    edges: [E('e1', 'ui', 'vm'), E('e2', 'vm', 'uc'), E('e3', 'uc', 'repo')],
+    metrics: [T('feature', 'ship'), T('feature', 'done'), T('feature', 'tests')] });
 })();

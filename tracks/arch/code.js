@@ -302,4 +302,30 @@
     c('// repository: FakeSlotApi + FakeSlotDao; DAO: Room.inMemoryDatabaseBuilder trên thiết bị hay Robolectric', '// repository: FakeSlotApi + FakeSlotDao; DAO: Room.inMemoryDatabaseBuilder on a device or Robolectric'),
     c('// UI: createComposeRule(), ViewModel nhận repository giả', '// UI: createComposeRule(), the ViewModel gets a fake repository')
   ]);
+  add('g11.rewrite', [
+    c('// nhánh "rewrite": viết lại cả app theo kiến trúc mới, đóng băng tính năng', '// a "rewrite" branch: rebuild the whole app on the new architecture, freeze features'),
+    c('git switch -c rewrite', 'git switch -c rewrite'),
+    c('// nhánh chính vẫn phải sửa lỗi gấp cho người dùng: hai nơi cùng đổi', '// main still needs urgent fixes for users: two places change at once'),
+    c('// nhánh chính thêm Thanh toán theo yêu cầu kinh doanh; nhánh rewrite chưa có', '// main adds Payment for business reasons; the rewrite branch lacks it'),
+    c('// sau nhiều tháng: nhánh rewrite chưa phát hành được, bị bỏ dở', '// months later: the rewrite branch still cannot ship and is abandoned')
+  ]);
+  add('g11.gradual', [
+    c('// 1. test cho màn Lịch sử: người dùng thấy gì, làm được gì', '// 1. tests for the History screen: what the user sees, what they can do'),
+    '@Test fun history_showsVisits() = runTest { … }; @Test fun history_cancelRemovesVisit() = runTest { … }',
+    c('// 2. đặt repository sau interface, rút logic ra use case', '// 2. put the repository behind an interface, move logic into use cases'),
+    'interface VisitHistoryRepository { fun visits(): Flow<List<Visit>> }',
+    'class GetVisitHistoryUseCase(private val repo: VisitHistoryRepository) { operator fun invoke() = repo.visits() }',
+    c('// 3. HistoryViewModel dùng use case; test cũ vẫn qua; phát hành', '// 3. HistoryViewModel uses the use case; the old tests still pass; ship'),
+    c('// 4. lặp lại cho từng màn, mỗi lần một bản phát hành', '// 4. repeat for each screen, one release at a time')
+  ]);
+  add('g11.newfeature', [
+    c('// domain: tính năng Hủy lịch bắt đầu từ use case và interface repository', '// domain: the Cancel appointment feature starts with the use case and repository interface'),
+    'interface CancelAppointmentRepository { suspend fun cancel(id: Long): CancelResult }',
+    'class CancelAppointmentUseCase(private val repo: CancelAppointmentRepository) { suspend operator fun invoke(id: Long) = repo.cancel(id) }',
+    c('// presentation: ViewModel và UiState, chạy được ngay với repository stub', '// presentation: ViewModel and UiState, runnable right away with a stub repository'),
+    'class StubCancelRepository : CancelAppointmentRepository { override suspend fun cancel(id: Long) = CancelResult.Cancelled }',
+    c('// UI: nút Hủy và hộp xác nhận; thử được tính năng dù chưa có máy chủ', '// UI: the Cancel button and confirmation dialog; the feature can be tried before the server exists'),
+    c('// data: cài đặt thật (Room + API), thay stub; nối điều hướng', '// data: the real implementation (Room + API) replaces the stub; wire navigation'),
+    'class OfflineFirstCancelRepository(private val api: AppointmentApi, private val dao: AppointmentDao) : CancelAppointmentRepository { … }'
+  ]);
 })();

@@ -133,3 +133,13 @@ Kiểm URL: topic/architecture/data-layer/offline-first HTTP 200 (curl), đọc 
 | Thời gian chạy (mili giây, giây, phút) | cấp độ minh họa | simplified |
 
 Cầu nối mới: X13 (G10 → Coroutines A9, Runtime B9), X14 (Kotlin K6 → G8), X15 (Kotlin K11 → G6).
+
+## G11 · Thêm tính năng mới và di trú dự án cũ (2026-11-24)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Chia tính năng theo tầng: bắt đầu từ yêu cầu, commit nhỏ không ảnh hưởng mã tới khi xong, giữ độ phủ test, làm song song sau khi có domain; repository stub | `book-boudjnah` ch.7 (epub) | guideline |
+| Thứ tự: domain, presentation và data, rồi UI và data source; "đừng đi tắt" | `book-boudjnah` ch.7 | guideline |
+| Di trú không cần viết lại toàn bộ; chia bước nhỏ; MVP/MVVM thành god presenter/ViewModel; ViewModel giữ repository làm presentation gần data | `book-boudjnah` ch.8 | guideline |
+| Trước khi đổi phải có test; tìm test bằng "người dùng thấy gì, làm được gì"; MVVM: thổi phồng Model thành use case và repository interface | `book-boudjnah` ch.8 | guideline |
+| Nhánh viết lại bị bỏ dở | tình huống minh họa, không phải số liệu | simplified |

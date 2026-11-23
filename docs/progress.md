@@ -762,3 +762,12 @@ Trạng thái: `chưa / đang / xong`.
     - X15: Kotlin K11 → G6.
   - Thêm 2 nguồn, 1 thuật ngữ, 1 preset.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch, kotlin, runtime 0; coroutines 4 (lỗi cũ); routes-check không lỗi; đã xem ảnh.
+- **Kiến trúc · G11 (2026-11-24):** thêm tính năng mới và di trú dự án cũ (`arch_v2_g11.py`, 8 mục; Boudjnah ch.7–8). Nội dung:
+  - di trú dần một màn;
+  - thêm tính năng theo tầng với repository stub;
+  - ghép mọi chương G2–G10 vào một tính năng;
+  - 2 bug (dọn kiến trúc khi chưa có test; nhánh tính năng sống quá lâu); bài tập lập kế hoạch di trú màn Hồ sơ; quiz 4 câu.
+  - **Sim `arch.feature`:** ba tình huống (viết lại trên nhánh riêng, di trú dần, thêm tính năng Hủy lịch). Tab chính là **dãy ô tiến độ** (màn hình hay tầng), ô vừa đổi có viền.
+  - Thêm 1 preset; nguồn Boudjnah bổ sung ch.7–8.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; đã xem ảnh. Đã sửa để chỉ ô vừa đổi mới có viền.
+  - **Tiếp theo:** G0 (bản đồ track), rồi chuyển track G sang stable.

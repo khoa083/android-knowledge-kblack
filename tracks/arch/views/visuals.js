@@ -265,4 +265,20 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('ts.cap') }),
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)), h('div', { class: 'vz-legend', text: T('ts.legend') })));
   }, { labelKey: K + 'tab.ts', icon: 'grid' });
+
+  /* ---------- G11: dãy ô tiến độ di trú (màn hình) hay tiến độ tính năng (tầng) ---------- */
+  ADE.registerScreen('arch.feature', function (box, ctx) {
+    var h = ADE.ui.h, c = ctx.state.case, i = Math.max(0, idx(ctx)), F = ADE.archFeature, rows = F.at(c, i), prev = i > 0 ? F.at(c, i - 1) : null;
+    var CLS = { old: '', fixed: '', new: 'ok', tested: '', none: 'dim', missing: 'bad', dead: 'bad dim', stub: 'dim', todo: 'dim', done: 'ok' };
+    var body = rows.map(function (r, ri) {
+      var names = r[0] === 'layers' ? F.LAYERS : F.SCREENS;
+      return h('div', { class: 'vz-box' }, h('span', { class: 'vz-h', text: T('ft.row.' + r[0]) }),
+        h('div', null, r[1].map(function (st, k) {
+          var changed = prev && prev[ri] && prev[ri][1][k] !== st;
+          return h('span', { class: 'vz-chip ' + (CLS[st] || '') + (changed ? ' hl' : '') }, T('ft.item.' + names[k]) + ': ' + T('ft.st.' + st));
+        })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('ft.cap.' + (c === 'newfeature' ? 'layers' : 'screens')) }), h('div', null, body),
+      h('div', { class: 'vz-legend', text: T('ft.legend') })));
+  }, { labelKey: K + 'tab.ft', icon: 'grid' });
 })();

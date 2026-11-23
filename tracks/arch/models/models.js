@@ -636,4 +636,68 @@
         { name: 'dùng mạng thật: test ViewModel chập chờn', run: function () { return steps({ case: 'real' })[0].metrics.stable === M(m, 'stable.flaky'); } },
         { name: 'dùng fake: test ViewModel và repository chạy trên JVM, ổn định', run: function () { var a = steps({ case: 'fakes' }); return a[0].metrics.where === M(m, 'where.jvm') && a[1].metrics.where === M(m, 'where.jvm') && a.every(function (s) { return s.metrics.stable === M(m, 'stable.stable'); }); } }] });
   })();
+  /* ================= G11: thêm tính năng mới và di trú dự án cũ =================
+     Theo Boudjnah ch.7 (chia tính năng theo tầng: commit nhỏ không ảnh hưởng mã cho tới khi xong, giữ độ phủ test, làm song song
+     sau khi có domain; repository stub để cắm use case vào ViewModel sớm; thứ tự domain, presentation và data, rồi UI và data source)
+     và ch.8 (di trú không cần viết lại cả mã; chia thành bước nhỏ; trước khi đổi phải có test cho "người dùng thấy gì, làm được gì";
+     MVP/MVVM lớn lên thành god presenter hay god ViewModel). Dãy ô của hình "Tiến độ di trú" lấy từ ADE.archFeature. */
+  (function () {
+    var m = 'feature', CASES = ['rewrite', 'gradual', 'newfeature'], KS = ['s1', 's2', 's3', 's4'];
+    var SCREENS = ['choose', 'mine', 'history', 'profile', 'pay'], LAYERS = ['domain', 'present', 'ui', 'data'];
+    // mỗi hàng: [mã nhãn hàng, danh sách trạng thái ô]; trạng thái: old, fixed, new, tested, none, missing, dead, stub, todo, done
+    var R = {
+      rewrite: [
+        [['main', ['old', 'old', 'old', 'old', 'none']], ['rw', ['none', 'none', 'none', 'none', 'none']]],
+        [['main', ['fixed', 'old', 'fixed', 'old', 'none']], ['rw', ['new', 'new', 'none', 'none', 'none']]],
+        [['main', ['fixed', 'old', 'fixed', 'old', 'old']], ['rw', ['new', 'new', 'new', 'missing', 'missing']]],
+        [['main', ['fixed', 'old', 'fixed', 'old', 'old']], ['rw', ['dead', 'dead', 'dead', 'dead', 'dead']]]],
+      gradual: [
+        [['main', ['old', 'old', 'tested', 'old', 'old']]],
+        [['main', ['old', 'old', 'new', 'old', 'old']]],
+        [['main', ['old', 'new', 'new', 'old', 'old']]],
+        [['main', ['new', 'new', 'new', 'new', 'new']]]],
+      newfeature: [
+        [['layers', ['done', 'todo', 'todo', 'stub']]],
+        [['layers', ['done', 'done', 'todo', 'stub']]],
+        [['layers', ['done', 'done', 'done', 'stub']]],
+        [['layers', ['done', 'done', 'done', 'done']]]]
+    };
+    ADE.archFeature = { SCREENS: SCREENS, LAYERS: LAYERS, at: function (c, i) { return R[c][i]; } };
+    var MET = {   // {ship: luôn có bản phát hành được, done: phần đã xong, tests: có test bảo vệ}
+      rewrite: [{ ship: 'yes', done: '0/5', tests: 'no' }, { ship: 'mainOnly', done: '2/5', tests: 'no' }, { ship: 'mainOnly', done: '3/5', tests: 'no' }, { ship: 'mainOnly', done: '0/5', tests: 'no' }],
+      gradual: [{ ship: 'yes', done: '0/5', tests: 'yes' }, { ship: 'yes', done: '1/5', tests: 'yes' }, { ship: 'yes', done: '2/5', tests: 'yes' }, { ship: 'yes', done: '5/5', tests: 'yes' }],
+      newfeature: [{ ship: 'yes', done: '1/4', tests: 'yes' }, { ship: 'yes', done: '2/4', tests: 'yes' }, { ship: 'yes', done: '3/4', tests: 'yes' }, { ship: 'yes', done: '4/4', tests: 'yes' }]
+    };
+    var STEP = {   // [node sáng, trạng thái node, loại bước, dòng mã, loại log, chủ thể]
+      rewrite: [[['ui', 'vm', 'uc', 'repo'], { ui: 'done', vm: 'done', uc: 'skipped', repo: 'done' }, 'scenario', [1, 2], 'write', 'ui'],
+        [['ui', 'vm'], { ui: 'surprise', vm: 'done', uc: 'skipped', repo: 'done' }, 'pitfall', [3], 'write', 'ui'],
+        [['ui', 'vm', 'repo'], { ui: 'surprise', vm: 'surprise', uc: 'skipped', repo: 'done' }, 'pitfall', [4], 'observe', 'vm'],
+        [['ui'], { ui: 'broken', vm: 'surprise', uc: 'skipped', repo: 'done' }, 'pitfall', [5], 'skip', 'ui']],
+      gradual: [[['ui', 'vm'], { ui: 'done', vm: 'done', uc: 'skipped', repo: 'done' }, 'scenario', [1, 2], 'write', 'vm'],
+        [['vm', 'uc', 'repo'], { ui: 'done', vm: 'done', uc: 'done', repo: 'done' }, 'mechanism', [3, 4, 5], 'write', 'uc'],
+        [['vm', 'uc'], { ui: 'done', vm: 'done', uc: 'done', repo: 'done' }, 'mechanism', [6], 'complete', 'vm'],
+        [['ui', 'vm', 'uc', 'repo'], { ui: 'done', vm: 'done', uc: 'done', repo: 'done' }, 'mechanism', [7], 'complete', 'ui']],
+      newfeature: [[['uc'], { ui: 'skipped', vm: 'skipped', uc: 'done', repo: 'skipped' }, 'scenario', [1, 2, 3], 'write', 'uc'],
+        [['vm', 'uc'], { ui: 'skipped', vm: 'done', uc: 'done', repo: 'skipped' }, 'mechanism', [4, 5], 'write', 'vm'],
+        [['ui', 'vm'], { ui: 'done', vm: 'done', uc: 'done', repo: 'skipped' }, 'mechanism', [6], 'write', 'ui'],
+        [['ui', 'vm', 'uc', 'repo'], { ui: 'done', vm: 'done', uc: 'done', repo: 'done' }, 'mechanism', [7, 8], 'complete', 'repo']]
+    };
+    function steps(s) {
+      return STEP[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var x = MET[s.case][i];
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[0], nodeStates: ns,
+          metrics: { ship: M(m, 'ship.' + x.ship), done: x.done, tests: M(m, 'yn.' + x.tests) },
+          codeHighlight: { snippet: 'g11.' + s.case, lines: p[3] }, movingSignals: [{ edge: 'e1', tok: 'signal' }], logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (p[2] === 'pitfall' ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'rewrite' }; }, act: setter(['case']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi cách có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'viết lại cả app: nhánh mới không phát hành được và bị bỏ dở', run: function () { return R.rewrite[3][1][1].every(function (x) { return x === 'dead'; }) && steps({ case: 'rewrite' })[2].metrics.ship === M(m, 'ship.mainOnly'); } },
+        { name: 'di trú dần: luôn phát hành được, cuối cùng đủ 5 màn', run: function () { var a = steps({ case: 'gradual' }); return a.every(function (s) { return s.metrics.ship === M(m, 'ship.yes'); }) && a[3].metrics.done === '5/5'; } },
+        { name: 'thêm tính năng theo tầng: domain trước, data sau cùng (repository stub trong lúc chờ)', run: function () { return R.newfeature[0][0][1][0] === 'done' && R.newfeature[2][0][1][3] === 'stub' && R.newfeature[3][0][1][3] === 'done'; } }] });
+  })();
 })();
