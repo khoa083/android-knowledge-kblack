@@ -372,7 +372,7 @@ ADE.addTrackStrings('animation', 'vi', {
   "track.animation.m.testclock.title": "Đồng hồ test và giá trị trung gian",
   "track.animation.m.testclock.overview": "Một tween 300 ms (FastOutSlowInEasing) từ 0 tới 100 trong test. Tắt autoAdvance và nhảy tới 0/25/50/75/100% thời lượng.",
   "track.animation.m.testclock.wrapup": "`mainClock` cho test kiểm soát thời gian animation; `advanceTimeBy` làm tròn lên bội số của frame duration. Đồng hồ test không điều khiển mọi thứ của Android host.",
-  "track.animation.m.testclock.simp.1": "Frame duration 16 ms trong mô hình là minh họa; tài liệu không nêu con số.",
+  "track.animation.m.testclock.simp.1": "Frame 16 ms theo KDoc của MainTestClock ở commit ghim (JVM: Android và Desktop); trang Test animations không nêu con số. [[src:ui-testclock-src]]",
   "track.animation.m.testclock.ctl.hint": "Bật/tắt autoAdvance và chọn mốc thời gian.",
   "track.animation.m.testclock.diagramTitle": "Test, đồng hồ và animation",
   "track.animation.m.testclock.diagramDesc": "Test điều khiển mainClock; mainClock điều khiển animation.",

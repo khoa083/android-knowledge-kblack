@@ -372,7 +372,7 @@ ADE.addTrackStrings('animation', 'en', {
   "track.animation.m.testclock.title": "The test clock and intermediate values",
   "track.animation.m.testclock.overview": "A 300 ms tween (FastOutSlowInEasing) from 0 to 100 in a test. Turn off autoAdvance and jump to 0/25/50/75/100% of the duration.",
   "track.animation.m.testclock.wrapup": "`mainClock` lets a test control animation time; `advanceTimeBy` rounds up to a multiple of the frame duration. The test clock does not control everything on the Android host.",
-  "track.animation.m.testclock.simp.1": "The 16 ms frame duration in the model is illustrative; the documentation does not give a number.",
+  "track.animation.m.testclock.simp.1": "The 16 ms frame follows the MainTestClock KDoc at the pinned commit (JVM: Android and Desktop); the Test animations page does not give a number. [[src:ui-testclock-src]]",
   "track.animation.m.testclock.ctl.hint": "Toggle autoAdvance and pick a time mark.",
   "track.animation.m.testclock.diagramTitle": "The test, the clock and the animation",
   "track.animation.m.testclock.diagramDesc": "The test drives mainClock; mainClock drives the animation.",
