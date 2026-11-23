@@ -14,4 +14,8 @@
   /* K1: mã nguồn → suy kiểu (biên dịch) → tính giá trị (chạy) → biến nhận kết quả */
   V('eval', { layout: 'pipeline', nodes: [N('eval', 'src', 0, 0, 'source', 'ui'), N('eval', 'types', 3, 0, 'target', 'state'), N('eval', 'eval', 6, 0, 'play', 'runtime'), N('eval', 'out', 9, 0, 'store', 'job')],
     edges: [E('e1', 'src', 'types'), E('e2', 'types', 'eval'), E('e3', 'eval', 'out')], metrics: [T('eval', 'type'), T('eval', 'value')] });
+  /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
+  V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
+    nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],
+    edges: [E('e1', 'src', 'check'), E('e2', 'check', 'rule'), E('e3', 'rule', 'use')], metrics: [T('smartcast', 'smart'), T('smartcast', 'fail')] });
 })();

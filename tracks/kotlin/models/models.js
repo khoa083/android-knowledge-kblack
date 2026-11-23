@@ -56,4 +56,42 @@
         { name: 'chia nguyên cho 7, có Double cho 7.5; tràn Int cho -2147483648 (giá trị tài liệu)', run: function () { return C.intdiv.value === Math.trunc(15 / 2) && C.double.value === 15 / 2 && C.overflow.value === (2147483647 + 1) - 4294967296; } },
         { name: 'chia nguyên và tràn số là bẫy (bước cuối loại pitfall)', run: function () { return steps({ case: 'intdiv' })[3].type === 'pitfall' && steps({ case: 'overflow' })[3].type === 'pitfall' && steps({ case: 'double' })[3].type === 'mechanism'; } }] });
   })();
+
+  /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
+     Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
+  (function () {
+    var m = 'smartcast', KINDS = ['localVal', 'varProp', 'openProp', 'lambdaVar', 'platform'];
+    // smart: có smart cast không ('yes' | 'no' | 'na' = không cần, kiểu là platform type); fail: lỗi lúc nào ('none' | 'compile' | 'runtime')
+    var R = {
+      localVal: { smart: 'yes', fail: 'none', lines: [[2, 3], [3, 4], [4], [8]] },
+      varProp: { smart: 'no', fail: 'compile', lines: [[1, 3], [3, 4], [4], [8]] },
+      openProp: { smart: 'no', fail: 'compile', lines: [[1, 3], [3, 4], [4], [8]] },
+      lambdaVar: { smart: 'no', fail: 'compile', lines: [[1, 2, 3], [2, 4], [4], [6]] },
+      platform: { smart: 'na', fail: 'runtime', lines: [[1, 2], [2], [3], [4, 5]] }
+    };
+    ADE.kotlinSmart = R;
+    function steps(s) {
+      var r = R[s.kind], sn = 'smart.' + s.kind, hl = function (i) { return { snippet: sn, lines: r.lines[i] }; };
+      var ruleSt = r.smart === 'yes' ? 'st.done' : r.smart === 'no' ? 'st.broken' : 'st.skipped';
+      var useSt = r.fail === 'none' ? 'st.done' : r.fail === 'compile' ? 'st.broken' : 'st.crashed';
+      var met = { smart: M(m, 'smart.' + r.smart), fail: M(m, 'fail.' + r.fail) };
+      return [
+        S(m, s.kind + '.code', { type: 'scenario', activeNodes: ['src', 'check'], codeHighlight: hl(0), callouts: [{ kind: 'try', textKey: M(m, 'co.try') }],
+          logEvents: [{ t: 0, kind: 'observe', subject: 'src' }] }),
+        S(m, s.kind + '.rule', { type: r.smart === 'no' ? 'pitfall' : 'mechanism', activeNodes: ['rule'], movingSignals: [{ edge: 'e2', tok: 'state' }], codeHighlight: hl(1),
+          nodeStates: { rule: K + ruleSt }, metrics: { smart: met.smart }, stateAfter: [{ labelKey: M(m, 'met.smart'), valueKey: met.smart }],
+          callouts: [{ kind: 'source', textKey: M(m, 'co.' + s.kind + '.rule') }], logEvents: [{ t: 1, kind: 'check', subject: 'rule' }] }),
+        S(m, s.kind + '.use', { type: r.fail === 'none' ? 'mechanism' : 'pitfall', activeNodes: ['use'], movingSignals: [{ edge: 'e3', tok: r.fail === 'none' ? 'state' : 'signal' }], codeHighlight: hl(2),
+          nodeStates: { rule: K + ruleSt, use: K + useSt }, metrics: met, logEvents: [{ t: 2, kind: r.fail === 'compile' ? 'check' : 'run', subject: 'use' }] }),
+        S(m, s.kind + '.fix', { activeNodes: ['src', 'use'], codeHighlight: hl(3), nodeStates: { rule: K + ruleSt, use: K + 'st.done' }, metrics: met,
+          callouts: [{ kind: 'mechanism', textKey: M(m, 'co.' + s.kind + '.fix') }], logEvents: [{ t: 3, kind: 'write', subject: 'src' }] })
+      ];
+    }
+    reg(m, { controls: [sel(m, 'kind', KINDS)], init: function () { return { kind: 'varProp' }; }, act: setter(['kind']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi loại biến có 4 bước; bước 2 (vị trí 2) là luật smart cast', run: function () { return KINDS.every(function (k) { var st = steps({ kind: k }); return st.length === 4 && st[1].activeNodes[0] === 'rule'; }); } },
+        { name: 'theo bảng điều kiện của tài liệu: val cục bộ được; var property, open property, var bị lambda sửa thì không', run: function () { return R.localVal.smart === 'yes' && R.varProp.smart === 'no' && R.openProp.smart === 'no' && R.lambdaVar.smart === 'no'; } },
+        { name: 'platform type biên dịch được nhưng có thể NPE lúc chạy', run: function () { return R.platform.fail === 'runtime' && steps({ kind: 'platform' })[2].type === 'pitfall'; } }] });
+  })();
 })();
