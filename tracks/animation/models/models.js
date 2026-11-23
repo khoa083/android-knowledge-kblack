@@ -607,4 +607,81 @@
       } }]
     });
   })();
+
+  /* ================= C6 (v2): Animatable loại trừ nhau, liên tục, luồng cử chỉ (Animatable.kt @296313a4, advanced docs) =================
+     retarget: A animateTo(100) đang ở 40 thì B animateTo(0): A bị hủy (onArrived không chạy), B đi từ 40 với vận tốc hiện tại.
+     back: stop → snapTo 60, 120 → thả 400 px/s, đích decay 190 ≤ 300 → animateTo(0, initialVelocity) → Finished.
+     fling: như trên, thả 3000 px/s, đích 900 > 300 → updateBounds(±300) + animateDecay → kẹp ở 300, BoundReached, vận tốc về 0. Số liệu minh họa. */
+  (function () {
+    var m = 'mutex';
+    var SC = ['retarget', 'back', 'fling'];
+    function steps(s) {
+      var sc = SC.indexOf(s.which) >= 0 ? s.which : 'retarget', out = [], t = 0, v = 0, vel = 0, run = 'false', reason = '—', target = 0, arrived = false;
+      var P = function (key, o) {
+        o.id = key.replace(/\./g, '_') + out.length; o.type = o.type || 'mechanism';
+        o.titleKey = M(m, 's.' + key + '.title'); o.explainKey = M(m, 's.' + key + '.explain');
+        o.params = { v: v, vel: vel, target: target };
+        o.metrics = { value: v, velocity: vel };
+        o.stateAfter = [{ labelKey: M(m, 'st.value'), value: v + ' px' }, { labelKey: M(m, 'st.running'), value: run }, { labelKey: M(m, 'st.reason'), value: reason }];
+        o.movingSignals = o.movingSignals || []; o.activeNodes = o.activeNodes || [];
+        o.codeHighlight = { snippet: sc === 'retarget' ? 'mutex_retarget' : 'mutex_swipe', lines: o.lines || [] }; delete o.lines;
+        o.logEvents = [{ t: t += 16, kind: o.kind || 'frame', subject: o.activeNodes[0] || 'anim', detailKey: M(m, 'ev.' + key), params: o.params }]; delete o.kind;
+        out.push(o);
+      };
+      var mv = [{ edge: 'e2', tok: 'anim' }];
+      P('intro.' + sc, { type: 'scenario', activeNodes: ['anim', 'value'], lines: sc === 'retarget' ? [1] : [1], kind: 'observe' });
+      if (sc === 'retarget') {
+        run = 'true'; target = 100;
+        P('a.start', { activeNodes: ['finger', 'anim'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: [3, 4], kind: 'act' });
+        v = 40; vel = 250;
+        P('a.frame', { activeNodes: ['anim', 'value'], movingSignals: mv, lines: [4] });
+        reason = 'Cancelled (A)'; target = 0;
+        P('b.call', { type: 'pitfall', activeNodes: ['finger', 'anim', 'job'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e3', tok: 'error' }], lines: [5, 8], kind: 'interrupt', callouts: [{ kind: 'source', textKey: M(m, 'co.mutex') }] });
+        reason = '—';
+        [[48, 60], [20, -180]].forEach(function (p, i) {
+          v = p[0]; vel = p[1];
+          P('b.frame', { activeNodes: ['anim', 'value'], movingSignals: mv, lines: [8], callouts: i === 0 ? [{ kind: 'source', textKey: M(m, 'co.continuous') }] : undefined });
+        });
+        v = 0; vel = 0; run = 'false'; reason = 'Finished';
+        P('done.retarget', { activeNodes: ['value'], lines: [8], kind: 'settle' });
+        out.arrived = arrived;
+        return out;
+      }
+      P('down', { activeNodes: ['finger', 'anim'], movingSignals: [{ edge: 'e1', tok: 'state' }], lines: [1], kind: 'act', callouts: [{ kind: 'source', textKey: M(m, 'co.stop') }] });
+      [60, 120].forEach(function (x) {
+        v = x; vel = 0; target = x;
+        P('drag', { activeNodes: ['finger', 'anim', 'value'], movingSignals: [{ edge: 'e1', tok: 'state' }, { edge: 'e2', tok: 'ui' }], lines: [2, 3, 4], kind: 'act' });
+      });
+      if (sc === 'back') {
+        vel = 400; target = 190;
+        P('release.back', { activeNodes: ['finger', 'anim'], lines: [6, 7, 8], kind: 'target-change', callouts: [{ kind: 'source', textKey: M(m, 'co.flow') }] });
+        run = 'true';
+        [[150, 150], [60, -300]].forEach(function (p) { v = p[0]; vel = p[1]; target = 0; P('back.frame', { activeNodes: ['anim', 'value'], movingSignals: mv, lines: [9] }); });
+        v = 0; vel = 0; run = 'false'; reason = 'Finished';
+        P('done.back', { activeNodes: ['value'], lines: [9], kind: 'settle' });
+        return out;
+      }
+      vel = 3000; target = 900;
+      P('release.fling', { activeNodes: ['finger', 'anim'], lines: [6, 7, 8], kind: 'target-change', callouts: [{ kind: 'source', textKey: M(m, 'co.flow') }] });
+      run = 'true'; v = 220; vel = 1500;
+      P('fling.frame', { activeNodes: ['anim', 'value'], movingSignals: mv, lines: [10] });
+      v = 300; vel = 0; run = 'false'; reason = 'BoundReached';
+      P('bound', { activeNodes: ['anim', 'value'], movingSignals: [{ edge: 'e2', tok: 'error' }], lines: [8, 10], kind: 'settle', callouts: [{ kind: 'mechanism', textKey: M(m, 'co.bound') }] });
+      return out;
+    }
+    reg(m, {
+      codeId: 'mutex_retarget',
+      simpExtra: [M(m, 'simp.2')],
+      controls: [sel(m, 'which', SC)],
+      init: function () { return { which: 'retarget' }; },
+      act: setter(['which']),
+      steps: steps,
+      selfChecks: [{ name: 'lời gọi B hủy A (onArrived không chạy) và đi tiếp từ 40 với vận tốc 250; thả chậm: về 0, Finished; hất mạnh: kẹp ở 300, BoundReached, vận tốc 0', run: function () {
+        var a = steps({ which: 'retarget' }), b = steps({ which: 'back' }), f = steps({ which: 'fling' });
+        var call = a.filter(function (x) { return /^b_call/.test(x.id); })[0], la = a[a.length - 1], lb = b[b.length - 1], lf = f[f.length - 1];
+        return a.arrived === false && call.params.v === 40 && call.params.vel === 250 && call.type === 'pitfall' && la.metrics.value === 0 && la.stateAfter[2].value === 'Finished' &&
+          lb.metrics.value === 0 && lb.stateAfter[2].value === 'Finished' && lf.metrics.value === 300 && lf.metrics.velocity === 0 && lf.stateAfter[2].value === 'BoundReached';
+      } }]
+    });
+  })();
 })();

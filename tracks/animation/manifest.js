@@ -16,7 +16,7 @@ ADE.registerTrack({
     { id: 'c4', titleKey: 'track.animation.c4.title', sims: ['animation.exitlife', 'animation.visibility'], simAfter: 'life', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (AnimatedVisibility.kt @296313a4, Kunneth Ch.8, Essentials Ch.39)
     { id: 'c5', titleKey: 'track.animation.c5.title', sims: ['animation.acs', 'animation.size'], simAfter: 'inside', bridges: ['X1'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },   // v2 (AnimationModifier.kt, LazyItemScope.kt, LazyLayoutItemAnimation.kt @296313a4; Kunneth Ch.8; AAT Ch.7, Ch.10)
     { id: 'if', titleKey: 'track.animation.if.title', sims: ['animation.repeat'], simAfter: 'inside', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 mới (AnimationSpec.kt, InfiniteTransition.kt, SuspendAnimation.kt, InfiniteAnimationPolicy.kt @296313a4; Essentials 39.5; Kunneth Ch.8)
-    { id: 'c6', titleKey: 'track.animation.c6.title', sims: ['animation.gesture'], bridges: ['X4', 'X2'], goals: [{ id: 'g1', step: 0 }, { id: 'g2', step: 'end' }] },
+    { id: 'c6', titleKey: 'track.animation.c6.title', sims: ['animation.mutex', 'animation.gesture'], simAfter: 'inside', bridges: ['X4', 'X2'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },   // v2 (Animatable.kt, InternalMutatorMutex.kt @296313a4; advanced docs; Essentials Ch.50)
     { id: 'c7', titleKey: 'track.animation.c7.title', sims: ['animation.phaseread'], bridges: ['X1', 'X3'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'c8', titleKey: 'track.animation.c8.title', sims: ['animation.testclock'], bridges: ['X6'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],

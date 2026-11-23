@@ -490,4 +490,9 @@ Trạng thái: `chưa / đang / xong`.
   - Sim mới `animation.repeat` (Restart 3, Reverse 3, Reverse 2, vô hạn với durationScale 0 và rời composition). 3 nguồn mới (`an-inftrans-src`, `an-suspend-src`, `ui-infpolicy-src`), đều HTTP 200.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 117 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
   - **Tiếp theo:** c6 (Animatable và gesture: animateTo/snapTo/animateDecay/stop, mutex, VelocityTracker, fling; advanced docs, Essentials Ch.50, AAT Ch.9, `Animatable.kt`, `DecayAnimationSpec.kt`), rồi se, cv, vm, c7, c8, c0.
+- **Animation v2 · C6 viết lại (2026-11-23):**
+  - Nội dung (`animation_v2_c6.py`, giữ mục v1 `x4` và lab `animation.gesture` làm tab thứ hai): khi nào cần Animatable (Essentials Ch.50 kéo không có đà → cần Animatable; so với animate*AsState; ví dụ tap → animateTo), bên trong ở commit ghim (runAnimation trong MutatorMutex, hủy bằng MutationInterruptedException, liên tục giá trị/vận tốc, initialVelocity, AnimationResult, bounds, snapTo kẹp, @RememberInComposition, InterruptionAwareAnimationSpec), swipe-to-dismiss từng bước theo tài liệu (ghi chú composed → Modifier.Node); 3 bug, 1 bài tập, tự trả lời 3 câu, quiz thêm q3, q4.
+  - Sim mới `animation.mutex` (đổi đích giữa chừng, thả chậm trượt về, hất mạnh chạm biên). 2 nguồn mới (`an-animatable-src`, `an-mutex-src`), đều HTTP 200.
+  - **Kiểm:** report 0 lỗi, 120 cảnh báo; selfCheck PASS; track-check Animation 1280/360 0 vấn đề; routes-check 117 route 0 vấn đề; quét chữ vi/en sạch; đã xem ảnh sim.
+  - **Tiếp theo:** se (shared element: SharedTransitionLayout, sharedElement/sharedBounds, navigation; shared-elements docs, AAT Ch.4–6, `SharedTransitionScope.kt`), rồi cv, vm, c7, c8, c0.
 

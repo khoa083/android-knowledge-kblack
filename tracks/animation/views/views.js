@@ -74,6 +74,13 @@
     edges: [E('e1', 'clock', 'spec'), E('e2', 'spec', 'value'), E('e3', 'policy', 'clock')],
     metrics: [T('repeat', 'ms'), T('repeat', 'iter'), T('repeat', 'value')]
   });
+  /* C6 (v2): ngón tay / lời gọi → Animatable → vị trí; nhánh hủy coroutine cũ. */
+  V('mutex', {
+    layout: 'pipeline', zoom: false,
+    nodes: [N('mutex', 'finger', 0, 0, 'target', 'state'), N('mutex', 'anim', 4, 0, 'motion', 'anim'), N('mutex', 'value', 8, -2, 'square', 'ui'), N('mutex', 'job', 8, 3, 'remove', 'runtime')],
+    edges: [E('e1', 'finger', 'anim'), E('e2', 'anim', 'value'), E('e3', 'anim', 'job')],
+    metrics: [T('mutex', 'value'), T('mutex', 'velocity')]
+  });
   ['retarget', 'spec', 'gesture'].forEach(function (id) {
     ADE.registerView('animation.' + id, { titleKey: K + 'lab.title.' + id, descKey: K + 'lab.graphDesc', nodes: [], edges: [],
       mount: function (container, ctx) { return ADE.animLab.mount(container, id, ctx.modelId); } });

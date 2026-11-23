@@ -155,3 +155,17 @@ Kiến trúc lab: model `kind:'compute'` + `view.mount` (lõi đã hỗ trợ), 
 | repeatable(10, tween(2000), Reverse) cho fadeIn (số chẵn: chính là trường hợp KDoc cảnh báo) | Essentials 39.5 vs `an-spec-src` | Ví dụ của sách, ghi rõ trong bài |
 | InfiniteRepeatableDemo (rotate, keyframes 0→359, Reverse + khoảng nghỉ); progress indicator dùng InfiniteRepeatableSpec | Kunneth Ch.8 | Ví dụ của sách; ghi chú rotate đọc ở composition |
 | Sim `animation.repeat`: 300 ms Linear mỗi lượt; bước "nhảy tới giá trị cuối" theo câu chữ KDoc | Minh họa | selfCheck; ghi trong simp |
+
+### C6 v2 · Animatable và gesture (2026-11-23)
+
+Đọc ở commit ghim 296313a4: `animation-core/.../Animatable.kt`, `InternalMutatorMutex.kt`, `AnimationSpec.kt` (InterruptionAwareAnimationSpec), `SuspendAnimation.kt`.
+
+| Claim | Nguồn | Loại |
+|---|---|---|
+| Loại trừ nhau: runAnimation trong mutatorMutex.mutate; lời gọi mới (animateTo/animateDecay/snapTo/stop) hủy cũ bằng CancellationException, phần sau trong coroutine gọi cũng bị hủy | `an-animatable-src`, `an-mutex-src` (MutationInterruptedException) | impl |
+| animateTo đi từ value hiện tại, initialVelocity mặc định = velocity; chỉ nên đặt sau fling; spring cho vận tốc liên tục | `an-animatable-src` (KDoc) | impl |
+| endAnimation đặt vận tốc 0, isRunning false; AnimationResult Finished/BoundReached; bounds theo từng chiều; snapTo kẹp; stop dừng tại chỗ | `an-animatable-src` | impl |
+| Hàm tạo có @RememberInComposition; animateTo nhận InterruptionAwareAnimationSpec (mới ở commit ghim, bảo người đọc kiểm bản phát hành) | `an-animatable-src`, `an-spec-src` | impl / version |
+| Tap → animateTo; swipeToDismiss: stop, snapTo + VelocityTracker, splineBasedDecay.calculateTargetValue, updateBounds, animateTo(0, v) / animateDecay + onDismissed; bọc trong Modifier.composed | `an-advanced` | stable (ví dụ chính thức) |
+| draggable + rememberDraggableState, detectDragGestures cộng dồn offset | Essentials Ch.50.5–50.6 | Ví dụ của sách |
+| Sim `animation.mutex`: 40 px / 250 px/s, đích decay 190 và 900, biên 300 | Minh họa | selfCheck; ghi trong simp |

@@ -184,4 +184,26 @@
     '    label = "v"',
     ')'
   ]);
+  add('mutex_retarget', [
+    'val offset = remember { Animatable(0f) }',
+    { vi: '// coroutine A', en: '// coroutine A' },
+    'scope.launch {',
+    '    offset.animateTo(100f)',
+    { vi: '    onArrived()                 // ✗ không chạy nếu bị ngắt', en: '    onArrived()                 // ✗ never runs if interrupted' },
+    '}',
+    { vi: '// coroutine B, lát sau', en: '// coroutine B, a moment later' },
+    'scope.launch { offset.animateTo(0f) }'
+  ]);
+  add('mutex_swipe', [
+    'offsetX.stop()',
+    'horizontalDrag(id) { change ->',
+    '    launch { offsetX.snapTo(offsetX.value + change.positionChange().x) }',
+    '    tracker.addPosition(change.uptimeMillis, change.position)',
+    '}',
+    'val velocity = tracker.calculateVelocity().x',
+    'val target = decay.calculateTargetValue(offsetX.value, velocity)',
+    'offsetX.updateBounds(-width, width)',
+    'if (target.absoluteValue <= width) offsetX.animateTo(0f, initialVelocity = velocity)',
+    'else { offsetX.animateDecay(velocity, decay); onDismissed() }'
+  ]);
 })();
