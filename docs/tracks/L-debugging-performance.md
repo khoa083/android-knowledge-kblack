@@ -1,6 +1,6 @@
 # TRACK L — Gỡ lỗi và hiệu năng Android / Android Debugging and Performance (`debugging`)
 
-> **BẢN NHÁP, CHỜ DUYỆT (2026-11-24, người dùng đề xuất chủ đề).** Chưa tạo manifest, model hay nội dung.
+> **ĐÃ DUYỆT (2026-11-24, người dùng đề xuất chủ đề).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **xây sau K**, **gỡ lỗi coroutine gộp vào l2 và l4**. Chưa xây.
 > Nguyên tắc: **cần và đủ**. Dạy cách tìm ra nguyên nhân bằng công cụ, không dạy từng nút bấm của Android Studio. Mỗi chương bắt đầu từ một triệu chứng thật: crash không tái hiện được, stack trace toàn chữ a.b.c, app chậm dần rồi OOM, ANR trên máy người dùng.
 
 ## Manifest đề xuất
@@ -124,6 +124,6 @@ Khuôn mỗi chương như track Kotlin:
 - l10 ↔ I i3 (khóa, deadlock).
 - l11 ↔ I i4, i6 (kênh giao tiếp, cache).
 
-## Câu hỏi cần người dùng quyết
-1. Thứ tự xây: sau K (cuối hàng đợi, đề xuất), hay đưa lên ngay sau G vì công cụ dùng được cho mọi track?
-2. Có thêm chương "gỡ lỗi coroutine" (dump coroutine, debug agent) không? Hiện đang gộp vào l2 và l4.
+## Hai câu hỏi đã có mặc định (người dùng đổi được)
+1. Xây sau K, cuối hàng đợi.
+2. Gỡ lỗi coroutine (dump coroutine, debug agent) gộp vào l2 và l4, không có chương riêng.

@@ -57,7 +57,7 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 | I | Thiết kế hệ thống phía mobile (`sysdesign`) | **Đã duyệt** 2026-11-24, chưa xây (sau H) | `docs/tracks/I-mobile-system-design.md` |
 | J | Mã sạch và kỷ luật làm nghề (`cleancode`) | **Đã duyệt** 2026-11-24, chưa xây (sau I) | `docs/tracks/J-clean-code.md` |
 | K | Lập trình hàm với Kotlin (`fp`) | **Đã duyệt** 2026-11-24, chưa xây (sau J) | `docs/tracks/K-functional-kotlin.md` |
-| L | Gỡ lỗi và hiệu năng Android (`debugging`) | Dàn ý **chờ duyệt** (người dùng đề xuất 2026-11-24) | `docs/tracks/L-debugging-performance.md` |
+| L | Gỡ lỗi và hiệu năng Android (`debugging`) | **Đã duyệt** 2026-11-24, chưa xây (sau K) | `docs/tracks/L-debugging-performance.md` |
 
 Mỗi dàn ý ghi cột **Hình chính** cho từng chương. Kiểu hình chọn theo nội dung, xem `docs/chapter-template-v2.md`, mục "Chọn kiểu hình theo nội dung". Một track chỉ được xây sau khi người dùng duyệt IN/OUT và dàn chương của nó.
 

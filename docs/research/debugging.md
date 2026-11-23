@@ -1,6 +1,6 @@
 # Nghiên cứu track L (Gỡ lỗi và hiệu năng Android)
 
-> Track chưa được duyệt. Dàn ý: `docs/tracks/L-debugging-performance.md`. Nguồn chính thức thắng khi mâu thuẫn.
+> Track đã duyệt 2026-11-24, chưa xây. Dàn ý: `docs/tracks/L-debugging-performance.md`. Nguồn chính thức thắng khi mâu thuẫn.
 
 ## Đã đọc để soạn dàn ý (2026-11-24, chỉ mục lục)
 - **Kodeco, *Android Debugging by Tutorials*:** ch.1–12, lấy từ bookmark PDF trong catalog. PDF không có lớp text nên khi viết phải đọc dạng ảnh trang.
