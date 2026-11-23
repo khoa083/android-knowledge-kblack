@@ -210,6 +210,49 @@
         { name: 'close() viết tay bị bỏ qua khi có ngoại lệ; use đóng tài nguyên nhưng không nuốt ngoại lệ', run: function () { var r = steps({ case: 'resource' }); return r[2].metrics.closed === M(m, 'closed.no') && r[3].metrics.closed === M(m, 'closed.yes') && r[3].metrics.exc === M(m, 'exc.ioe') && r[3].metrics.skipped === 2; } }] });
   })();
 
+  /* ================= K7: collection — tham chiếu read-only, ép kiểu sang Mutable, map trên Map =================
+     Theo Create collections (tham chiếu List tới MutableList thấy trạng thái hiện tại; toList là bản chụp), Effective Kotlin Item 1
+     (down-cast listOf trên JVM ném UnsupportedOperationException), _Maps.kt tag v2.1.0 (Map.map trả List). */
+  (function () {
+    var m = 'collections', CASES = ['view', 'downcast', 'mapOnMap'];
+    // mỗi bước: [node, trạng thái node, số đo {size, seen, type}, loại bước, dòng mã, loại log, chủ thể log]
+    var P = {
+      view: [[['source', 'ref'], {}, { size: 2, seen: 2, type: 'listStr' }, 'scenario', [2, 3, 6], 'observe', 'source'],
+        [['op', 'source', 'ref'], { op: 'done' }, { size: 3, seen: 3, type: 'listStr' }, 'mechanism', [4, 7, 8], 'write', 'op'],
+        [['ref', 'result'], { op: 'done', result: 'surprise' }, { size: 3, seen: 3, type: 'listStr' }, 'pitfall', [9], 'run', 'result'],
+        [['ref', 'result'], { op: 'done', result: 'done' }, { size: 3, seen: 2, type: 'listStr' }, 'mechanism', [10, 11], 'write', 'ref']],
+      downcast: [[['source'], {}, { size: 2, seen: 2, type: 'listStr' }, 'scenario', [1], 'observe', 'source'],
+        [['ref'], { ref: 'done' }, { size: 2, seen: 2, type: 'mutable' }, 'mechanism', [2, 3], 'run', 'ref'],
+        [['ref', 'op'], { ref: 'done', op: 'crashed' }, { size: 2, seen: 2, type: 'mutable' }, 'pitfall', [3, 4], 'exception', 'op'],
+        [['op', 'result'], { ref: 'done', op: 'done', result: 'done' }, { size: 2, seen: 3, type: 'mutable' }, 'mechanism', [5, 6], 'write', 'result']],
+      mapOnMap: [[['source'], {}, { size: 2, seen: 2, type: 'mapInt' }, 'scenario', [1], 'observe', 'source'],
+        [['op'], { op: 'done' }, { size: 2, seen: 2, type: 'listInt' }, 'mechanism', [2, 3], 'run', 'op'],
+        [['op', 'result'], { op: 'done', result: 'broken' }, { size: 2, seen: 2, type: 'listInt' }, 'pitfall', [4], 'check', 'result'],
+        [['op', 'result'], { op: 'done', result: 'done' }, { size: 2, seen: 2, type: 'mapInt' }, 'mechanism', [5, 6], 'write', 'op']]
+    };
+    ADE.kotlinColl = P;
+    var EDGE = { source: null, ref: 'e1', op: 'e2', result: 'e3' };
+    function steps(s) {
+      var K4 = ['start', 'first', 'next', 'end'];
+      return P[s.case].map(function (p, i) {
+        var ns = {}; Object.keys(p[1]).forEach(function (n) { ns[n] = K + 'st.' + p[1][n]; });
+        var met = { size: p[2].size, seen: p[2].seen, type: M(m, 'type.' + p[2].type) };
+        var e = EDGE[p[0][0]] || EDGE[p[0][1]], bad = p[5] === 'exception' || p[3] === 'pitfall';
+        var o = S(m, s.case + '.' + K4[i], { type: p[3], activeNodes: p[0], nodeStates: ns, metrics: met, codeHighlight: { snippet: 'coll.' + s.case, lines: p[4] },
+          movingSignals: e ? [{ edge: e, tok: bad ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[5], subject: p[6] }] });
+        if (i === 0) o.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+        if (i >= 2) o.callouts = [{ kind: p[3] === 'pitfall' ? 'pitfall' : 'source', textKey: M(m, 'co.' + s.case + '.' + K4[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'view' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi tình huống có 4 bước', run: function () { return CASES.every(function (k) { return steps({ case: k }).length === 4; }); } },
+        { name: 'tham chiếu List tới MutableList thấy phần tử mới; bản chụp toList thì không', run: function () { var v = steps({ case: 'view' }); return v[1].metrics.seen === v[1].metrics.size && v[1].metrics.size === 3 && v[3].metrics.seen === 2; } },
+        { name: 'ép kiểu listOf sang MutableList rồi add là ngoại lệ lúc chạy; map trên Map cho List, mapValues giữ Map', run: function () { var d = steps({ case: 'downcast' }), mm = steps({ case: 'mapOnMap' }); return d[2].nodeStates.op === K + 'st.crashed' && mm[1].metrics.type === M(m, 'type.listInt') && mm[3].metrics.type === M(m, 'type.mapInt'); } }] });
+  })();
+
   /* ================= K2: smart cast — trình biên dịch có bảo đảm biến không đổi giữa lúc kiểm và lúc dùng không =================
      Điều kiện theo trang "Type checks and casts" (Smart cast prerequisites); platform type theo "Calling Java from Kotlin". */
   (function () {

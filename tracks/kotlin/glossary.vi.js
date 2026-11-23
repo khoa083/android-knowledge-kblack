@@ -15,5 +15,7 @@ ADE.addGlossary('vi', 'kotlin', {
   "nothing-type": { term: "Nothing", def: "Kiểu của biểu thức không bao giờ hoàn tất bình thường, như throw hay TODO(); là kiểu con của mọi kiểu, nên dùng được sau ?: hay trong một nhánh when.", chapter: "kotlin/k6" },
   "precondition": { term: "require / check / error", def: "Hàm kiểm điều kiện của stdlib: require cho tham số (IllegalArgumentException), check cho trạng thái (IllegalStateException), error() ném IllegalStateException ngay.", chapter: "kotlin/k6" },
   "use-function": { term: "use", def: "Hàm mở rộng trên Closeable: chạy khối rồi luôn đóng tài nguyên, kể cả khi khối ném ngoại lệ; ngoại lệ vẫn được ném tiếp.", chapter: "kotlin/k6" },
+  "read-only-collection": { term: "collection read-only", def: "Interface như List, Set, Map chỉ có thao tác đọc; nghĩa là không sửa được QUA tham chiếu này, không có nghĩa object bên dưới bất biến.", chapter: "kotlin/k7" },
+  "map-values": { term: "mapValues / mapKeys", def: "Biến đổi value (hoặc key) của một Map và trả về Map mới; khác map, vốn trả về List.", chapter: "kotlin/k7" },
   "when-expression": { term: "biểu thức when", def: "when trả về giá trị của nhánh khớp đầu tiên; khi dùng như biểu thức, các nhánh phải phủ đủ mọi trường hợp (thường bằng else).", chapter: "kotlin/k1" }
 });

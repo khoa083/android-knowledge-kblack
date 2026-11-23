@@ -12,7 +12,8 @@ ADE.registerTrack({
     { id: 'k3', titleKey: 'track.kotlin.k3.title', sims: ['kotlin.init'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'k4', titleKey: 'track.kotlin.k4.title', sims: ['kotlin.hashset'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'k5', titleKey: 'track.kotlin.k5.title', sims: ['kotlin.sealed'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'k6', titleKey: 'track.kotlin.k6.title', sims: ['kotlin.exception'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'k6', titleKey: 'track.kotlin.k6.title', sims: ['kotlin.exception'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'k7', titleKey: 'track.kotlin.k7.title', sims: ['kotlin.collections'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'kotlin-int-division', model: 'kotlin.eval', titleKey: 'track.kotlin.preset.eval' }

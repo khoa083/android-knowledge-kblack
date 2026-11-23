@@ -211,6 +211,35 @@
     c('// sửa: use đóng reader dù có ngoại lệ hay không', '// fix: use closes the reader whether or not an exception occurs'),
     'fun readCache(file: File): String = file.bufferedReader().use { it.readText() }'
   ]);
+  add('coll.view', [
+    'class SlotsViewModel {',
+    '    private val _booked = mutableListOf("09:00", "09:30")',
+    '    val booked: List<String> get() = _booked',
+    '    fun book(slot: String) { _booked.add(slot) }',
+    '}',
+    'val before = vm.booked',
+    'vm.book("10:00")',
+    c('println(before.size)              // 3: cùng một object', 'println(before.size)              // 3: the same object'),
+    c('println(before == vm.booked)      // true: "không có gì đổi"', 'println(before == vm.booked)      // true: "nothing changed"'),
+    c('// sửa: lộ ra bản chụp, không lộ chính list đang sửa', '// fix: expose a snapshot, not the list being modified'),
+    'val booked: List<String> get() = _booked.toList()'
+  ]);
+  add('coll.downcast', [
+    'val slots: List<String> = listOf("09:00", "09:30")',
+    c('// ĐỪNG: ép kiểu để sửa', '// DON\'T: cast to modify it'),
+    '(slots as MutableList<String>).add("10:00")',
+    '// JVM: UnsupportedOperationException',
+    c('// sửa: sửa trên một bản sao', '// fix: modify a copy'),
+    'val more = slots.toMutableList().apply { add("10:00") }'
+  ]);
+  add('coll.mapOnMap', [
+    'val prices = mapOf("checkup" to 200, "bloodTest" to 150)',
+    'val discounted = prices.map { it.value * 9 / 10 }',
+    c('// discounted: List<Int> = [180, 135], mất key', '// discounted: List<Int> = [180, 135], the keys are gone'),
+    c('val p = discounted["checkup"]     // lỗi biên dịch', 'val p = discounted["checkup"]     // compile error'),
+    c('// sửa: mapValues giữ key, chỉ đổi value', '// fix: mapValues keeps the keys, changes only the values'),
+    'val discounted = prices.mapValues { it.value * 9 / 10 }   // {checkup=180, bloodTest=135}'
+  ]);
   add('eval.when', [
     'val score = 7',
     'val label = when (score) {',

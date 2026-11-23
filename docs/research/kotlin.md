@@ -102,3 +102,18 @@ Kiểm URL (curl, HTTP 200): sealed-classes.html, enum-classes.html.
 | Bài tập slotOf/parseInput | dựa trên "Catching exceptions" và "Specify expectations", `book-kt-exercises`; lời giải tự viết | — |
 
 Kiểm URL (curl, HTTP 200): exceptions.html, API use, require, run-catching; Closeable.kt ở tag v2.1.0 (raw và blob); trang Oracle NumberFormatException (Java 17). Id `kt-exceptions` đã dùng ở track Coroutines (trang Coroutine exceptions handling), nên trang ngôn ngữ dùng id `kt-exceptions-lang`.
+
+## K7 · Collection: read-only, mutable và xử lý (2026-11-23)
+
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Mỗi loại có interface read-only và Mutable; ưu tiên read-only khi nơi gọi không cần sửa; read-only khác bất biến (kotlinx-collections-immutable); Map không kế thừa Collection | `kt-collections-overview` (trang ghi 03 November 2026) | stable |
+| So bằng: List theo thứ tự, Set và Map không xét thứ tự; mặc định ArrayList, LinkedHashSet, LinkedHashMap giữ thứ tự thêm; HashSet/HashMap không bảo đảm thứ tự, tốn ít bộ nhớ hơn | `kt-collection-types` | stable |
+| Gán tạo tham chiếu mới tới cùng object; tham chiếu List tới MutableList thấy trạng thái hiện tại; toList/toMutableList là bản chụp nông | `kt-constructing-collections` | stable |
+| map trả list kết quả cùng thứ tự; mapKeys/mapValues biến đổi key hoặc value của map | `kt-collection-transformations` | stable |
+| Map<out K, V>.map(transform): List<R>; Map<out K, V>.mapValues(…): Map<K, R> (Maps.kt) | `kt-stdlib-maps` (tag v2.1.0, đã đọc chữ ký) | version |
+| get trả null khi thiếu key, getValue ném, getOrDefault/getOrElse; filterKeys/filterValues trả map mới | `kt-map-operations` | stable |
+| map/filter của stdlib tạo ArrayList rồi trả về kiểu List; down-cast listOf sang MutableList rồi add ném UnsupportedOperationException trên JVM (Arrays.ArrayList), không được bảo đảm về sau; dùng toMutableList | `book-effective-kotlin` Item 1 | guideline |
+| Bài tập Pharmacy | dựa trên "Inventory management", `book-kt-exercises`; lời giải tự viết | — |
+
+Kiểm URL (curl, HTTP 200): collections-overview, collection-types, constructing-collections, collection-transformations, map-operations; _Maps.kt ở tag v2.1.0 (raw và blob).

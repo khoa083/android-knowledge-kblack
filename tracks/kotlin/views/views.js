@@ -30,6 +30,10 @@
   V('exception', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.excFail', idle: K + 'fam.na' },
     nodes: [N('exception', 'call', 0, 0, 'play', 'ui'), N('exception', 'fn', 3, 0, 'layers', 'state'), N('exception', 'handler', 6, 0, 'diamond', 'runtime'), N('exception', 'cleanup', 9, 0, 'store', 'job')],
     edges: [E('e1', 'call', 'fn'), E('e2', 'fn', 'handler'), E('e3', 'handler', 'cleanup')], metrics: [T('exception', 'exc'), T('exception', 'skipped'), T('exception', 'closed')] });
+  /* K7: collection gốc → tham chiếu / ép kiểu → thao tác → bên đọc thấy gì */
+  V('collections', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.collFail' },
+    nodes: [N('collections', 'source', 0, 0, 'store', 'state'), N('collections', 'ref', 3, 0, 'layers', 'ui'), N('collections', 'op', 6, 0, 'play', 'runtime'), N('collections', 'result', 9, 0, 'search', 'job')],
+    edges: [E('e1', 'source', 'ref'), E('e2', 'ref', 'op'), E('e3', 'op', 'result')], metrics: [T('collections', 'size'), T('collections', 'seen'), T('collections', 'type')] });
   /* K2: mã → kiểm null → luật smart cast của trình biên dịch → chỗ dùng */
   V('smartcast', { layout: 'pipeline', famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.na' },
     nodes: [N('smartcast', 'src', 0, 0, 'source', 'ui'), N('smartcast', 'check', 3, 0, 'diamond', 'state'), N('smartcast', 'rule', 6, 0, 'target', 'runtime'), N('smartcast', 'use', 9, 0, 'play', 'job')],
