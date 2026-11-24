@@ -290,4 +290,44 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['what', 'no', 'do'].map(function (k) { return h('th', { text: T('pu.gcol.' + k) }); }))), tb)),
       h('div', { class: 'vz-legend', text: T('pu.legend') })));
   }, { labelKey: K + 'tab.pu', icon: 'queue' });
+
+  /* ---------- I10a: bảng tính bộ nhớ bitmap theo từng bước; bảng vòng lặp calculateInSampleSize ---------- */
+  ADE.registerScreen('sysdesign.bitmap', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.sysBitmap, c = ctx.state.case, i = Math.max(0, idx(ctx)), k = Y.calc(c);
+    var f1 = function (x) { return T('bm.mib', { n: String(Math.round(x * 100) / 100).replace('.', ADE.lang === 'vi' ? ',' : '.') }); };
+    var R = [['src', 0, Y.W + ' × ' + Y.H + ' px'], ['need', 0, Y.REQ + ' × ' + Y.REQ + ' px'], ['s', 1, String(k.s)], ['dec', 2, k.dw + ' × ' + k.dh + ' px'], ['bpp', 2, T('bm.bppv')],
+      ['one', 2, f1(k.one)], ['n', 3, String(Y.N)], ['total', 3, f1(k.total)], ['heap', 3, f1(Y.HEAP)]];
+    var tb = h('tbody');
+    R.forEach(function (r) {
+      var shown = i >= r[1], cur = i === r[1], bad = shown && k.oom && r[0] === 'total';
+      tb.appendChild(h('tr', null, h('th', { class: cur ? 'hl' : null, text: T('bm.r.' + r[0]) }), h('td', { class: !shown ? 'dim' : (bad ? 'bad' : (cur ? 'hl' : null)), text: shown ? r[2] + (bad ? ' · ' + T('bm.oom') : '') : '?' })));
+    });
+    var kids = [h('p', { class: 'vz-cap', text: T('bm.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, h('th', { text: T('bm.col.what') }), h('th', { text: T('bm.col.val') }))), tb))];
+    if (c === 'sampled' && i >= 1) {
+      var lb = h('tbody');
+      Y.loop().forEach(function (r) {
+        lb.appendChild(h('tr', null, h('td', { class: 'c', text: String(r[0]) }), h('td', { class: 'c', text: r[1] + ' × ' + r[2] }), h('td', { class: r[3] ? 'ok' : 'hl', text: T(r[3] ? 'bm.l.go' : 'bm.l.stop') })));
+      });
+      kids.push(h('p', { class: 'vz-cap', text: T('bm.lcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['s', 'half', 'go'].map(function (q) { return h('th', { text: T('bm.lcol.' + q) }); }))), lb)));
+    }
+    kids.push(h('div', { class: 'vz-legend', text: T('bm.legend') }));
+    box.appendChild(h('div', { class: 'vz' }, kids));
+  }, { labelKey: K + 'tab.bm', icon: 'list' });
+
+  /* ---------- I10b: dãy ô các khúc upload theo từng request; ô HTTP của bước ---------- */
+  ADE.registerScreen('sysdesign.upload', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.sysUpload, c = ctx.state.case, i = Math.max(0, idx(ctx));
+    var tb = h('tbody');
+    Y.rowsOf(c, i).forEach(function (row) {
+      // mỗi lần gửi chia hai hàng 10 khúc để vừa màn hẹp; số trong ô là số thứ tự khúc, màu là trạng thái
+      [0, 10].forEach(function (off) {
+        var cells = row[1].slice(off, off + 10).map(function (st, n) { return h('td', { class: 'c' + (st === 'ok' ? ' ok' : (st === 'lost' || st === 'part' ? ' bad' : (st === 'sent' ? ' hl' : ' dim'))), title: T('up.st.' + (st || 'none')), text: String(off + n + 1) + (st === 'part' ? '½' : '') }); });
+        tb.appendChild(h('tr', null, [h('th', { text: off ? '' : T('up.row.' + row[0]) })].concat(cells)));
+      });
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('up.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-cells' }, tb)),
+      h('div', { class: 'vz-box' + (i === 1 ? ' bad' : '') }, [h('div', { class: 'vz-h', text: T('up.httph') })].concat(Y.HTTP[c][i].map(function (l) { return h('div', { text: l }); }))),
+      h('div', { class: 'vz-legend', text: T('up.legend') })));
+  }, { labelKey: K + 'tab.up', icon: 'rail' });
 })();

@@ -728,6 +728,8 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 .vz-table .bad, .vz-box.bad { color: var(--tok-error); border-color: var(--tok-error); background: repeating-linear-gradient(45deg, transparent 0 5px, rgba(196, 43, 50, .10) 5px 10px); }
 .vz-table .ok { color: var(--ink); font-weight: 700; }
 .vz-table .dim { color: var(--ink-3); }
+.vz-cells th, .vz-cells td { padding: 4px 2px; min-width: 22px; }
+.vz-cells tbody th { padding: 4px 6px; max-width: 9em; }
 .vz-chip { display: inline-block; margin: 1px 2px; padding: 1px 6px; border: 1px solid var(--line-strong); border-radius: 3px; background: var(--paper-2); }
 .vz-chip.bad { border-color: var(--tok-error); color: var(--tok-error); }
 .vz-chip.hl { outline: 2px solid var(--focus); }

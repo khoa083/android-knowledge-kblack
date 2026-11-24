@@ -47,4 +47,12 @@
   V('push', { layout: 'pipeline', nodes: [N('push', 'srv', 0, 1.5, 'store', 'job'), N('push', 'push', 4, 0, 'queue', 'runtime'), N('push', 'app', 8, 1.5, 'phone', 'ui')],
     edges: [E('e1', 'srv', 'push'), E('e2', 'push', 'app'), E('e3', 'app', 'srv')],
     metrics: [T('push', 'right'), T('push', 'shown'), T('push', 'fetch')] });
+  /* I10a: tệp ảnh → bộ giải mã → heap của app → màn hình */
+  V('bitmap', { layout: 'pipeline', nodes: [N('bitmap', 'file', 0, 1, 'store', 'job'), N('bitmap', 'decoder', 3, 1, 'chip', 'runtime'), N('bitmap', 'heap', 6, 1, 'list', 'state'), N('bitmap', 'screen', 9, 1, 'screen', 'ui')],
+    edges: [E('e1', 'file', 'decoder'), E('e2', 'decoder', 'heap'), E('e3', 'heap', 'screen')],
+    metrics: [T('bitmap', 'one'), T('bitmap', 'total'), T('bitmap', 'oom')] });
+  /* I10b: app → mạng → server */
+  V('upload', { layout: 'pipeline', nodes: [N('upload', 'app', 0, 1, 'phone', 'ui'), N('upload', 'net', 4, 1, 'rail', 'signal'), N('upload', 'server', 8, 1, 'store', 'job')],
+    edges: [E('e1', 'app', 'net'), E('e2', 'net', 'server')],
+    metrics: [T('upload', 'sent'), T('upload', 'stored'), T('upload', 'waste')] });
 })();

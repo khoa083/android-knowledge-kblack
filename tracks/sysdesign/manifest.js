@@ -15,7 +15,8 @@ ADE.registerTrack({
     { id: 'i6', titleKey: 'track.sysdesign.i6.title', sims: ['sysdesign.cache'], simAfter: 'hook', bridges: ['X19'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'i7', titleKey: 'track.sysdesign.i7.title', sims: ['sysdesign.paging'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'i8', titleKey: 'track.sysdesign.i8.title', sims: ['sysdesign.conflict'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'i9', titleKey: 'track.sysdesign.i9.title', sims: ['sysdesign.push'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
+    { id: 'i9', titleKey: 'track.sysdesign.i9.title', sims: ['sysdesign.push'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'i10', titleKey: 'track.sysdesign.i10.title', sims: ['sysdesign.bitmap', 'sysdesign.upload'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'sysdesign-plan', model: 'sysdesign.plan', titleKey: 'track.sysdesign.preset.plan' },
@@ -26,7 +27,9 @@ ADE.registerTrack({
     { id: 'sysdesign-cache', model: 'sysdesign.cache', titleKey: 'track.sysdesign.preset.cache' },
     { id: 'sysdesign-paging', model: 'sysdesign.paging', titleKey: 'track.sysdesign.preset.paging' },
     { id: 'sysdesign-conflict', model: 'sysdesign.conflict', titleKey: 'track.sysdesign.preset.conflict' },
-    { id: 'sysdesign-push', model: 'sysdesign.push', titleKey: 'track.sysdesign.preset.push' }
+    { id: 'sysdesign-push', model: 'sysdesign.push', titleKey: 'track.sysdesign.preset.push' },
+    { id: 'sysdesign-bitmap', model: 'sysdesign.bitmap', titleKey: 'track.sysdesign.preset.bitmap' },
+    { id: 'sysdesign-upload', model: 'sysdesign.upload', titleKey: 'track.sysdesign.preset.upload' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

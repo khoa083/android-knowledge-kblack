@@ -2,6 +2,31 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('sysdesign', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('i10.full', [
+    c('val bmp = BitmapFactory.decodeFile(path)                     // 4000 × 3000 × 4 byte ≈ 45,8 MiB', 'val bmp = BitmapFactory.decodeFile(path)                     // 4000 × 3000 × 4 bytes ≈ 45.8 MiB'),
+    c('Image(bmp.asImageBitmap(), null, Modifier.size(90.dp))       // hiện ở 270×270 px, vẫn giữ cả ảnh gốc', 'Image(bmp.asImageBitmap(), null, Modifier.size(90.dp))       // shown at 270×270 px, still holding the original')
+  ]);
+  add('i10.sampled', [
+    'val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }',
+    c('BitmapFactory.decodeFile(path, opts)                          // chỉ đọc kích thước 4000×3000, chưa tốn bộ nhớ', 'BitmapFactory.decodeFile(path, opts)                          // reads only the size, 4000×3000, no memory yet'),
+    'opts.inSampleSize = calculateInSampleSize(opts, 270, 270)     // 8 → 500×375',
+    'opts.inJustDecodeBounds = false',
+    c('val bmp = BitmapFactory.decodeFile(path, opts)                // 500 × 375 × 4 byte ≈ 0,72 MiB', 'val bmp = BitmapFactory.decodeFile(path, opts)                // 500 × 375 × 4 bytes ≈ 0.72 MiB'),
+    c('// thực tế: thư viện ảnh (Glide, Coil) làm việc này theo kích thước view và có cache', '// in practice an image library (Glide, Coil) does this for the view size, with caching')
+  ]);
+  add('i10.whole', [
+    'val body = file.asRequestBody("video/mp4".toMediaType())',
+    c('api.upload(body)                   // một request 200 MB: đứt ở 95% thì gửi lại cả 200 MB', 'api.upload(body)                   // one 200 MB request: cut at 95%, resend all 200 MB')
+  ]);
+  add('i10.resumable', [
+    c('val url = store.uploadUrl ?: api.createUpload(file.length()).also { store.uploadUrl = it }  // POST → Location, lưu lại', 'val url = store.uploadUrl ?: api.createUpload(file.length()).also { store.uploadUrl = it }  // POST → Location, kept'),
+    c('var offset = api.uploadOffset(url)                       // HEAD → Upload-Offset: server đã có bao nhiêu', 'var offset = api.uploadOffset(url)                       // HEAD → Upload-Offset: how much the server has'),
+    'while (offset < file.length()) {',
+    '    val n = minOf(CHUNK, file.length() - offset)',
+    c('    offset = api.append(url, file.slice(offset, n), offset)   // PATCH, Upload-Offset: offset', '    offset = api.append(url, file.slice(offset, n), offset)   // PATCH, Upload-Offset: offset'),
+    '}',
+    c('// chạy trong WorkManager (foreground) hay job UIDT (Android 14+), để sống qua khi app ra nền', '// run in WorkManager (foreground) or a UIDT job (Android 14+), so it survives the app going to the background')
+  ]);
   add('i9.payload', [
     c('// server: gửi cả nội dung trong push', '// server: the whole content goes in the push'),
     c('push.send(device, mapOf("text" to "Lịch khám đổi sang 10:00"))', 'push.send(device, mapOf("text" to "Your visit moved to 10:00"))'),

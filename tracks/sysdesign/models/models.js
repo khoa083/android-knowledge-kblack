@@ -507,4 +507,93 @@
         { name: 'push mất: mở app vẫn đồng bộ và đúng; push hai lần: khử trùng còn một thông báo', run: function () { return MET.lost[3][0] === 1 && MET.lost[3][1] === 0 && MSGS.dup[2].length === 2 && MET.dup[3][1] === 1; } },
         { name: 'mỗi tình huống 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { 'i9.payload': 4, 'i9.tickle': 6, 'i9.dedupe': 3 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && CODE[c][1].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[CODE[c][0]]; }); }); }); } }] });
   })();
+
+  /* ================= I10a: bitmap — giải mã ảnh gốc so với giải mã theo kích thước hiển thị =================
+     Theo Android: Loading large bitmaps (inJustDecodeBounds, inSampleSize lũy thừa của 2, calculateInSampleSize), Bitmap.Config (ARGB_8888 4 byte).
+     Ảnh 4000×3000 từ camera, ô hiển thị 90 dp ở mật độ 3x = 270 px, 12 ảnh trên màn hình, giới hạn heap 256 MiB là minh họa (tùy máy). */
+  (function () {
+    var m = 'bitmap', CASES = ['full', 'sampled'], KS = ['s1', 's2', 's3', 's4'], W = 4000, H = 3000, REQ = 270, BPP = 4, N = 12, HEAP = 256, MIB = 1024 * 1024;
+    function sample(w, h, rw, rh) { var s = 1; if (h > rh || w > rw) { var hh = h / 2, hw = w / 2; while (hh / s >= rh && hw / s >= rw) s *= 2; } return s; }
+    function loop(w, h, rw, rh) { var out = [], s = 1, hh = h / 2, hw = w / 2; for (;;) { var go = hh / s >= rh && hw / s >= rw; out.push([s, hw / s, hh / s, go]); if (!go) break; s *= 2; } return out; }
+    function calc(c) {
+      var s = c === 'full' ? 1 : sample(W, H, REQ, REQ), dw = Math.floor(W / s), dh = Math.floor(H / s), one = dw * dh * BPP / MIB;
+      return { s: s, dw: dw, dh: dh, one: one, total: one * N, oom: one * N > HEAP };
+    }
+    ADE.sysBitmap = { W: W, H: H, REQ: REQ, BPP: BPP, N: N, HEAP: HEAP, calc: calc, loop: function () { return loop(W, H, REQ, REQ); } };
+    var LINES = { full: [['i10.full', [1]], ['i10.full', [1]], ['i10.full', [1]], ['i10.full', [2]]], sampled: [['i10.sampled', [1, 2]], ['i10.sampled', [3]], ['i10.sampled', [4, 5]], ['i10.sampled', [6]]] };
+    var NODES = [['file', 'decoder'], ['decoder'], ['decoder', 'heap'], ['heap', 'screen']];
+    function steps(st) {
+      var c = st.case, k = calc(c);
+      return KS.map(function (id, i) {
+        var bad = c === 'full' && i === 3, type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), ns = {};
+        NODES[i].forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var mem = i < 2 ? 0 : (i === 2 ? k.one : k.total);
+        var o = S(m, c + '.' + id, { type: type, activeNodes: NODES[i], nodeStates: ns,
+          metrics: { one: i >= 2 ? Math.round(k.one * 100) / 100 : 0, total: Math.round(mem * 10) / 10, oom: bad ? 1 : 0 },
+          codeHighlight: { snippet: LINES[c][i][0], lines: LINES[c][i][1] },
+          movingSignals: [{ edge: ['e1', 'e1', 'e2', 'e3'][i], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 0 ? 'observe' : 'run'), subject: NODES[i][NODES[i].length - 1] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + id) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'full' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'ví dụ của tài liệu: 2048×1536, đích 512×384 → inSampleSize 4, 0,75 MiB thay vì 12 MiB', run: function () { return sample(2048, 1536, 512, 384) === 4 && 512 * 384 * 4 / MIB === 0.75 && 2048 * 1536 * 4 / MIB === 12; } },
+        { name: '4000×3000 cho ô 270 px: inSampleSize 8 → 500×375, khoảng 0,72 MiB; ảnh gốc 45,8 MiB', run: function () { var a = calc('sampled'), b = calc('full'); return a.s === 8 && a.dw === 500 && a.dh === 375 && Math.abs(a.one - 0.715) < 0.01 && Math.abs(b.one - 45.78) < 0.01; } },
+        { name: '12 ảnh gốc vượt giới hạn 256 MiB; 12 ảnh đã thu nhỏ thì không', run: function () { return calc('full').oom && !calc('sampled').oom; } },
+        { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { 'i10.full': 2, 'i10.sampled': 6 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (p) { return p[1].every(function (x) { return x >= 1 && x <= n[p[0]]; }); }); }); } }] });
+  })();
+
+  /* ================= I10b: upload tệp lớn — một request so với upload tiếp tục được, theo khúc =================
+     Theo Alex Xu tập 1 ch.14–15 (chia khúc, upload tiếp tục được: lấy URL, gửi, đứt thì tiếp) và bản nháp IETF Resumable Uploads for HTTP
+     (draft 16: POST → Location, HEAD → Upload-Offset, PATCH). Video 200 MB, khúc 10 MB, đứt khi đang gửi khúc 20 (195 MB) là minh họa.
+     Giản lược: server trong mô phỏng chỉ giữ các khúc trọn vẹn; theo bản nháp, server có thể báo cả phần lẻ. */
+  (function () {
+    var m = 'upload', CASES = ['whole', 'resumable'], KS = ['s1', 's2', 's3', 's4'], NCH = 20, MB = 10;
+    // mỗi hàng là một request (hay một lượt gửi); trạng thái từng khúc: '' chưa gửi | 'sent' đang gửi, server chưa giữ | 'ok' server đã giữ | 'lost' mất | 'part' gửi dở
+    function fill(n, v) { var a = []; for (var k = 0; k < NCH; k++) a.push(k < n ? v : ''); return a; }
+    function rowsOf(c, i) {
+      if (c === 'whole') {
+        var r1 = i === 0 ? fill(10, 'sent') : fill(19, 'lost'); if (i >= 1) r1[19] = 'part';
+        var rows = [['r1', r1]];
+        if (i >= 2) rows.push(['r2', i === 2 ? fill(10, 'sent') : fill(20, 'ok')]);
+        return rows;
+      }
+      var f = i === 0 ? fill(10, 'ok') : fill(19, 'ok');
+      if (i === 1 || i === 2) f[19] = 'part'; if (i === 3) f[19] = 'ok';
+      return [['file', f]];
+    }
+    var WASTE = { whole: [0, 195, 195, 195], resumable: [0, 5, 5, 5] };   // MB đã gửi mà phải gửi lại
+    var SENT = { whole: [100, 195, 295, 395], resumable: [100, 195, 195, 205] }, STORED = { whole: [0, 0, 0, 200], resumable: [100, 190, 190, 200] };
+    var HTTP = {
+      whole: [['POST /videos  (200 MB, Content-Length: 209715200)'], ['… 195 MB: connection reset'], ['POST /videos  (200 MB, again from byte 0)'], ['← 201 Created']],
+      resumable: [['POST /uploads  (Upload-Complete: ?0)', '← 104, Location: /uploads/abc', 'PATCH /uploads/abc  (Upload-Offset: 0 … 90 MB)'], ['PATCH /uploads/abc  (Upload-Offset: 190 MB)', '… 195 MB: connection reset'], ['HEAD /uploads/abc', '← 204, Upload-Offset: 190 MB'], ['PATCH /uploads/abc  (Upload-Offset: 190 MB, Upload-Complete: ?1)', '← 201 Created']]
+    };
+    ADE.sysUpload = { NCH: NCH, MB: MB, rowsOf: rowsOf, SENT: SENT, STORED: STORED, HTTP: HTTP };
+    var LINES = { whole: [['i10.whole', [1, 2]], ['i10.whole', [2]], ['i10.whole', [2]], ['i10.whole', [2]]], resumable: [['i10.resumable', [1, 3, 4, 5]], ['i10.resumable', [5]], ['i10.resumable', [2]], ['i10.resumable', [3, 5, 7]]] };
+    var NODES = [['app', 'net', 'server'], ['net'], ['app', 'server'], ['app', 'server']];
+    function steps(st) {
+      var c = st.case;
+      return KS.map(function (id, i) {
+        var bad = (i === 1) || (c === 'whole' && i >= 2), type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), ns = {};
+        NODES[i].forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var o = S(m, c + '.' + id, { type: type, activeNodes: NODES[i], nodeStates: ns,
+          metrics: { sent: SENT[c][i], stored: STORED[c][i], waste: WASTE[c][i] },
+          codeHighlight: { snippet: LINES[c][i][0], lines: LINES[c][i][1] },
+          movingSignals: [{ edge: i === 1 ? 'e1' : 'e2', tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : 'run'), subject: NODES[i][NODES[i].length - 1] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + id) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'whole' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'một request: đứt ở 195 MB thì gửi lại từ đầu, tổng 395 MB', run: function () { return SENT.whole[3] === 395 && STORED.whole[1] === 0 && rowsOf('whole', 3)[1][1].every(function (x) { return x === 'ok'; }); } },
+        { name: 'tiếp tục được: HEAD báo 190 MB, chỉ gửi lại khúc 20, tổng 205 MB', run: function () { var f = rowsOf('resumable', 2)[0][1]; return f.slice(0, 19).every(function (x) { return x === 'ok'; }) && f[19] === 'part' && SENT.resumable[3] === 205 && STORED.resumable[2] === 19 * MB; } },
+        { name: 'lãng phí cuối cùng: 195 MB so với 5 MB', run: function () { var w = steps({ case: 'whole' })[3].metrics.waste, r = steps({ case: 'resumable' })[3].metrics.waste; return w === 195 && r === 5; } },
+        { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { 'i10.whole': 2, 'i10.resumable': 7 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (p) { return p[1].every(function (x) { return x >= 1 && x <= n[p[0]]; }); }); }); } }] });
+  })();
 })();

@@ -148,3 +148,14 @@ Quyết định của người dùng (2026-11-24): FCM và dịch vụ bên th�
 | ID cũ sau một tháng không kết nối, push khó tới; 270 ngày thì hết hạn (Android) | fcm-tokens | stable |
 | POST_NOTIFICATIONS từ Android 13; mới cài thì tắt; hỏi lúc người dùng tự chọn | ax-notif-perm | stable |
 | Push là tín hiệu, server là nguồn sự thật, đồng bộ khi mở app, mốc giờ, id, lỗi cờ "đã gửi" bị khôi phục | site | simplified |
+
+### I10 · Ảnh và tệp lớn
+Đọc ngày 2026-11-24: Loading large bitmaps, Bitmap.Config, UIDT, bản nháp IETF resumable upload (draft 16, 2026-11-23; phần sau mục 3 chỉ có bản tóm tắt của công cụ) qua agent web-fetch (200); Xu tập 1 ch.14–15 từ bản text.
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| inJustDecodeBounds chỉ đọc kích thước; inSampleSize làm tròn xuống lũy thừa 2; ví dụ 2048×1536 → 512×384, 12 MB → 0,75 MB; calculateInSampleSize; khuyên thư viện ảnh | ax-load-bitmap | stable |
+| ARGB_8888 4 byte, RGB_565 2 byte, RGBA_F16 8 byte, HARDWARE chỉ ở bộ nhớ đồ họa (API 26) | ax-bitmap-config | stable |
+| UIDT từ Android 14: quyền RUN_USER_INITIATED_JOBS, cần thông báo, lên lịch khi app hiện; trước đó WorkManager foreground | ax-uidt | version |
+| Upload thường/tiếp tục được; ba bước; chia khúc video | book-xu1 ch.14, ch.15 | guideline |
+| POST → Location; HEAD → Upload-Offset; PATCH với Upload-Offset, Upload-Complete; offset không giảm | ietf-resumable-upload (draft 16) | version |
+| Ảnh 4000×3000, ô 270 px, 12 ảnh, heap 256 MiB, video 200 MB, khúc 10 MB, server chỉ giữ khúc trọn, lưu nhiều cỡ ảnh | site | simplified |
