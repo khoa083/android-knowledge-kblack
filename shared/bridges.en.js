@@ -40,5 +40,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X20.title': 'require in the constructor, parsing at the boundary',
   'shared.bridge.X20.summary': 'The Kotlin chapter teaches the tools: require throws IllegalArgumentException on bad arguments, check guards state. The owner chapter teaches where to use them: require in a value class init so invalid values cannot be built, and a parse function returning a ? type at the boundary so users get an error at once instead of the app throwing.',
   'shared.bridge.X21.title': 'The rhythm of writing tests, and tests by layer',
-  'shared.bridge.X21.summary': 'The architecture chapter teaches tests by layer: the ViewModel with a fake repository, the repository with a real in-memory database, the UI with Compose tests. The owner chapter teaches the rhythm: the example list before the code, each test seen failing before it passes, refactoring while all tests are green.'
+  'shared.bridge.X21.summary': 'The architecture chapter teaches tests by layer: the ViewModel with a fake repository, the repository with a real in-memory database, the UI with Compose tests. The owner chapter teaches the rhythm: the example list before the code, each test seen failing before it passes, refactoring while all tests are green.',
+  'shared.bridge.X22.title': 'DIP at class level and dependency direction across layers',
+  'shared.bridge.X22.summary': 'The architecture chapter teaches the whole app\'s dependency direction: UI and data depend on the business layer, never the reverse. The owner chapter teaches the principle at class level: the policy defines an interface (PaymentGateway), the detail (payment provider, SDK) implements it, so the source arrow runs from detail into policy.'
 });

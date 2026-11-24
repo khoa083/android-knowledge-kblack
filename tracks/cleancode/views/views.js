@@ -39,4 +39,8 @@
   V('bisect', { layout: 'pipeline', nodes: [N('bisect', 'report', 0, 1, 'phone', 'ui'), N('bisect', 'test', 3, 1, 'check', 'state'), N('bisect', 'pick', 6, 1, 'list', 'job'), N('bisect', 'verdict', 9, 1, 'target', 'runtime')],
     edges: [E('e1', 'report', 'test'), E('e2', 'test', 'pick'), E('e3', 'pick', 'verdict')],
     metrics: [T('bisect', 'probes'), T('bisect', 'left'), T('bisect', 'minutes')] });
+  /* J8: nghiệp vụ → (giao diện ← chi tiết) → SDK */
+  V('solid', { layout: 'pipeline', nodes: [N('solid', 'booking', 0, 1.5, 'job', 'ui'), N('solid', 'port', 4, 0, 'target', 'state'), N('solid', 'adapter', 4, 3, 'layers', 'job'), N('solid', 'sdk', 8, 1.5, 'store', 'runtime')],
+    edges: [E('e1', 'booking', 'sdk'), E('e2', 'booking', 'port'), E('e3', 'adapter', 'port'), E('e4', 'adapter', 'sdk')],
+    metrics: [T('solid', 'files'), T('solid', 'crash'), T('solid', 'detail')] });
 })();

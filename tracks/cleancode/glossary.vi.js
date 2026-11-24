@@ -19,5 +19,8 @@ ADE.addGlossary('vi', 'cleancode', {
   "strangler": { term: "strangler", def: "Làm thay đổi lớn song song thay vì tại chỗ: thêm cái mới cạnh cái cũ, chuyển dần từng nơi dùng, xóa cái cũ khi không còn ai dùng. Martin Fowler đặt tên theo cây đa bóp cổ.", chapter: "cleancode/j6" },
   "bisection": { term: "chia đôi (bisection)", def: "Tìm nguyên nhân bằng cách loại một nửa khoảng nghi ngờ sau mỗi lần thử: một nửa mã, hay một nửa số commit. n commit cần khoảng log2(n) lần thử.", chapter: "cleancode/j7" },
   "regression-test": { term: "test hồi quy", def: "Test được viết để tái hiện một lỗi đã gặp; sau khi sửa, nó ở lại để lỗi đó không quay lại.", chapter: "cleancode/j7" },
+  "solid": { term: "SOLID", def: "Năm nguyên lý thiết kế lớp do Robert C. Martin gom lại (Michael Feathers gợi tên): SRP, OCP, LSP, ISP, DIP.", chapter: "cleancode/j8" },
+  "dip-class-level": { term: "đảo phụ thuộc (DIP) ở mức lớp", def: "Chính sách cấp cao không phụ thuộc chi tiết cấp thấp; nghiệp vụ định nghĩa giao diện, chi tiết cài nó, nên mũi tên mã nguồn đi ngược chiều gọi lúc chạy.", chapter: "cleancode/j8" },
+  "simple-design": { term: "simple design", def: "Bốn luật của Kent Beck: chạy qua mọi test, không trùng lặp, diễn đạt ý định, ít lớp và hàm nhất có thể.", chapter: "cleancode/j8" },
   "code-rot": { term: "mã mục dần", def: "Mã phức tạp dần qua từng thay đổi nhỏ mà không ai để ý, tới lúc không còn ai dám sửa. Seemann đề xuất đặt ngưỡng cho một chỉ số để chặn nó.", chapter: "cleancode/j1" }
 });

@@ -225,4 +225,32 @@
     '# ... 137 is the first bad commit',
     'git bisect reset'
   ]);
+
+  /* J8: thiết kế when theo chuỗi (j8.switch) và thiết kế theo SOLID (j8.solid) */
+  add('j8.switch', [
+    c('class AppointmentManager {                 // lịch + phí + thông báo: 3 nhóm người cùng sửa (SRP)', 'class AppointmentManager {                 // schedule + fees + notifications: 3 groups edit it (SRP)'),
+    '    fun fee(method: String, amount: Long) = when (method) {',
+    '        "cash" -> 0L',
+    '        "card" -> amount * 2 / 100',
+    c('        else -> 0L                            // MoMo rơi vào đây: phí 0', '        else -> 0L                            // MoMo lands here: a 0 fee'),
+    '    }',
+    c('    // cùng kiểu when (method) ở pay(), receipt(), refund(), analytics(): 5 nơi (OCP)', '    // the same when (method) in pay(), receipt(), refund(), analytics(): 5 places (OCP)'),
+    '}',
+    'class InsurancePayment : CardPayment() {',
+    '    override fun refund(id: String) = throw UnsupportedOperationException()   // LSP',
+    '}',
+    c('class BookingService(private val vnpay: VnPaySdkClient)     // nghiệp vụ → SDK (DIP)', 'class BookingService(private val vnpay: VnPaySdkClient)     // policy → SDK (DIP)')
+  ]);
+  add('j8.solid', [
+    c('class BookingScheduler      // lễ tân', 'class BookingScheduler      // front desk'),
+    c('class FeePolicy             // kế toán', 'class FeePolicy             // accounting'),
+    c('class ReminderComposer      // marketing', 'class ReminderComposer      // marketing'),
+    'sealed interface PaymentMethod { fun fee(amount: Long): Long }',
+    c('class MoMo(val phone: PhoneNumber) : PaymentMethod, Refundable { /* ... */ }   // thêm: 1 file', 'class MoMo(val phone: PhoneNumber) : PaymentMethod, Refundable { /* ... */ }   // added: 1 file'),
+    'interface Refundable { suspend fun refund(id: PaymentId) }',
+    c('class Insurance(val policy: PolicyNo) : PaymentMethod { /* không hứa hoàn tiền */ }', 'class Insurance(val policy: PolicyNo) : PaymentMethod { /* promises no refund */ }'),
+    c('interface PaymentGateway { suspend fun charge(m: PaymentMethod, amount: Long) }   // nghiệp vụ sở hữu', 'interface PaymentGateway { suspend fun charge(m: PaymentMethod, amount: Long) }   // owned by the policy'),
+    'class BookingService(private val gateway: PaymentGateway)',
+    c('class VnPayGateway(private val sdk: VnPaySdkClient) : PaymentGateway { /* ... */ }   // nơi duy nhất import SDK', 'class VnPayGateway(private val sdk: VnPaySdkClient) : PaymentGateway { /* ... */ }   // the only SDK import')
+  ]);
 })();

@@ -19,5 +19,8 @@ ADE.addGlossary('en', 'cleancode', {
   "strangler": { term: "strangler", def: "Making a big change side by side instead of in place: add the new beside the old, move each user over, delete the old when nobody uses it. Named by Martin Fowler after the strangler fig.", chapter: "cleancode/j6" },
   "bisection": { term: "bisection", def: "Finding a cause by removing half the suspect range after each probe: half the code, or half the commits. n commits need about log2(n) probes.", chapter: "cleancode/j7" },
   "regression-test": { term: "regression test", def: "A test written to reproduce a defect once found; after the fix it stays so the defect cannot return.", chapter: "cleancode/j7" },
+  "solid": { term: "SOLID", def: "Five class design principles collected by Robert C. Martin (named at Michael Feathers's suggestion): SRP, OCP, LSP, ISP, DIP.", chapter: "cleancode/j8" },
+  "dip-class-level": { term: "dependency inversion (DIP) at class level", def: "High-level policy does not depend on low-level details; the policy defines an interface and the detail implements it, so the source arrow runs against the runtime call direction.", chapter: "cleancode/j8" },
+  "simple-design": { term: "simple design", def: "Kent Beck's four rules: runs all the tests, no duplication, expresses intent, as few classes and functions as possible.", chapter: "cleancode/j8" },
   "code-rot": { term: "code rot", def: "Code growing more complex with each small change nobody notices, until nobody dares to touch it. Seemann proposes a threshold on a metric to curb it.", chapter: "cleancode/j1" }
 });

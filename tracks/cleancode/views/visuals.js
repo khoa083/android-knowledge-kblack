@@ -3,7 +3,7 @@
   'use strict';
   var K = 'track.cleancode.vz.';
   var T = function (k, p) { return ADE.t(K + k, p); };
-  var KS = ['s1', 's2', 's3', 's4'];
+  var KS = ['s1', 's2', 's3', 's4'], uidN = 0;
   var esc = function (x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   function fitText(str, w) { return String(str).length * 6.6 > w ? ' textLength="' + w + '" lengthAdjust="spacingAndGlyphs"' : ''; }
   function idx(ctx) {
@@ -226,4 +226,40 @@
     out.push(h('div', { class: 'vz-legend', text: T('bs.legend') }));
     box.appendChild(h('div', { class: 'vz' }, out));
   }, { labelKey: K + 'tab.bisect', icon: 'grid' });
+
+  /* ---------- J8: ma trận nguyên lý × (phát biểu, triệu chứng, ở thiết kế này), hàng mở dần; bước 4 thêm đồ thị phụ thuộc (SVG) cho thấy
+     mũi tên giữa nghiệp vụ và chi tiết đổi chiều. Bảng phẳng, đồ thị hai tầng phẳng. ---------- */
+  ADE.registerScreen('cleancode.solid', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.ccSolid, c = ctx.state.case, i = Math.max(0, idx(ctx)), open = D.openRows(i), fresh = D.STEP_ROWS[i];
+    var tb = h('tbody');
+    D.ROWS.forEach(function (p) {
+      var on = open.indexOf(p) >= 0, fr = fresh.indexOf(p) >= 0;
+      tb.appendChild(h('tr', { 'data-k': 'sd-' + p }, h('th', { class: fr ? 'hl' : (on ? null : 'dim'), text: p.toUpperCase() }),
+        h('td', { class: on ? null : 'dim', text: on ? T('sd.says.' + p) : '?' }), h('td', { class: on ? null : 'dim', text: on ? T('sd.sym.' + p) : '?' }),
+        h('td', { class: on ? (c === 'switch' ? 'bad' : 'ok') : 'dim c', text: on ? T('sd.here.' + c + '.' + p) : '?' })));
+    });
+    var out = [h('p', { class: 'vz-cap', text: T('sd.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['p', 'says', 'sym', 'here'].map(function (k) { return h('th', { text: T('sd.col.' + k) }); }))), tb))];
+    if (i === 3) {
+      var u = 'sdm' + (++uidN), P = { booking: [12, 52, 'BookingService'], port: [218, 8, 'PaymentGateway'], adapter: [218, 96, 'VnPayGateway'], sdk: [424, 52, 'VnPaySdkClient'] }, W = 164, H = 34;
+      var used = {}; D.EDGES[c].forEach(function (e) { used[e[0]] = used[e[1]] = true; });
+      var svg = '<svg class="vz-dg" viewBox="0 0 600 140" role="img" aria-label="' + esc(T('sd.aria', { d: D.EDGES[c].map(function (e) { return P[e[0]][2] + ' → ' + P[e[1]][2]; }).join(', ') })) + '"><defs>' +
+        '<marker id="' + u + 'a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="vz-dg-head" d="M0,0 L10,5 L0,10 z"/></marker>' +
+        '<marker id="' + u + 'b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="vz-dg-head bad" d="M0,0 L10,5 L0,10 z"/></marker></defs>';
+      D.EDGES[c].forEach(function (e) {
+        var a = P[e[0]], b = P[e[1]], bd = D.POLICY.indexOf(e[0]) >= 0 && D.POLICY.indexOf(e[1]) < 0;
+        var x1 = a[0] + (b[0] > a[0] ? W : (b[0] < a[0] ? 0 : W / 2)), y1 = a[1] + (b[0] === a[0] ? (b[1] > a[1] ? H : 0) : H / 2);
+        var x2 = b[0] + (b[0] > a[0] ? 0 : (b[0] < a[0] ? W : W / 2)), y2 = b[1] + (b[0] === a[0] ? (b[1] > a[1] ? 0 : H) : H / 2);
+        svg += '<line class="vz-dg-e' + (bd ? ' bad' : ' up') + '" data-k="' + e[0] + '-' + e[1] + '" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" marker-end="url(#' + u + (bd ? 'b' : 'a') + ')"/>';
+      });
+      Object.keys(P).forEach(function (k) {
+        var q = P[k], pol = D.POLICY.indexOf(k) >= 0;
+        svg += '<g class="vz-dg-n' + (used[k] ? (c === 'switch' && k === 'booking' ? ' bad' : '') : ' skip') + '"><rect x="' + q[0] + '" y="' + q[1] + '" width="' + W + '" height="' + H + '" rx="4"/><text class="vz-dg-t" x="' + (q[0] + 8) + '" y="' + (q[1] + 15) + '">' + esc(q[2]) + '</text><text class="vz-dg-s" x="' + (q[0] + 8) + '" y="' + (q[1] + 28) + '">' + esc(T(pol ? 'sd.g.policy' : 'sd.g.detail')) + '</text></g>';
+      });
+      svg += '</svg>';
+      out.push(h('p', { class: 'vz-cap', text: T('sd.gcap') }), h('div', { class: 'vz-scroll', html: svg }));
+    }
+    out.push(h('div', { class: 'vz-legend', text: T('sd.legend') }));
+    box.appendChild(h('div', { class: 'vz' }, out));
+  }, { labelKey: K + 'tab.solid', icon: 'grid' });
 })();

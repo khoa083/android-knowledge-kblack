@@ -40,5 +40,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X20.title': 'require trong constructor và parse ở ranh giới',
   'shared.bridge.X20.summary': 'Chương Kotlin dạy công cụ: require ném IllegalArgumentException khi đối số sai, check cho trạng thái. Chương chủ sở hữu dạy dùng nó ở đâu: require trong init của value class để không tạo được giá trị sai, và một hàm parse trả kiểu có dấu ? ở ranh giới để người dùng được báo lỗi ngay thay vì app ném ngoại lệ.',
   'shared.bridge.X21.title': 'Nhịp viết test và test theo tầng',
-  'shared.bridge.X21.summary': 'Chương kiến trúc dạy test theo tầng: ViewModel với repository giả, repository với database thật trong bộ nhớ, giao diện bằng Compose test. Chương chủ sở hữu dạy nhịp viết: danh sách ví dụ trước mã, mỗi test thấy đỏ rồi mới xanh, refactor khi mọi test xanh.'
+  'shared.bridge.X21.summary': 'Chương kiến trúc dạy test theo tầng: ViewModel với repository giả, repository với database thật trong bộ nhớ, giao diện bằng Compose test. Chương chủ sở hữu dạy nhịp viết: danh sách ví dụ trước mã, mỗi test thấy đỏ rồi mới xanh, refactor khi mọi test xanh.',
+  'shared.bridge.X22.title': 'DIP ở mức lớp và hướng phụ thuộc giữa các tầng',
+  'shared.bridge.X22.summary': 'Chương kiến trúc dạy hướng phụ thuộc của cả app: giao diện và dữ liệu phụ thuộc vào tầng nghiệp vụ, không ngược lại. Chương chủ sở hữu dạy nguyên lý ở mức lớp: nghiệp vụ định nghĩa giao diện (PaymentGateway), chi tiết (cổng thanh toán, SDK) cài giao diện đó, nên mũi tên mã nguồn đi từ chi tiết vào chính sách.'
 });

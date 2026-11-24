@@ -25,6 +25,7 @@
 |---|---|---|
 | `book-seemann` (khai báo ở `tracks/sysdesign/sources.js`, tracks gồm cả cleancode) | Mark Seemann, *Code That Fits in Your Head* | 3.2.1, 5.2.3–5.2.4, 5.3, 5.3.1, 7.1.1–7.1.3, 7.2.1, 7.2.5, 7.2.7, 8.1.3–8.1.7, 5.2.2, 6.2.2, 6.2.5, 11.2, phụ lục A.2, A.7, A.8, A.10, A.17 (2026-11-24) |
 | `book-cleancode` | Robert C. Martin, *Clean Code* (2008) | ch.2 (mục lục và Pick One Word per Concept); ch.3: Small!, Blocks and Indenting, Do One Thing, One Level of Abstraction, Stepdown Rule, Flag Arguments, Have No Side Effects, Output Arguments, Command Query Separation; ch.4 phần mở đầu; ch.6 Data/Object Anti-Symmetry, Law of Demeter (đầu mục); ch.7 Don't Return Null, Don't Pass Null; ch.8 Using Third-Party Code; ch.9 The Three Laws of TDD, F.I.R.S.T. (2026-11-24) |
+| `book-carch` | Robert C. Martin, *Clean Architecture* (2017) | Part III tóm tắt SOLID; ch.7 SRP, ch.8 OCP, ch.9 LSP, ch.10 ISP, ch.11 DIP (2026-11-24); URL informit.com kiểm HTTP 200 |
 | `book-craft` | Robert C. Martin, *Clean Craftsmanship* (2021) | ch.2: The Three Laws of TDD, The Fourth Law; ch.3: Test Doubles, Mock, The TDD Uncertainty Principle, London versus Chicago; ch.4: The Fragile Test Problem, The One-to-One Correspondence, Breaking the Correspondence; ch.5: What Is Refactoring?, The Disciplines (2026-11-24); URL informit.com kiểm HTTP 200 |
 | `book-effective-kotlin` (khai báo ở `tracks/kotlin/sources.js`, tracks gồm cả cleancode) | Marcin Moskała, *Effective Kotlin* | Item 15, Item 17 (2026-11-24) |
 | `kt-conventions` | Kotlin coding conventions (kotlinlang.org) | Choose good names, Function names (curl 2026-11-24) |
@@ -118,3 +119,17 @@ URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN
 | Chia đôi mã; ví dụ tối giản; git bisect, câu chuyện khoảng 130 commit; lỗi cần bisect thường là lỗi bộ test bỏ sót | Seemann 12.3, 12.3.1, A.4 |
 | git bisect là tìm kiếm nhị phân; bisect run và mã thoát 0, 1–127 trừ 125, 125 | git-scm.com git-bisect |
 | **Của site:** 200 commit, commit 137, 3 phút mỗi lần, lỗi múi giờ; phép tính ⌈log2 n⌉; hai chiến lược được cài thật trong model | — |
+
+### J8 Simple design và SOLID
+| Ý trên site | Nguồn |
+|---|---|
+| Bốn luật simple design của Kent Beck, thứ tự ưu tiên (test, không trùng lặp, diễn đạt, tối thiểu) | Martin, Clean Code ch.12 |
+| Tên khác của bốn luật, diễn đạt trước trùng lặp; simple design dựa vào phán đoán; Beck nói đủ bốn luật thì mọi nguyên lý khác tự thỏa, Martin nói không chắc điều đó đúng | Martin, Clean Craftsmanship ch.6 |
+| Lịch sử SOLID (Feathers gợi tên); tóm tắt năm nguyên lý | Martin, Clean Architecture Part III |
+| SRP theo actor, không phải "làm một việc" | Clean Architecture ch.7 |
+| OCP; mở rộng đơn giản buộc sửa hàng loạt là kiến trúc thất bại | Clean Architecture ch.8 |
+| LSP định nghĩa của Liskov (1988), ví dụ hình vuông/chữ nhật | Clean Architecture ch.9 |
+| ISP; DIP, trừu tượng ổn định, String không cần tránh | Clean Architecture ch.10, ch.11 |
+| Đối xứng object và cấu trúc dữ liệu (lựa chọn sealed + when ở Kotlin là diễn giải của site) | Clean Code ch.6 |
+| Composition hơn kế thừa | Moskała Item 36 |
+| **Của site:** AppointmentManager, ba nhóm người, năm chỗ when, MoMo, bảo hiểm, VnPay; nhận xét "SOLID cũng có người phê bình" không nêu ai cụ thể vì chưa đọc nguồn phê bình | — |

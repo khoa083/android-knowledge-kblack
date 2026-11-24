@@ -442,4 +442,47 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j7.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= J8: simple design và SOLID — when theo chuỗi so với thiết kế SOLID =================
+     Theo Martin, Clean Architecture ch.7–11 (SRP theo actor; OCP; LSP của Liskov; ISP; DIP với trừu tượng ổn định), Clean Code ch.6, ch.12,
+     Clean Craftsmanship ch.6; Effective Kotlin Item 36. Mỗi bước mở một (hay hai) hàng nguyên lý; số file phải sửa để thêm MoMo đếm từ danh
+     sách nơi dùng when theo chuỗi; đồ thị phụ thuộc là danh sách cạnh. */
+  (function () {
+    var m = 'solid', CASES = ['switch', 'solid'], KS = ['s1', 's2', 's3', 's4'];
+    var ROWS = ['srp', 'ocp', 'lsp', 'isp', 'dip'], STEP_ROWS = [['srp'], ['ocp'], ['lsp', 'isp'], ['dip']];
+    var WHEN_SITES = { switch: ['fee', 'pay', 'receipt', 'refund', 'analytics'], solid: [] };   // nơi rẽ nhánh theo cách thanh toán
+    var MOMO_FILES = function (c) { return c === 'switch' ? WHEN_SITES.switch.length : 1; };    // SOLID: thêm đúng một file MoMo
+    var REFUND_CRASH = { switch: 1, solid: 0 };
+    // đồ thị phụ thuộc mã nguồn: [từ, tới] nghĩa là "từ" import "tới"
+    var EDGES = { switch: [['booking', 'sdk']], solid: [['booking', 'port'], ['adapter', 'port'], ['adapter', 'sdk']] };
+    var POLICY = ['booking', 'port'], DETAIL = ['adapter', 'sdk'];
+    function policyOnDetail(c) { return EDGES[c].filter(function (e) { return POLICY.indexOf(e[0]) >= 0 && DETAIL.indexOf(e[1]) >= 0; }).length; }
+    function openRows(i) { return STEP_ROWS.slice(0, i + 1).reduce(function (a, r) { return a.concat(r); }, []); }
+    ADE.ccSolid = { ROWS: ROWS, STEP_ROWS: STEP_ROWS, EDGES: EDGES, POLICY: POLICY, openRows: openRows, policyOnDetail: policyOnDetail };
+    var HL = { switch: [[1], [2, 5, 7], [9, 10], [12]], solid: [[1, 2, 3], [4, 5], [6, 7], [8, 9, 10]] };
+    function steps(s) {
+      var c = s.case, bad = c === 'switch';
+      return KS.map(function (k, i) {
+        var nodes = i === 3 ? (bad ? ['booking', 'sdk'] : ['booking', 'port', 'adapter']) : ['booking'];
+        var ns = {}; nodes.forEach(function (n) { ns[n] = K + 'st.' + (bad && i > 0 ? 'surprise' : 'done'); });
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nodes, nodeStates: ns,
+          metrics: { files: i >= 1 ? MOMO_FILES(c) : 0, crash: i >= 2 ? REFUND_CRASH[c] : 0, detail: i >= 3 ? policyOnDetail(c) : 0 },
+          codeHighlight: { snippet: 'j8.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: bad ? 'e1' : (i === 3 ? 'e3' : 'e2'), tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad && i > 0 ? 'exception' : 'observe', subject: nodes[nodes.length - 1] }] });
+        o.callouts = [{ kind: i === 0 && bad ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 && bad ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'j8.switch': 12, 'j8.solid': 10 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'switch' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'thêm MoMo: when theo chuỗi sửa 5 file, SOLID thêm 1 file; hoàn tiền: 1 chỗ crash so với 0', run: function () { return MOMO_FILES('switch') === 5 && MOMO_FILES('solid') === 1 && REFUND_CRASH.switch === 1 && REFUND_CRASH.solid === 0; } },
+        { name: 'DIP: bản when có 1 cạnh nghiệp vụ → chi tiết; bản SOLID có 0, và chi tiết trỏ vào giao diện của nghiệp vụ', run: function () {
+          return policyOnDetail('switch') === 1 && policyOnDetail('solid') === 0 && EDGES.solid.some(function (e) { return e[0] === 'adapter' && e[1] === 'port'; }); } },
+        { name: 'bốn bước mở đủ năm nguyên lý, mỗi nguyên lý đúng một lần', run: function () { var r = openRows(3); return r.length === 5 && ROWS.every(function (x) { return r.indexOf(x) >= 0; }); } },
+        { name: 'mỗi thiết kế 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j8.' + c]; }); }); }); } }] });
+  })();
 })();
