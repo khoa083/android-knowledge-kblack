@@ -2,6 +2,35 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('sysdesign', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('i4.poll', [
+    c('while (isActive) {                          // kể cả khi app ở nền', 'while (isActive) {                          // even with the app in background'),
+    c('    val news = api.messagesSince(lastId)    // phần lớn trả về rỗng', '    val news = api.messagesSince(lastId)    // mostly returns empty'),
+    '    if (news.isNotEmpty()) show(news)',
+    c('    delay(5_000)                            // mỗi lần hỏi giữ radio thức ~18 giây', '    delay(5_000)                            // each request keeps the radio up ~18 s'),
+    '}'
+  ]);
+  add('i4.long', [
+    'while (isActive) {',
+    c('    val news = api.waitForMessages(lastId)  // server giữ tới khi có tin hay hết hạn', '    val news = api.waitForMessages(lastId)  // the server holds it until news or a timeout'),
+    c('    if (news.isNotEmpty()) show(news)       // rồi hỏi lại ngay', '    if (news.isNotEmpty()) show(news)       // then ask again at once'),
+    '}'
+  ]);
+  add('i4.ws', [
+    c('val ws = client.newWebSocket(request, object : WebSocketListener() {   // HTTP rồi nâng cấp', 'val ws = client.newWebSocket(request, object : WebSocketListener() {   // HTTP, then upgraded'),
+    c('    override fun onMessage(ws: WebSocket, text: String) = show(parse(text))   // server đẩy xuống', '    override fun onMessage(ws: WebSocket, text: String) = show(parse(text))   // server pushes down'),
+    c('    override fun onFailure(ws: WebSocket, t: Throwable, r: Response?) = reconnectLater()   // Doze, mất mạng', '    override fun onFailure(ws: WebSocket, t: Throwable, r: Response?) = reconnectLater()   // Doze, offline'),
+    '})',
+    c('ws.send(outgoing.toJson())                  // gửi trên cùng kết nối', 'ws.send(outgoing.toJson())                  // send on the same connection'),
+    c('// rời màn chat: ws.close(1000, null), để FCM lo phần còn lại', '// leaving the chat screen: ws.close(1000, null) and let FCM take over')
+  ]);
+  add('i4.push', [
+    c('override fun onNewToken(token: String) = tokenRepo.upload(token)       // server cần token', 'override fun onNewToken(token: String) = tokenRepo.upload(token)       // the server needs the token'),
+    c('// app không giữ kết nối nào; hệ thống giữ một kết nối chung tới FCM', '// the app keeps no connection; the system keeps one shared FCM connection'),
+    'override fun onMessageReceived(msg: RemoteMessage) {',
+    c('    val convId = msg.data["conversationId"] ?: return   // chỉ id, không có nội dung', '    val convId = msg.data["conversationId"] ?: return   // only an id, no content'),
+    c('    notifier.showNewMessage(convId); SyncWork.enqueue(this, convId)   // tải theo thứ tự', '    notifier.showNewMessage(convId); SyncWork.enqueue(this, convId)   // fetch in order'),
+    '}'
+  ]);
   add('i3.hold', [
     c('// luồng đồng bộ (nền)', '// sync thread (background)'),
     'synchronized(cacheLock) {',

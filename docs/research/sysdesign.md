@@ -73,3 +73,17 @@ Sách đọc bằng pdftotext ngày 2026-11-24 (Xu tập 1 ch.2 dòng "Tips", ch
 | Race condition, critical section; ví dụ hai mutex ngược thứ tự phụ thuộc lịch CPU; bốn điều kiện; đồ thị chờ; Linux, Windows bỏ qua deadlock của app; thứ tự khóa toàn cục | book-osc ch.6, 8.2, 8.3.1, 8.4, 8.5.4, 8.7.1 | guideline |
 | Hai khóa cacheLock/dbLock, mọi mốc thời gian (chạm giây 1, ghi DB 6 giây, chờ 200 ms), bài tập ba khóa | site | simplified |
 
+### I4 · Chọn kênh giao tiếp
+Đọc ngày 2026-11-24 qua agent web-fetch (mọi trang trả 200): network-access-optimization, doze-standby, firebase cloud-messaging (tổng quan), android/message-priority, customize-messages/collapsible-message-types, MDN Using server-sent events, MDN WebSockets API. Xu tập 1 ch.12 đọc bằng pdftotext.
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Gửi qua HTTP là đủ; nhận cần polling (tốn vì phần lớn rỗng), long polling (giữ tới khi có tin hay hết hạn; ba nhược điểm phía server), WebSocket (HTTP rồi nâng cấp, hai chiều, sống lâu; server phải quản lý kết nối) | book-xu1 ch.12 | guideline |
+| Radio (ví dụ 3G): cao, thấp (~50%), chờ; thêm 5 giây cao + 12 giây thấp sau mỗi lần truyền (~18 giây); thức dậy >2 giây; ví dụ 3 lần/phút so với gom 1 lần; gom, tải trước, kiểm kết nối, dùng lại kết nối | ax-network-access | version |
+| Doze: tạm dừng mạng, bỏ qua wake lock, hoãn alarm, JobScheduler, WorkManager; cửa sổ bảo trì thưa dần; App Standby; khuyên FCM thay kết nối riêng (một kết nối chung); RemoteNotification đánh thức app; Play hạn chế miễn trừ | ax-doze | stable |
+| Payload ≤ 4096 byte; server/Cloud Functions gửi, app nhận qua dịch vụ nền tảng | fcm-overview | stable |
+| Ưu tiên thường có thể chờ hết Doze; cao thì giao ngay, đánh thức, nên dẫn tới thông báo, nếu không có thể bị hạ; onMessageReceived vài giây | fcm-priority | version |
+| Không bảo đảm thứ tự; gộp được: tối đa 4 khóa mỗi máy; không gộp: Android quá 100 thì bỏ hết, app phải đồng bộ lại | fcm-collapsible | stable |
+| SSE một chiều, text/event-stream, tự nối lại, retry; WebSocket hai chiều, API không có backpressure | mdn-sse, mdn-websocket | stable |
+| Chu kỳ 5 giây, tin ở giây 7, hạn chờ 30 giây, "gần như ngay", bảng so sánh, cách phối hợp WebSocket + FCM, độ trễ polling = nửa chu kỳ | site | simplified |
+| Trang network-access-optimization **không** nói về polling hay FCM; khẳng định "dùng FCM thay kết nối riêng" lấy từ trang Doze | — | ghi chú |
+

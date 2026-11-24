@@ -23,4 +23,8 @@
   V('lock', { layout: 'pipeline', nodes: [N('lock', 'main', 0, 0, 'thread', 'ui'), N('lock', 'sync', 0, 3, 'thread', 'runtime'), N('lock', 'cache', 6, 0, 'list', 'state'), N('lock', 'db', 6, 3, 'store', 'job')],
     edges: [E('e1', 'main', 'cache'), E('e2', 'main', 'db'), E('e3', 'sync', 'cache'), E('e4', 'sync', 'db')],
     metrics: [T('lock', 'blocked'), T('lock', 'anr'), T('lock', 'cycle')] });
+  /* I4: app ↔ server trực tiếp, hoặc server → FCM → app */
+  V('channel', { layout: 'pipeline', nodes: [N('channel', 'app', 0, 1.5, 'phone', 'ui'), N('channel', 'fcm', 4, 0, 'queue', 'runtime'), N('channel', 'server', 8, 1.5, 'store', 'job')],
+    edges: [E('e1', 'app', 'server'), E('e2', 'fcm', 'app'), E('e3', 'server', 'fcm')],
+    metrics: [T('channel', 'reqs'), T('channel', 'latency'), T('channel', 'bg')] });
 })();

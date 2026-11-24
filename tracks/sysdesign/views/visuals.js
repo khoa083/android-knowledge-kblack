@@ -6,6 +6,7 @@
   var KS = ['s1', 's2', 's3', 's4'];
   var esc = function (x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   var uidN = 0;
+  function fitText(str, w) { return String(str).length * 6.6 > w ? ' textLength="' + w + '" lengthAdjust="spacingAndGlyphs"' : ''; }
   function idx(ctx) {
     if (ctx.step) return KS.indexOf(ctx.step.id.split('.').pop());
     return ctx.pos > ctx.N ? 3 : 0;
@@ -93,4 +94,41 @@
       h('p', { class: 'vz-cap', text: T('lk.gcap') }), wf.length ? h('div', { html: g }) : h('p', { class: 'vz-cap dim', text: T('lk.g.none') }),
       h('p', { class: 'vz-cap', text: T('lk.ccap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, cb))));
   }, { labelKey: K + 'tab.lk', icon: 'thread' });
+
+  /* ---------- I4: sơ đồ tuần tự (cột là các bên, hàng là tin), và bảng so sánh các kênh ---------- */
+  ADE.registerScreen('sysdesign.channel', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.sysChannel, c = ctx.state.case, i = Math.max(0, idx(ctx)), parts = Y.PARTS[c];
+    var COL = parts.length === 3 ? { app: 90, fcm: 300, server: 510 } : { app: 120, server: 480 }, ROW = 34, TOP = 52, W = 600;
+    var rows = []; for (var k = 0; k <= i; k++) Y.MSGS[c][k].forEach(function (x) { rows.push({ x: x, cur: k === i }); });
+    var H = TOP + rows.length * ROW + 16, u = 'chsq' + (++uidN);
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="vz-dg vz-sq" role="img" aria-label="' + esc(T('ch.cap')) + '"><defs>' +
+      ['n', 'c', 'b'].map(function (t) { return '<marker id="' + u + t + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-sq-head ' + t + '"/></marker>'; }).join('') + '</defs>';
+    parts.forEach(function (p) {
+      var x = COL[p];
+      svg += '<line class="vz-sq-life" x1="' + x + '" y1="' + (TOP - 8) + '" x2="' + x + '" y2="' + (H - 6) + '"/><rect class="vz-sq-part" x="' + (x - 66) + '" y="6" width="132" height="30" rx="4"/><text class="vz-dg-t" x="' + x + '" y="26" text-anchor="middle">' + esc(T('ch.p.' + p)) + '</text>';
+    });
+    rows.forEach(function (r, n) {
+      var y = TOP + n * ROW + 20, a = COL[r.x[0]], b = COL[r.x[1]], bad = r.x[3] === 1, cl = 'vz-sq-m' + (bad ? ' bad' : '') + (r.cur ? ' cur' : '');
+      var mk = 'url(#' + u + (bad ? 'b' : (r.cur ? 'c' : 'n')) + ')', lb = T('ch.m.' + r.x[2]);
+      if (a === b) {
+        var right = a < 300, tx = right ? a + 28 : a - 28;
+        svg += '<path class="' + cl + '" d="M' + a + ' ' + (y - 10) + ' h ' + (right ? 22 : -22) + ' v 14 h ' + (right ? -20 : 20) + '" marker-end="' + mk + '"/><text class="vz-sq-l' + (bad ? ' bad' : '') + '" x="' + tx + '" y="' + (y + 1) + '"' + (right ? '' : ' text-anchor="end"') + fitText(lb, right ? 300 : a - 40) + '>' + esc(lb) + '</text>';
+      } else {
+        var dir = b > a ? 1 : -1;
+        svg += '<line class="' + cl + '" x1="' + (a + dir * 4) + '" y1="' + y + '" x2="' + (b - dir * 6) + '" y2="' + y + '" marker-end="' + mk + '"/><text class="vz-sq-l' + (bad ? ' bad' : '') + '" x="' + ((a + b) / 2) + '" y="' + (y - 6) + '" text-anchor="middle"' + fitText(lb, Math.abs(b - a) - 16) + '>' + esc(lb) + '</text>';
+      }
+    });
+    svg += '</svg>';
+    var cols = ['dir', 'lat', 'cost', 'bg'];
+    var tb = h('tbody');
+    Y.ROWS.forEach(function (r) {
+      var on = r === c;
+      tb.appendChild(h('tr', null, h('th', { class: on ? 'hl' : (r === 'sse' ? 'dim' : null), text: T('ch.r.' + r + '.name') }), cols.map(function (k) {
+        return h('td', { class: k === 'bg' ? (r === 'push' ? 'ok' : (on ? 'bad' : 'dim')) : (on ? 'hl' : null), text: T('ch.r.' + r + '.' + k) });
+      })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('ch.cap') }), h('div', { class: 'vz-scroll', html: svg }),
+      h('p', { class: 'vz-cap', text: T('ch.tcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, h('th', { text: T('ch.col.ch') }), cols.map(function (k) { return h('th', { text: T('ch.col.' + k) }); }))), tb)),
+      h('div', { class: 'vz-legend', text: T('ch.legend') })));
+  }, { labelKey: K + 'tab.ch', icon: 'queue' });
 })();

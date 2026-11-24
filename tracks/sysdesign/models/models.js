@@ -164,4 +164,49 @@
         { name: 'một thứ tự chung: không vòng, không ANR, main chờ dưới 1 giây', run: function () { return [0, 1, 2, 3].every(function (i) { return cyc('order', i) === 0 && anr('order', i) === 0 && blocked('order', i) < 1000; }); } },
         { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { hold: 8, cycle: 8, order: 7 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
   })();
+
+  /* ================= I4: chọn kênh giao tiếp — polling, long polling, WebSocket, FCM cho cùng một tin =================
+     Theo Alex Xu tập 1 ch.12; developer.android.com (Optimize network access: radio ~18 giây sau mỗi lần truyền; Doze tạm dừng mạng);
+     Firebase (FCM overview, priority, collapsible); MDN (SSE, WebSocket). Tin tới server ở giây 7; chu kỳ 5 giây, hạn chờ 30 giây là minh họa. */
+  (function () {
+    var m = 'channel', CASES = ['poll', 'long', 'ws', 'push'], KS = ['s1', 's2', 's3', 's4'];
+    var PARTS = { poll: ['app', 'server'], long: ['app', 'server'], ws: ['app', 'server'], push: ['app', 'fcm', 'server'] };
+    // tin mỗi bước: [từ, tới, nhãn, 1 nếu phí hay không tới]
+    var MSGS = {
+      poll: [[['app', 'server', 'q0', 0], ['server', 'app', 'none', 1]], [['app', 'server', 'q5', 0], ['server', 'app', 'none', 1]],
+             [['server', 'server', 'arrive', 0], ['app', 'server', 'q10', 0], ['server', 'app', 'one', 0]], [['app', 'server', 'more', 0], ['server', 'app', 'none4', 1]]],
+      long: [[['app', 'server', 'lq0', 0]], [['server', 'server', 'hold', 0]], [['server', 'server', 'arrive', 0], ['server', 'app', 'lone', 0], ['app', 'server', 'lq7', 0]], [['server', 'app', 'ltimeout', 1], ['app', 'server', 'lq37', 0]]],
+      ws: [[['app', 'server', 'up', 0], ['server', 'app', 'ok', 0]], [['app', 'server', 'send', 0]], [['server', 'server', 'arrive', 0], ['server', 'app', 'wpush', 0]], [['app', 'app', 'doze', 1], ['server', 'app', 'lost', 1]]],
+      push: [[['app', 'fcm', 'token', 0], ['app', 'server', 'reg', 0]], [['app', 'app', 'idle', 0]], [['server', 'server', 'arrive', 0], ['server', 'fcm', 'fsend', 0], ['fcm', 'app', 'fdeliver', 0]], [['app', 'app', 'notify', 0], ['app', 'server', 'fetch', 0]]]
+    };
+    var REQS = { poll: [1, 2, 3, 7], long: [1, 1, 2, 3], ws: [1, 1, 1, 1], push: [1, 1, 1, 2] };
+    var LAT = { poll: 3, long: 0, ws: 0, push: 0 };
+    var BG = { poll: 0, long: 0, ws: 0, push: 1 };
+    ADE.sysChannel = { PARTS: PARTS, MSGS: MSGS, ROWS: ['poll', 'long', 'sse', 'ws', 'push'] };
+    var LINES = { poll: [[2], [4], [2, 3], [1, 4]], long: [[2], [2], [3], [2]], ws: [[1], [5], [2], [3, 6]], push: [[1], [2], [3, 4], [5]] };
+    var NODES = { poll: ['app', 'server'], long: ['app', 'server'], ws: ['app', 'server'], push: ['app', 'fcm', 'server'] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var bad = MSGS[c][i].some(function (x) { return x[3] === 1; }), type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism');
+        var ns = {}; NODES[c].forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        if (c !== 'push') ns.fcm = K + 'st.skipped';
+        var first = MSGS[c][i][0], edge = c === 'push' ? (first[1] === 'fcm' || first[0] === 'fcm' ? (first[0] === 'server' ? 'e3' : 'e2') : 'e1') : 'e1';
+        var o = S(m, c + '.' + k, { type: type, activeNodes: NODES[c], nodeStates: ns,
+          metrics: { reqs: REQS[c][i], latency: i >= 2 ? LAT[c] : 0, bg: BG[c] },
+          codeHighlight: { snippet: 'i4.' + c, lines: LINES[c][i] },
+          movingSignals: [{ edge: edge, tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'skip' : (i === 3 ? 'complete' : 'run'), subject: first[0] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'poll' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'polling: 7 lượt hỏi trong 30 giây (0, 5, …, 30), tin trễ 3 giây', run: function () { return REQS.poll[3] === 7 && LAT.poll === 3; } },
+        { name: 'chỉ FCM nhận được khi app ở nền; WebSocket mất tin khi Doze', run: function () { return BG.push === 1 && BG.ws === 0 && MSGS.ws[3].every(function (x) { return x[3] === 1; }); } },
+        { name: 'tin của mọi kênh chỉ dùng các bên của kênh đó', run: function () { return CASES.every(function (c) { return MSGS[c].every(function (r) { return r.every(function (x) { return PARTS[c].indexOf(x[0]) >= 0 && PARTS[c].indexOf(x[1]) >= 0; }); }); }); } },
+        { name: 'mỗi kênh 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { poll: 5, long: 4, ws: 6, push: 6 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
+  })();
 })();
