@@ -1,12 +1,13 @@
 /* Track J: Mã sạch và kỷ luật làm nghề. Nội dung sinh từ dev/gen/cleancode_content.py (module cleancode_v2_<chương>.py).
-   Spec: docs/tracks/J-clean-code.md (12 chương, đã duyệt 2026-11-24). Trong lúc viết: status 'draft'. */
+   Spec: docs/tracks/J-clean-code.md (12 chương, đã duyệt 2026-11-24). J0 viết cuối, đặt đầu track; track đã xong: status 'stable'. */
 ADE.registerTrack({
   id: 'cleancode', code: 'J', order: 100, domain: 'engineering',
   accent: '#5B6B7F', icon: 'list',
   titleKey: 'track.cleancode.title', summaryKey: 'track.cleancode.summary',
-  level: 'intermediate', estMinutes: 360, status: 'draft',
+  level: 'intermediate', estMinutes: 370, status: 'stable',
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
+    { id: 'j0', titleKey: 'track.cleancode.j0.title', sims: ['cleancode.map'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'j1', titleKey: 'track.cleancode.j1.title', sims: ['cleancode.fits'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'j2', titleKey: 'track.cleancode.j2.title', sims: ['cleancode.names'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'j3', titleKey: 'track.cleancode.j3.title', sims: ['cleancode.parse'], simAfter: 'hook', bridges: ['X20'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
@@ -20,6 +21,7 @@ ADE.registerTrack({
     { id: 'j11', titleKey: 'track.cleancode.j11.title', sims: ['cleancode.estimate'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
+    { id: 'cleancode-map', model: 'cleancode.map', titleKey: 'track.cleancode.preset.map' },
     { id: 'cleancode-fits', model: 'cleancode.fits', titleKey: 'track.cleancode.preset.fits' },
     { id: 'cleancode-names', model: 'cleancode.names', titleKey: 'track.cleancode.preset.names' },
     { id: 'cleancode-parse', model: 'cleancode.parse', titleKey: 'track.cleancode.preset.parse' },

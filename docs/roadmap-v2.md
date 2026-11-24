@@ -55,7 +55,7 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 | G | Kiến trúc app Android (`arch`) | **Xong**, stable, 12 chương (G0–G11) | `docs/tracks/G-clean-architecture.md` |
 | H | Lưu dữ liệu (`storage`) | **Xong**, stable, 10 chương (H0–H9), 2026-11-24 | `docs/tracks/H-saving-data.md` |
 | I | Thiết kế hệ thống phía mobile (`sysdesign`) | **Xong**, stable, 14 chương (I0–I13), 2026-11-24 | `docs/tracks/I-mobile-system-design.md` |
-| J | Mã sạch và kỷ luật làm nghề (`cleancode`) | **Đang xây** (draft): J1–J11 xong 2026-11-24; còn J0 | `docs/tracks/J-clean-code.md` |
+| J | Mã sạch và kỷ luật làm nghề (`cleancode`) | **Xong**, stable, 12 chương (J0–J11), 2026-11-24 | `docs/tracks/J-clean-code.md` |
 | K | Lập trình hàm với Kotlin (`fp`) | **Đã duyệt** 2026-11-24, chưa xây (sau J) | `docs/tracks/K-functional-kotlin.md` |
 | L | Gỡ lỗi và hiệu năng Android (`debugging`) | **Đã duyệt** 2026-11-24, chưa xây (sau K) | `docs/tracks/L-debugging-performance.md` |
 

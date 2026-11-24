@@ -644,4 +644,38 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j11.' + c]; }); }); }); } }] });
   })();
+  /* ================= J0: bản đồ track: triệu chứng → lúc lộ ra → nguyên nhân → chương (cùng mẫu với I0, H0) ================= */
+  (function () {
+    var m = 'map';
+    // [triệu chứng, chương, lúc lộ ra: change | run | team]
+    var SYM = [['freeNoReminder', 'j1', 'change'], ['badgeZero', 'j2', 'run'], ['smsRejected', 'j3', 'run'], ['holidayFee', 'j4', 'run'], ['testsBreak', 'j5', 'change'],
+      ['revertDay', 'j6', 'change'], ['onlyTester', 'j7', 'run'], ['momoZero', 'j8', 'change'], ['refundCrash', 'j8', 'run'], ['rebuildAll', 'j9', 'change'],
+      ['lgtm', 'j10', 'team'], ['fixLog', 'j10', 'team'], ['lateTry', 'j11', 'team']];
+    var IDS = SYM.map(function (x) { return x[0]; });
+    ADE.ccMap = SYM;
+    var PH = { change: 'surprise', run: 'broken', team: 'surprise' };
+    function steps(s) {
+      var row = SYM.filter(function (x) { return x[0] === s.symptom; })[0] || SYM[0], id = row[0], ch = row[1], ph = row[2];
+      var met = function (i) { return { phase: i >= 1 ? M(m, 'phase.' + ph) : M(m, 'phase.none'), chapter: i >= 3 ? M(m, 'ch.' + ch) : M(m, 'ch.none') }; };
+      var st = function (i, type, nodes, ns0, kind, subj, titleKey, explainKey, edge) {
+        var ns = {}; Object.keys(ns0).forEach(function (n) { ns[n] = K + 'st.' + ns0[n]; });
+        return S(m, id + '.' + ['start', 'first', 'next', 'end'][i], { type: type, activeNodes: nodes, nodeStates: ns, metrics: met(i), titleKey: titleKey, explainKey: explainKey,
+          movingSignals: edge ? [{ edge: edge, tok: type === 'pitfall' ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: kind, subject: subj, detailKey: titleKey }] });
+      };
+      var a = st(0, 'scenario', ['symptom'], {}, 'observe', 'symptom', M(m, 's.' + id + '.title'), M(m, 's.' + id + '.detail'), null);
+      a.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+      var b = st(1, 'mechanism', ['symptom', 'phase'], { phase: PH[ph] }, 'run', 'phase', M(m, 'phase.' + ph), M(m, 'phase.' + ph + '.explain'), 'e1');
+      var c = st(2, 'pitfall', ['phase', 'cause'], { phase: PH[ph], cause: 'done' }, 'observe', 'cause', M(m, 's.' + id + '.cause'), M(m, 's.' + id + '.causeDetail'), 'e2');
+      c.callouts = [{ kind: 'pitfall', textKey: M(m, 'co.cause') }];
+      var d = st(3, 'mechanism', ['cause', 'chapter'], { phase: PH[ph], cause: 'done', chapter: 'done' }, 'complete', 'chapter', M(m, 'go.' + ch), M(m, 's.' + id + '.fix'), 'e3');
+      d.callouts = [{ kind: 'mechanism', textKey: M(m, 'co.chapter') }];
+      return [a, b, c, d];
+    }
+    reg(m, { controls: [sel(m, 'symptom', IDS)], init: function () { return { symptom: 'testsBreak' }; }, act: setter(['symptom']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi triệu chứng có 4 bước và trỏ tới một chương', run: function () { return IDS.every(function (k) { var x = steps({ symptom: k }); return x.length === 4 && x[3].metrics.chapter !== M(m, 'ch.none'); }); } },
+        { name: 'mọi chương J1–J11 có ít nhất một triệu chứng, và chương đó có trong manifest', run: function () { var t = ADE.getTrack && ADE.getTrack('cleancode'), chs = t ? t.chapters.map(function (c) { return c.id; }) : [];
+          for (var n = 1; n <= 11; n++) { var g = 'j' + n; if (!SYM.some(function (x) { return x[1] === g; }) || (t && chs.indexOf(g) < 0)) return false; } return true; } },
+        { name: 'đếm theo lúc lộ ra: 5 khi sửa mã, 5 khi chạy ngoài máy dev, 3 khi làm cùng người khác', run: function () { var c = {}; SYM.forEach(function (x) { c[x[2]] = (c[x[2]] || 0) + 1; }); return c.change === 5 && c.run === 5 && c.team === 3 && SYM.length === 13; } }] });
+  })();
 })();

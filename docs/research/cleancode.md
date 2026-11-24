@@ -166,3 +166,9 @@ URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN
 | Ước lượng khác cam kết; PERT (1957, Polaris): O, N, P (O, P dưới 1%), μ = (O + 4N + P)/6, σ = (P − O)/6, chuỗi việc; Wideband Delphi; luật số lớn | The Clean Coder ch.10 |
 | Tránh áp lực bằng quản lý cam kết; khi áp lực: đừng hoảng, trao đổi, dựa vào kỷ luật, làm cặp | The Clean Coder ch.11 |
 | **Của site:** ba việc MoMo, hủy lịch, nhắc lịch và ước lượng của chúng; 10,5 ngày thật, 2 lỗi; phép tính kiểm bằng mã (μ ≈ 10,17, σ ≈ 2,19); 6 ngày thấp hơn μ khoảng 1,9σ; không nêu xác suất theo phân phối chuẩn | — |
+
+### J0 Bản đồ track
+| Ý trên site | Nguồn |
+|---|---|
+| Mười ba triệu chứng, nguyên nhân và cách sửa, mỗi cái trỏ tới một chương | Tóm tắt từ J1–J11; nguồn ở bảng của chương được trỏ tới |
+| **Của site:** chia ba lúc lộ ra (khi sửa mã, khi chạy ngoài máy dev, khi làm cùng người khác) và cách đếm 5/5/3 | — |

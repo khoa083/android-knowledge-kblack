@@ -377,4 +377,18 @@
     out.push(h('div', { class: 'vz-legend', text: T('es.legend') }));
     box.appendChild(h('div', { class: 'vz' }, out));
   }, { labelKey: K + 'tab.estimate', icon: 'clock' });
+  /* ---------- J0: bảng tra mọi triệu chứng; hàng đang chọn có viền, ô "?" mở dần theo bước (cùng mẫu với I0) ---------- */
+  ADE.registerScreen('cleancode.map', function (box, ctx) {
+    var h = ADE.ui.h, cur = ctx.state.symptom, i = ctx.step ? ['start', 'first', 'next', 'end'].indexOf(ctx.step.id.split('.').pop()) : (ctx.pos > ctx.N ? 3 : -1);
+    var tb = h('tbody');
+    ADE.ccMap.forEach(function (r) {
+      var on = r[0] === cur;
+      tb.appendChild(h('tr', { 'data-k': 'map-' + r[0] }, h('td', { class: on ? 'hl' : null, text: ADE.t('track.cleancode.m.map.s.' + r[0] + '.title') }),
+        h('td', { class: on && i < 1 ? 'dim' : (on ? 'hl' : null), text: on && i < 1 ? '?' : ADE.t('track.cleancode.m.map.phase.' + r[2]) }),
+        h('td', { class: 'c ' + (on && i < 3 ? 'dim' : (on ? 'hl' : '')), text: on && i < 3 ? '?' : r[1].toUpperCase() })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('map.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['sym', 'phase', 'ch'].map(function (k) { return h('th', { text: T('map.col.' + k) }); }))), tb)),
+      h('div', { class: 'vz-legend', text: T('map.legend') })));
+  }, { labelKey: K + 'tab.map', icon: 'grid' });
 })();

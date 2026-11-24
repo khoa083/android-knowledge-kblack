@@ -55,4 +55,8 @@
   V('estimate', { layout: 'pipeline', nodes: [N('estimate', 'ask', 0, 1, 'source', 'ui'), N('estimate', 'est', 3, 1, 'list', 'state'), N('estimate', 'commit', 6, 1, 'check', 'job'), N('estimate', 'done', 9, 1, 'clock', 'runtime')],
     edges: [E('e1', 'ask', 'est'), E('e2', 'est', 'commit'), E('e3', 'commit', 'done')],
     metrics: [T('estimate', 'promised'), T('estimate', 'actual'), T('estimate', 'bugs')] });
+  /* J0: triệu chứng → lúc lộ ra → nguyên nhân → chương */
+  V('map', { layout: 'pipeline', nodes: [N('map', 'symptom', 0, 0, 'eye', 'ui'), N('map', 'phase', 3, 0, 'clock', 'state'), N('map', 'cause', 6, 0, 'mechanism', 'runtime'), N('map', 'chapter', 9, 0, 'source', 'job')],
+    edges: [E('e1', 'symptom', 'phase'), E('e2', 'phase', 'cause'), E('e3', 'cause', 'chapter')],
+    metrics: [T('map', 'phase'), T('map', 'chapter')] });
 })();
