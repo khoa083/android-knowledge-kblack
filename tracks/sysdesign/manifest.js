@@ -17,7 +17,8 @@ ADE.registerTrack({
     { id: 'i8', titleKey: 'track.sysdesign.i8.title', sims: ['sysdesign.conflict'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'i9', titleKey: 'track.sysdesign.i9.title', sims: ['sysdesign.push'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'i10', titleKey: 'track.sysdesign.i10.title', sims: ['sysdesign.bitmap', 'sysdesign.upload'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'i11', titleKey: 'track.sysdesign.i11.title', sims: ['sysdesign.startup'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
+    { id: 'i11', titleKey: 'track.sysdesign.i11.title', sims: ['sysdesign.startup'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'i12', titleKey: 'track.sysdesign.i12.title', sims: ['sysdesign.rollout', 'sysdesign.compat'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'sysdesign-plan', model: 'sysdesign.plan', titleKey: 'track.sysdesign.preset.plan' },
@@ -31,7 +32,9 @@ ADE.registerTrack({
     { id: 'sysdesign-push', model: 'sysdesign.push', titleKey: 'track.sysdesign.preset.push' },
     { id: 'sysdesign-bitmap', model: 'sysdesign.bitmap', titleKey: 'track.sysdesign.preset.bitmap' },
     { id: 'sysdesign-upload', model: 'sysdesign.upload', titleKey: 'track.sysdesign.preset.upload' },
-    { id: 'sysdesign-startup', model: 'sysdesign.startup', titleKey: 'track.sysdesign.preset.startup' }
+    { id: 'sysdesign-startup', model: 'sysdesign.startup', titleKey: 'track.sysdesign.preset.startup' },
+    { id: 'sysdesign-rollout', model: 'sysdesign.rollout', titleKey: 'track.sysdesign.preset.rollout' },
+    { id: 'sysdesign-compat', model: 'sysdesign.compat', titleKey: 'track.sysdesign.preset.compat' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

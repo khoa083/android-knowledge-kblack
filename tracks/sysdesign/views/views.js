@@ -59,4 +59,12 @@
   V('startup', { layout: 'pipeline', nodes: [N('startup', 'proc', 0, 1, 'chip', 'runtime'), N('startup', 'app', 3, 1, 'job', 'job'), N('startup', 'act', 6, 1, 'screen', 'state'), N('startup', 'frame', 9, 1, 'eye', 'ui')],
     edges: [E('e1', 'proc', 'app'), E('e2', 'app', 'act'), E('e3', 'act', 'frame')],
     metrics: [T('startup', 'init'), T('startup', 'ttid'), T('startup', 'ttfd')] });
+  /* I12a: Play Console → máy người dùng → Android vitals */
+  V('rollout', { layout: 'pipeline', nodes: [N('rollout', 'console', 0, 1, 'job', 'job'), N('rollout', 'users', 4, 1, 'phone', 'ui'), N('rollout', 'vitals', 8, 1, 'eye', 'state')],
+    edges: [E('e1', 'console', 'users'), E('e2', 'users', 'vitals')],
+    metrics: [T('rollout', 'exposed'), T('rollout', 'today'), T('rollout', 'total')] });
+  /* I12b: các phiên bản app đang được dùng ↔ API của server */
+  V('compat', { layout: 'pipeline', nodes: [N('compat', 'apps', 0, 1, 'phone', 'ui'), N('compat', 'server', 6, 1, 'store', 'job')],
+    edges: [E('e1', 'server', 'apps'), E('e2', 'apps', 'server')],
+    metrics: [T('compat', 'broken'), T('compat', 'forced'), T('compat', 'apis')] });
 })();

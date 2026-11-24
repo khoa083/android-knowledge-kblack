@@ -170,3 +170,15 @@ Quyết định của người dùng (2026-11-24): FCM và dịch vụ bên th�
 | Người dùng tránh tải app lớn; App Bundle; minifyEnabled, shrinkResources; ngôn ngữ, mật độ; vector, WebP | ax-reduce-size | stable |
 | Gom việc mạng, Doze | ax-network-access, ax-doze (I4) | stable |
 | Mọi con số ms, năm SDK, bài tập | site | simplified |
+
+### I12 · Quan sát và phát hành an toàn
+Đọc ngày 2026-11-24: DDIA bản 2 ch.5 và Seemann (10.1, 10.3, phụ lục A.11, A.21) từ bản text; trợ giúp Play staged rollout (bị cắt gần cuối, không có phần rollback), Android vitals, In-app updates, kotlinx.serialization Json configuration qua agent web-fetch (200).
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Client phụ thuộc người dùng cập nhật; mã cũ và mới cùng tồn tại; tương thích ngược, xuôi; thêm tham số tùy chọn, thêm trường response thường giữ tương thích; giữ nhiều phiên bản API; URL hay Accept | book-ddia2 ch.5 | guideline |
+| Feature flag tách tính năng khỏi mã; Semantic Versioning; báo trước, deprecated | book-seemann 10.1, 10.3 | guideline |
+| Phần trăm chọn ngẫu nhiên, tăng tay; tạm dừng không gỡ bản đã cài; lỗi thì phát hành bản sửa | play-staged-rollout | stable (chỉ nhắc) |
+| Ngưỡng crash 1,09%, ANR 0,47%, 8% theo mẫu máy; giảm hiển thị; 28 ngày | ax-vitals | stable |
+| Flexible và immediate | ax-in-app-updates | stable (chỉ nhắc) |
+| Khóa lạ mặc định gây lỗi; ignoreUnknownKeys | kx-json-config | stable |
+| 100.000 người dùng, 3% crash, tốc độ cài, tỉ lệ phiên bản, kiểm tra phiên bản tối thiểu, lưu ý về cờ | site | simplified |

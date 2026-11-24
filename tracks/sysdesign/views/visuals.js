@@ -359,4 +359,43 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['job', 'lane', 'ms', 'why'].map(function (k) { return h('th', { text: T('st.col.' + k) }); }))), tb)),
       h('div', { class: 'vz-legend', text: T('st.legend') })));
   }, { labelKey: K + 'tab.st', icon: 'rail' });
+
+  /* ---------- I12a: dãy ô theo ngày: đang phát gì, bao nhiêu người chạy mã lỗi, bao nhiêu người gặp crash ---------- */
+  ADE.registerScreen('sysdesign.rollout', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.sysRollout, c = ctx.state.case, i = Math.max(0, idx(ctx)), shown = Y.STEP_DAYS[i][Y.STEP_DAYS[i].length - 1], now = Y.STEP_DAYS[i];
+    var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ADE.lang === 'vi' ? '.' : ','); };
+    var head = h('tr', null, [h('th', { text: T('ro.col.day') })].concat(Y.D[c].map(function (_, d) { return h('th', { class: 'c' + (now.indexOf(d) >= 0 ? ' hl' : ''), text: String(d + 1) }); })));
+    var rows = [['offer', function (d) { return T('ro.o.' + Y.D[c][d][0]); }, function () { return null; }],
+      ['bad', function (d) { return fmt(Math.round(Y.D[c][d][1] * 1000)); }, function (d) { return Y.D[c][d][1] > 0 ? 'bad' : 'ok'; }],
+      ['crash', function (d) { return fmt(Y.crashOf(c, d)); }, function (d) { return Y.crashOf(c, d) > 0 ? 'bad' : 'ok'; }]];
+    var tb = h('tbody');
+    rows.forEach(function (r) {
+      tb.appendChild(h('tr', null, [h('th', { text: T('ro.r.' + r[0]) })].concat(Y.D[c].map(function (_, d) { return h('td', { class: 'c' + (d > shown ? ' dim' : (r[2](d) ? ' ' + r[2](d) : '')), text: d > shown ? '' : r[1](d) }); }))));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('ro.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-cells' }, h('thead', null, head), tb)),
+      h('div', { class: 'vz-box' }, h('div', { class: 'vz-h', text: T('ro.vh') }), h('div', { text: T('ro.vitals') })),
+      h('div', { class: 'vz-legend', text: T('ro.legend') })));
+  }, { labelKey: K + 'tab.ro', icon: 'rail' });
+
+  /* ---------- I12b: ma trận phiên bản app × API (trước, sau thay đổi, /v2) ---------- */
+  ADE.registerScreen('sysdesign.compat', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.sysCompat, c = ctx.state.case, i = Math.max(0, idx(ctx));
+    var cols = ['before', 'after', 'v2'], tb = h('tbody');
+    Y.APPS.forEach(function (a) {
+      var r = Y.result(c, a);
+      var cell = function (col) {
+        if (col === 'before') return a[2] === 'new' ? ['dim', T('cp.r.na')] : ['ok', T('cp.r.ok')];
+        if (i < 1) return ['dim', '?'];
+        if (col === 'v2') return c === 'versioned' && a[2] === 'new' ? (i >= 2 ? ['ok', T('cp.r.ok')] : ['dim', '?']) : ['dim', T('cp.r.na')];
+        if (c === 'versioned') return a[2] === 'new' ? ['dim', T('cp.r.na')] : (i >= 2 ? ['ok', T('cp.r.same')] : ['dim', '?']);
+        if (i < 2) return ['dim', '?'];
+        return r === 'crash' ? ['bad', T('cp.r.crash')] : (r === 'update' ? ['hl', T('cp.r.update')] : ['ok', T('cp.r.ok')]);
+      };
+      tb.appendChild(h('tr', null, [h('th', { text: T('cp.app.' + a[0]) }), h('td', { class: 'c dim', text: a[1] + '%' })].concat(cols.map(function (col) { var x = cell(col); return h('td', { class: x[0], text: x[1] }); }))));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('cp.cap') }), h('div', { class: 'vz-box' + (i >= 1 ? ' hl' : '') }, h('div', { class: 'vz-h', text: T('cp.changeh') }), h('div', { text: i >= 1 ? T('cp.change.' + c) : T('cp.change.none') })),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['app', 'share', 'before', 'after', 'v2'].map(function (k) { return h('th', { text: T('cp.col.' + k) }); }))), tb)),
+      h('div', { class: 'vz-legend', text: T('cp.legend') })));
+  }, { labelKey: K + 'tab.cp', icon: 'list' });
 })();

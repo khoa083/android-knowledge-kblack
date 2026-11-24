@@ -638,4 +638,86 @@
         { name: 'warm và hot không tạo process, không chạy Application.onCreate', run: function () { return ['warm', 'hot'].every(function (c) { return IT[c].every(function (x) { return x[0] !== 'proc' && init(c) === 0; }); }) && TTID.hot < TTID.warm && TTID.warm < TTID.lazy; } },
         { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { 'i11.heavy': 11, 'i11.lazy': 9 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && CODE[c][1].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[CODE[c][0]]; }); }); }); } }] });
   })();
+
+  /* ================= I12a: phát hành — 100% một lần, theo phần trăm, feature flag =================
+     Theo Play staged rollout (chọn ngẫu nhiên; tạm dừng không gỡ bản đã cài), Android vitals (ngưỡng crash 1,09%), Seemann 10.1 (feature flag).
+     100.000 người dùng; bản 1.2.0 crash ở 3% máy; tốc độ cài, số người, ngày là minh họa. */
+  (function () {
+    var m = 'rollout', CASES = ['bigbang', 'staged', 'flag'], KS = ['s1', 's2', 's3', 's4'], RATE = 0.03;
+    // theo ngày 1..7: [chữ "đang phát", số người (nghìn) đang chạy mã lỗi]
+    var D = {
+      bigbang: [['o120_100', 40], ['o120_100', 70], ['o121_100', 85], ['o121_100', 50], ['o121_100', 25], ['o121_100', 10], ['o121_100', 5]],
+      staged: [['o120_1', 1], ['halt', 1], ['o121_1', 0.6], ['o121_5', 0.3], ['o121_20', 0.1], ['o121_50', 0], ['o121_100', 0]],
+      flag: [['o120_flagoff', 0], ['flag1off', 1], ['o121_flagoff', 0], ['flag5', 0], ['flag20', 0], ['flag50', 0], ['flag100', 0]]
+    };
+    var STEP_DAYS = [[0], [1], [2], [3, 4, 5, 6]];
+    function crashOf(c, d) { return Math.round(D[c][d][1] * 1000 * RATE); }
+    function total(c, upto) { var t = 0; for (var d = 0; d <= upto; d++) t += crashOf(c, d); return t; }
+    ADE.sysRollout = { D: D, STEP_DAYS: STEP_DAYS, crashOf: crashOf, RATE: RATE };
+    var CODE = { bigbang: ['i12.release', [[1], [1], [2], [2]]], staged: ['i12.release', [[1], [1], [2], [2]]], flag: ['i12.flag', [[1], [2, 3], [1], [3]]] };
+    var NODES = [['console', 'users'], ['users', 'vitals'], ['console', 'users'], ['users', 'vitals']];
+    function steps(st) {
+      var c = st.case;
+      return KS.map(function (k, i) {
+        var last = STEP_DAYS[i][STEP_DAYS[i].length - 1], today = crashOf(c, STEP_DAYS[i][0]);
+        var bad = (c === 'bigbang' && i <= 2) || (c === 'staged' && i === 1), type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), ns = {};
+        NODES[i].forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var o = S(m, c + '.' + k, { type: type, activeNodes: NODES[i], nodeStates: ns,
+          metrics: { exposed: D[c][STEP_DAYS[i][0]][1], today: today, total: total(c, last) },
+          codeHighlight: { snippet: CODE[c][0], lines: CODE[c][1][i] },
+          movingSignals: [{ edge: i % 2 === 0 ? 'e1' : 'e2', tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : 'run'), subject: NODES[i][NODES[i].length - 1] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'bigbang' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'tổng người gặp crash sau 7 ngày: 100% một lần 8550, theo phần trăm 90, cờ 30', run: function () { return total('bigbang', 6) === 8550 && total('staged', 6) === 90 && total('flag', 6) === 30; } },
+        { name: 'tạm dừng phát hành không gỡ bản đã cài: ngày 2 vẫn còn 1000 người chạy bản lỗi', run: function () { return D.staged[1][0] === 'halt' && D.staged[1][1] === 1 && crashOf('staged', 1) === 30; } },
+        { name: 'tắt cờ thì ngày 3 không còn ai chạy mã lỗi, không cần bản mới để dừng', run: function () { return D.flag[2][1] === 0 && D.flag[1][1] === 1; } },
+        { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { 'i12.release': 2, 'i12.flag': 3 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && CODE[c][1].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[CODE[c][0]]; }); }); }); } }] });
+  })();
+
+  /* ================= I12b: tương thích — đổi tên trường tại chỗ, thêm trường, API /v2, thêm trường + bắt cập nhật =================
+     Theo DDIA bản 2 ch.5 (mã cũ và mới cùng tồn tại; tương thích xuôi cần mã cũ bỏ qua phần thêm; thêm trường thường giữ tương thích; phá vỡ thì giữ
+     nhiều phiên bản API), kotlinx.serialization (khóa lạ mặc định gây lỗi; ignoreUnknownKeys), In-app updates (immediate). Tỉ lệ phiên bản là minh họa. */
+  (function () {
+    var m = 'compat', CASES = ['rename', 'additive', 'versioned', 'forced'], KS = ['s1', 's2', 's3', 's4'];
+    var APPS = [['v10', 4, 'strict'], ['v11', 11, 'lenient'], ['v12', 60, 'lenient'], ['v13', 25, 'new']];   // [phiên bản, % người dùng, kiểu giải mã]
+    // kết quả của từng phiên bản app với API "sau thay đổi": ok | crash | update (bị bắt cập nhật) | v2 (gọi /v2)
+    function result(c, a) {
+      if (c === 'rename') return a[2] === 'new' ? 'ok' : 'crash';
+      if (c === 'additive') return a[2] === 'strict' ? 'crash' : 'ok';
+      if (c === 'versioned') return a[2] === 'new' ? 'v2' : 'ok';
+      return a[2] === 'strict' ? 'update' : 'ok';
+    }
+    function share(c, r) { return APPS.filter(function (a) { return result(c, a) === r; }).reduce(function (s, a) { return s + a[1]; }, 0); }
+    var APIS = { rename: 1, additive: 1, versioned: 2, forced: 1 };
+    ADE.sysCompat = { APPS: APPS, result: result, share: share, APIS: APIS };
+    var CODE = { rename: [[1], [4], [1, 4], [4]], additive: [[1], [5], [2, 3], [3]], versioned: [[1], [5], [3], [3]], forced: [[1], [5], [2], [3]] };
+    var NODES = [['apps'], ['server'], ['apps', 'server'], ['apps']];
+    function steps(st) {
+      var c = st.case;
+      return KS.map(function (k, i) {
+        var broken = i >= 2 ? share(c, 'crash') : 0, bad = broken > 0, type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), ns = {};
+        NODES[i].forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var o = S(m, c + '.' + k, { type: type, activeNodes: NODES[i], nodeStates: ns,
+          metrics: { broken: broken, forced: i >= 2 ? share(c, 'update') : 0, apis: i >= 1 ? APIS[c] : 1 },
+          codeHighlight: { snippet: 'i12.json', lines: CODE[c][i] },
+          movingSignals: [{ edge: i === 1 ? 'e1' : 'e2', tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 1 ? 'write' : 'observe'), subject: NODES[i][NODES[i].length - 1] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'rename' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'đổi tên tại chỗ: 75% người dùng (1.0 tới 1.2) lỗi', run: function () { return share('rename', 'crash') === 75; } },
+        { name: 'thêm trường: chỉ bản 1.0 giải mã chặt bị lỗi (4%)', run: function () { return share('additive', 'crash') === 4; } },
+        { name: 'API /v2: không ai lỗi, nhưng server giữ hai phiên bản; bắt cập nhật: 4% thấy màn cập nhật thay vì crash', run: function () { return share('versioned', 'crash') === 0 && APIS.versioned === 2 && share('forced', 'update') === 4 && share('forced', 'crash') === 0; } },
+        { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { return CASES.every(function (c) { return steps({ case: c }).length === 4 && CODE[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 5; }); }); }); } }] });
+  })();
 })();

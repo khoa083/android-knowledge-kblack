@@ -2,6 +2,22 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('sysdesign', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('i12.flag', [
+    c('val booking2 = remoteConfig.getBoolean("booking_v2")    // cờ do server điều khiển, mặc định tắt', 'val booking2 = remoteConfig.getBoolean("booking_v2")    // a server-controlled flag, off by default'),
+    'if (booking2) NewBookingScreen() else BookingScreen()',
+    c('// bật cho 1% người dùng; có crash thì tắt cờ, không cần phát hành bản mới', '// on for 1% of users; on crashes, turn the flag off, no new release needed')
+  ]);
+  add('i12.release', [
+    c('versionCode = 120   // 1.2.0: phát hành 100% một lần', 'versionCode = 120   // 1.2.0: released to 100% at once'),
+    c('versionCode = 121   // 1.2.1: bản sửa; bản đã cài không gỡ được, chỉ thay bằng bản mới hơn', 'versionCode = 121   // 1.2.1: the fix; an installed version cannot be pulled back, only replaced')
+  ]);
+  add('i12.json', [
+    '@Serializable data class Booking(val id: String, val doctorName: String)',
+    c('val strict = Json                                   // 1.0: khóa lạ → SerializationException', 'val strict = Json                                   // 1.0: unknown key → SerializationException'),
+    c('val lenient = Json { ignoreUnknownKeys = true }     // 1.1 trở đi: bỏ qua trường mới', 'val lenient = Json { ignoreUnknownKeys = true }     // 1.1 onward: ignores new fields'),
+    c('// server đổi tên doctorName → doctor.name: mọi bản cũ thiếu trường bắt buộc, lỗi', '// server renames doctorName → doctor.name: every old version misses a required field and fails'),
+    c('// server thêm doctor, giữ doctorName: bản dùng lenient vẫn chạy', '// server adds doctor, keeps doctorName: versions using lenient keep working')
+  ]);
   add('i11.heavy', [
     'class ClinicApp : Application() {',
     '    override fun onCreate() {',
