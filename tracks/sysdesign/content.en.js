@@ -1571,7 +1571,7 @@ ADE.addTrackStrings('sysdesign', 'en', {
   "track.sysdesign.m.bitmap.co.try": "Walk all four steps of each approach; at step 4 compare the total with the heap limit.",
   "track.sysdesign.m.bitmap.co.full.s2": "Android docs: images are often far larger than where they are shown, and decoding more than needed wastes memory. [[src:ax-load-bitmap]]",
   "track.sysdesign.m.bitmap.co.full.s3": "Bitmap.Config: ARGB_8888 stores each pixel in 4 bytes. [[src:ax-bitmap-config]]",
-  "track.sysdesign.m.bitmap.co.full.s4": "The docs' example: a 2048 × 1536 image takes about 12 MB; decoded with inSampleSize 4 it is about 0.75 MB. [[src:ax-load-bitmap]]",
+  "track.sysdesign.m.bitmap.co.full.s4": "The docs' example: a 2048 × 1536 image takes about 12 MiB; decoded with inSampleSize 4 it is about 0.75 MiB. [[src:ax-load-bitmap]]",
   "track.sysdesign.m.bitmap.co.sampled.s2": "Docs: the decoder rounds inSampleSize down to a power of two, so the sample function only doubles. [[src:ax-load-bitmap]]",
   "track.sysdesign.m.bitmap.co.sampled.s3": "For exactly 270 px, scale further after decoding; image libraries do this step for you.",
   "track.sysdesign.m.bitmap.co.sampled.s4": "The docs recommend an image library (Glide; also Coil, Picasso, Fresco) over writing this yourself; they decode for the view size and cache. [[src:ax-load-bitmap]]",

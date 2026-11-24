@@ -47,7 +47,7 @@ def add(a):
         ('try', 'Đi hết bốn bước của mỗi cách; ở bước 4 so tổng RAM với giới hạn heap.', 'Walk all four steps of each approach; at step 4 compare the total with the heap limit.'),
         ('full.s2', 'Tài liệu Android: ảnh thường lớn hơn nhiều so với chỗ hiện nó, và giải mã ảnh lớn hơn cần làm tốn RAM vô ích. [[src:ax-load-bitmap]]', 'Android docs: images are often far larger than where they are shown, and decoding more than needed wastes memory. [[src:ax-load-bitmap]]'),
         ('full.s3', 'Bitmap.Config: ARGB_8888 giữ mỗi điểm ảnh trong 4 byte. [[src:ax-bitmap-config]]', 'Bitmap.Config: ARGB_8888 stores each pixel in 4 bytes. [[src:ax-bitmap-config]]'),
-        ('full.s4', 'Ví dụ của tài liệu: ảnh 2048 × 1536 tốn khoảng 12 MB; giải mã với inSampleSize 4 chỉ còn khoảng 0,75 MB. [[src:ax-load-bitmap]]', 'The docs\' example: a 2048 × 1536 image takes about 12 MB; decoded with inSampleSize 4 it is about 0.75 MB. [[src:ax-load-bitmap]]'),
+        ('full.s4', 'Ví dụ của tài liệu: ảnh 2048 × 1536 tốn khoảng 12 MiB; giải mã với inSampleSize 4 chỉ còn khoảng 0,75 MiB. [[src:ax-load-bitmap]]', 'The docs\' example: a 2048 × 1536 image takes about 12 MiB; decoded with inSampleSize 4 it is about 0.75 MiB. [[src:ax-load-bitmap]]'),
         ('sampled.s2', 'Tài liệu: bộ giải mã làm tròn inSampleSize xuống lũy thừa của 2, nên hàm mẫu chỉ nhân đôi. [[src:ax-load-bitmap]]', 'Docs: the decoder rounds inSampleSize down to a power of two, so the sample function only doubles. [[src:ax-load-bitmap]]'),
         ('sampled.s3', 'Muốn đúng 270 px thì thu nhỏ thêm sau khi giải mã; thư viện ảnh làm sẵn bước này.', 'For exactly 270 px, scale further after decoding; image libraries do this step for you.'),
         ('sampled.s4', 'Tài liệu khuyên dùng thư viện ảnh (Glide; ngoài ra Coil, Picasso, Fresco) thay vì tự viết; chúng giải mã theo kích thước view và cache. [[src:ax-load-bitmap]]', 'The docs recommend an image library (Glide; also Coil, Picasso, Fresco) over writing this yourself; they decode for the view size and cache. [[src:ax-load-bitmap]]')]:
@@ -127,7 +127,7 @@ def add(a):
       'A decoded image costs width × height × bytes per pixel, not the file size: a 4000 × 3000 camera photo takes about 45.8 MiB. Read the size first and decode for the display size (the inSampleSize shrink factor), or let an image library do it.\nLarge files on mobile networks should use resumable uploads: create an upload resource (an address on the server standing for the upload), send in chunks, and after a drop ask the server how far it got and continue.\nLong uploads must survive the app going to the background: WorkManager (Android\'s tool for background work) in the foreground (with a visible notification), or a user-initiated data transfer job (Android 14).')
     a(C + '.goal.g1', 'Đã thấy RAM của một ảnh', 'Saw the memory of one image')
     a(C + '.goal.g2', 'Đã thấy tổng RAM của lưới ảnh', 'Saw the total memory of the grid')
-    a(C + '.sim.sysdesign.bitmap', 'RAM ảnh', 'Image memory')
+    a(C + '.sim.sysdesign.bitmap', 'RAM của ảnh', 'Image memory')
     a(C + '.sim.sysdesign.upload', 'Upload tệp lớn', 'Large uploads')
 
     S_ = 'hook'
@@ -139,7 +139,7 @@ def add(a):
       'Not 36 MB. Each decoded photo in ARGB_8888 takes 4000 × 3000 × 4 bytes, about 45.8 MiB; 12 photos are about 549 MiB, beyond most devices\' heaps. Decoding for the 270 px cell (inSampleSize 8) needs only about 8.6 MiB. [[src:ax-bitmap-config]] [[src:ax-load-bitmap]]')
 
     S_ = 'memory'
-    a(C + '.sec.%s.title' % S_, 'RAM ảnh tính theo điểm ảnh', 'Image memory counts pixels')
+    a(C + '.sec.%s.title' % S_, 'RAM của ảnh tính theo điểm ảnh', 'Image memory counts pixels')
     a(C + '.sec.%s.badge' % S_, 'stable')
     B(C, S_, 1, 'p', 'JPEG hay PNG là dạng nén để lưu và truyền. Để vẽ, ảnh phải được giải mã thành bitmap, mỗi điểm ảnh một ô nhớ. Bitmap.Config cho số byte mỗi điểm ảnh: ARGB_8888 là 4 byte và được khuyên dùng; RGB_565 là 2 byte nhưng không có kênh trong suốt; RGBA_F16 là 8 byte cho ảnh dải màu rộng (nhiều màu hơn bình thường). Từ API 26 (Android 8.0), cấu hình HARDWARE chỉ giữ ảnh trong bộ nhớ đồ họa, hợp khi chỉ vẽ lên màn hình. [[src:ax-bitmap-config]]',
       'JPEG or PNG are compressed forms for storage and transfer. To draw, an image must be decoded into a bitmap, one memory cell per pixel. Bitmap.Config gives bytes per pixel: ARGB_8888 is 4 bytes and recommended; RGB_565 is 2 bytes but has no transparency; RGBA_F16 is 8 bytes for wide-gamut images (a wider range of colours than usual). From API 26 (Android 8.0), the HARDWARE config keeps the image only in graphics memory, best when it is only drawn to screen. [[src:ax-bitmap-config]]')
