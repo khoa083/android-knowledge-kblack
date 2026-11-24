@@ -198,4 +198,46 @@
         { name: 'truy vấn một lần không bao giờ chạy lại: màn hình cũ sau khi thêm lịch', run: function () { return WRITES.every(function (w) { return W.oneshot[w][0] === 'no'; }) && steps({ case: 'oneshot' })[3].metrics.shown === 3; } },
         { name: 'số lần chạy truy vấn của Flow = 1 + số lần ghi vào bảng được tham chiếu', run: function () { return steps({ case: 'flow' })[3].metrics.runs === 1 + WRITES.filter(function (w) { return TABLE[w] === 'appointment'; }).length; } }] });
   })();
+
+  /* ================= H5: đọc bác sĩ kèm lịch hẹn — vòng lặp N+1, @Relation + @Transaction, multimap JOIN =================
+     Theo Define relationships between objects (multimap được khuyên nếu không có lý do dùng lớp trung gian; @Embedded, @Relation),
+     One-to-many (@Relation cần Room chạy hai truy vấn nên thêm @Transaction để cả thao tác là nguyên tử), @Transaction reference
+     (câu SELECT trong giao dịch có cái nhìn nhất quán; POJO có @Relation được truy vấn bằng các câu riêng). Lần ghi của đồng bộ nền
+     chen giữa các truy vấn là tình huống của site: lịch #7 chuyển từ bác sĩ B sang bác sĩ C. */
+  (function () {
+    var m = 'rel', CASES = ['loop', 'relation', 'multimap'], KS = ['s1', 's2', 's3', 's4'];
+    var DOCS = ['A', 'B', 'C'];
+    var BEFORE = { 5: 'A', 6: 'B', 7: 'B', 8: 'C' };
+    // mỗi bước: {q: số truy vấn đã chạy, res: kết quả đã ghép theo bác sĩ, moved: lịch #7 đã chuyển trong DB, rows: số dòng JOIN đã đọc}
+    var P = {
+      loop: [{ q: 1, res: {}, moved: false }, { q: 3, res: { A: [5], B: [6, 7] }, moved: false }, { q: 3, res: { A: [5], B: [6, 7] }, moved: true }, { q: 4, res: { A: [5], B: [6, 7], C: [7, 8] }, moved: true }],
+      relation: [{ q: 1, res: {}, moved: false }, { q: 2, res: { A: [5], B: [6, 7], C: [8] }, moved: false }, { q: 2, res: { A: [5], B: [6, 7], C: [8] }, moved: true }, { q: 2, res: { A: [5], B: [6, 7], C: [8] }, moved: true }],
+      multimap: [{ q: 1, res: {}, moved: false, rows: 4 }, { q: 1, res: { A: [5], B: [6, 7], C: [8] }, moved: false }, { q: 1, res: { A: [5], B: [6, 7], C: [8] }, moved: true }, { q: 1, res: { A: [5], B: [6, 7], C: [8] }, moved: true }]
+    };
+    // loại bước, dòng mã, loại log, chủ thể, node sáng
+    var META = {
+      loop: [['scenario', [1], 'run', 'doctors', ['doctors']], ['mechanism', [2, 3], 'run', 'appts', ['appts']], ['pitfall', [3], 'write', 'sync', ['sync', 'appts']], ['pitfall', [2, 3, 4], 'observe', 'result', ['appts', 'result']]],
+      relation: [['scenario', [6, 7], 'run', 'doctors', ['doctors']], ['mechanism', [3, 4], 'run', 'appts', ['appts']], ['mechanism', [6], 'write', 'sync', ['sync']], ['mechanism', [8], 'complete', 'result', ['result']]],
+      multimap: [['scenario', [1, 2], 'run', 'appts', ['doctors', 'appts']], ['mechanism', [3], 'run', 'result', ['result']], ['mechanism', [2], 'write', 'sync', ['sync']], ['mechanism', [3], 'complete', 'result', ['result']]]
+    };
+    function dupCount(res) { var seen = {}, d = 0; Object.keys(res).forEach(function (k) { res[k].forEach(function (id) { if (seen[id]) d++; seen[id] = 1; }); }); return d; }
+    ADE.storageRel = { DOCS: DOCS, BEFORE: BEFORE, at: function (c, k) { return P[c][k]; }, dup: dupCount };
+    function steps(s) {
+      return P[s.case].map(function (p, i) {
+        var mt = META[s.case][i], bad = mt[0] === 'pitfall';
+        var ns = {}; ['doctors', 'appts', 'sync', 'result'].forEach(function (n) { if (mt[4].indexOf(n) >= 0) ns[n] = K + 'st.' + (bad && n !== 'sync' ? 'surprise' : 'done'); });
+        var o = S(m, s.case + '.' + KS[i], { type: mt[0], activeNodes: mt[4], nodeStates: ns, metrics: { q: p.q, dup: dupCount(p.res) },
+          codeHighlight: { snippet: 'h5.' + s.case, lines: mt[1] }, movingSignals: [{ edge: mt[4][0] === 'sync' ? 'e3' : (mt[4][0] === 'result' ? 'e2' : 'e1'), tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: mt[2], subject: mt[3] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'loop' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'vòng lặp chạy 1 + N truy vấn (N = 3 bác sĩ); @Relation chạy 2; multimap chạy 1', run: function () { return P.loop[3].q === 1 + DOCS.length && P.relation[3].q === 2 && P.multimap[3].q === 1; } },
+        { name: 'chỉ vòng lặp không giao dịch mới đếm trùng lịch #7 khi đồng bộ chen giữa', run: function () { return dupCount(P.loop[3].res) === 1 && dupCount(P.relation[3].res) === 0 && dupCount(P.multimap[3].res) === 0; } },
+        { name: 'kết quả nhất quán khớp đúng dữ liệu trước lần ghi', run: function () { var r = P.relation[3].res; return Object.keys(BEFORE).every(function (id) { return r[BEFORE[id]].indexOf(+id) >= 0; }); } }] });
+  })();
 })();

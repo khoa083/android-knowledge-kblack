@@ -97,4 +97,28 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('rm.cap') }), chain,
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)), h('div', { class: 'vz-legend', text: T('rm.legend') })));
   }, { labelKey: K + 'tab.rm', icon: 'grid' });
+
+  /* ---------- H5: bảng appointment (dòng #7 đổi bác sĩ), kết quả ghép theo bác sĩ, bộ đếm truy vấn ---------- */
+  ADE.registerScreen('storage.rel', function (box, ctx) {
+    var h = ADE.ui.h, R = ADE.storageRel, c = ctx.state.case, i = idx(ctx), d = R.at(c, Math.max(0, i));
+    var tb1 = h('tbody');
+    Object.keys(R.BEFORE).forEach(function (id) {
+      var doc = id === '7' && d.moved ? 'C' : R.BEFORE[id], ch = id === '7' && d.moved;
+      tb1.appendChild(h('tr', null, h('td', { text: '#' + id }), h('td', { class: ch && i === 2 ? 'hl' : null, text: ch ? T('rl.moved', { from: 'B', to: 'C' }) : doc })));
+    });
+    var t1 = h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, h('th', { text: 'id' }), h('th', { text: 'doctorId' }))), tb1);
+    var seen = {}, tb2 = h('tbody');
+    R.DOCS.forEach(function (doc) {
+      var list = d.res[doc];
+      tb2.appendChild(h('tr', null, h('td', { text: T('rl.doctor', { d: doc }) }), h('td', null, list ? list.map(function (id) {
+        var dup = seen[id]; seen[id] = 1;
+        return h('span', { class: 'vz-chip' + (dup ? ' bad' : ''), text: '#' + id + (dup ? ' ' + T('rl.dup') : '') });
+      }) : h('span', { class: 'dim', text: T('rl.notyet') }))));
+    });
+    var t2 = h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, h('th', { text: T('rl.col.doctor') }), h('th', { text: T('rl.col.appts') }))), tb2);
+    var count = h('p', { class: 'vz-cap' }, h('b', { text: T('rl.q', { n: d.q }) }), ' ' + T('rl.formula.' + c));
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('rl.cap') }),
+      h('div', { class: 'vz-pair' }, h('div', null, h('p', { class: 'vz-cap', text: T('rl.t1') }), t1), h('div', null, h('p', { class: 'vz-cap', text: T('rl.t2') }), t2)),
+      count, h('div', { class: 'vz-legend', text: T('rl.legend') })));
+  }, { labelKey: K + 'tab.rl', icon: 'grid' });
 })();

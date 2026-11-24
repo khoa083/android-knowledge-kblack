@@ -59,3 +59,11 @@
 | Flow chạy lại khi bất kỳ dòng nào của bảng được tham chiếu đổi; distinctUntilChanged; invalidationTracker.createFlow | ax-room-async | stable |
 | @Insert trả rowId; @Update/@Delete theo khóa chính, trả số dòng; @Upsert; @Query kiểm lúc biên dịch | ax-room-dao | stable |
 | Room 2.x: IllegalStateException khi truy vấn trên main, allowMainThreadQueries | kiến thức bản cũ, ghi rõ trên site là Room 2.x | version |
+
+### H5 · Quan hệ và giao dịch
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Room cấm tham chiếu đối tượng giữa entity; lớp trung gian (@Embedded, @Relation) hay multimap; khuyên multimap nếu không có lý do; multimap để SQL làm nhiều hơn | ax-room-relations | stable |
+| @Relation cần hai truy vấn → thêm @Transaction để nguyên tử; nhiều–nhiều: bảng nối + Junction; cú pháp Room 3.0 parentColumns/entityColumns | ax-room-relations | stable / version |
+| @Transaction: SELECT nhất quán, @Relation truy vấn riêng; hàm không trừu tượng chạy trong một giao dịch; @Insert/@Update/@Delete vốn có giao dịch; tối đa một giao dịch mỗi lúc, xếp hàng | ax-room-transaction | stable |
+| 1 + N truy vấn, đồng bộ chen giữa làm kết quả lệch | site (minh họa) | simplified |

@@ -27,4 +27,8 @@
   V('room', { layout: 'pipeline', nodes: [N('room', 'dao', 0, 0, 'source', 'ui'), N('room', 'impl', 3, 0, 'mechanism', 'runtime'), N('room', 'sqlite', 6, 0, 'store', 'state'), N('room', 'out', 9, 0, 'screen', 'job')],
     edges: [E('e1', 'dao', 'impl'), E('e2', 'impl', 'sqlite'), E('e3', 'sqlite', 'out')],
     metrics: [T('room', 'shown'), T('room', 'runs')] });
+  /* H5: bảng doctor, bảng appointment, đồng bộ nền ghi chen vào, kết quả ghép */
+  V('rel', { layout: 'pipeline', nodes: [N('rel', 'doctors', 0, 0, 'store', 'state'), N('rel', 'appts', 3, 0, 'store', 'state'), N('rel', 'result', 6, 0, 'screen', 'ui'), N('rel', 'sync', 3, 3, 'job', 'runtime')],
+    edges: [E('e1', 'doctors', 'appts'), E('e2', 'appts', 'result'), E('e3', 'sync', 'appts')],
+    metrics: [T('rel', 'q'), T('rel', 'dup')] });
 })();

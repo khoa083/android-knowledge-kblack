@@ -2,6 +2,27 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('storage', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('h5.loop', [
+    c('val doctors = dao.doctors()                         // truy vấn 1', 'val doctors = dao.doctors()                         // query 1'),
+    c('val result = doctors.associateWith { d ->', 'val result = doctors.associateWith { d ->'),
+    c('    dao.appointmentsOf(d.id)                         // thêm 1 truy vấn cho mỗi bác sĩ', '    dao.appointmentsOf(d.id)                         // one more query per doctor'),
+    c('}                                                   // tổng: 1 + N, không có giao dịch', '}                                                   // total: 1 + N, no transaction')
+  ]);
+  add('h5.relation', [
+    'data class DoctorWithAppointments(',
+    '    @Embedded val doctor: Doctor,',
+    '    @Relation(parentColumns = ["id"], entityColumns = ["doctorId"])',
+    '    val appointments: List<Appointment>,',
+    ')',
+    '@Transaction',
+    c('@Query("SELECT * FROM doctor")                      // Room chạy thêm một câu cho bảng appointment', '@Query("SELECT * FROM doctor")                      // Room runs one more query for appointment'),
+    c('suspend fun doctorsWithAppointments(): List<DoctorWithAppointments>   // 2 truy vấn, một giao dịch', 'suspend fun doctorsWithAppointments(): List<DoctorWithAppointments>   // 2 queries, one transaction')
+  ]);
+  add('h5.multimap', [
+    '@Query("SELECT * FROM doctor JOIN appointment ON appointment.doctorId = doctor.id")',
+    c('suspend fun doctorsWithAppointments(): Map<Doctor, List<Appointment>>   // 1 câu JOIN', 'suspend fun doctorsWithAppointments(): Map<Doctor, List<Appointment>>   // 1 JOIN query'),
+    c('// Room gom các dòng (bác sĩ, lịch) thành Map theo bác sĩ', '// Room groups the (doctor, appointment) rows into a Map by doctor')
+  ]);
   add('h4.flow', [
     '@Dao interface AppointmentDao {',
     '    @Query("SELECT * FROM appointment WHERE doctorId = :doctorId ORDER BY time")',
