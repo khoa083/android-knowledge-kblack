@@ -27,6 +27,15 @@
 
 ## Quy tắc viết
 
+- **Giọng văn (quyết định của người dùng, 2026-11-24): người dạy giảng cho người mới, dễ hiểu, dễ nhớ.**
+  - Người đọc chưa từng đọc sách nào: mỗi ý tự giải thích trọn vẹn trên trang.
+  - Câu ngắn, mỗi đoạn một ý; mở bằng tình huống hay câu hỏi, rồi mới tới khái niệm.
+  - Có hình ảnh đời thường khi nó giúp hiểu (máy tính bỏ túi, giải phương trình), nói rõ chỗ nó khớp.
+  - Mỗi phần chốt bằng một câu dễ nhớ (quy tắc ngón tay cái).
+  - **Không** dẫn số chương, số mục, số bài tập của sách ("Carli (ch.3)", "Seemann 13.1.3"); **không** nhắc ví dụ chỉ có trong sách. Kể lại ngắn hoặc dùng ví dụ app Hẹn Khám.
+  - Tên tác giả chỉ dùng khi ý đó là quan điểm hay ngưỡng của riêng họ ("Seemann đề xuất ngưỡng 7").
+  - Nguồn vẫn gắn bằng `[[src:id]]` cuối câu; chi tiết chương và trang chỉ ghi ở `docs/research/<track>.md` và chú thích đầu module.
+  - **Không** có mục "Chương này giản lược những gì" (các bộ sinh lọc bỏ khoá `.sec.honest.`). Nhãn giản lược của mô phỏng vẫn giữ trong ô `simp.*`, viết ngắn bằng lời thường.
 - **Mỗi đoạn mã có output dự đoán được.** Nếu output phụ thuộc lịch chạy, ghi rõ đó là "một thứ tự có thể xảy ra".
 - **Mỗi thuật ngữ mới:**
   - nói bằng lời thường trước;
