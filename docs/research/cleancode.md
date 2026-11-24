@@ -1,6 +1,8 @@
 # Nghiên cứu track J (Mã sạch và kỷ luật làm nghề)
 
-> Track chưa được duyệt. Dàn ý: `docs/tracks/J-clean-code.md`.
+> Track đã duyệt 2026-11-24, đang viết. Dàn ý: `docs/tracks/J-clean-code.md`. Nguồn chính thức thắng khi mâu thuẫn.
+> Mọi quy tắc trong track là heuristic của tác giả: ghi tên tác giả, nói vấn đề nó giải quyết và khi nào không nên áp dụng.
+> Ví dụ Java/C# của sách được viết lại bằng Kotlin trên app Hẹn Khám; không chép mã hay câu chữ của sách.
 
 ## Đã đọc để soạn dàn ý (2026-11-24, chỉ mục lục)
 - **Đọc mục lục epub bằng `tools/epub_toc.py`:**
@@ -18,5 +20,23 @@
   - Bản dịch tiếng Việt của cộng đồng, chỉ để đối chiếu thuật ngữ, không chép lên site: https://github.com/quoctinnguyen8/Clean-Code---Tieng-Viet và https://cleancode.tinnq.com/ (cả hai trả HTTP 200 ngày 2026-11-24).
 - **URL kiểm HTTP 200 ngày 2026-11-24:** kotlinlang.org/docs/coding-conventions.html, developer.android.com/kotlin/style-guide, developer.android.com/training/testing/fundamentals, git-scm.com/docs/git-bisect.
 
+## Sách (bản trong thư viện cá nhân; trên site chỉ ghi trang của nhà xuất bản hoặc tác giả)
+| Id nguồn | Sách | Đã đọc thân chương |
+|---|---|---|
+| `book-seemann` (khai báo ở `tracks/sysdesign/sources.js`, tracks gồm cả cleancode) | Mark Seemann, *Code That Fits in Your Head* | 3.2.1, 7.1.1–7.1.3, 7.2.1, 7.2.7, phụ lục A.2, A.7, A.8 (2026-11-24) |
+| `book-cleancode` | Robert C. Martin, *Clean Code* (2008) | ch.3: Small!, Blocks and Indenting, Do One Thing, One Level of Abstraction, Stepdown Rule (2026-11-24) |
+
+URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN 9780132350884), blog.ploeh.dk/code-that-fits-in-your-head/.
+
 ## Bảng nguồn theo chương
-Điền khi viết từng chương. Mỗi heuristic ghi tên tác giả và giới hạn áp dụng.
+### J1 Mã phải vừa trong đầu
+| Ý trên site | Nguồn |
+|---|---|
+| Trí nhớ ngắn hạn giữ khoảng 4–7 mẩu; 7 là con số tượng trưng, con số chính xác không quan trọng; đọc mã là chạy giả lập trong đầu | Seemann 3.2.1 (kèm chú thích 2) |
+| Mã mục dần; đặt ngưỡng cho một chỉ số; vượt ngưỡng đôi khi là đúng nhưng phải đưa về lại; luật hậu quả ngoài ý muốn; khi thói quen đã đổi, luật thành thừa | Seemann 7.1, 7.1.1 |
+| Cyclomatic complexity: bắt đầu 1, mỗi lệnh rẽ nhánh/lặp cộng 1, từ khóa tùy ngôn ngữ (ví dụ C# đếm cả `??`); = số test tối thiểu | Seemann 7.1.2, A.8 |
+| Luật 80/24 (tùy ý, khung VT100; tác giả thấy khó chịu khi hàm C# gần 20 dòng) | Seemann 7.1.3, A.2 |
+| Không quá bảy thứ trong một đoạn mã; kiến trúc fractal | Seemann 7.2.1, 7.2.6 |
+| Đếm biến: cục bộ, tham số, field; gom tham số thành object | Seemann 7.2.7, A.7 |
+| Hàm nhỏ, hiếm khi tới 20 dòng (không có nghiên cứu chứng minh); làm một việc; một mức trừu tượng; stepdown rule | Martin, Clean Code ch.3 |
+| **Của site:** quy ước đếm cho Kotlin (if, for, while, do-while, mỗi nhánh when trừ else; ?:, &&, \|\| không dùng trong ví dụ vì công cụ đếm khác nhau); hàm 19 dòng và mọi con số; nhận xét "tách quá vụn cũng có giá", "when nhiều nhánh ngang hàng vẫn dễ đọc"; chú ý nghiên cứu trí nhớ không đo việc đọc mã | — |
