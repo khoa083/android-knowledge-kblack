@@ -91,4 +91,86 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p1.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= K2: bất biến, dữ liệu dùng chung, đệ quy và tailrec =================
+     Hai điều khiển độc lập: cách giữ danh sách (bước 1–2) và cách đệ quy (bước 3–4).
+     Theo Vermeulen và cộng sự ch.3.3 (data sharing: thêm vào đầu trả Cons(x, xs), không chép xs; bỏ phần tử đầu là trả tail; persistent),
+     ch.2 (tail call, tailrec, StackOverflowError), ch.3 Exercise 3.9 (foldRight không stack-safe); Carli ch.6 (tailrec thành vòng while), ch.7
+     (immutable, functional, persistent); tài liệu Kotlin Functions (điều kiện tailrec). CÀI THẬT: một list persistent nhỏ (đếm nút được tạo,
+     kiểm đuôi dùng chung bằng ===), một MutableList dùng chung tên, đệ quy thường có đếm độ sâu và tailrec như vòng lặp có tích lũy.
+     Giới hạn 10.000 khung là con số minh họa của site: độ sâu thật tùy kích thước stack của luồng và của mỗi khung. */
+  (function () {
+    var m = 'persist', LISTS = ['mutable', 'persistent'], RECS = ['plain', 'tailrec'], KS = ['s1', 's2', 's3', 's4'];
+    var N = 50000, FEE = 200000, LIMIT = 10000, MARKS = [0, 5000, 10000, 20000, 30000, 40000, 50000];
+    var Nil = { nil: true }, made = 0;
+    var cons = function (h, t) { made++; return { head: h, tail: t }; };
+    var arr = function (xs) { var r = []; while (!xs.nil) { r.push(xs.head); xs = xs.tail; } return r; };
+    // [booked, selected, rest] sau bước 1 và bước 2; shared: số nút của selected là nút của booked (cùng object)
+    function listRun(kind) {
+      if (kind === 'mutable') {
+        var booked = ['b1', 'b2', 'b3'], selected = booked, out = [];
+        selected.push('b4'); out.push({ booked: booked.slice(), selected: selected.slice(), rest: null, alias: selected === booked, nodes: 0, touched: 1, added: 'b4', lost: null });
+        var lost = selected.splice(0, 1)[0]; out.push({ booked: booked.slice(), selected: selected.slice(), rest: null, alias: selected === booked, nodes: 0, touched: 2, added: 'b4', lost: lost });
+        return out;
+      }
+      made = 0; var b = cons('b1', cons('b2', cons('b3', Nil))); made = 0;
+      var sel = cons('b4', b), n1 = made, shared1 = sel.tail === b ? arr(b).length : 0;
+      var rest = sel.tail, n2 = made;
+      return [{ booked: arr(b), selected: arr(sel), rest: null, alias: false, nodes: n1, shared: shared1, touched: 0, added: 'b4', lost: null },
+        { booked: arr(b), selected: arr(sel), rest: arr(rest), restIsBooked: rest === b, alias: false, nodes: n2, shared: shared1, touched: 0, added: 'b4', lost: null }];
+    }
+    // độ sâu stack tại các mốc; đệ quy thường: đi xuống trước, mỗi phần tử thêm một khung; tràn khi vượt LIMIT
+    function stackRun(rec) {
+      var at = {}, k;
+      if (rec === 'plain') {
+        for (k = 0; k <= N; k++) { var depth = k + 1; if (MARKS.indexOf(k) >= 0) at[k] = depth; if (depth > LIMIT) return { at: at, crash: k, total: null, max: LIMIT }; }
+        return { at: at, crash: null, total: null, max: N + 1 };
+      }
+      var acc = 0;   // tailrec: trình biên dịch đổi thành vòng lặp, một khung suốt quá trình
+      for (k = 0; k < N; k++) { if (MARKS.indexOf(k) >= 0) at[k] = 1; acc += FEE; }
+      at[N] = 1;
+      return { at: at, crash: null, total: acc, max: 1 };
+    }
+    function view(s, i) {
+      var L = listRun(s.list), R = stackRun(s.rec), shown = i < 2 ? [] : MARKS.slice(0, i === 2 ? 2 : MARKS.length);
+      var marks = MARKS.map(function (k) {
+        if (shown.indexOf(k) < 0) return [k, null];
+        if (R.crash !== null && k > R.crash) return [k, 'skip'];
+        if (R.crash !== null && k === R.crash) return [k, 'crash'];
+        return [k, R.at[k]];
+      });
+      var deepest = 0; marks.forEach(function (x) { if (typeof x[1] === 'number' && x[1] > deepest) deepest = x[1]; if (x[1] === 'crash') deepest = LIMIT; });
+      return { list: L[Math.min(i, 1)], marks: marks, depth: deepest, crashed: i === 3 && R.crash !== null, total: i === 3 ? R.total : null };
+    }
+    ADE.fpPersist = { N: N, FEE: FEE, LIMIT: LIMIT, MARKS: MARKS, view: view, listRun: listRun, stackRun: stackRun };
+    var HL = { mutable: [[2, 3], [2, 4]], persistent: [[4, 5], [6]], plain: [[3], [3]], tailrec: [[1, 3], [2]] };
+    function steps(s) {
+      return KS.map(function (k, i) {
+        var v = view(s, i), listStep = i < 2, kind = listStep ? s.list : s.rec, bad = listStep ? s.list === 'mutable' : s.rec === 'plain';
+        var nodes = listStep ? ['selected', 'booked'] : ['fold', 'stack'], ns = {};
+        ns[nodes[1]] = K + 'st.' + (bad ? (i === 3 ? 'broken' : 'surprise') : 'done');
+        var o = S(m, kind + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nodes, nodeStates: ns,
+          metrics: { touched: listStep ? v.list.touched : listRun(s.list)[1].touched, nodes: listStep ? v.list.nodes : listRun(s.list)[1].nodes, depth: v.depth },
+          codeHighlight: { snippet: 'p2.' + kind, lines: HL[kind][i % 2] },
+          movingSignals: [{ edge: listStep ? 'e1' : 'e3', tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad && (i === 1 || i === 3) ? 'exception' : (i === 3 ? 'complete' : (listStep ? 'write' : 'run')), subject: nodes[1] }] });
+        var tryIt = i === 0 && s.list === 'mutable';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + kind + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'p2.mutable': 4, 'p2.persistent': 6, 'p2.plain': 4, 'p2.tailrec': 4 };
+    reg(m, { controls: [sel(m, 'list', LISTS), sel(m, 'rec', RECS)], init: function () { return { list: 'mutable', rec: 'plain' }; }, act: setter(['list', 'rec']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'MutableList dùng chung tên: thêm b4 rồi bỏ phần tử đầu làm booked thành [b2, b3, b4]', run: function () {
+          var r = listRun('mutable'); return r[0].alias && r[1].booked.join() === 'b2,b3,b4' && r[1].lost === 'b1' && r[1].touched === 2; } },
+        { name: 'list persistent: thêm vào đầu tạo đúng 1 nút, 3 nút đuôi dùng chung (===); tail tạo 0 nút và chính là booked; booked không đổi', run: function () {
+          var r = listRun('persistent'); return r[0].nodes === 1 && r[0].shared === 3 && r[1].nodes === 1 && r[1].restIsBooked && r[1].booked.join() === 'b1,b2,b3' && r[0].selected.join() === 'b4,b1,b2,b3'; } },
+        { name: 'đệ quy thường tràn ở phần tử thứ 10.000 (giới hạn minh họa); tailrec giữ 1 khung và cộng đủ 50.000 × 200.000 = 10.000.000.000', run: function () {
+          var p = stackRun('plain'), t = stackRun('tailrec'); return p.crash === LIMIT && p.total === null && t.max === 1 && t.total === 10000000000 && MARKS.every(function (k) { return t.at[k] === 1; }); } },
+        { name: 'mọi tổ hợp 4 bước; bước 4 với đệ quy thường là tràn stack; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return LISTS.every(function (l) { return RECS.every(function (r) { var x = steps({ list: l, rec: r }); return x.length === 4 && (r === 'plain') === view({ list: l, rec: r }, 3).crashed; }); }) &&
+            Object.keys(HL).every(function (k) { return HL[k].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p2.' + k]; }); }); }); } }] });
+  })();
 })();

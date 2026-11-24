@@ -36,4 +36,48 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), h('tbody', null, body))),
       h('div', { class: 'vz-legend', text: T('pure.legend') })));
   }, { labelKey: K + 'tab.pure', icon: 'grid' });
+
+  /* ---------- K2: (1) bảng phẳng các danh sách, mỗi nút là một ô; nút mới có viền, nút dùng chung đậm, nút bị đổi ngoài ý muốn gạch đỏ;
+     (2) bảng độ sâu stack theo số phần tử đã đi qua (0 tới 50.000), mở từ bước 3. Ô giữ data-k để trượt khi đổi bước; không lặp. ---------- */
+  ADE.registerScreen('fp.persist', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.fpPersist, st = ctx.state, i = Math.max(0, idx(ctx)), v = P.view(st, i), L = v.list;
+    var fmt = function (n) { return Number(n).toLocaleString(ADE.lang === 'vi' ? 'de-DE' : 'en-US'); };
+    function chips(name, items) {
+      return items.map(function (id, n) {
+        var cls = 'vz-chip', sub = null;
+        if (st.list === 'mutable') {
+          if (name === 'booked' && id === L.added) { cls += ' bad'; sub = T('persist.chip.leak'); }
+          if (name === 'selected' && id === L.added) cls += ' hl';
+        } else if (name === 'selected' && n === 0) { cls += ' hl'; sub = T('persist.chip.new'); }
+        else if (name !== 'booked') { cls += ' ok'; sub = T('persist.chip.shared'); }
+        return h('span', { class: cls, 'data-k': 'ps-' + name + '-' + id }, h('span', { text: id }), sub ? h('small', { text: ' ' + sub }) : null);
+      });
+    }
+    var rows = [['booked', L.booked], ['selected', L.selected]];
+    if (L.rest) rows.push(['rest', L.rest]);
+    var tb = h('tbody');
+    rows.forEach(function (r) {
+      var lostCell = st.list === 'mutable' && r[0] === 'booked' && L.lost ? [h('span', { class: 'vz-chip bad', 'data-k': 'ps-lost-' + L.lost }, h('span', { text: L.lost }), h('small', { text: ' ' + T('persist.chip.lost') }))] : [];
+      tb.appendChild(h('tr', { 'data-k': 'ps-row-' + r[0] }, h('td', { text: r[0] }), h('td', { text: T('persist.ref.' + (st.list === 'mutable' && r[0] === 'selected' ? 'alias' : (r[0] === 'rest' ? 'tail' : r[0]))) }),
+        h('td', null, lostCell.concat(chips(r[0], r[1])))));
+    });
+    var head = h('tr', null, h('th', { text: T('persist.col.seen') })), body = h('tr', { 'data-k': 'ps-depth-' + st.rec }, h('td', { text: T('persist.rec.' + st.rec) }));
+    v.marks.forEach(function (x) {
+      head.appendChild(h('th', { class: 'c', text: fmt(x[0]) }));
+      var val = x[1], cls = 'c', txt;
+      if (val === null) { cls += ' dim'; txt = '?'; }
+      else if (val === 'crash') { cls += ' bad'; txt = T('persist.crash'); }
+      else if (val === 'skip') { cls += ' dim'; txt = T('persist.skip'); }
+      else { txt = fmt(val); if (val > P.LIMIT / 2) cls += ' bad'; else if (val === 1) cls += ' ok'; }
+      body.appendChild(h('td', { class: cls, 'data-k': 'ps-m-' + x[0], text: txt }));
+    });
+    var result = v.crashed ? T('persist.result.crash', { n: fmt(P.LIMIT) }) : (v.total !== null ? T('persist.result.ok', { t: fmt(v.total) }) : T('persist.result.none'));
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-cap', text: T('persist.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['name', 'ref', 'nodes'].map(function (k) { return h('th', { text: T('persist.col.' + k) }); }))), tb)),
+      h('p', { class: 'vz-cap', text: T('persist.scap', { n: fmt(P.N), lim: fmt(P.LIMIT) }) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), h('tbody', null, body))),
+      h('p', { class: 'vz-sub' + (v.crashed ? ' bad' : ''), 'data-k': 'ps-result', text: result }),
+      h('div', { class: 'vz-legend', text: T('persist.legend') })));
+  }, { labelKey: K + 'tab.persist', icon: 'layers' });
 })();

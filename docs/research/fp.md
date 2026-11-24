@@ -32,3 +32,14 @@
 | Query phải tất định: không số ngẫu nhiên, GUID, giờ trong ngày, ngày trong tháng, tệp, database; tất định và không side effect là RT, là hàm thuần; lời gọi thay được bằng kết quả | Seemann 13.1.3 |
 | WillAccept nhận now làm tham số, bộ điều khiển truyền DateTime.Now | Seemann 8.2.2 |
 | **Của site:** hàm phí hai mức (200.000 và 300.000 đ), tuần 23–29/11/2026 (lịch thật, kiểm bằng selfCheck), biến đếm calls, bảng thế, lỗi UUID gộp vào vòng thử lại | — |
+
+### K2 Bất biến, dữ liệu dùng chung và đệ quy
+| Ý trên site | Nguồn |
+|---|---|
+| Bất biến (object) khác hằng (tham chiếu): val MutableUser vẫn sửa được; data class toàn val chưa đủ nếu có thuộc tính kiểu sửa được (Date); List là read-only; lợi ích: đơn giản, nhất quán (khóa Map), tránh tạo trùng, an toàn luồng | Carli ch.6 |
+| Đệ quy thay vòng lặp; khai triển recursiveFactorial(5); tailRecFactorial với tham số tích lũy; mã dịch ngược của hàm tailrec là while(true) | Carli ch.6 (Tailrec functions) |
+| Ba từ: immutable, functional, persistent; thêm phần tử mới thì đối tượng cũ thành đuôi của đối tượng mới | Carli ch.7 |
+| Data sharing: thêm vào đầu là Cons(x, xs), không chép xs; bỏ đầu là trả tail; persistent; pessimistic copying trong chương trình lớn; append chỉ chép a1; init phải chép mọi nút trước | Vermeulen và cộng sự 3.3, 3.3.1 |
+| Vị trí đuôi; Kotlin cần tailrec mới bỏ tail call; gắn tailrec cho hàm không có lời gọi đuôi chỉ bị cảnh báo; foldRight không stack-safe, foldLeft tailrec (Exercise 3.9) | Vermeulen và cộng sự ch.2, ch.3 |
+| Điều kiện của tailrec: gọi chính nó như thao tác cuối; không khi còn mã sau lời gọi, trong try/catch/finally, hàm open; trình biên dịch để lại một vòng lặp | Kotlin docs, Functions (đọc 2026-11-24; nguồn kt-functions của track Kotlin, mở rộng cho fp) |
+| **Của site:** FList tự viết, màn "Chọn lịch để hủy", 50.000 lịch, phí 200.000 đ, giới hạn minh họa 10.000 khung (độ sâu thật tùy stack của luồng) | — |

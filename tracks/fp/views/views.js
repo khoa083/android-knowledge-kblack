@@ -15,4 +15,8 @@
   V('pure', { layout: 'pipeline', nodes: [N('pure', 'world', 0, 1, 'clock', 'runtime'), N('pure', 'call', 3, 1, 'mechanism', 'ui'), N('pure', 'value', 6, 1, 'target', 'state'), N('pure', 'test', 9, 1, 'check', 'job')],
     edges: [E('e1', 'world', 'call'), E('e2', 'call', 'value'), E('e3', 'value', 'test')],
     metrics: [T('pure', 'subst'), T('pure', 'opaque'), T('pure', 'red')] });
+  /* K2: danh sách đã chọn → danh sách gốc (dùng chung); hàm cộng phí → stack */
+  V('persist', { layout: 'pipeline', nodes: [N('persist', 'selected', 0, 0, 'list', 'ui'), N('persist', 'booked', 4, 0, 'store', 'state'), N('persist', 'fold', 0, 2, 'mechanism', 'job'), N('persist', 'stack', 4, 2, 'layers', 'runtime')],
+    edges: [E('e1', 'selected', 'booked'), E('e2', 'booked', 'fold'), E('e3', 'fold', 'stack')],
+    metrics: [T('persist', 'touched'), T('persist', 'nodes'), T('persist', 'depth')] });
 })();
