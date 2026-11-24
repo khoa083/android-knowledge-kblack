@@ -51,4 +51,8 @@
   V('review', { layout: 'pipeline', nodes: [N('review', 'work', 0, 1, 'job', 'ui'), N('review', 'pr', 3, 1, 'list', 'state'), N('review', 'review', 6, 1, 'eye', 'job'), N('review', 'log', 9, 1, 'store', 'runtime')],
     edges: [E('e1', 'work', 'pr'), E('e2', 'pr', 'review'), E('e3', 'review', 'log')],
     metrics: [T('review', 'biggest'), T('review', 'caught'), T('review', 'read')] });
+  /* J11: yêu cầu → ước lượng → cam kết → kết quả */
+  V('estimate', { layout: 'pipeline', nodes: [N('estimate', 'ask', 0, 1, 'source', 'ui'), N('estimate', 'est', 3, 1, 'list', 'state'), N('estimate', 'commit', 6, 1, 'check', 'job'), N('estimate', 'done', 9, 1, 'clock', 'runtime')],
+    edges: [E('e1', 'ask', 'est'), E('e2', 'est', 'commit'), E('e3', 'commit', 'done')],
+    metrics: [T('estimate', 'promised'), T('estimate', 'actual'), T('estimate', 'bugs')] });
 })();

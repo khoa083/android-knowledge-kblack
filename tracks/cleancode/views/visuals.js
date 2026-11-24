@@ -338,4 +338,43 @@
     out.push(h('div', { class: 'vz-legend', text: T('rv.legend') }));
     box.appendChild(h('div', { class: 'vz' }, out));
   }, { labelKey: K + 'tab.review', icon: 'list' });
+
+  /* ---------- J11: bảng PERT kiểm chứng (từ bước 2 với cách PERT) + thước ngày 0–16 (bảng phẳng): hạn hỏi, kế hoạch, khoảng μ…μ+2σ, ngày xong thật ---------- */
+  ADE.registerScreen('cleancode.estimate', function (box, ctx) {
+    var h = ADE.ui.h, E = ADE.ccEstimate, c = ctx.state.case, i = Math.max(0, idx(ctx)), tot = E.total();
+    var f = function (x) { return (Math.round(x * 100) / 100).toLocaleString(ADE.lang === 'vi' ? 'de-DE' : 'en-US'); };
+    var out = [h('p', { class: 'vz-cap', text: T('es.cap') })];
+    if (c === 'pert' && i >= 1) {
+      var tb = h('tbody');
+      E.TASKS.forEach(function (t) {
+        tb.appendChild(h('tr', { 'data-k': 'es-' + t[0] }, h('td', { text: T('es.t.' + t[0]) }), h('td', { class: 'c', text: String(t[1]) }), h('td', { class: 'c', text: String(t[2]) }), h('td', { class: 'c', text: String(t[3]) }),
+          h('td', { class: 'c', text: '(' + t[1] + ' + 4×' + t[2] + ' + ' + t[3] + ')/6 ≈ ' + f(E.mu(t)) }), h('td', { class: 'c', text: '(' + t[3] + ' − ' + t[1] + ')/6 ≈ ' + f(E.sd(t)) })));
+      });
+      tb.appendChild(h('tr', { 'data-k': 'es-total' }, h('th', { text: T('es.t.total') }), h('td', { class: 'dim c', text: '' }), h('td', { class: 'dim c', text: '' }), h('td', { class: 'dim c', text: '' }),
+        h('td', { class: 'c ok', text: 'Σμ ≈ ' + f(tot.mu) }), h('td', { class: 'c ok', text: '√Σσ² ≈ ' + f(tot.sd) })));
+      out.push(h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['task', 'o', 'n', 'p', 'mu', 'sd'].map(function (k) { return h('th', { text: T('es.col.' + k) }); }))), tb)));
+    } else out.push(h('p', { class: 'vz-note' + (c === 'promise' && i >= 1 ? ' bad' : ''), text: c === 'promise' && i >= 1 ? T('es.nocalc') : '?' }));
+    // thước ngày: một hàng số ngày, một hàng dấu
+    var plan = c === 'promise' ? (i >= 1 ? E.PLAN.promise : null) : (i >= 2 ? E.PLAN.pert : null), showRange = c === 'pert' && i >= 1, done = i === 3 ? E.ACTUAL : null;
+    var lo = tot.mu, hi = tot.mu + 2 * tot.sd, head = [h('th', null)], marks = [h('th', { text: '' })];
+    for (var d = 0; d <= 16; d++) {
+      var tags = [];
+      if (d === E.ASK) tags.push(T('es.mk.ask'));
+      if (plan !== null && d === plan) tags.push(T('es.mk.plan'));
+      if (showRange && d === Math.round(tot.mu)) tags.push(T('es.mk.mu'));
+      if (showRange && d === Math.round(tot.mu + tot.sd)) tags.push(T('es.mk.s1'));
+      if (showRange && d === Math.round(tot.mu + 2 * tot.sd)) tags.push(T('es.mk.s2'));
+      if (done !== null && d === Math.ceil(done)) tags.push(T('es.mk.done') + ' ' + f(done));
+      var crunch = c === 'promise' && i >= 2 && d === E.CRUNCH;   // ngày trễ, bỏ test (chỉ ở cách "em cố")
+      if (crunch) tags.push(T('es.mk.crunch'));
+      var inRange = showRange && d >= Math.floor(lo) && d <= Math.ceil(hi), isPlan = (plan !== null && d === plan) || crunch, isDone = done !== null && d === Math.ceil(done);
+      head.push(h('th', { class: 'c', text: String(d) }));
+      // lời hứa "em cố" và ngày bỏ test: đỏ; kế hoạch dựa trên PERT: đậm (hợp lý)
+      marks.push(h('td', { class: 'c' + (isDone ? ' hl' : (isPlan ? (c === 'promise' ? ' bad' : ' ok') : (inRange ? ' ok' : ''))) + (inRange ? ' vz-rng' : ''), 'data-k': 'day' + d, title: tags.join(', ') || null, text: tags.join(' · ') }));
+    }
+    out.push(h('p', { class: 'vz-cap', text: T('es.rcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-cells vz-ruler' }, h('thead', null, h('tr', null, head)), h('tbody', null, h('tr', null, marks)))));
+    if (plan !== null) out.push(h('p', { class: 'vz-note' + (done !== null && done > plan ? ' bad' : (done !== null ? ' ok' : '')), text: T('es.mk.plan') + ': ' + T('es.days', { n: plan }) + (done !== null ? ' · ' + T('es.mk.done') + ': ' + T('es.days', { n: f(done) }) : '') }));
+    out.push(h('div', { class: 'vz-legend', text: T('es.legend') }));
+    box.appendChild(h('div', { class: 'vz' }, out));
+  }, { labelKey: K + 'tab.estimate', icon: 'clock' });
 })();

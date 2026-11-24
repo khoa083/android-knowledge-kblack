@@ -289,4 +289,21 @@
     '0b7e5a6 Add PhoneNumber value class',
     '8a3d2f9 Reformat booking module (no behaviour change)'
   ]);
+
+  /* J11: "em cố" (nhật ký) và phép tính PERT (Kotlin) */
+  add('j11.promise', [
+    c('// Quản lý: "Ba việc trong 6 ngày được không?"', '// Manager: "Three tasks in 6 days, can you?"'),
+    c('// Lập trình viên: "Em cố."        → kế hoạch ghi 6 ngày: một cam kết ngầm', '// Developer: "I\'ll try."          → the plan says 6 days: an implied commitment'),
+    c('// Ngày 4: MoMo mới xong một nửa → bỏ test, làm cuối tuần, không báo ai', '// Day 4: MoMo half done → tests skipped, weekend work, nobody told'),
+    c('// Ngày 10,5: xong; 2 lỗi lọt ra từ phần không có test', '// Day 10.5: done; 2 defects shipped from the untested part')
+  ]);
+  add('j11.pert', [
+    'data class Estimate(val o: Double, val n: Double, val p: Double) {',
+    '    val mu get() = (o + 4 * n + p) / 6',
+    '    val sigma get() = (p - o) / 6',
+    '}',
+    'fun sequence(tasks: List<Estimate>) =',
+    '    tasks.sumOf { it.mu } to sqrt(tasks.sumOf { it.sigma * it.sigma })',
+    c('// MoMo (1, 3, 12), hủy lịch (2, 3, 8), nhắc lịch (1, 2, 5) → μ ≈ 10,17; σ ≈ 2,19', '// MoMo (1, 3, 12), cancel (2, 3, 8), reminders (1, 2, 5) → μ ≈ 10.17; σ ≈ 2.19')
+  ]);
 })();

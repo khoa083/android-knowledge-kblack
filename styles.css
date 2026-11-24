@@ -900,6 +900,8 @@ pre.code { position: relative; }
 .vz-cm.x { background: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in srgb, var(--ink-3) 28%, transparent) 4px 7px); opacity: .4; }
 .vz-cm.p { outline: 2px solid var(--focus); outline-offset: -1px; color: var(--ink); font-weight: 700; opacity: 1; }
 .vz-cm.cul { background: var(--tok-error); border-color: var(--tok-error); color: #fff; font-weight: 700; opacity: 1; }
+.vz-ruler td { font-size: 10px; min-width: 30px; height: 34px; vertical-align: middle; white-space: normal; }
+.vz-ruler td.vz-rng:not(.hl):not(.bad) { background: color-mix(in srgb, var(--brand) 26%, var(--paper)); }
 .vz-sub { display: block; font-size: 11px; color: var(--ink-3); font-weight: 400; }
 .vz-note { margin: 0; font: 12px/1.45 var(--mono); color: var(--ink-2); }
 .vz-note.bad { color: var(--tok-error); font-weight: 700; }

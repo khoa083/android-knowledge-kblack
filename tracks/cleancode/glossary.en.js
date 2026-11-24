@@ -27,5 +27,7 @@ ADE.addGlossary('en', 'cleancode', {
   "common-closure": { term: "CCP", def: "Gather into a component the classes that change for the same reasons at the same times; separate those that change for different reasons. SRP restated for components.", chapter: "cleancode/j9" },
   "rule-50-72": { term: "the 50/72 rule", def: "A de facto convention for commit messages: an imperative summary of at most 50 characters, a blank second line, a body wrapped at 72 characters saying why.", chapter: "cleancode/j10" },
   "rubber-stamp-review": { term: "rubber-stamp review", def: "A review that approves without really reading, typically for an oversized PR. Review is worth something only when rejection is a real option.", chapter: "cleancode/j10" },
+  "pert-estimate": { term: "three-point estimate (PERT)", def: "Three numbers per task: optimistic O, nominal N, pessimistic P. μ = (O + 4N + P)/6, σ = (P − O)/6; for a sequence add μ and take the square root of the sum of squared σ.", chapter: "cleancode/j11" },
+  "estimate-vs-commitment": { term: "estimate versus commitment", def: "An estimate is a probability distribution promising nothing; a commitment is a promise made only when you know you will succeed. \"I'll try\" is an implied commitment.", chapter: "cleancode/j11" },
   "code-rot": { term: "code rot", def: "Code growing more complex with each small change nobody notices, until nobody dares to touch it. Seemann proposes a threshold on a metric to curb it.", chapter: "cleancode/j1" }
 });

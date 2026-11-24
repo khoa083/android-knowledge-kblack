@@ -16,7 +16,8 @@ ADE.registerTrack({
     { id: 'j7', titleKey: 'track.cleancode.j7.title', sims: ['cleancode.bisect'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'j8', titleKey: 'track.cleancode.j8.title', sims: ['cleancode.solid'], simAfter: 'hook', bridges: ['X22'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'j9', titleKey: 'track.cleancode.j9.title', sims: ['cleancode.components'], simAfter: 'hook', bridges: ['X23'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'j10', titleKey: 'track.cleancode.j10.title', sims: ['cleancode.review'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
+    { id: 'j10', titleKey: 'track.cleancode.j10.title', sims: ['cleancode.review'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'j11', titleKey: 'track.cleancode.j11.title', sims: ['cleancode.estimate'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'cleancode-fits', model: 'cleancode.fits', titleKey: 'track.cleancode.preset.fits' },
@@ -28,7 +29,8 @@ ADE.registerTrack({
     { id: 'cleancode-bisect', model: 'cleancode.bisect', titleKey: 'track.cleancode.preset.bisect' },
     { id: 'cleancode-solid', model: 'cleancode.solid', titleKey: 'track.cleancode.preset.solid' },
     { id: 'cleancode-components', model: 'cleancode.components', titleKey: 'track.cleancode.preset.components' },
-    { id: 'cleancode-review', model: 'cleancode.review', titleKey: 'track.cleancode.preset.review' }
+    { id: 'cleancode-review', model: 'cleancode.review', titleKey: 'track.cleancode.preset.review' },
+    { id: 'cleancode-estimate', model: 'cleancode.estimate', titleKey: 'track.cleancode.preset.estimate' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

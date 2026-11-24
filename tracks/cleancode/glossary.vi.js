@@ -27,5 +27,7 @@ ADE.addGlossary('vi', 'cleancode', {
   "common-closure": { term: "CCP", def: "Gom vào một thành phần những lớp đổi cùng lý do, cùng lúc; tách những lớp đổi vì lý do khác. SRP nói lại cho thành phần.", chapter: "cleancode/j9" },
   "rule-50-72": { term: "quy tắc 50/72", def: "Chuẩn thực tế cho commit message: tiêu đề mệnh lệnh không quá 50 ký tự, dòng thứ hai để trống, phần thân xuống dòng ở 72 ký tự và nói vì sao.", chapter: "cleancode/j10" },
   "rubber-stamp-review": { term: "review con dấu", def: "Review duyệt cho qua mà không đọc thật, thường với PR quá lớn. Review chỉ có giá trị khi từ chối là một lựa chọn thật.", chapter: "cleancode/j10" },
+  "pert-estimate": { term: "ước lượng ba điểm (PERT)", def: "Mỗi việc ba con số: lạc quan O, thường gặp N, bi quan P. μ = (O + 4N + P)/6, σ = (P − O)/6; chuỗi việc cộng μ và lấy căn tổng bình phương của σ.", chapter: "cleancode/j11" },
+  "estimate-vs-commitment": { term: "ước lượng và cam kết", def: "Ước lượng là phân bố xác suất, không hứa gì; cam kết là lời hứa chỉ đưa ra khi biết chắc làm được. \"Em cố\" là cam kết ngầm.", chapter: "cleancode/j11" },
   "code-rot": { term: "mã mục dần", def: "Mã phức tạp dần qua từng thay đổi nhỏ mà không ai để ý, tới lúc không còn ai dám sửa. Seemann đề xuất đặt ngưỡng cho một chỉ số để chặn nó.", chapter: "cleancode/j1" }
 });

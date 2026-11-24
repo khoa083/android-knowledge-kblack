@@ -602,4 +602,46 @@
         { name: 'chia đôi: phải đọc 3.000 dòng so với 530; mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã', run: function () {
           return BUG.big[1] === 3000 && BUG.small[1] === 530 && CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j10.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= J11: "em cố" so với ước lượng ba điểm (PERT) =================
+     Theo Martin, The Clean Coder ch.2 (nói không; "cố" là cam kết), ch.4 (hy vọng giết dự án), ch.10 (ước lượng khác cam kết; PERT: μ = (O+4N+P)/6,
+     σ = (P−O)/6; chuỗi việc: μ cộng, σ căn tổng bình phương), ch.11 (áp lực). Phép tính PERT CÀI THẬT dưới đây; bảng và thước ngày tính từ đó.
+     Ba việc, 10,5 ngày thật và 2 lỗi là minh họa. */
+  (function () {
+    var m = 'estimate', CASES = ['promise', 'pert'], KS = ['s1', 's2', 's3', 's4'];
+    var TASKS = [['momo', 1, 3, 12], ['cancel', 2, 3, 8], ['remind', 1, 2, 5]], ASK = 6, ACTUAL = 10.5, CRUNCH = 4;   // ngày 4: trễ, bỏ test
+    var PLAN = { promise: ASK, pert: 12 }, BUGS = { promise: 2, pert: 0 };
+    var mu = function (t) { return (t[1] + 4 * t[2] + t[3]) / 6; }, sd = function (t) { return (t[3] - t[1]) / 6; };
+    function total() { var u = TASKS.reduce(function (s, t) { return s + mu(t); }, 0), v = Math.sqrt(TASKS.reduce(function (s, t) { return s + sd(t) * sd(t); }, 0)); return { mu: u, sd: v }; }
+    ADE.ccEstimate = { TASKS: TASKS, ASK: ASK, ACTUAL: ACTUAL, CRUNCH: CRUNCH, PLAN: PLAN, mu: mu, sd: sd, total: total };
+    var HL = { promise: [[1], [2], [3], [4]], pert: [[1], [1, 2, 3], [5, 6, 7], [7]] };
+    function steps(s) {
+      var c = s.case, bad = c === 'promise';
+      return KS.map(function (k, i) {
+        var node = ['ask', 'est', 'commit', 'done'][i], warn = bad && i >= 1;
+        var ns = {}; ns[node] = K + 'st.' + (warn ? 'surprise' : 'done');
+        var planned = c === 'promise' ? (i >= 1 ? PLAN.promise : 0) : (i >= 2 ? PLAN.pert : 0);
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (warn ? 'pitfall' : 'mechanism'), activeNodes: i === 0 ? ['ask'] : [['ask', 'est'], ['est', 'commit'], ['commit', 'done']][i - 1], nodeStates: ns,
+          metrics: { promised: planned, actual: i === 3 ? ACTUAL : 0, bugs: i === 3 ? BUGS[c] : 0 },
+          codeHighlight: { snippet: 'j11.' + c, lines: HL[c][i] },
+          movingSignals: i === 0 ? [] : [{ edge: 'e' + i, tok: warn ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: warn ? 'exception' : (i === 3 ? 'complete' : 'observe'), subject: node }] });
+        o.callouts = [{ kind: i === 0 && bad ? 'try' : (warn ? 'pitfall' : 'source'), textKey: i === 0 && bad ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'j11.promise': 4, 'j11.pert': 7 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'promise' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'PERT từng việc: MoMo μ ≈ 4,17 σ ≈ 1,83; hủy lịch μ ≈ 3,67 σ = 1; nhắc lịch μ ≈ 2,33 σ ≈ 0,67', run: function () {
+          var r = TASKS.map(function (t) { return [Math.round(mu(t) * 100) / 100, Math.round(sd(t) * 100) / 100]; });
+          return r[0][0] === 4.17 && r[0][1] === 1.83 && r[1][0] === 3.67 && r[1][1] === 1 && r[2][0] === 2.33 && r[2][1] === 0.67; } },
+        { name: 'chuỗi ba việc: μ ≈ 10,17, σ ≈ 2,19 (căn tổng bình phương, không phải tổng 3,5); μ + σ ≈ 12,4, μ + 2σ ≈ 14,5', run: function () {
+          var t = total(); return Math.abs(t.mu - 10.17) < 0.01 && Math.abs(t.sd - 2.19) < 0.01 && Math.abs(t.mu + t.sd - 12.36) < 0.02 && Math.abs(t.mu + 2 * t.sd - 14.55) < 0.02; } },
+        { name: '6 ngày thấp hơn μ gần 2σ; kế hoạch 12 ngày ≥ ngày xong thật 10,5; lời hứa 6 ngày trễ 4,5 ngày', run: function () {
+          var t = total(), z = (t.mu - ASK) / t.sd; return z > 1.8 && z < 2 && PLAN.pert >= ACTUAL && ACTUAL - PLAN.promise === 4.5; } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j11.' + c]; }); }); }); } }] });
+  })();
 })();
