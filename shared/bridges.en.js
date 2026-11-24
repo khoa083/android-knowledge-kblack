@@ -42,5 +42,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X21.title': 'The rhythm of writing tests, and tests by layer',
   'shared.bridge.X21.summary': 'The architecture chapter teaches tests by layer: the ViewModel with a fake repository, the repository with a real in-memory database, the UI with Compose tests. The owner chapter teaches the rhythm: the example list before the code, each test seen failing before it passes, refactoring while all tests are green.',
   'shared.bridge.X22.title': 'DIP at class level and dependency direction across layers',
-  'shared.bridge.X22.summary': 'The architecture chapter teaches the whole app\'s dependency direction: UI and data depend on the business layer, never the reverse. The owner chapter teaches the principle at class level: the policy defines an interface (PaymentGateway), the detail (payment provider, SDK) implements it, so the source arrow runs from detail into policy.'
+  'shared.bridge.X22.summary': 'The architecture chapter teaches the whole app\'s dependency direction: UI and data depend on the business layer, never the reverse. The owner chapter teaches the principle at class level: the policy defines an interface (PaymentGateway), the detail (payment provider, SDK) implements it, so the source arrow runs from detail into policy.',
+  'shared.bridge.X23.title': 'Splitting modules and measuring stability',
+  'shared.bridge.X23.summary': 'The architecture chapter teaches splitting Android modules by layer and by feature. The owner chapter gives the measuring tools: count incoming and outgoing dependencies, compute I = Ce/(Ca+Ce), make dependencies point toward stability, and find stable yet volatile modules such as a grab-bag :core:common.'
 });

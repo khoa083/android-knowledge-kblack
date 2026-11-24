@@ -485,4 +485,71 @@
         { name: 'mỗi thiết kế 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j8.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= J9: nguyên lý thành phần — một :core:common so với chia theo lý do thay đổi =================
+     Theo Martin, Clean Architecture ch.13 (REP, CCP, CRP), ch.14 (ADP, SDP, Fan-in, Fan-out, I = Fan-out/(Fan-in + Fan-out), SAP). Danh sách cạnh
+     EDGES là nguồn sự thật: Ca, Ce, I, mũi tên vi phạm SDP, số module phụ thuộc bắc cầu và tổng lần build đều tính từ đó. Đếm theo MODULE
+     (Martin đếm theo lớp); tần suất đổi là minh họa. */
+  (function () {
+    var m = 'components', CASES = ['common', 'split'], KS = ['s1', 's2', 's3', 's4'];
+    var MODS = {
+      common: ['app', 'booking', 'profile', 'reminder', 'data', 'analytics', 'common', 'network', 'prefs'],
+      split: ['app', 'booking', 'profile', 'reminder', 'data', 'analytics', 'model', 'network', 'prefs']
+    };
+    var EDGES = {
+      common: [['app', 'booking'], ['app', 'profile'], ['app', 'reminder'], ['app', 'common'], ['booking', 'common'], ['booking', 'data'], ['profile', 'common'], ['profile', 'data'],
+        ['reminder', 'common'], ['reminder', 'data'], ['data', 'common'], ['common', 'analytics'], ['analytics', 'network'], ['analytics', 'prefs']],
+      split: [['app', 'booking'], ['app', 'profile'], ['app', 'reminder'], ['app', 'analytics'], ['booking', 'model'], ['booking', 'data'], ['profile', 'model'], ['profile', 'data'],
+        ['reminder', 'model'], ['reminder', 'data'], ['data', 'model'], ['analytics', 'model'], ['analytics', 'network'], ['analytics', 'prefs']]
+    };
+    var CHANGES = {   // số lần đổi mỗi tháng (minh họa); tổng xấp xỉ nhau để so công bằng
+      common: { app: 2, booking: 4, profile: 4, reminder: 4, data: 3, analytics: 6, common: 12, network: 1, prefs: 1 },
+      split: { app: 2, booking: 8, profile: 8, reminder: 8, data: 3, analytics: 6, model: 1, network: 1, prefs: 1 }
+    };
+    var HOT_I = 0.25, HOT_CHG = 6;   // "ổn định mà hay đổi": I ≤ 0,25 và đổi ≥ 6 lần mỗi tháng
+    function ca(c, x) { return EDGES[c].filter(function (e) { return e[1] === x; }).length; }
+    function ce(c, x) { return EDGES[c].filter(function (e) { return e[0] === x; }).length; }
+    function inst(c, x) { var a = ca(c, x), e = ce(c, x); return a + e ? e / (a + e) : 0; }
+    function dependents(c, x) {   // module phụ thuộc bắc cầu vào x
+      var seen = {}, q = [x];
+      while (q.length) { var y = q.shift(); EDGES[c].forEach(function (e) { if (e[1] === y && !seen[e[0]]) { seen[e[0]] = true; q.push(e[0]); } }); }
+      return Object.keys(seen).length;
+    }
+    function rebuilds(c, x) { return 1 + dependents(c, x); }
+    function violations(c) { return EDGES[c].filter(function (e) { return inst(c, e[0]) < inst(c, e[1]); }); }
+    function hot(c) { return MODS[c].filter(function (x) { return inst(c, x) <= HOT_I && CHANGES[c][x] >= HOT_CHG; }); }
+    function total(c) { return MODS[c].reduce(function (s, x) { return s + CHANGES[c][x] * rebuilds(c, x); }, 0); }
+    function changesTotal(c) { return MODS[c].reduce(function (s, x) { return s + CHANGES[c][x]; }, 0); }
+    ADE.ccComponents = { MODS: MODS, EDGES: EDGES, CHANGES: CHANGES, ca: ca, ce: ce, inst: inst, rebuilds: rebuilds, violations: violations, hot: hot, total: total };
+    var HL = { common: [[1, 6], [2, 3], [1], [3, 5, 6]], split: [[1, 2], [5, 6, 8], [3], [8]] };
+    function steps(s) {
+      var c = s.case, bad = c === 'common';
+      return KS.map(function (k, i) {
+        var node = ['graph', 'count', 'metric', 'cost'][i], warn = bad && i >= 1;
+        var ns = {}; ns[node] = K + 'st.' + (warn ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (warn ? 'pitfall' : 'mechanism'), activeNodes: i === 0 ? ['graph', 'count'] : [['count', 'metric'], ['metric', 'cost'], ['cost']][i - 1], nodeStates: ns,
+          metrics: { violations: i >= 1 ? violations(c).length : 0, hot: i >= 2 ? hot(c).length : 0, rebuilds: i >= 3 ? total(c) : 0 },
+          codeHighlight: { snippet: 'j9.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: 'e' + Math.max(1, i), tok: warn ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: warn ? 'exception' : (i === 3 ? 'complete' : 'run'), subject: node }] });
+        o.callouts = [{ kind: i === 0 && bad ? 'try' : (warn ? 'pitfall' : 'source'), textKey: i === 0 && bad ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'j9.common': 6, 'j9.split': 8 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'common' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'common: Ca 5, Ce 1, I = 1/6; analytics I = 2/3; đúng một mũi tên vi phạm SDP (common → analytics); common là module ổn định mà hay đổi', run: function () {
+          var v = violations('common'); return ca('common', 'common') === 5 && ce('common', 'common') === 1 && Math.abs(inst('common', 'common') - 1 / 6) < 1e-9 && Math.abs(inst('common', 'analytics') - 2 / 3) < 1e-9 &&
+            v.length === 1 && v[0][0] === 'common' && v[0][1] === 'analytics' && hot('common').join() === 'common'; } },
+        { name: 'chia lại: model I = 0, analytics I = 3/4; không vi phạm SDP; không module ổn định mà hay đổi', run: function () {
+          return inst('split', 'model') === 0 && inst('split', 'analytics') === 0.75 && violations('split').length === 0 && hot('split').length === 0; } },
+        { name: 'build lại mỗi tháng: 171 so với 90, với tổng lần đổi gần bằng nhau (37 và 38); common kéo theo 6 module mỗi lần đổi', run: function () {
+          return total('common') === 171 && total('split') === 90 && changesTotal('common') === 37 && changesTotal('split') === 38 && rebuilds('common', 'common') === 6; } },
+        { name: 'không có vòng phụ thuộc ở cả hai cách chia (ADP)', run: function () { return CASES.every(function (c) { return MODS[c].every(function (x) { var seen = {}, q = [x], cyc = false;
+          while (q.length && !cyc) { var y = q.shift(); EDGES[c].forEach(function (e) { if (e[0] === y) { if (e[1] === x) cyc = true; if (!seen[e[1]]) { seen[e[1]] = true; q.push(e[1]); } } }); } return !cyc; }); }); } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j9.' + c]; }); }); }); } }] });
+  })();
 })();

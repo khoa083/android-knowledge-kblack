@@ -43,4 +43,8 @@
   V('solid', { layout: 'pipeline', nodes: [N('solid', 'booking', 0, 1.5, 'job', 'ui'), N('solid', 'port', 4, 0, 'target', 'state'), N('solid', 'adapter', 4, 3, 'layers', 'job'), N('solid', 'sdk', 8, 1.5, 'store', 'runtime')],
     edges: [E('e1', 'booking', 'sdk'), E('e2', 'booking', 'port'), E('e3', 'adapter', 'port'), E('e4', 'adapter', 'sdk')],
     metrics: [T('solid', 'files'), T('solid', 'crash'), T('solid', 'detail')] });
+  /* J9: đồ thị module → đếm Ca, Ce → tính I → chi phí build lại */
+  V('components', { layout: 'pipeline', nodes: [N('components', 'graph', 0, 1, 'layers', 'ui'), N('components', 'count', 3, 1, 'list', 'state'), N('components', 'metric', 6, 1, 'target', 'job'), N('components', 'cost', 9, 1, 'clock', 'runtime')],
+    edges: [E('e1', 'graph', 'count'), E('e2', 'count', 'metric'), E('e3', 'metric', 'cost')],
+    metrics: [T('components', 'violations'), T('components', 'hot'), T('components', 'rebuilds')] });
 })();

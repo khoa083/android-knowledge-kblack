@@ -22,5 +22,8 @@ ADE.addGlossary('vi', 'cleancode', {
   "solid": { term: "SOLID", def: "Năm nguyên lý thiết kế lớp do Robert C. Martin gom lại (Michael Feathers gợi tên): SRP, OCP, LSP, ISP, DIP.", chapter: "cleancode/j8" },
   "dip-class-level": { term: "đảo phụ thuộc (DIP) ở mức lớp", def: "Chính sách cấp cao không phụ thuộc chi tiết cấp thấp; nghiệp vụ định nghĩa giao diện, chi tiết cài nó, nên mũi tên mã nguồn đi ngược chiều gọi lúc chạy.", chapter: "cleancode/j8" },
   "simple-design": { term: "simple design", def: "Bốn luật của Kent Beck: chạy qua mọi test, không trùng lặp, diễn đạt ý định, ít lớp và hàm nhất có thể.", chapter: "cleancode/j8" },
+  "component-instability": { term: "độ bất ổn định I", def: "I = Ce / (Ca + Ce), với Ca là số phụ thuộc đi vào, Ce là số đi ra. 0 là ổn định tối đa (khó dời đi), 1 là bất ổn tối đa (dễ đổi).", chapter: "cleancode/j9" },
+  "stable-dependencies": { term: "phụ thuộc theo hướng ổn định (SDP)", def: "Một thành phần chỉ nên phụ thuộc thành phần ổn định hơn nó: I giảm dần theo chiều mũi tên phụ thuộc.", chapter: "cleancode/j9" },
+  "common-closure": { term: "CCP", def: "Gom vào một thành phần những lớp đổi cùng lý do, cùng lúc; tách những lớp đổi vì lý do khác. SRP nói lại cho thành phần.", chapter: "cleancode/j9" },
   "code-rot": { term: "mã mục dần", def: "Mã phức tạp dần qua từng thay đổi nhỏ mà không ai để ý, tới lúc không còn ai dám sửa. Seemann đề xuất đặt ngưỡng cho một chỉ số để chặn nó.", chapter: "cleancode/j1" }
 });

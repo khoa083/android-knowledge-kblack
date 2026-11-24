@@ -253,4 +253,24 @@
     'class BookingService(private val gateway: PaymentGateway)',
     c('class VnPayGateway(private val sdk: VnPaySdkClient) : PaymentGateway { /* ... */ }   // nơi duy nhất import SDK', 'class VnPayGateway(private val sdk: VnPaySdkClient) : PaymentGateway { /* ... */ }   // the only SDK import')
   ]);
+
+  /* J9: khai báo phụ thuộc Gradle của hai cách chia module */
+  add('j9.common', [
+    c('// :core:common: model, định dạng, tên sự kiện analytics… "ai cũng cần"', '// :core:common: models, formatting, analytics event names… "everyone needs it"'),
+    'dependencies {',
+    c('    implementation(project(":core:analytics"))   // module ổn định phụ thuộc module kém ổn định (SDP)', '    implementation(project(":core:analytics"))   // a stable module depending on a less stable one (SDP)'),
+    '}',
+    c('// :feature:booking, :feature:profile, :feature:reminder, :core:data, :app đều có:', '// :feature:booking, :feature:profile, :feature:reminder, :core:data and :app all have:'),
+    '//     implementation(project(":core:common"))'
+  ]);
+  add('j9.split', [
+    c('// :core:model: chỉ data class và giao diện (AnalyticsTracker); không phụ thuộc gì', '// :core:model: only data classes and interfaces (AnalyticsTracker); depends on nothing'),
+    'dependencies { }',
+    c('// :feature:booking: tên sự kiện và định dạng của chính nó nằm ở đây (CCP)', '// :feature:booking: its own event names and formatting live here (CCP)'),
+    'dependencies {',
+    '    implementation(project(":core:model"))',
+    '    implementation(project(":core:data"))',
+    '}',
+    c('// :core:analytics cài AnalyticsTracker: implementation(project(":core:model"))   (DIP)', '// :core:analytics implements AnalyticsTracker: implementation(project(":core:model"))   (DIP)')
+  ]);
 })();

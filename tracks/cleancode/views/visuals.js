@@ -262,4 +262,46 @@
     out.push(h('div', { class: 'vz-legend', text: T('sd.legend') }));
     box.appendChild(h('div', { class: 'vz' }, out));
   }, { labelKey: K + 'tab.solid', icon: 'grid' });
+
+  /* ---------- J9: đồ thị module xếp tầng (kém ổn định ở trên), I hiện trong ô từ bước 2, mũi tên vi phạm SDP chỉ lên và đỏ;
+     bảng tính kiểm chứng Ca, Ce, I, đổi/tháng, build theo; cột mở dần. Hai cột phẳng, không lồng hộp. ---------- */
+  ADE.registerScreen('cleancode.components', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.ccComponents, c = ctx.state.case, i = Math.max(0, idx(ctx));
+    var POS = { app: [245, 6], booking: [40, 70], profile: [245, 70], reminder: [450, 70], data: [140, 134], analytics: [450, 134], common: [140, 198], model: [140, 198], network: [350, 198], prefs: [480, 198] };
+    var W = 110, H = 40, vio = D.violations(c), isVio = function (e) { return vio.some(function (v) { return v[0] === e[0] && v[1] === e[1]; }); };
+    var fmt = function (x) { return (Math.round(x * 100) / 100).toLocaleString(ADE.lang === 'vi' ? 'de-DE' : 'en-US'); };
+    var u = 'cpm' + (++uidN);
+    var svg = '<svg class="vz-dg" viewBox="0 0 600 244" role="img" aria-label="' + esc(T('cp.aria', { n: D.MODS[c].length, v: i >= 1 ? vio.length : '?' })) + '"><defs>' +
+      '<marker id="' + u + 'a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="vz-dg-head" d="M0,0 L10,5 L0,10 z"/></marker>' +
+      '<marker id="' + u + 'b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="vz-dg-head bad" d="M0,0 L10,5 L0,10 z"/></marker></defs>';
+    D.EDGES[c].forEach(function (e) {
+      var a = POS[e[0]], b = POS[e[1]], up = b[1] < a[1], bad = i >= 1 && isVio(e);
+      var x1 = a[0] + W / 2, y1 = up ? a[1] : a[1] + H, x2 = b[0] + W / 2, y2 = up ? b[1] + H : b[1];
+      if (a[1] === b[1]) { x1 = a[0] + (b[0] > a[0] ? W : 0); y1 = a[1] + H / 2; x2 = b[0] + (b[0] > a[0] ? 0 : W); y2 = y1; }
+      svg += '<line class="vz-dg-e' + (bad ? ' bad' : '') + '" data-k="' + e[0] + '-' + e[1] + '" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" marker-end="url(#' + u + (bad ? 'b' : 'a') + ')"/>';
+    });
+    var hot = i >= 2 ? D.hot(c) : [];
+    D.MODS[c].forEach(function (x) {
+      var p = POS[x], flagged = hot.indexOf(x) >= 0 || (i >= 1 && vio.some(function (v) { return v[0] === x; }));
+      svg += '<g class="vz-dg-n' + (flagged ? ' bad' : '') + '"><rect x="' + p[0] + '" y="' + p[1] + '" width="' + W + '" height="' + H + '" rx="4"/><text class="vz-dg-t" x="' + (p[0] + 6) + '" y="' + (p[1] + 16) + '">:' + esc(x) + '</text>' +
+        '<text class="vz-dg-s" x="' + (p[0] + 6) + '" y="' + (p[1] + 32) + '">' + (i >= 1 ? 'I = ' + esc(fmt(D.inst(c, x))) : 'Ca ' + D.ca(c, x) + ' · Ce ' + D.ce(c, x)) + '</text></g>';
+    });
+    svg += '</svg>';
+    var tb = h('tbody');
+    D.MODS[c].forEach(function (x) {
+      var a = D.ca(c, x), e = D.ce(c, x), isHot = hot.indexOf(x) >= 0, sdp = i >= 1 && vio.some(function (v) { return v[0] === x; });
+      var note = isHot ? T('cp.flag.hot') : (sdp ? T('cp.flag.sdp') : '');
+      tb.appendChild(h('tr', { 'data-k': 'cp-' + x }, h('td', { text: ':' + x }), h('td', { class: 'c', text: String(a) }), h('td', { class: 'c', text: String(e) }),
+        h('td', { class: 'c' + (i < 1 ? ' dim' : (sdp ? ' bad' : '')), text: i < 1 ? '?' : (a + e ? e + '/' + (a + e) + ' ≈ ' + fmt(D.inst(c, x)) : '0') }),
+        h('td', { class: 'c' + (i < 2 ? ' dim' : (isHot ? ' bad' : '')), text: i < 2 ? '?' : String(D.CHANGES[c][x]) }),
+        h('td', { class: 'c' + (i < 2 ? ' dim' : ''), text: i < 2 ? '?' : String(D.rebuilds(c, x)) }),
+        h('td', { class: note ? 'bad' : 'dim', text: note || '' })));
+    });
+    var out = [h('p', { class: 'vz-cap', text: T('cp.cap') }), h('div', { class: 'vz-scroll', html: svg }),
+      h('p', { class: 'vz-cap', text: T('cp.tcap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['mod', 'ca', 'ce', 'i', 'chg', 'rb', 'flag'].map(function (k, n) { return h('th', { class: (n === 3 && i === 1) || ((n === 4 || n === 5) && i === 2) ? 'hl' : null, text: T('cp.col.' + k) }); }))), tb))];
+    if (i === 3) out.push(h('p', { class: 'vz-note ' + (c === 'common' ? 'bad' : 'ok'), text: T('cp.total', { n: D.total(c) }) }));
+    out.push(h('div', { class: 'vz-legend', text: T('cp.legend') }));
+    box.appendChild(h('div', { class: 'vz' }, out));
+  }, { labelKey: K + 'tab.components', icon: 'layers' });
 })();

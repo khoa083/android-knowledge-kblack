@@ -42,5 +42,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X21.title': 'Nhịp viết test và test theo tầng',
   'shared.bridge.X21.summary': 'Chương kiến trúc dạy test theo tầng: ViewModel với repository giả, repository với database thật trong bộ nhớ, giao diện bằng Compose test. Chương chủ sở hữu dạy nhịp viết: danh sách ví dụ trước mã, mỗi test thấy đỏ rồi mới xanh, refactor khi mọi test xanh.',
   'shared.bridge.X22.title': 'DIP ở mức lớp và hướng phụ thuộc giữa các tầng',
-  'shared.bridge.X22.summary': 'Chương kiến trúc dạy hướng phụ thuộc của cả app: giao diện và dữ liệu phụ thuộc vào tầng nghiệp vụ, không ngược lại. Chương chủ sở hữu dạy nguyên lý ở mức lớp: nghiệp vụ định nghĩa giao diện (PaymentGateway), chi tiết (cổng thanh toán, SDK) cài giao diện đó, nên mũi tên mã nguồn đi từ chi tiết vào chính sách.'
+  'shared.bridge.X22.summary': 'Chương kiến trúc dạy hướng phụ thuộc của cả app: giao diện và dữ liệu phụ thuộc vào tầng nghiệp vụ, không ngược lại. Chương chủ sở hữu dạy nguyên lý ở mức lớp: nghiệp vụ định nghĩa giao diện (PaymentGateway), chi tiết (cổng thanh toán, SDK) cài giao diện đó, nên mũi tên mã nguồn đi từ chi tiết vào chính sách.',
+  'shared.bridge.X23.title': 'Chia module và đo độ ổn định',
+  'shared.bridge.X23.summary': 'Chương kiến trúc dạy cách chia module Android theo tầng và theo tính năng. Chương chủ sở hữu cho công cụ đo: đếm phụ thuộc vào và ra, tính I = Ce/(Ca+Ce), phụ thuộc phải đi về phía ổn định, và tìm module ổn định mà hay đổi như một :core:common thập cẩm.'
 });

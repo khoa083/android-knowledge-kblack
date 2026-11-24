@@ -22,5 +22,8 @@ ADE.addGlossary('en', 'cleancode', {
   "solid": { term: "SOLID", def: "Five class design principles collected by Robert C. Martin (named at Michael Feathers's suggestion): SRP, OCP, LSP, ISP, DIP.", chapter: "cleancode/j8" },
   "dip-class-level": { term: "dependency inversion (DIP) at class level", def: "High-level policy does not depend on low-level details; the policy defines an interface and the detail implements it, so the source arrow runs against the runtime call direction.", chapter: "cleancode/j8" },
   "simple-design": { term: "simple design", def: "Kent Beck's four rules: runs all the tests, no duplication, expresses intent, as few classes and functions as possible.", chapter: "cleancode/j8" },
+  "component-instability": { term: "instability I", def: "I = Ce / (Ca + Ce), where Ca counts incoming dependencies and Ce outgoing. 0 is maximally stable (hard to move), 1 maximally unstable (easy to change).", chapter: "cleancode/j9" },
+  "stable-dependencies": { term: "stable dependencies principle (SDP)", def: "A component should only depend on components more stable than itself: I decreases along the dependency arrows.", chapter: "cleancode/j9" },
+  "common-closure": { term: "CCP", def: "Gather into a component the classes that change for the same reasons at the same times; separate those that change for different reasons. SRP restated for components.", chapter: "cleancode/j9" },
   "code-rot": { term: "code rot", def: "Code growing more complex with each small change nobody notices, until nobody dares to touch it. Seemann proposes a threshold on a metric to curb it.", chapter: "cleancode/j1" }
 });
