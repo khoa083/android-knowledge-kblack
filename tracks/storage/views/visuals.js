@@ -74,4 +74,5 @@
     }, { labelKey: K + tabKey, icon: 'clock' });
   }
   laneScreen('storage.file', function () { return ADE.storageFile; }, 'fl', 'tab.fl');   // H2: app, hệ thống, đĩa
+  laneScreen('storage.prefs', function () { return ADE.storagePrefs; }, 'pf', 'tab.pf');  // H3: main thread, luồng IO, đĩa
 })();

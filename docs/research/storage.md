@@ -40,3 +40,13 @@
 | AtomicFile: ghi `.new`, sync rồi đổi tên; startWrite/finishWrite/failWrite; không khóa file | ax-atomicfile | stable |
 | Đổi tên đè lên tên có sẵn là nguyên tử | man-rename | impl |
 | FileOutputStream không nối thêm cắt file khi mở | Java SE (kiến thức chuẩn, không gắn nguồn trên site) | stable |
+
+### H3 · Từ SharedPreferences tới DataStore
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| commit đồng bộ, trả về true khi đã ghi; apply đổi bộ nhớ ngay, ghi bất đồng bộ, không báo lỗi; apply dở có thể chặn main lúc chuyển vòng đời; commit chờ các apply đang dở; Editor sau cùng thắng | ax-sp-editor | stable |
+| apply: commitToMemory, QueuedWork.addFinisher, writeToFile ghi cả map rồi sync | aosp-sp-impl | impl |
+| ANR khi không phản hồi sự kiện nhập trong 5 giây; I/O trên main là nguyên nhân hay gặp | ax-anr | stable |
+| DataStore: Flow, updateData/edit giao dịch nguyên tử; ba quy tắc; nhiều tiến trình từ 1.1.0; bản 1.3.0 | ax-datastore | stable / version |
+| SharedPreferencesMigration: kiểu hỗ trợ, không chép lại khóa đã có, cố xóa prefs rỗng, deadlock nếu đọc DataStore trong migration | ax-sp-migration | stable |
+| Máy bộ nhớ chậm, đĩa đầy làm apply lỗi | site | simplified |

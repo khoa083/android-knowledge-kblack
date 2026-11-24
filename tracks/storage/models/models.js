@@ -109,4 +109,49 @@
           return d.file === M(m, 'file.partial') && a.file === M(m, 'file.intact') && a.lost === M(m, 'lost.edit'); } },
         { name: 'cache: hệ thống xóa file; mở mà không kiểm thì lỗi, kiểm rồi tải lại thì có file', run: function () { var x = steps({ case: 'cache' }); return x[1].metrics.file === M(m, 'file.missing') && x[2].type === 'pitfall' && x[3].metrics.file === M(m, 'file.intact'); } }] });
   })();
+
+  /* ================= H3: lưu một cài đặt bằng commit(), apply() và DataStore — main thread có bị chặn không =================
+     Theo SharedPreferences.Editor (commit ghi đồng bộ, trả về kết quả; apply đổi bộ nhớ ngay, ghi đĩa bất đồng bộ, không báo lỗi;
+     apply đang chờ có thể chặn main thread lúc chuyển vòng đời, nguồn ANR hay gặp), mã AOSP SharedPreferencesImpl (writeToFile
+     ghi cả map rồi sync; apply xếp việc ghi qua QueuedWork), DataStore (đọc bằng Flow, ghi bằng hàm suspend theo giao dịch),
+     ANRs (không phản hồi sự kiện nhập trong 5 giây). Độ chậm của đĩa là tình huống của site (máy rẻ, bộ nhớ đang bận). */
+  (function () {
+    var m = 'prefs', CASES = ['commit', 'apply', 'datastore'], KS = ['s1', 's2', 's3', 's4'];
+    var LANES = ['main', 'io', 'disk'];
+    // mỗi bước: làn {main, io, disk}, số đo {main, saved}, loại bước, dòng mã, loại log, chủ thể, node sáng, trạng thái node
+    var P = {
+      commit: [
+        [{ main: ['tapCommit', 'hl'], io: ['none', ''], disk: ['idle', ''] }, { main: 'busy', saved: 'mem' }, 'scenario', [2], 'run', 'main', ['main'], { main: 'done' }],
+        [{ main: ['waitDisk', 'bad'], io: ['none', ''], disk: ['writeAll', 'hl'] }, { main: 'blocked', saved: 'pending' }, 'pitfall', [2], 'write', 'disk', ['main', 'disk'], { main: 'surprise', disk: 'done' }],
+        [{ main: ['waitSlow', 'bad'], io: ['none', ''], disk: ['slow', 'bad'] }, { main: 'anr', saved: 'pending' }, 'pitfall', [2], 'exception', 'main', ['main', 'disk'], { main: 'broken', disk: 'surprise' }],
+        [{ main: ['commitTrue', 'ok'], io: ['none', ''], disk: ['saved', 'ok'] }, { main: 'free', saved: 'disk' }, 'mechanism', [3], 'complete', 'main', ['main'], { main: 'done', disk: 'done' }]],
+      apply: [
+        [{ main: ['tapApply', 'hl'], io: ['queued', ''], disk: ['idle', ''] }, { main: 'free', saved: 'mem' }, 'scenario', [2], 'run', 'main', ['main', 'io'], { main: 'done', io: 'done' }],
+        [{ main: ['free', 'ok'], io: ['writing', 'hl'], disk: ['writeAll', 'hl'] }, { main: 'free', saved: 'pending' }, 'mechanism', [2], 'write', 'io', ['io', 'disk'], { main: 'done', io: 'done', disk: 'done' }],
+        [{ main: ['onStopWait', 'bad'], io: ['writing', ''], disk: ['slow', 'bad'] }, { main: 'blocked', saved: 'pending' }, 'pitfall', [4], 'exception', 'main', ['main', 'io'], { main: 'surprise', io: 'done', disk: 'surprise' }],
+        [{ main: ['free', ''], io: ['failSilent', 'bad'], disk: ['notSaved', 'bad'] }, { main: 'free', saved: 'unknown' }, 'pitfall', [5], 'observe', 'io', ['io', 'disk'], { main: 'done', io: 'broken', disk: 'surprise' }]],
+      datastore: [
+        [{ main: ['tapEdit', 'hl'], io: ['none', ''], disk: ['idle', ''] }, { main: 'free', saved: 'none' }, 'scenario', [6], 'run', 'main', ['main'], { main: 'done' }],
+        [{ main: ['suspended', 'ok'], io: ['dsWrite', 'hl'], disk: ['writeAll', 'hl'] }, { main: 'free', saved: 'pending' }, 'mechanism', [7], 'write', 'io', ['io', 'disk'], { main: 'done', io: 'done', disk: 'done' }],
+        [{ main: ['onStopFree', 'ok'], io: ['dsWrite', ''], disk: ['slow', ''] }, { main: 'free', saved: 'pending' }, 'mechanism', [7], 'observe', 'main', ['main', 'io'], { main: 'done', io: 'done', disk: 'done' }],
+        [{ main: ['flowEmits', 'ok'], io: ['dsDone', 'ok'], disk: ['saved', 'ok'] }, { main: 'free', saved: 'disk' }, 'mechanism', [3, 4], 'complete', 'main', ['main', 'disk'], { main: 'done', io: 'done', disk: 'done' }]]
+    };
+    ADE.storagePrefs = { LANES: LANES, at: function (c, k) { return P[c][k][0]; } };
+    function steps(s) {
+      return P[s.case].map(function (p, i) {
+        var met = { main: M(m, 'main.' + p[1].main), saved: M(m, 'saved.' + p[1].saved) }, bad = p[2] === 'pitfall';
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[6], nodeStates: nsOf(p[7]), metrics: met, codeHighlight: { snippet: 'h3.' + s.case, lines: p[3] },
+          movingSignals: [{ edge: p[6].indexOf('io') >= 0 ? 'e2' : 'e1', tok: bad ? 'signal' : 'state' }], logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'commit' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mỗi cách có 4 bước, mỗi bước đủ ba làn', run: function () { return CASES.every(function (c) { return P[c].length === 4 && P[c].every(function (p) { return LANES.every(function (l) { return !!p[0][l]; }); }); }); } },
+        { name: 'commit chặn main thread lúc ghi; apply chặn lúc chuyển vòng đời và không báo lỗi', run: function () { var c = steps({ case: 'commit' }), a = steps({ case: 'apply' });
+          return c[1].metrics.main === M(m, 'main.blocked') && a[0].metrics.main === M(m, 'main.free') && a[2].metrics.main === M(m, 'main.blocked') && a[3].metrics.saved === M(m, 'saved.unknown'); } },
+        { name: 'DataStore không bao giờ chặn main thread', run: function () { return steps({ case: 'datastore' }).every(function (x) { return x.metrics.main === M(m, 'main.free'); }); } }] });
+  })();
 })();

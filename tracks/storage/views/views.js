@@ -19,4 +19,8 @@
   V('file', { layout: 'pipeline', nodes: [N('file', 'app', 0, 0, 'phone', 'ui'), N('file', 'disk', 6, 0, 'store', 'state'), N('file', 'sys', 3, 3, 'android', 'runtime')],
     edges: [E('e1', 'app', 'disk'), E('e2', 'sys', 'app')],
     metrics: [T('file', 'file'), T('file', 'lost')] });
+  /* H3: main thread, luồng IO, file trên đĩa */
+  V('prefs', { layout: 'pipeline', nodes: [N('prefs', 'main', 0, 0, 'thread', 'ui'), N('prefs', 'io', 3, 3, 'thread', 'runtime'), N('prefs', 'disk', 6, 0, 'store', 'state')],
+    edges: [E('e1', 'main', 'disk'), E('e2', 'io', 'disk')],
+    metrics: [T('prefs', 'main'), T('prefs', 'saved')] });
 })();
