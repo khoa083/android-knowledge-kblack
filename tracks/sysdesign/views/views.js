@@ -55,4 +55,8 @@
   V('upload', { layout: 'pipeline', nodes: [N('upload', 'app', 0, 1, 'phone', 'ui'), N('upload', 'net', 4, 1, 'rail', 'signal'), N('upload', 'server', 8, 1, 'store', 'job')],
     edges: [E('e1', 'app', 'net'), E('e2', 'net', 'server')],
     metrics: [T('upload', 'sent'), T('upload', 'stored'), T('upload', 'waste')] });
+  /* I11: tạo process → Application.onCreate → Activity → khung hình đầu */
+  V('startup', { layout: 'pipeline', nodes: [N('startup', 'proc', 0, 1, 'chip', 'runtime'), N('startup', 'app', 3, 1, 'job', 'job'), N('startup', 'act', 6, 1, 'screen', 'state'), N('startup', 'frame', 9, 1, 'eye', 'ui')],
+    edges: [E('e1', 'proc', 'app'), E('e2', 'app', 'act'), E('e3', 'act', 'frame')],
+    metrics: [T('startup', 'init'), T('startup', 'ttid'), T('startup', 'ttfd')] });
 })();

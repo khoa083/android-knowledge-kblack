@@ -596,4 +596,46 @@
         { name: 'lãng phí cuối cùng: 195 MB so với 5 MB', run: function () { var w = steps({ case: 'whole' })[3].metrics.waste, r = steps({ case: 'resumable' })[3].metrics.waste; return w === 195 && r === 5; } },
         { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { 'i10.whole': 2, 'i10.resumable': 7 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (p) { return p[1].every(function (x) { return x >= 1 && x <= n[p[0]]; }); }); }); } }] });
   })();
+
+  /* ================= I11: khởi động — cold start khởi tạo hết, cold start khởi tạo lười, warm start, hot start =================
+     Theo Android: App startup time (cold, warm, hot; TTID, TTFD; khởi tạo nặng trong Application), Startup analysis (việc > 20 ms, đợi sau khung hình
+     đầu), App Startup (Initializer, khởi tạo lười). Mọi con số mili giây là minh họa; máy thật khác nhiều. */
+  (function () {
+    var m = 'startup', CASES = ['heavy', 'lazy', 'warm', 'hot'], KS = ['s1', 's2', 's3', 's4'];
+    // việc: [khóa, làn, bắt đầu ms, thời lượng ms, hiện từ bước]
+    var IT = {
+      heavy: [['proc', 'main', 0, 300, 0], ['crash', 'main', 300, 80, 1], ['analytics', 'main', 380, 300, 1], ['ads', 'main', 680, 900, 1], ['chat', 'main', 1580, 600, 1], ['img', 'main', 2180, 150, 1], ['db', 'main', 2330, 700, 1], ['act', 'main', 3030, 500, 2], ['load', 'bg', 3530, 400, 3]],
+      lazy: [['proc', 'main', 0, 300, 0], ['crash', 'main', 300, 80, 1], ['db', 'bg', 380, 700, 1], ['act', 'main', 380, 500, 2], ['load', 'bg', 1080, 200, 3], ['analytics', 'bg', 1280, 300, 3]],
+      warm: [['act', 'main', 0, 500, 2], ['load', 'bg', 500, 100, 3]],
+      hot: [['resume', 'main', 0, 100, 2]]
+    };
+    var TTID = { heavy: 3530, lazy: 880, warm: 500, hot: 100 }, TTFD = { heavy: 3930, lazy: 1280, warm: 600, hot: 100 };
+    function loadEnd(c) { var e = TTID[c]; IT[c].forEach(function (x) { if (x[0] === 'load') e = x[2] + x[3]; }); return e; }
+    function init(c) { return IT[c].filter(function (x) { return x[1] === 'main' && ['crash', 'analytics', 'ads', 'chat', 'img', 'db'].indexOf(x[0]) >= 0; }).reduce(function (a, x) { return a + x[3]; }, 0); }
+    function ends(c) { var e = 0; IT[c].forEach(function (x) { e = Math.max(e, x[2] + x[3]); }); return e; }
+    ADE.sysStartup = { IT: IT, TTID: TTID, TTFD: TTFD, init: init, MAX: 4000 };
+    var CODE = { heavy: ['i11.heavy', [[1], [4, 5, 6, 7, 8, 9], [2], [9]]], lazy: ['i11.lazy', [[1], [2, 8], [9], [9]]], warm: ['i11.lazy', [[1], [2], [9], [9]]], hot: ['i11.lazy', [[1], [2], [9], [9]]] };
+    var NODES = [['proc'], ['app'], ['act'], ['act', 'frame']];
+    function steps(st) {
+      var c = st.case;
+      return KS.map(function (k, i) {
+        var bad = c === 'heavy' && (i === 1 || i === 3), type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), ns = {};
+        NODES[i].forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var o = S(m, c + '.' + k, { type: type, activeNodes: NODES[i], nodeStates: ns,
+          metrics: { init: i >= 1 ? init(c) : 0, ttid: i >= 2 ? TTID[c] : 0, ttfd: i >= 3 ? TTFD[c] : 0 },
+          codeHighlight: { snippet: CODE[c][0], lines: CODE[c][1][i] },
+          movingSignals: [{ edge: ['e1', 'e1', 'e2', 'e3'][i], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : 'run'), subject: NODES[i][NODES[i].length - 1] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'heavy' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'khởi tạo hết: 2730 ms trên luồng chính, TTID 3530 ms', run: function () { return init('heavy') === 2730 && TTID.heavy === 3530 && TTFD.heavy === loadEnd('heavy') && ends('heavy') === TTFD.heavy; } },
+        { name: 'khởi tạo lười: chỉ 80 ms trong Application, TTID 880 ms, TTFD 1280 ms', run: function () { return init('lazy') === 80 && TTID.lazy === 300 + 80 + 500 && TTFD.lazy === loadEnd('lazy'); } },
+        { name: 'warm và hot không tạo process, không chạy Application.onCreate', run: function () { return ['warm', 'hot'].every(function (c) { return IT[c].every(function (x) { return x[0] !== 'proc' && init(c) === 0; }); }) && TTID.hot < TTID.warm && TTID.warm < TTID.lazy; } },
+        { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { 'i11.heavy': 11, 'i11.lazy': 9 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && CODE[c][1].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[CODE[c][0]]; }); }); }); } }] });
+  })();
 })();

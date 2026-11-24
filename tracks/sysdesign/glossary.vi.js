@@ -17,5 +17,7 @@ ADE.addGlossary('vi', 'sysdesign', {
   "push-tickle": { term: "push làm tín hiệu", def: "Push chỉ báo \"có gì đó đổi\" kèm loại và id; app tự tải nội dung mới nhất từ server. Thứ tự, số lần tới của push khi đó không làm dữ liệu sai.", chapter: "sysdesign/i9" },
   "event-dedupe": { term: "khử trùng theo id sự kiện", def: "Mỗi thông báo mang một id; phía nhận lưu id đã thấy và bỏ bản tới lần hai. Cần vì giao thông báo không bảo đảm đúng một lần.", chapter: "sysdesign/i9" },
   "insamplesize": { term: "inSampleSize", def: "Tùy chọn của BitmapFactory: giải mã bỏ bớt điểm ảnh, 4 nghĩa là lấy một trong mỗi 4 × 4 điểm ảnh. Bộ giải mã làm tròn xuống lũy thừa của 2. Dùng để giải mã ảnh theo kích thước hiển thị.", chapter: "sysdesign/i10" },
-  "resumable-upload": { term: "upload tiếp tục được", def: "Upload qua một tài nguyên upload có địa chỉ riêng; sau khi đứt, client hỏi server đã nhận bao nhiêu byte (Upload-Offset) rồi gửi tiếp, thay vì gửi lại từ đầu.", chapter: "sysdesign/i10" }
+  "resumable-upload": { term: "upload tiếp tục được", def: "Upload qua một tài nguyên upload có địa chỉ riêng; sau khi đứt, client hỏi server đã nhận bao nhiêu byte (Upload-Offset) rồi gửi tiếp, thay vì gửi lại từ đầu.", chapter: "sysdesign/i10" },
+  "cold-start": { term: "cold start", def: "Lần mở app khi chưa có process: hệ thống tạo process, app chạy Application.onCreate, tạo Activity và vẽ khung hình đầu. Chậm nhất trong ba kiểu (cold, warm, hot) và là kiểu nên tối ưu.", chapter: "sysdesign/i11" },
+  "ttid-ttfd": { term: "TTID và TTFD", def: "TTID: thời gian tới khung hình đầu, hệ thống tự đo. TTFD: thời gian tới khi nội dung thật hiện và dùng được, app tự báo bằng reportFullyDrawn hay ReportDrawnWhen.", chapter: "sysdesign/i11" }
 });

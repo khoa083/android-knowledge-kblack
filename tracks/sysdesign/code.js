@@ -2,6 +2,30 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('sysdesign', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('i11.heavy', [
+    'class ClinicApp : Application() {',
+    '    override fun onCreate() {',
+    '        super.onCreate()',
+    '        Crash.init(this)                 // 80 ms',
+    '        Analytics.init(this)             // 300 ms',
+    '        Ads.init(this)                   // 900 ms',
+    '        Chat.init(this)                  // 600 ms',
+    '        ImageLoader.init(this)           // 150 ms',
+    c('        db = openAndMigrate(this)        // 700 ms: mở và migrate database trên luồng chính', '        db = openAndMigrate(this)        // 700 ms: open and migrate the database on the main thread'),
+    '    }',
+    '}'
+  ]);
+  add('i11.lazy', [
+    'class ClinicApp : Application() {',
+    c('    override fun onCreate() { super.onCreate(); Crash.init(this) }   // chỉ thứ cần ngay: bắt crash từ sớm', '    override fun onCreate() { super.onCreate(); Crash.init(this) }   // only what is needed now: catch crashes early'),
+    '}',
+    c('class AnalyticsInitializer : Initializer<Analytics> {     // App Startup; bỏ meta-data để khởi tạo lười', 'class AnalyticsInitializer : Initializer<Analytics> {     // App Startup; remove the meta-data to init lazily'),
+    '    override fun create(context: Context) = Analytics.init(context)',
+    '    override fun dependencies() = emptyList<Class<out Initializer<*>>>()',
+    '}',
+    c('// Ads, Chat: khởi tạo khi mở màn cần chúng; database mở trên Dispatchers.IO', '// Ads, Chat: initialised when their screen opens; the database opens on Dispatchers.IO'),
+    c('setContent { HomeScreen(state); ReportDrawnWhen { state.isLoaded } }   // báo TTFD khi nội dung thật đã hiện', 'setContent { HomeScreen(state); ReportDrawnWhen { state.isLoaded } }   // report TTFD once real content shows')
+  ]);
   add('i10.full', [
     c('val bmp = BitmapFactory.decodeFile(path)                     // 4000 × 3000 × 4 byte ≈ 45,8 MiB', 'val bmp = BitmapFactory.decodeFile(path)                     // 4000 × 3000 × 4 bytes ≈ 45.8 MiB'),
     c('Image(bmp.asImageBitmap(), null, Modifier.size(90.dp))       // hiện ở 270×270 px, vẫn giữ cả ảnh gốc', 'Image(bmp.asImageBitmap(), null, Modifier.size(90.dp))       // shown at 270×270 px, still holding the original')

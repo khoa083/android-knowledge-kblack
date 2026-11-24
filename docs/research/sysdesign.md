@@ -159,3 +159,14 @@ Quyết định của người dùng (2026-11-24): FCM và dịch vụ bên th�
 | Upload thường/tiếp tục được; ba bước; chia khúc video | book-xu1 ch.14, ch.15 | guideline |
 | POST → Location; HEAD → Upload-Offset; PATCH với Upload-Offset, Upload-Complete; offset không giảm | ietf-resumable-upload (draft 16) | version |
 | Ảnh 4000×3000, ô 270 px, 12 ảnh, heap 256 MiB, video 200 MB, khúc 10 MB, server chỉ giữ khúc trọn, lưu nhiều cỡ ảnh | site | simplified |
+
+### I11 · Khởi động, pin, kích thước
+Đọc ngày 2026-11-24 qua agent web-fetch (200): App startup time, Startup analysis and optimization, App Startup, Reduce app size. Trang topic/performance/power trả về trang Connectivity (sai nội dung) nên phần pin chỉ dẫn lại nguồn của I4. Trang launch-time không ghi ngưỡng Android vitals, nên chương không nêu ngưỡng.
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Cold/warm/hot; tối ưu theo cold; TTID tự đo (Displayed), TTFD app báo (reportFullyDrawn, ReportDrawnWhen/After); khởi tạo nặng trong Application | ax-launch-time | stable |
+| Macrobenchmark, Perfetto; việc > 20 ms; đợi sau khung hình đầu; việc nền vẫn tranh CPU; StrictMode; Baseline Profiles | ax-startup-analysis | stable |
+| Initializer, một ContentProvider chung, dependencies(), khởi tạo lười bằng AppInitializer; startup-runtime 1.2.0 | ax-app-startup-lib | version |
+| Người dùng tránh tải app lớn; App Bundle; minifyEnabled, shrinkResources; ngôn ngữ, mật độ; vector, WebP | ax-reduce-size | stable |
+| Gom việc mạng, Doze | ax-network-access, ax-doze (I4) | stable |
+| Mọi con số ms, năm SDK, bài tập | site | simplified |

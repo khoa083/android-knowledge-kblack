@@ -330,4 +330,33 @@
       h('div', { class: 'vz-box' + (i === 1 ? ' bad' : '') }, [h('div', { class: 'vz-h', text: T('up.httph') })].concat(Y.HTTP[c][i].map(function (l) { return h('div', { text: l }); }))),
       h('div', { class: 'vz-legend', text: T('up.legend') })));
   }, { labelKey: K + 'tab.up', icon: 'rail' });
+
+  /* ---------- I11: làn thời gian khởi động (luồng chính, luồng nền) với vạch TTID, TTFD; bảng các việc ---------- */
+  ADE.registerScreen('sysdesign.startup', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.sysStartup, c = ctx.state.case, i = Math.max(0, idx(ctx)), its = Y.IT[c].filter(function (x) { return x[4] <= i; });
+    var X0 = 96, PW = 488, W = 600, X = function (t) { return (X0 + t * PW / Y.MAX).toFixed(1); }, LY = { main: 34, bg: 74 }, BH = 24, H = 140;
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="vz-dg vz-tl" role="img" aria-label="' + esc(T('st.cap')) + '">';
+    ['main', 'bg'].forEach(function (l) { svg += '<text class="vz-tl-n" x="4" y="' + (LY[l] + 16) + '"' + fitText(T('st.lane.' + l), 88) + '>' + esc(T('st.lane.' + l)) + '</text><line class="vz-tl-base" x1="' + X0 + '" y1="' + (LY[l] + BH) + '" x2="' + (X0 + PW) + '" y2="' + (LY[l] + BH) + '"/>'; });
+    for (var t = 0; t <= Y.MAX; t += 1000) svg += '<line class="vz-tl-tick" x1="' + X(t) + '" y1="' + (LY.bg + BH) + '" x2="' + X(t) + '" y2="' + (LY.bg + BH + 5) + '"/><text class="vz-tl-t" x="' + X(t) + '" y="' + (H - 18) + '" text-anchor="middle">' + (t / 1000) + ' s</text>';
+    its.forEach(function (x) {
+      var x1 = +X(x[2]), w = Math.max(2, +X(x[2] + x[3]) - x1), init = x[1] === 'main' && ['crash', 'analytics', 'ads', 'chat', 'img', 'db'].indexOf(x[0]) >= 0;
+      var cl = (init && c === 'heavy' && x[0] !== 'crash' ? 'vz-tl-wait' : 'vz-tl-run') + (x[4] === i ? ' vz-tl-cur' : '');
+      svg += '<rect class="' + cl + '" x="' + x1 + '" y="' + LY[x[1]] + '" width="' + w.toFixed(1) + '" height="' + BH + '" rx="2"/>';
+      var lb = T('st.k.' + x[0]); if (lb.length * 6.6 < w - 6) svg += '<text class="vz-tl-t" x="' + (x1 + w / 2).toFixed(1) + '" y="' + (LY[x[1]] + 16) + '" text-anchor="middle">' + esc(lb) + '</text>';
+    });
+    [['ttid', 2], ['ttfd', 3]].forEach(function (mk) {
+      if (i < mk[1]) return; var tx = +X((mk[0] === 'ttid' ? Y.TTID : Y.TTFD)[c]);
+      svg += '<line class="vz-tl-anr" x1="' + tx + '" y1="' + (LY.main - 8) + '" x2="' + tx + '" y2="' + (LY.bg + BH + 4) + '"/><text class="vz-tl-anrt" x="' + (tx + 3) + '" y="' + (mk[0] === 'ttid' ? LY.main - 10 : LY.bg + BH + 16) + '"' + (tx > X0 + PW - 70 ? ' text-anchor="end"' : '') + '>' + esc(T('st.m.' + mk[0])) + '</text>';
+    });
+    svg += '</svg>';
+    var tb = h('tbody');
+    its.forEach(function (x) {
+      var init = x[1] === 'main' && ['crash', 'analytics', 'ads', 'chat', 'img', 'db'].indexOf(x[0]) >= 0, bad = init && c === 'heavy' && x[0] !== 'crash';
+      tb.appendChild(h('tr', null, h('th', { class: x[4] === i ? 'hl' : null, text: T('st.k.' + x[0]) }), h('td', { class: bad ? 'bad' : null, text: T('st.lane.' + x[1]) }),
+        h('td', { class: 'c', text: String(x[3]) }), h('td', { class: 'dim', text: T('st.w.' + c + '.' + x[0]) })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('st.cap') }), h('div', { class: 'vz-scroll', html: svg }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['job', 'lane', 'ms', 'why'].map(function (k) { return h('th', { text: T('st.col.' + k) }); }))), tb)),
+      h('div', { class: 'vz-legend', text: T('st.legend') })));
+  }, { labelKey: K + 'tab.st', icon: 'rail' });
 })();
