@@ -13,7 +13,9 @@
 - **Đọc trong catalog (bookmark PDF):**
   - Moskała, *Effective Kotlin*: Item 1–60;
   - Kodeco, *Android Test-Driven Development*: ch.1–18.
-- **Không có trong kho:** *Clean Code* (Martin, 2008).
+- **Cập nhật 2026-11-24 (người dùng bổ sung):**
+  - Martin, *Clean Code* (2008), bản PDF trong `deep_dive_kotlin/ggplaybook/`. Đã đọc mục lục ch.1–17 bằng pdftotext. Ánh xạ chương ghi trong `docs/tracks/J-clean-code.md`.
+  - Bản dịch tiếng Việt của cộng đồng, chỉ để đối chiếu thuật ngữ, không chép lên site: https://github.com/quoctinnguyen8/Clean-Code---Tieng-Viet và https://cleancode.tinnq.com/ (cả hai trả HTTP 200 ngày 2026-11-24).
 - **URL kiểm HTTP 200 ngày 2026-11-24:** kotlinlang.org/docs/coding-conventions.html, developer.android.com/kotlin/style-guide, developer.android.com/training/testing/fundamentals, git-scm.com/docs/git-bisect.
 
 ## Bảng nguồn theo chương

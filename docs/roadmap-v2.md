@@ -38,7 +38,7 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 | 5 | **Track mới: Clean Android Architecture** | `Clean Android Architecture/` (Dumbravan; Boudjnah); `Advanced Android App Architecture….pdf`; `Fundamentals of Software Architecture`; `Dagger by Tutorials` (DI) |
 | 6 | **Track mới: Saving Data on Android** | `Saving Data on Android….pdf` (SharedPreferences/DataStore, file, SQLite, Room, đồng bộ) |
 | 7 | **Track mới: Mobile System Design** | `deep_dive_kotlin/system-design/`: Mobile System Design (Tjeerd), DDIA (bản 1 và 2), Alex Xu tập 1 và 2, Acing the SDI, OS Concepts (chỉ phần áp dụng được cho mobile: tiến trình/luồng, bộ nhớ, đồng bộ hoá) |
-| 8 | **Track mới: Clean Code** (tuyển tập, người dùng bổ sung nguồn) | `deep_dive_kotlin/ggplaybook/`: *The Clean Coder*, *Clean Craftsmanship* (TDD, refactoring, simple design, kỷ luật), *Clean Architecture* (SOLID, nguyên lý thành phần, Dependency Rule; dùng chung với track 5), *Clean Agile*, *Code That Fits in Your Head* (Seemann: heuristic, checklist, đo độ phức tạp), *The Software Craftsman*; cùng với *Effective Kotlin* để có ví dụ Kotlin. Có thể dùng thêm *API Design Patterns* và *Fundamentals of Software Architecture* (cùng thư mục) cho phần thiết kế API và kiến trúc |
+| 8 | **Track mới: Clean Code** (tuyển tập, người dùng bổ sung nguồn) | `deep_dive_kotlin/ggplaybook/`: *The Clean Coder*, *Clean Craftsmanship* (TDD, refactoring, simple design, kỷ luật), *Clean Architecture* (SOLID, nguyên lý thành phần, Dependency Rule; dùng chung với track 5), *Clean Agile*, *Code That Fits in Your Head* (Seemann: heuristic, checklist, đo độ phức tạp), *The Software Craftsman*, *Clean Code* (2008, bổ sung 2026-11-24; bản dịch tiếng Việt cộng đồng để đối chiếu thuật ngữ: github.com/quoctinnguyen8/Clean-Code---Tieng-Viet, cleancode.tinnq.com); cùng với *Effective Kotlin* để có ví dụ Kotlin. Có thể dùng thêm *API Design Patterns* và *Fundamentals of Software Architecture* (cùng thư mục) cho phần thiết kế API và kiến trúc |
 | 9 | **Track mới: Functional Programming in Kotlin** ("Build Your Software Faster and Safer…") | `From Objects to Functions….pdf`, `Functional Programming in K_….pdf`, `Functional Programming in Kotlin by Tutorials.pdf`, Functional Kotlin |
 | 10 | **Track mới: Gỡ lỗi và hiệu năng Android** (người dùng thêm 2026-11-24) | *Android Debugging by Tutorials* (PDF không có lớp text); *Android Test-Driven Development* ch.12–14 |
 
@@ -343,6 +343,6 @@ Dàn nháp cũ (2026-11-21) của Clean Android Architecture, Saving Data, Mobil
 - K: `docs/tracks/K-functional-kotlin.md`
 
 Thay đổi so với dàn nháp cũ, đáng chú ý:
-- Clean Code không dạy theo cuốn *Clean Code* (2008), vì cuốn đó không có trong kho.
+- Clean Code: ban đầu không dạy theo cuốn *Clean Code* (2008) vì kho chưa có. Ngày 2026-11-24 người dùng bổ sung bản PDF cùng hai bản dịch tiếng Việt của cộng đồng (chỉ để đối chiếu thuật ngữ). Cuốn sách thành nguồn cho j1–j10, xem `docs/tracks/J-clean-code.md`.
 - Mobile System Design nhìn từ phía client. Phần scale backend để OUT.
 - FP bỏ các phần đã có ở track Kotlin (lambda, inline, collection, Sequence) và Coroutines (Flow).
