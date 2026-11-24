@@ -34,5 +34,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X17.title': 'Process bị giết và trạng thái còn lại',
   'shared.bridge.X17.summary': 'Chương Compose dạy công cụ: rememberSaveable và SavedStateHandle, cách lưu kiểu tùy biến, giới hạn của Bundle. Chương chủ sở hữu dạy vì sao cần: hệ thống giết cả process khi thiếu RAM, ViewModel mất theo, chỉ còn bản sao saved state ngoài process và dữ liệu trên đĩa.',
   'shared.bridge.X18.title': 'Khóa, ANR và Mutex',
-  'shared.bridge.X18.summary': 'Chương coroutine dạy công cụ: Mutex, withLock, trạng thái dùng chung giữa nhiều coroutine. Chương chủ sở hữu dạy vì sao: main thread chờ khóa là ANR, hai khóa lấy ngược thứ tự là deadlock, và một thứ tự khóa chung cắt được vòng chờ.'
+  'shared.bridge.X18.summary': 'Chương coroutine dạy công cụ: Mutex, withLock, trạng thái dùng chung giữa nhiều coroutine. Chương chủ sở hữu dạy vì sao: main thread chờ khóa là ANR, hai khóa lấy ngược thứ tự là deadlock, và một thứ tự khóa chung cắt được vòng chờ.',
+  'shared.bridge.X19.title': 'Cache HTTP và nguồn sự thật',
+  'shared.bridge.X19.summary': 'Chương kiến trúc dạy database là nguồn sự thật mà màn hình quan sát. Chương chủ sở hữu dạy cache HTTP: bản sao có hạn dùng theo max-age, hỏi lại bằng ETag và 304, hợp với dữ liệu chỉ đọc như bảng giá; hai thứ không thay nhau.'
 });

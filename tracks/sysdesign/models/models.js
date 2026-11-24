@@ -264,4 +264,50 @@
         { name: 'jitter đầy đủ: mỗi khoảng chờ nằm trong [0, 2^n) giây', run: function () { return JIT.every(function (ph) { var prev = 0; return ph.every(function (t, n) { var d = t - prev; prev = t; return d >= 0 && d < Math.pow(2, n); }); }); } },
         { name: 'mỗi tình huống 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { reqlost: 7, resplost: 7, key: 6, storm: 5 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
   })();
+
+  /* ================= I6: cache — không cache, lưu mãi, max-age, max-age kèm ETag =================
+     Theo RFC 9111 (độ tươi, kiểm tra lại, directive), RFC 9110 (ETag, If-None-Match, 304), Alex Xu tập 1 ch.1. Mở màn lúc 0:00, 0:02, 0:10, 0:30;
+     giá đổi ở phút 20; process bị giết giữa phút 2 và 10 (cache bộ nhớ mất). Kích thước, giá, 1 KB cho 304 là minh họa. */
+  (function () {
+    var m = 'cache', CASES = ['none', 'forever', 'maxage', 'etag'], KS = ['s1', 's2', 's3', 's4'];
+    // [bộ nhớ, đĩa, mạng], tầng trả lời, KB của bước, giá hiển thị là bản mới?
+    var P = {
+      none: [[['off', 'off', 'full'], 'net', 200, 0], [['off', 'off', 'full'], 'net', 200, 0], [['off', 'off', 'full'], 'net', 200, 0], [['off', 'off', 'full'], 'net', 200, 1]],
+      forever: [[['miss', 'miss', 'full'], 'net', 200, 0], [['hit', 'skip', 'skip'], 'mem', 0, 0], [['miss', 'hit', 'skip'], 'disk', 0, 0], [['miss', 'hitold', 'skip'], 'disk', 0, 0]],
+      maxage: [[['miss', 'miss', 'full'], 'net', 200, 0], [['fresh', 'skip', 'skip'], 'mem', 0, 0], [['miss', 'stale', 'full'], 'net', 200, 0], [['miss', 'stale', 'full'], 'net', 200, 1]],
+      etag: [[['miss', 'miss', 'full7'], 'net', 200, 0], [['fresh', 'skip', 'skip'], 'mem', 0, 0], [['miss', 'stale', 'n304'], 'net', 1, 0], [['miss', 'stale', 'n200new'], 'net', 200, 1]]
+    };
+    var SERVER_NEW = [0, 0, 0, 1];   // giá trên server đã đổi ở bước 4 (phút 30)
+    // ô "phí": tải lại dữ liệu không đổi; ô "sai": hiện giá cũ khi server đã đổi
+    var WASTE = { none: [0, 1, 1, 0], forever: [0, 0, 0, 0], maxage: [0, 0, 1, 0], etag: [0, 0, 0, 0] };
+    var HDR = { none: [], forever: [], maxage: ['maxage'], etag: ['maxage', 'etag', 'n304'] };
+    function kb(c, i) { var t = 0; for (var k = 0; k <= i; k++) t += P[c][k][2]; return t; }
+    function net(c, i) { var t = 0; for (var k = 0; k <= i; k++) if (P[c][k][0][2] !== 'skip' && P[c][k][0][2] !== 'off' || P[c][k][1] === 'net') t++; return t; }
+    function right(c, i) { return P[c][i][3] === SERVER_NEW[i] ? 1 : 0; }
+    ADE.sysCache = { P: P, SERVER_NEW: SERVER_NEW, WASTE: WASTE, HDR: HDR, right: right, HNAMES: { maxage: 'Cache-Control: max-age=N', nocache: 'Cache-Control: no-cache', nostore: 'Cache-Control: no-store', mustrev: 'Cache-Control: must-revalidate', private: 'Cache-Control: private', etag: 'ETag + If-None-Match', n304: '304 Not Modified' } };
+    var SNIP = { none: 'i6.none', forever: 'i6.forever', maxage: 'i6.http', etag: 'i6.http' };
+    var LINES = { none: [[1], [1], [1], [1]], forever: [[4], [2], [3], [3]], maxage: [[2, 4], [5], [4], [4]], etag: [[2, 4], [5], [6], [6]] };
+    var TIER_NODE = { mem: 'mem', disk: 'disk', net: 'net' }, EDGE = { mem: 'e1', disk: 'e2', net: 'e3' };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var p = P[c][i], bad = !right(c, i) || WASTE[c][i] === 1, type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism');
+        var nodes = ['ui', TIER_NODE[p[1]]], ns = {}; nodes.forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var o = S(m, c + '.' + k, { type: type, activeNodes: nodes, nodeStates: ns,
+          metrics: { kb: kb(c, i), right: right(c, i), net: net(c, i) },
+          codeHighlight: { snippet: SNIP[c], lines: LINES[c][i] },
+          movingSignals: [{ edge: EDGE[p[1]], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (p[1] === 'net' ? 'run' : 'observe'), subject: TIER_NODE[p[1]] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'forever' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'tổng KB: không cache 800, lưu mãi 200, max-age 600, ETag 401', run: function () { return kb('none', 3) === 800 && kb('forever', 3) === 200 && kb('maxage', 3) === 600 && kb('etag', 3) === 401; } },
+        { name: 'bước 4: chỉ "lưu mãi" hiện giá cũ', run: function () { return right('forever', 3) === 0 && ['none', 'maxage', 'etag'].every(function (c) { return right(c, 3) === 1; }); } },
+        { name: 'cache bộ nhớ mất sau khi process bị giết (bước 3)', run: function () { return CASES.every(function (c) { return P[c][2][0][0] !== 'hit' && P[c][2][0][0] !== 'fresh'; }); } },
+        { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { none: 1, forever: 5, maxage: 6, etag: 6 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
+  })();
 })();

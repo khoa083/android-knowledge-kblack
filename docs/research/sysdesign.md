@@ -99,3 +99,15 @@ Sách đọc bằng pdftotext ngày 2026-11-24 (Xu tập 1 ch.2 dòng "Tips", ch
 | Result.retry(), LINEAR/EXPONENTIAL, mặc định EXPONENTIAL 30 giây, tối thiểu 10 giây, ví dụ ~20, 40, 80 giây | ax-define-work | stable |
 | Key sinh một lần và lưu cùng bản nháp; timeout 10 giây; giá trị jitter; đỉnh trong nửa giây; bài tập 5 thao tác | site | simplified |
 
+### I6 · Cache
+Đọc ngày 2026-11-24: RFC 9111 và RFC 9110 qua agent web-fetch (200; mục 8.8.1, 8.8.3, 13.1.2 của RFC 9110 lấy theo bản tóm tắt của công cụ, chưa thấy nguyên văn); Xu tập 1 ch.1 "Considerations for using cache" bằng pdftotext.
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Tươi/cũ; thứ tự s-maxage, max-age, Expires; heuristic, thường 10% từ Last-Modified; dùng bản cũ khi mất mạng trừ must-revalidate/no-cache | rfc9111 4.2, 4.2.1, 4.2.2, 4.2.4 | stable |
+| If-None-Match ưu tiên hơn If-Modified-Since; 304 cập nhật và dùng lại bản lưu; 200 đầy đủ thì thay | rfc9111 4.3 | stable |
+| max-age, no-cache (lưu nhưng kiểm tra lại), no-store (không lưu; không phải cơ chế bảo mật tin cậy), must-revalidate (mất mạng → lỗi, nên 504), private | rfc9111 5.2.2 | stable |
+| ETag là validator, mạnh và yếu (W/); 304 không có nội dung | rfc9110 8.8, 15.4.5 | stable |
+| Khi nào cache, chính sách hết hạn, nhất quán, LRU/LFU/FIFO | book-xu1 ch.1 | guideline |
+| Ba tầng của app, OkHttp Cache, DB là nguồn sự thật khác cache HTTP, gợi ý header theo loại dữ liệu, mọi con số | site | simplified |
+| immutable không có trong RFC 9111 (không nhắc) | — | ghi chú |
+

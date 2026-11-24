@@ -179,4 +179,28 @@
       h('p', { class: 'vz-cap', text: T('rt.tcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, h('th', { text: T('rt.t.id') }), h('th', { text: T('rt.t.key') }))), tb)),
       h('div', { class: 'vz-legend', text: T('rt.legend') })));
   }, { labelKey: K + 'tab.rt', icon: 'replay' });
+
+  /* ---------- I6: bảng ba tầng cache (tầng trả lời có viền) + giá hiển thị so với server; bảng header → hành vi ---------- */
+  ADE.registerScreen('sysdesign.cache', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.sysCache, c = ctx.state.case, i = Math.max(0, idx(ctx)), p = Y.P[c][i];
+    var tb = h('tbody');
+    ['mem', 'disk', 'net'].forEach(function (t, j) {
+      var r = p[0][j], ans = p[1] === t, waste = t === 'net' && Y.WASTE[c][i] === 1, old = r === 'hitold';
+      tb.appendChild(h('tr', null, h('th', { class: ans ? 'hl' : null, text: T('ca.t.' + t) }),
+        h('td', { class: old || waste ? 'bad' : (ans ? 'hl' : (r === 'off' || r === 'skip' ? 'dim' : null)), text: T('ca.r.' + r) }),
+        h('td', { class: 'c' + (t === 'net' && p[2] ? '' : ' dim'), text: t === 'net' ? String(p[2]) : '0' })));
+    });
+    var ok = Y.right(c, i) === 1, fee = function (n) { return T(n ? 'ca.fee.new' : 'ca.fee.old'); };
+    tb.appendChild(h('tr', null, h('th', { text: T('ca.shown') }), h('td', { class: ok ? 'ok' : 'bad', colspan: '2', text: fee(p[3]) })));
+    tb.appendChild(h('tr', null, h('th', { text: T('ca.server') }), h('td', { class: 'dim', colspan: '2', text: fee(Y.SERVER_NEW[i]) })));
+    var hb = h('tbody');
+    ['maxage', 'nocache', 'nostore', 'mustrev', 'private', 'etag', 'n304'].forEach(function (k) {
+      var on = Y.HDR[c].indexOf(k) >= 0;
+      hb.appendChild(h('tr', null, h('th', { class: on ? 'hl' : null, text: Y.HNAMES[k] }), h('td', { class: on ? 'hl' : null, text: T('ca.h.' + k + '.what') })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('ca.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['tier', 'res', 'kb'].map(function (k) { return h('th', { text: T('ca.col.' + k) }); }))), tb)),
+      h('p', { class: 'vz-cap', text: T('ca.hcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, hb)),
+      h('div', { class: 'vz-legend', text: T('ca.legend') })));
+  }, { labelKey: K + 'tab.ca', icon: 'layers' });
 })();

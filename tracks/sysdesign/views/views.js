@@ -31,4 +31,8 @@
   V('retry', { layout: 'pipeline', nodes: [N('retry', 'app', 0, 1, 'phone', 'ui'), N('retry', 'net', 4, 1, 'rail', 'signal'), N('retry', 'server', 8, 1, 'store', 'job')],
     edges: [E('e1', 'app', 'net'), E('e2', 'net', 'server')],
     metrics: [T('retry', 'attempts'), T('retry', 'bookings'), T('retry', 'peak')] });
+  /* I6: màn hình → bộ nhớ → đĩa → server */
+  V('cache', { layout: 'pipeline', nodes: [N('cache', 'ui', 0, 1, 'screen', 'ui'), N('cache', 'mem', 3, 1, 'chip', 'state'), N('cache', 'disk', 6, 1, 'store', 'job'), N('cache', 'net', 9, 1, 'source', 'runtime')],
+    edges: [E('e1', 'ui', 'mem'), E('e2', 'mem', 'disk'), E('e3', 'disk', 'net')],
+    metrics: [T('cache', 'kb'), T('cache', 'right'), T('cache', 'net')] });
 })();

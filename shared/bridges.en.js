@@ -34,5 +34,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X17.title': 'Process death and the state that remains',
   'shared.bridge.X17.summary': 'The Compose chapter teaches the tools: rememberSaveable and SavedStateHandle, saving custom types, the Bundle limits. The owner chapter teaches why they are needed: the system kills the whole process when RAM runs low, the ViewModel goes with it, and only the saved-state copy outside the process and data on disk remain.',
   'shared.bridge.X18.title': 'Locks, ANRs and Mutex',
-  'shared.bridge.X18.summary': 'The coroutines chapter teaches the tools: Mutex, withLock, state shared between coroutines. The owner chapter teaches why: a main thread waiting for a lock is an ANR, two locks in opposite orders are a deadlock, and one shared lock order breaks the cycle.'
+  'shared.bridge.X18.summary': 'The coroutines chapter teaches the tools: Mutex, withLock, state shared between coroutines. The owner chapter teaches why: a main thread waiting for a lock is an ANR, two locks in opposite orders are a deadlock, and one shared lock order breaks the cycle.',
+  'shared.bridge.X19.title': 'HTTP cache and the source of truth',
+  'shared.bridge.X19.summary': 'The architecture chapter teaches the database as the source of truth the screen observes. The owner chapter teaches the HTTP cache: a copy with an expiry from max-age, revalidated with ETag and 304, suited to read-only data such as fee lists; neither replaces the other.'
 });

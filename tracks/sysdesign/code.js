@@ -2,6 +2,24 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('sysdesign', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('i6.none', [
+    c('suspend fun fees(): List<Fee> = api.fees()         // mỗi lần mở: tải 200 KB', 'suspend fun fees(): List<Fee> = api.fees()         // every open: download 200 KB')
+  ]);
+  add('i6.forever', [
+    'suspend fun fees(): List<Fee> {',
+    c('    memory["fees"]?.let { return it }                                 // mất khi process chết', '    memory["fees"]?.let { return it }                                 // lost when the process dies'),
+    c('    disk.read("fees")?.let { memory["fees"] = it; return it }         // không có hạn dùng', '    disk.read("fees")?.let { memory["fees"] = it; return it }         // no expiry at all'),
+    '    return api.fees().also { disk.write("fees", it); memory["fees"] = it }',
+    '}'
+  ]);
+  add('i6.http', [
+    'val client = OkHttpClient.Builder()',
+    c('    .cache(Cache(File(cacheDir, "http"), 10L * 1024 * 1024))     // cache HTTP trên đĩa, 10 MB', '    .cache(Cache(File(cacheDir, "http"), 10L * 1024 * 1024))     // HTTP disk cache, 10 MB'),
+    '    .build()',
+    c('// server gửi: Cache-Control: max-age=300 (và ETag: "v7")', '// the server sends: Cache-Control: max-age=300 (and ETag: "v7")'),
+    c('// còn tươi: trả từ cache, không gọi mạng', '// still fresh: served from the cache, no network call'),
+    c('// đã cũ, có ETag: tự gửi If-None-Match; 304 → dùng lại bản đã lưu', '// stale, with an ETag: sends If-None-Match itself; 304 → reuse the stored copy')
+  ]);
   add('i5.nokey', [
     'suspend fun book(slot: Slot): Appointment {',
     '    repeat(3) {',
