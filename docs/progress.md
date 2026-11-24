@@ -824,3 +824,5 @@ Trạng thái: `chưa / đang / xong`.
   - Bố cục: thanh công cụ còn một hàng (9 chip track thay bằng menu chọn track có tiến độ); header bỏ tên track trùng; mobile: header 2 hàng, nút giảm chuyển động vào menu ☰, phím tắt ẩn trên màn cảm ứng.
   - Kiểm: report 0 lỗi, 120 cảnh báo; 213 route sạch ở 360px; giảm chuyển động → 0 animation. Chưa push.
   - Tiếp theo: I13 (bài mẫu nhắn tin, script đã soạn ở scratchpad), I0, rồi track I sang stable.
+- **I13 Bài mẫu app nhắn tin (2026-11-24):** `sysdesign_v2_i13.py` (8 mục). Sim `sysdesign.chat`, 6 bước (outbox → chờ mạng → server cấp message_id → giao → đã xem → máy tính bảng đồng bộ theo cur_max_message_id), 3 tình huống (có mạng; người gửi mất mạng, mất response, thử lại cùng khóa; app người nhận tắt, push chỉ báo rồi tải). Tab chính: **đồ thị thành phần** của app (ba hàng, không cắt nhau) + **sơ đồ tuần tự** 4 bên + trạng thái tick. Nguồn: book-xu1 thêm ch.12, book-acing thêm ch.14. Kiểm: report 0 lỗi, 120 cảnh báo; track-check 0 ở 1280 và 360; đã xem ảnh. Chưa push.
+  - Tiếp theo: I0 (bản đồ track), rồi track I sang stable.

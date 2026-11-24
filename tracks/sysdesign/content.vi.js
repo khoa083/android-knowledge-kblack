@@ -2269,7 +2269,7 @@ ADE.addTrackStrings('sysdesign', 'vi', {
   "track.sysdesign.m.chat.co.away.s4": "Alex Xu (tập 1 ch.12): người nhận offline thì server gửi thông báo đẩy; chương I9: push chỉ là tín hiệu, nội dung lấy từ server. [[src:book-xu1]]",
   "track.sysdesign.vz.tab.ct": "Thành phần và đường đi của tin",
   "track.sysdesign.vz.ct.gcap": "Các thành phần trong app (khung lớn) và server; thành phần và mũi tên của bước hiện tại sáng lên.",
-  "track.sysdesign.vz.ct.app": "App trên điện thoại người gửi",
+  "track.sysdesign.vz.ct.app": "App (máy gửi và máy nhận dùng cùng thiết kế)",
   "track.sysdesign.vz.ct.c.ui": "Màn chat",
   "track.sysdesign.vz.ct.c.vm": "ViewModel",
   "track.sysdesign.vz.ct.c.repo": "Repository",

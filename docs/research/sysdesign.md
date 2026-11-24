@@ -182,3 +182,11 @@ Quyết định của người dùng (2026-11-24): FCM và dịch vụ bên th�
 | Flexible và immediate | ax-in-app-updates | stable (chỉ nhắc) |
 | Khóa lạ mặc định gây lỗi; ignoreUnknownKeys | kx-json-config | stable |
 | 100.000 người dùng, 3% crash, tốc độ cài, tỉ lệ phiên bản, kiểm tra phiên bản tối thiểu, lưu ý về cờ | site | simplified |
+
+### I13 · Bài mẫu app nhắn tin
+Đọc ngày 2026-11-24 từ bản text: Xu tập 1 ch.12 (Message table, Message ID, Message synchronization across multiple devices); Acing ch.14 (14.3, gửi và nhận, xác nhận).
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| message_id duy nhất, tăng theo thời gian, không dựa vào created_at; id cục bộ trong cuộc trò chuyện là đủ; cur_max_message_id mỗi thiết bị; offline thì push | book-xu1 ch.12 | guideline |
+| Ghi ở message service trước, giao không được thì bỏ vì máy lấy lại sau; phía nhận kiểm tra trùng; xác nhận đã nhận, read receipt | book-acing ch.14 | guideline |
+| Thành phần app, outbox + clientId, sáu bước, ba tình huống, bảng ánh xạ chương, bài tập | site | simplified |

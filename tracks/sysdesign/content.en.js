@@ -2269,7 +2269,7 @@ ADE.addTrackStrings('sysdesign', 'en', {
   "track.sysdesign.m.chat.co.away.s4": "Alex Xu (vol. 1 ch.12): if the recipient is offline the server sends a push notification; chapter I9: the push is only a signal, content comes from the server. [[src:book-xu1]]",
   "track.sysdesign.vz.tab.ct": "Components and the message path",
   "track.sysdesign.vz.ct.gcap": "The components inside the app (large frame) and the server; the current step's components and arrows light up.",
-  "track.sysdesign.vz.ct.app": "App on the sender's phone",
+  "track.sysdesign.vz.ct.app": "App (sender and recipient devices share this design)",
   "track.sysdesign.vz.ct.c.ui": "Chat screen",
   "track.sysdesign.vz.ct.c.vm": "ViewModel (state)",
   "track.sysdesign.vz.ct.c.repo": "Repository layer",

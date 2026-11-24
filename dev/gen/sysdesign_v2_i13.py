@@ -69,7 +69,7 @@ def add(a):
     z = lambda k, vi, en=None: a('vz.' + k, vi, en)
     z('tab.ct', 'Thành phần và đường đi của tin', 'Components and the message path')
     z('ct.gcap', 'Các thành phần trong app (khung lớn) và server; thành phần và mũi tên của bước hiện tại sáng lên.', 'The components inside the app (large frame) and the server; the current step\'s components and arrows light up.')
-    z('ct.app', 'App trên điện thoại người gửi', 'App on the sender\'s phone')
+    z('ct.app', 'App (máy gửi và máy nhận dùng cùng thiết kế)', 'App (sender and recipient devices share this design)')
     for k, vi, en in [('ui', 'Màn chat', 'Chat screen'), ('vm', 'ViewModel', 'ViewModel (state)'), ('repo', 'Repository', 'Repository layer'), ('db', 'Room: outbox, tin', 'Room: outbox, messages'),
                       ('worker', 'WorkManager gửi', 'WorkManager sender'), ('ws', 'Kết nối sống', 'Live connection'), ('push', 'Nhận push', 'Push receiver'), ('server', 'Server tin', 'Message server')]:
         z('ct.c.' + k, vi, en)
