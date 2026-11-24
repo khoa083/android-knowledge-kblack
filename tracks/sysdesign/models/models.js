@@ -782,4 +782,39 @@
         { name: 'người nhận tắt app: không có WebSocket, push chỉ báo rồi app tự tải', run: function () { var m4 = P.away[3][3].map(function (x) { return x[2]; }); return m4.indexOf('wsnone') >= 0 && m4.indexOf('tickle') >= 0 && m4.indexOf('fetch') >= 0; } },
         { name: 'mỗi tình huống 6 bước; dòng mã nằm trong đoạn mã', run: function () { return CASES.every(function (c) { return steps({ case: c }).length === 6; }) && LINES.every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); } }] });
   })();
+
+  /* ================= I0: bản đồ track: triệu chứng → lúc lộ ra → nguyên nhân → chương (cùng mẫu với H0) ================= */
+  (function () {
+    var m = 'map';
+    // [triệu chứng, chương, lúc lộ ra: field | scale | device | update]
+    var SYM = [['blankOffline', 'i1', 'field'], ['formLost', 'i2', 'field'], ['anr', 'i3', 'field'], ['battery', 'i4', 'field'], ['doubleBooking', 'i5', 'field'],
+      ['oldPrice', 'i6', 'update'], ['dupPost', 'i7', 'scale'], ['overwritten', 'i8', 'device'], ['wrongTime', 'i9', 'field'], ['oom', 'i10', 'device'],
+      ['uploadRestart', 'i10', 'field'], ['slowStart', 'i11', 'update'], ['oldAppCrash', 'i12', 'update'], ['chatLost', 'i13', 'field']];
+    var IDS = SYM.map(function (x) { return x[0]; });
+    ADE.sysMap = SYM;
+    var PH = { field: 'surprise', scale: 'surprise', device: 'surprise', update: 'broken' };
+    function steps(s) {
+      var row = SYM.filter(function (x) { return x[0] === s.symptom; })[0] || SYM[0], id = row[0], ch = row[1], ph = row[2];
+      var met = function (i) { return { phase: i >= 1 ? M(m, 'phase.' + ph) : M(m, 'phase.none'), chapter: i >= 3 ? M(m, 'ch.' + ch) : M(m, 'ch.none') }; };
+      var st = function (i, type, nodes, ns0, kind, subj, titleKey, explainKey, edge) {
+        var ns = {}; Object.keys(ns0).forEach(function (n) { ns[n] = K + 'st.' + ns0[n]; });
+        return S(m, id + '.' + ['start', 'first', 'next', 'end'][i], { type: type, activeNodes: nodes, nodeStates: ns, metrics: met(i), titleKey: titleKey, explainKey: explainKey,
+          movingSignals: edge ? [{ edge: edge, tok: type === 'pitfall' ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: kind, subject: subj, detailKey: titleKey }] });
+      };
+      var a = st(0, 'scenario', ['symptom'], {}, 'observe', 'symptom', M(m, 's.' + id + '.title'), M(m, 's.' + id + '.detail'), null);
+      a.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+      var b = st(1, 'mechanism', ['symptom', 'phase'], { phase: PH[ph] }, 'run', 'phase', M(m, 'phase.' + ph), M(m, 'phase.' + ph + '.explain'), 'e1');
+      var c = st(2, 'pitfall', ['phase', 'cause'], { phase: PH[ph], cause: 'done' }, 'observe', 'cause', M(m, 's.' + id + '.cause'), M(m, 's.' + id + '.causeDetail'), 'e2');
+      c.callouts = [{ kind: 'pitfall', textKey: M(m, 'co.cause') }];
+      var d = st(3, 'mechanism', ['cause', 'chapter'], { phase: PH[ph], cause: 'done', chapter: 'done' }, 'complete', 'chapter', M(m, 'go.' + ch), M(m, 's.' + id + '.fix'), 'e3');
+      d.callouts = [{ kind: 'mechanism', textKey: M(m, 'co.chapter') }];
+      return [a, b, c, d];
+    }
+    reg(m, { controls: [sel(m, 'symptom', IDS)], init: function () { return { symptom: 'doubleBooking' }; }, act: setter(['symptom']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi triệu chứng có 4 bước và trỏ tới một chương', run: function () { return IDS.every(function (k) { var x = steps({ symptom: k }); return x.length === 4 && x[3].metrics.chapter !== M(m, 'ch.none'); }); } },
+        { name: 'mọi chương I1–I13 có ít nhất một triệu chứng, và chương đó có trong manifest', run: function () { var t = ADE.getTrack && ADE.getTrack('sysdesign'), chs = t ? t.chapters.map(function (c) { return c.id; }) : [];
+          for (var n = 1; n <= 13; n++) { var g = 'i' + n; if (!SYM.some(function (x) { return x[1] === g; }) || (t && chs.indexOf(g) < 0)) return false; } return true; } },
+        { name: 'đếm theo lúc lộ ra: 8 ngoài đời, 1 khi đông người, 2 khi nhiều máy, 3 sau phát hành', run: function () { var c = {}; SYM.forEach(function (x) { c[x[2]] = (c[x[2]] || 0) + 1; }); return c.field === 8 && c.scale === 1 && c.device === 2 && c.update === 3; } }] });
+  })();
 })();

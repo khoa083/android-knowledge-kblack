@@ -71,4 +71,8 @@
   V('chat', { layout: 'pipeline', nodes: [N('chat', 'phone', 0, 1, 'phone', 'ui'), N('chat', 'server', 4, 1, 'store', 'job'), N('chat', 'peer', 8, 1, 'phone', 'state')],
     edges: [E('e1', 'phone', 'server'), E('e2', 'server', 'peer')],
     metrics: [T('chat', 'ticks'), T('chat', 'copies'), T('chat', 'devices')] });
+  /* I0: triệu chứng → lúc lộ ra → nguyên nhân → chương */
+  V('map', { layout: 'pipeline', nodes: [N('map', 'symptom', 0, 0, 'eye', 'ui'), N('map', 'phase', 3, 0, 'clock', 'state'), N('map', 'cause', 6, 0, 'mechanism', 'runtime'), N('map', 'chapter', 9, 0, 'source', 'job')],
+    edges: [E('e1', 'symptom', 'phase'), E('e2', 'phase', 'cause'), E('e3', 'cause', 'chapter')],
+    metrics: [T('map', 'phase'), T('map', 'chapter')] });
 })();

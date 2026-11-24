@@ -782,7 +782,12 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 @keyframes dpath-ring { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--focus) 35%, transparent); } }
 
 /* mã thu gọn đi cùng bước (panel giải thích): khung thấp, dòng đang chạy nháy nền một lần khi đổi bước */
-.code-here { display: grid; gap: 6px; }
+.code-here { display: grid; gap: 6px; min-width: 0; }
+.code-here .code-wrap { min-width: 0; max-width: 100%; }
+.code-mini pre.code { max-width: 100%; overflow-x: auto; }
+/* nhãn sr-only (position:absolute) của dòng đang chạy phải nằm trong khung cuộn, không đẩy trang rộng ra */
+pre.code { position: relative; }
+.ctx-step { min-width: 0; }
 .code-here-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .code-here-h h3 { margin: 0; }
 .code-mini pre.code { max-height: 200px; overflow: auto; scroll-behavior: smooth; }

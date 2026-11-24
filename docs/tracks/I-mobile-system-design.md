@@ -3,6 +3,8 @@
 > **ĐÃ DUYỆT (2026-11-24).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **giữ i2 và i3 riêng**, **bài mẫu là app nhắn tin**. Chưa xây; làm sau track H.
 > Nguyên tắc: **cần và đủ**, nhìn từ phía **app Android** (client). Mỗi chương bắt đầu từ một lỗi thật xảy ra khi app nói chuyện với server, hoặc khi app sống trong giới hạn của điện thoại.
 
+**Trạng thái (2026-11-24):** đã làm xong I0–I13, track chuyển sang `stable`. I9 làm nhẹ theo quyết định người dùng (FCM chỉ là ví dụ).
+
 ## Manifest đề xuất
 | Trường | Giá trị |
 |---|---|
