@@ -1,6 +1,6 @@
 # Nghiên cứu track I (Thiết kế hệ thống phía mobile)
 
-> Track chưa được duyệt. Dàn ý: `docs/tracks/I-mobile-system-design.md`. Nguồn chính thức thắng khi mâu thuẫn.
+> Track đã duyệt 2026-11-24, đang viết. Dàn ý: `docs/tracks/I-mobile-system-design.md`. Nguồn chính thức thắng khi mâu thuẫn.
 
 ## Đã đọc để soạn dàn ý (2026-11-24, chỉ mục lục)
 - **Tjeerd in 't Veen, *Mobile System Design*:** bản early release, ch.1–14 (đọc mục lục bằng pdftotext các trang đầu).
@@ -28,3 +28,13 @@
 
 ## Bảng nguồn theo chương
 Điền khi viết từng chương. Ghi rõ chỗ nào là diễn giải của site từ sách backend sang phía client.
+
+### I1 · Từ đề bài tới kế hoạch
+Sách đọc bằng pdftotext ngày 2026-11-24 (Xu tập 1 ch.2 dòng "Tips", ch.3 bốn bước; Tjeerd ch.2 mục 2.4, 2.5.3, 2.5.4, 2.5.8, 2.6.1, 2.6.3, 2.6.7). URL nguồn sách kiểm 200: bytebytego.com, mobilesystemdesign.com.
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Khung bốn bước; đừng trả lời ngay, hỏi và ghi giả định; thiết kế quá mức là dấu hiệu xấu | book-xu1 ch.3 | guideline |
+| Ước lượng nhanh: quá trình hơn độ chính xác; làm tròn, ghi giả định, ghi đơn vị | book-xu1 ch.2 | guideline |
+| Đừng mở IDE ngay, tìm yêu cầu phụ; thiết kế chỉ trường hợp đẹp, xin bản nội dung xấu nhất; bàn lỗi sớm, lỗi không chặn màn hình; không phải mọi phần ưu tiên như nhau | book-tjeerd ch.2 | guideline |
+| Backend: phiên, token, timeout; mã lỗi để client dịch; thông báo đẩy và ngôn ngữ của máy | book-tjeerd ch.2 | guideline |
+| Câu hỏi mất mạng / rỗng; mọi con số (2 ảnh, 4 MB, 300 KB, 240 / 18 MB) | site | simplified |
