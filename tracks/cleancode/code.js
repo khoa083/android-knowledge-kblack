@@ -164,4 +164,26 @@
     'private fun LocalDate.isWeekend() =',
     '    dayOfWeek == SATURDAY || dayOfWeek == SUNDAY'
   ]);
+
+  /* J5: test "phí cuối tuần" viết hai cách: mock từng lời gọi (MockK, minh họa) và kiểm kết quả với fake theo AAA */
+  add('j5.mock', [
+    c('@Test fun `phí cuối tuần`() {', '@Test fun `weekend fee`() {'),
+    '    val fees = mockk<FeeCalculator>()',
+    c('    every { fees.feeFor(SATURDAY) } returns 300_000         // mã tính phí thật không chạy', '    every { fees.feeFor(SATURDAY) } returns 300_000         // the real fee code never runs'),
+    '    val repo = mockk<Repo>(relaxed = true)',
+    '    BookingService(validator, fees, repo, reminders).book(request(on = SATURDAY))',
+    c('    verify { fees.feeFor(SATURDAY) }                          // kiểm cách làm', '    verify { fees.feeFor(SATURDAY) }                          // checks how, not what'),
+    '    verify { repo.save(match { it.fee == 300_000 }) }',
+    '}'
+  ]);
+  add('j5.behavior', [
+    c('@Test fun `phí cuối tuần`() {', '@Test fun `weekend fee`() {'),
+    c('    val repo = FakeRepo()                                     // arrange', '    val repo = FakeRepo()                                     // arrange'),
+    '    val service = bookingService(repo = repo, holidays = emptySet())',
+    '',
+    c('    service.book(request(on = SATURDAY))                      // act', '    service.book(request(on = SATURDAY))                      // act'),
+    '',
+    c('    assertEquals(300_000, repo.saved.single().fee)            // assert: kết quả', '    assertEquals(300_000, repo.saved.single().fee)            // assert: the outcome'),
+    '}'
+  ]);
 })();

@@ -284,4 +284,56 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && [0, 1, 2, 3].every(function (i) { return PLAN[c][i].hl.every(function (l) { return l >= 1 && l <= LEN[SNIP(c, i)]; }); }); }); } }] });
   })();
+
+  /* ================= J5: test mock từng lời gọi so với test kiểm kết quả với fake =================
+     Theo Martin, Clean Craftsmanship ch.3 (test double theo Meszaros; mock là spy biết kỳ vọng; spy, mock làm test dễ vỡ; London/Chicago),
+     ch.4 (fragile test là vấn đề thiết kế; Rule 12); Seemann 4.2.2 (AAA), 11.1. Danh sách cạnh EDGES là nguồn sự thật:
+     số cạnh, test vỡ sau mỗi refactor (test có cạnh vào thứ vừa đổi) và test bắt được lỗi đều tính từ đó. */
+  (function () {
+    var m = 'testDesign', CASES = ['mock', 'behavior'], KS = ['s1', 's2', 's3', 's4'];
+    var TESTS = ['t1', 't2', 't3', 't4'];
+    var NODES = [['book', 'pub'], ['validate', 'int'], ['feeFor', 'int'], ['save', 'int'], ['schedule', 'int'], ['FakeRepo', 'fake'], ['FakeReminders', 'fake']];
+    var EDGES = {
+      mock: { t1: ['book', 'validate', 'feeFor', 'save'], t2: ['book', 'feeFor', 'save'], t3: ['book', 'schedule', 'save'], t4: ['book', 'validate', 'save'] },
+      behavior: { t1: ['book', 'FakeRepo'], t2: ['book', 'FakeRepo'], t3: ['book', 'FakeReminders'], t4: ['book', 'FakeRepo'] }
+    };
+    // mỗi bước: những gì đổi (refactor A, refactor B, lỗi phí); refactor không đổi hành vi
+    var CHANGE = [[], ['validate', 'feeFor'], ['save', 'schedule', 'FakeRepo'], ['feeFor']];   // giao diện Repo đổi ở B: FakeRepo sửa một chỗ
+    var BUG_STEP = 3, CHECKS_FEE = 't2';   // chỉ test t2 khẳng định con số phí
+    var kindOf = function (n) { return NODES.filter(function (x) { return x[0] === n; })[0][1]; };
+    function edgeCount(c) { return TESTS.reduce(function (s, t) { return s + EDGES[c][t].length; }, 0); }
+    // refactor: test vỡ nếu nó chạm vào chi tiết bên trong vừa đổi (fake đổi thì sửa fake một chỗ, test không đổi)
+    function brokenAt(c, i) { if (i === 0 || i === BUG_STEP) return []; return TESTS.filter(function (t) { return EDGES[c][t].some(function (n) { return CHANGE[i].indexOf(n) >= 0 && kindOf(n) === 'int'; }); }); }
+    // lỗi phí: test bắt được nếu nó khẳng định con số phí VÀ mã tính phí thật chạy trong test (không bị mock)
+    function caught(c) { var t = CHECKS_FEE; return EDGES[c][t].indexOf('feeFor') < 0 ? [t] : []; }
+    function fakeEdits(c, i) { return c === 'behavior' && i === 2 ? 1 : 0; }
+    ADE.ccTestDesign = { TESTS: TESTS, NODES: NODES, EDGES: EDGES, CHANGE: CHANGE, BUG_STEP: BUG_STEP, brokenAt: brokenAt, caught: caught, edgeCount: edgeCount, fakeEdits: fakeEdits };
+    var HL = { mock: [[2, 3, 4], [3, 6], [7], [3]], behavior: [[2, 3, 5, 7], [5], [2], [7]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var br = brokenAt(c, i).length, miss = i === BUG_STEP && caught(c).length === 0, bad = br > 0 || miss;
+        var nodes = i === 0 ? ['tests', 'api'] : ['change', 'detail', 'tests'];
+        var ns = {}; nodes.forEach(function (n) { ns[n] = K + 'st.done'; }); if (bad) ns.tests = K + 'st.surprise';
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nodes, nodeStates: ns,
+          metrics: { edges: edgeCount(c), broken: br, caught: i === BUG_STEP ? caught(c).length : 0 },
+          codeHighlight: { snippet: 'j5.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: i === 0 ? 'e1' : 'e3', tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 0 ? 'observe' : 'write'), subject: i === 0 ? 'tests' : 'detail' }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 && c === 'mock' ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        if (c === 'behavior' && i === 2) o.callouts[0].kind = 'source';
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'mock' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mock từng lời gọi: 13 cạnh; refactor A vỡ 3/4, refactor B vỡ 4/4; lỗi phí: 0 test bắt được', run: function () {
+          return edgeCount('mock') === 13 && brokenAt('mock', 1).length === 3 && brokenAt('mock', 2).length === 4 && caught('mock').length === 0; } },
+        { name: 'kiểm kết quả với fake: 8 cạnh, không cạnh nào vào chi tiết bên trong; refactor không vỡ test nào; lỗi phí: test phí cuối tuần bắt được', run: function () {
+          var noInt = TESTS.every(function (t) { return EDGES.behavior[t].every(function (n) { return kindOf(n) !== 'int'; }); });
+          return edgeCount('behavior') === 8 && noInt && brokenAt('behavior', 1).length === 0 && brokenAt('behavior', 2).length === 0 && caught('behavior')[0] === 't2'; } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã (8 dòng)', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); }); } }] });
+  })();
 })();

@@ -977,6 +977,7 @@ pre.code { position: relative; }
 .vz-dg { display: block; width: 100%; min-width: 420px; height: auto; font-family: var(--mono); }
 .vz-dg-n rect { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
 .vz-dg-n.bad rect { stroke: var(--tok-error); stroke-width: 2.2; }
+.vz-dg-n.ok rect { stroke: var(--brand); stroke-width: 2.4; }
 .vz-dg-n.skip rect { fill: none; stroke: var(--line-strong); stroke-dasharray: 4 4; }
 .vz-dg-t { font-size: 12.5px; font-weight: 700; fill: var(--ink); }
 .vz-dg-s { font-size: 11px; fill: var(--ink-2); }

@@ -25,7 +25,7 @@
 |---|---|---|
 | `book-seemann` (khai báo ở `tracks/sysdesign/sources.js`, tracks gồm cả cleancode) | Mark Seemann, *Code That Fits in Your Head* | 3.2.1, 5.2.3–5.2.4, 5.3, 5.3.1, 7.1.1–7.1.3, 7.2.1, 7.2.5, 7.2.7, 8.1.3–8.1.7, 5.2.2, 6.2.2, 6.2.5, 11.2, phụ lục A.2, A.7, A.8, A.10, A.17 (2026-11-24) |
 | `book-cleancode` | Robert C. Martin, *Clean Code* (2008) | ch.2 (mục lục và Pick One Word per Concept); ch.3: Small!, Blocks and Indenting, Do One Thing, One Level of Abstraction, Stepdown Rule, Flag Arguments, Have No Side Effects, Output Arguments, Command Query Separation; ch.4 phần mở đầu; ch.6 Data/Object Anti-Symmetry, Law of Demeter (đầu mục); ch.7 Don't Return Null, Don't Pass Null; ch.8 Using Third-Party Code; ch.9 The Three Laws of TDD, F.I.R.S.T. (2026-11-24) |
-| `book-craft` | Robert C. Martin, *Clean Craftsmanship* (2021) | ch.2: The Three Laws of TDD, The Fourth Law (2026-11-24); URL informit.com kiểm HTTP 200 |
+| `book-craft` | Robert C. Martin, *Clean Craftsmanship* (2021) | ch.2: The Three Laws of TDD, The Fourth Law; ch.3: Test Doubles, Mock, The TDD Uncertainty Principle, London versus Chicago; ch.4: The Fragile Test Problem, The One-to-One Correspondence, Breaking the Correspondence (2026-11-24); URL informit.com kiểm HTTP 200 |
 | `book-effective-kotlin` (khai báo ở `tracks/kotlin/sources.js`, tracks gồm cả cleancode) | Marcin Moskała, *Effective Kotlin* | Item 15, Item 17 (2026-11-24) |
 | `kt-conventions` | Kotlin coding conventions (kotlinlang.org) | Choose good names, Function names (curl 2026-11-24) |
 | `kt-inline-classes` | Inline value classes (kotlinlang.org) | Members (init, require), Inline classes vs type aliases (curl 2026-11-24) |
@@ -83,3 +83,14 @@ URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN
 | Đừng tin test chưa từng thấy đỏ; tạm phá mã để thấy test đỏ | Seemann 11.2 |
 | Tên test có khoảng trắng chỉ cho test; Android runtime từ API 30 | Kotlin coding conventions |
 | **Của site:** mức phí, ngày lễ 2/9, các ngày ví dụ (đã kiểm thứ trong lịch 2026), năm phiên bản hàm phí được cài thật trong model; không nêu số liệu nghiên cứu về hiệu quả TDD (chưa đọc nghiên cứu nào) | — |
+
+### J5 Thiết kế test
+| Ý trên site | Nguồn |
+|---|---|
+| Test dễ vỡ là vấn đề thiết kế; tương ứng một-một; Rule 12; hành vi quan trọng phải thấy qua giao diện | Martin, Clean Craftsmanship ch.4 |
+| Năm loại test double (Meszaros); mock là spy biết kỳ vọng; spy/mock buộc test vào thuật toán; tác giả không thích công cụ mock | Martin, Clean Craftsmanship ch.3 |
+| London (chắc chắn, outside-in, mock ở mọi ranh giới) và Chicago (linh hoạt, test giá trị và thuộc tính); tác giả nghiêng Chicago | Martin, Clean Craftsmanship ch.3 |
+| Không có định nghĩa chung cho mock, stub | Seemann, chú thích ở ch.4 |
+| Arrange Act Assert, dòng trống, Arrange quá lớn là mùi | Seemann 4.2.2, A.3 |
+| Sửa test là sửa lưới an toàn; refactor an toàn của IDE; tách refactor test và mã | Seemann 11.1, 11.1.3 |
+| **Của site:** BookingService và bốn cộng tác viên, 13 và 8 cạnh, hai refactor, lỗi phí cuối tuần; gợi ý "fake cho thứ ngoài tiến trình, code thật cho tính toán thuần" là diễn giải; cú pháp MockK minh họa | — |

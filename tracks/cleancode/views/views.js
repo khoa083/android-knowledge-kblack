@@ -27,4 +27,8 @@
   V('tdd', { layout: 'pipeline', nodes: [N('tdd', 'list', 0, 1, 'list', 'state'), N('tdd', 'test', 3, 1, 'check', 'ui'), N('tdd', 'code', 6, 1, 'source', 'job'), N('tdd', 'patient', 9, 1, 'phone', 'runtime')],
     edges: [E('e1', 'list', 'test'), E('e2', 'test', 'code'), E('e3', 'code', 'patient')],
     metrics: [T('tdd', 'tests'), T('tdd', 'red'), T('tdd', 'wrong')] });
+  /* J5: test → book() → chi tiết bên trong; thay đổi đi vào chi tiết */
+  V('testDesign', { layout: 'pipeline', nodes: [N('testDesign', 'tests', 0, 1, 'check', 'ui'), N('testDesign', 'api', 3, 1, 'target', 'state'), N('testDesign', 'detail', 6, 1, 'layers', 'job'), N('testDesign', 'change', 9, 1, 'source', 'runtime')],
+    edges: [E('e1', 'tests', 'api'), E('e2', 'api', 'detail'), E('e3', 'change', 'detail')],
+    metrics: [T('testDesign', 'edges'), T('testDesign', 'broken'), T('testDesign', 'caught')] });
 })();

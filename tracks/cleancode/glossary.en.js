@@ -12,5 +12,8 @@ ADE.addGlossary('en', 'cleancode', {
   "red-green-refactor": { term: "red, green, refactor", def: "The TDD cycle: write a failing test; make the minimal change so all tests pass; improve the code without changing behaviour; repeat.", chapter: "cleancode/j4" },
   "triangulation": { term: "triangulation", def: "Adding examples until a simple wrong implementation can no longer pass, forcing the code to become general. As the tests get more specific, the code gets more generic.", chapter: "cleancode/j4" },
   "devils-advocate": { term: "Devil's Advocate", def: "Seemann's technique: deliberately write an obviously wrong implementation that still passes every test. If you can, the test list is short.", chapter: "cleancode/j4" },
+  "test-double-kinds": { term: "five kinds of test double", def: "Something standing in for a real object while a test runs. After Meszaros: dummy (fills a slot), stub (returns preset values), spy (records calls), mock (a spy that knows expectations), fake (a simple working implementation).", chapter: "cleancode/j5" },
+  "fragile-test": { term: "fragile test", def: "A test that breaks when code changes but behaviour does not, usually because it touches internal details. Martin treats it as a design problem in the tests.", chapter: "cleancode/j5" },
+  "arrange-act-assert": { term: "Arrange, Act, Assert", def: "The three-part structure of a test: prepare, invoke exactly one operation, compare the outcome with the expectation; separated by blank lines.", chapter: "cleancode/j5" },
   "code-rot": { term: "code rot", def: "Code growing more complex with each small change nobody notices, until nobody dares to touch it. Seemann proposes a threshold on a metric to curb it.", chapter: "cleancode/j1" }
 });

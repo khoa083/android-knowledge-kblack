@@ -1,0 +1,159 @@
+# Mã sạch · J5: thiết kế test (Phần 2: test và thay đổi an toàn)
+# Nguồn: Martin, Clean Craftsmanship ch.3 (test double theo Meszaros: dummy, stub, spy, mock, fake; mock là spy biết kỳ vọng; London so với
+# Chicago: chắc chắn so với linh hoạt; spy và mock làm test dễ vỡ; tác giả nghiêng về test giá trị và thuộc tính), ch.4 (fragile test là vấn
+# đề thiết kế; tương ứng một-một giữa lớp và lớp test; Rule 12: tách cấu trúc test khỏi cấu trúc mã; hành vi quan trọng phải thấy được qua
+# giao diện); Seemann, Code That Fits in Your Head 4.2.2 (Arrange Act Assert), chú thích về test double không có định nghĩa chung, 11.1
+# (sửa test là sửa lưới an toàn; tách refactor test và refactor mã). Đọc 2026-11-24, diễn đạt lại. Cú pháp MockK là minh họa.
+
+SEC_ORDER = {'j5': ['hook', 'fragile', 'doubles', 'schools', 'aaa', 'bugs', 'ex', 'honest']}
+
+
+def add(a):
+    def B(ch, sec, n, field, vi, en=None):
+        a('%s.sec.%s.b.%02d.%s' % (ch, sec, n, field), vi, vi if en is None else en)
+
+    a('preset.testDesign', 'Mã sạch · test kiểm hành vi hay kiểm cách làm', 'Clean code · testing behaviour or implementation')
+    m = lambda k, vi, en=None: a('m.testDesign.' + k, vi, en)
+    m('title', 'Test dính vào cách làm, hay test kiểm kết quả', 'Tests tied to the implementation, or tests checking outcomes')
+    m('overview', 'BookingService.book() dùng bốn cộng tác viên: Validator, FeeCalculator, Repo và Reminders. Bốn test kiểm cùng bốn hành vi, viết theo hai cách. Cách thứ nhất mock từng cộng tác viên và kiểm từng lời gọi. Cách thứ hai gọi book() với repo giả viết tay (fake) và kiểm kết quả. Sau đó làm hai lần refactor không đổi hành vi, rồi một lỗi thật lọt vào phần tính phí.',
+      'BookingService.book() uses four collaborators: Validator, FeeCalculator, Repo and Reminders. Four tests check the same four behaviours, written two ways. The first mocks every collaborator and verifies each call. The second calls book() with a hand-written fake repo and checks the outcome. Then come two refactorings that keep behaviour unchanged, and finally a real bug in the fee calculation.')
+    m('wrapup', 'Test mock từng lời gọi có 13 cạnh nối vào chi tiết bên trong. Hai lần refactor không đổi hành vi làm vỡ 3 rồi 4 trên 4 test: báo động giả. Tệ hơn, khi phí cuối tuần bị tính sai thật, cả bốn test vẫn xanh, vì FeeCalculator đã bị thay bằng mock trả sẵn 300.000. Test kiểm kết quả chỉ nối vào book() và các fake: refactor không làm vỡ test nào (chỉ sửa FakeRepo một chỗ), còn lỗi thật thì bị bắt ngay.',
+      'The call-by-call mock tests have 13 edges into internal details. Two behaviour-preserving refactorings break 3 and then 4 of 4 tests: false alarms. Worse, when the weekend fee is really computed wrongly, all four tests stay green, because FeeCalculator was replaced by a mock returning 300,000. The outcome tests connect only to book() and the fakes: the refactorings break no test (only FakeRepo needs one edit), and the real bug is caught at once.')
+    m('simp.1', 'Bốn test và hai lần refactor là rút gọn; dự án thật có hàng trăm test và lỗi dẫn dắt "40 test vỡ" là cùng cơ chế nhân lên. Cú pháp MockK chỉ để minh họa.', 'Four tests and two refactorings are a reduction; a real project has hundreds of tests, and the leading "40 broken tests" is the same mechanism multiplied. The MockK syntax is illustrative only.')
+    m('simp.2', 'Mock không xấu tự thân: trường phái London dùng mock có chủ đích để đổi lấy sự chắc chắn. Mô phỏng cố ý dùng mock cho mọi cộng tác viên, kể cả những thứ thuần tính toán, để thấy cái giá rõ nhất.', 'Mocks are not bad in themselves: the London school uses them deliberately to buy certainty. The simulation deliberately mocks every collaborator, even pure calculations, to make the cost most visible.')
+    m('ctl.hint', 'Đổi cách viết test rồi đi lại; đếm cạnh đỏ ở đồ thị và cột "bắt được lỗi phí".', 'Switch the test style and walk again; count the red edges in the graph and the "catches the fee bug" column.')
+    m('ctl.case', 'Cách viết test', 'Test style')
+    for k, vi, en in [('mock', 'mock từng lời gọi', 'mock every call'), ('behavior', 'kiểm kết quả với fake', 'check outcomes with fakes')]:
+        m('ctl.case.' + k, vi, en)
+    m('diagramTitle', 'Test, API công khai, chi tiết bên trong, lỗi thật', 'Tests, public API, internal details, a real bug')
+    m('diagramDesc', 'Test gọi API công khai; API dùng chi tiết bên trong; refactor đổi chi tiết; lỗi thật nằm trong chi tiết', 'Tests call the public API; the API uses internal details; refactoring changes details; the real bug lives in a detail')
+    for k, vi, en in [('tests', 'Bốn test', 'Four tests'), ('api', 'book()', 'book()'), ('detail', 'Chi tiết bên trong', 'Internal details'), ('change', 'Refactor hay lỗi', 'Refactoring or bug')]:
+        m('n.' + k, vi, en)
+    m('met.edges', 'Cạnh test → mã', 'Test → code edges'); m('met.broken', 'Test vỡ dù hành vi không đổi', 'Tests broken with no behaviour change'); m('met.caught', 'Test bắt được lỗi phí', 'Tests catching the fee bug')
+    a('cap.testDesign', 'Test gọi API công khai; API dùng chi tiết bên trong; thay đổi (refactor hay lỗi) đi vào chi tiết. Nút đỏ: test vỡ vì lý do sai, hoặc lỗi lọt qua.', 'Tests call the public API; the API uses internal details; changes (refactoring or bugs) land in the details. Red node: tests breaking for the wrong reason, or a bug slipping through.')
+    S = [
+        ('mock', 's1', 'Bốn test, mỗi test mock từng cộng tác viên', 'Four tests, each mocking every collaborator',
+         'Mỗi test dựng mock cho Validator, FeeCalculator, Repo, Reminders và kiểm từng lời gọi. 13 cạnh nối test vào chi tiết bên trong.', 'Each test builds mocks for Validator, FeeCalculator, Repo and Reminders and verifies each call. 13 edges tie the tests to internal details.'),
+        ('mock', 's2', 'Refactor A: đổi tên feeFor, bỏ Validator', 'Refactoring A: rename feeFor, drop Validator',
+         'feeFor đổi tên thành priceFor; Validator được thay bằng parse ở ranh giới (chương J3). Hành vi không đổi. 3 trên 4 test vỡ vì chúng gọi tên cũ.', 'feeFor is renamed priceFor; Validator is replaced by parsing at the boundary (chapter J3). Behaviour is unchanged. 3 of 4 tests break because they name the old members.'),
+        ('mock', 's3', 'Refactor B: gộp lưu và hẹn nhắc', 'Refactoring B: merge save and reminder',
+         'Repo.save và Reminders.schedule gộp thành một transaction saveWithReminder. Hành vi không đổi. Cả 4 test vỡ.', 'Repo.save and Reminders.schedule merge into one saveWithReminder transaction. Behaviour is unchanged. All 4 tests break.'),
+        ('mock', 's4', 'Lỗi thật: phí cuối tuần tính sai', 'A real bug: the weekend fee is wrong',
+         'Ai đó làm FeeCalculator trả phí ngày thường cho thứ bảy. Cả bốn test vẫn xanh: FeeCalculator trong test là mock trả sẵn 300.000, nên mã thật chưa bao giờ chạy trong test.', 'Someone makes FeeCalculator return the weekday fee on Saturday. All four tests stay green: in the tests FeeCalculator is a mock returning 300,000, so the real code never ran under test.'),
+        ('behavior', 's1', 'Bốn test gọi book() và kiểm kết quả', 'Four tests call book() and check outcomes',
+         'Test dựng FakeRepo, FakeReminders (viết tay, giữ dữ liệu trong bộ nhớ), gọi book(), rồi xem lịch hẹn đã lưu và lời nhắc đã hẹn. 8 cạnh, chỉ nối vào book() và hai fake.', 'Tests build FakeRepo and FakeReminders (hand-written, keeping data in memory), call book(), then inspect the stored booking and the scheduled reminder. 8 edges, only into book() and the two fakes.'),
+        ('behavior', 's2', 'Refactor A: đổi tên feeFor, bỏ Validator', 'Refactoring A: rename feeFor, drop Validator',
+         'Cùng thay đổi. Không test nào nhắc tới feeFor hay Validator, nên không test nào vỡ.', 'The same change. No test mentions feeFor or Validator, so no test breaks.'),
+        ('behavior', 's3', 'Refactor B: gộp lưu và hẹn nhắc', 'Refactoring B: merge save and reminder',
+         'Giao diện Repo đổi, nên FakeRepo phải sửa một chỗ. Bốn test giữ nguyên và vẫn xanh.', 'The Repo interface changes, so FakeRepo needs one edit. The four tests stay as they are and stay green.'),
+        ('behavior', 's4', 'Lỗi thật: phí cuối tuần tính sai', 'A real bug: the weekend fee is wrong',
+         'Test "phí cuối tuần" đỏ ngay: lịch hẹn lưu trong FakeRepo có phí 200.000 thay vì 300.000. Lỗi bị bắt trước khi tới bệnh nhân.', 'The "weekend fee" test fails at once: the booking stored in FakeRepo has a fee of 200,000 instead of 300,000. The bug is caught before it reaches a patient.'),
+    ]
+    for case, k, tv, te, xv, xe in S:
+        sid = case + '.' + k
+        m('s.%s.title' % sid, tv, te); m('s.%s.explain' % sid, xv, xe); m('ev.' + sid, tv, te)
+    for k, vi, en in [
+        ('try', 'Đếm cạnh từ mỗi test sang bên phải; cạnh nào nối vào thứ sắp đổi sẽ đỏ.', 'Count the edges from each test to the right; edges into whatever changes will turn red.'),
+        ('mock.s2', 'Martin (Clean Craftsmanship ch.4): một thay đổi nhỏ làm vỡ nhiều test là định nghĩa của thiết kế kém; dễ vỡ luôn là vấn đề thiết kế của test. [[src:book-craft]]', 'Martin (Clean Craftsmanship ch.4): a small change breaking many tests is the definition of poor design; fragility is always a design problem in the tests. [[src:book-craft]]'),
+        ('mock.s3', 'Martin (ch.3): spy nhìn sâu vào thuật toán và buộc test vào nó; mock là spy biết kỳ vọng, nên cũng vậy. Ông nói đó là một lý do ông không thích công cụ mock. [[src:book-craft]]', 'Martin (ch.3): spies look deep into the algorithm and tie tests to it; mocks are spies that know expectations, so the same applies. He says that is one reason he dislikes mocking tools. [[src:book-craft]]'),
+        ('mock.s4', 'Test kiểm "đã gọi feeFor với ngày thứ bảy" chứng minh lời gọi xảy ra, không chứng minh phí đúng. Kết quả đúng chưa bao giờ được kiểm.', 'A test verifying "feeFor was called with Saturday" proves the call happened, not that the fee is right. The correct outcome was never checked.'),
+        ('behavior.s1', 'Martin (ch.4), Rule 12: tách cấu trúc test khỏi cấu trúc mã. Hành vi quan trọng nào cũng phải thấy được qua giao diện; test không cần chạm vào bên trong. [[src:book-craft]]', 'Martin (ch.4), Rule 12: decouple the structure of your tests from the structure of the production code. Any important behaviour must be visible through the interface; tests need not reach inside. [[src:book-craft]]'),
+        ('behavior.s2', 'Seemann (11.1.3): những refactor như đổi tên hay tách hàm do IDE làm là an toàn với cả mã và test; bộ test kiểm hành vi để bạn làm chúng mà không phải sửa lưới an toàn. [[src:book-seemann]]', 'Seemann (11.1.3): refactorings such as IDE renames or extractions are safe for code and tests alike; a behaviour-checking suite lets you do them without touching the safety net. [[src:book-seemann]]'),
+        ('behavior.s3', 'Fake là test double có cài đặt đơn giản nhưng thật (theo cách gọi của Meszaros mà Martin dùng). Khi giao diện đổi, chỉ sửa fake một lần, không sửa từng test. [[src:book-craft]]', 'A fake is a test double with a simple but working implementation (in Meszaros\'s vocabulary, which Martin uses). When the interface changes, the fake is edited once, not every test. [[src:book-craft]]'),
+        ('behavior.s4', 'Test kiểm giá trị cho ra một tín hiệu có nghĩa: đỏ là hành vi sai thật. Đó là điều làm bộ test đáng tin để refactor.', 'A value test gives a meaningful signal: red means behaviour really is wrong. That is what makes a suite trustworthy for refactoring.')]:
+        m('co.' + k, vi, en)
+
+    z = lambda k, vi, en=None: a('vz.' + k, vi, en)
+    z('tab.testDesign', 'Đồ thị test → mã', 'Test → code graph')
+    z('tg.cap', 'Bên trái là bốn test, bên phải là những gì chúng chạm vào. Cạnh đỏ: test vỡ vì thứ nó chạm vừa đổi. Khung đỏ: thứ đổi ở bước này.', 'Four tests on the left, what they touch on the right. Red edge: the test breaks because what it touches just changed. Red frame: what changed in this step.')
+    z('tg.aria', 'Đồ thị phụ thuộc: {e} cạnh, {b} test vỡ', 'Dependency graph: {e} edges, {b} tests broken')
+    for k, vi, en in [('t1', 'lưu lịch hợp lệ', 'stores a valid booking'), ('t2', 'phí cuối tuần', 'weekend fee'), ('t3', 'nhắc trước 24 giờ', 'reminds 24 h before'), ('t4', 'từ chối đầu vào sai', 'rejects bad input')]:
+        z('tg.t.' + k, vi, en)
+    z('tg.pub', 'công khai', 'public'); z('tg.int', 'bên trong', 'internal'); z('tg.fake', 'fake', 'fake')
+    z('tg.tcap', 'Từng test qua bốn bước.', 'Each test across the four steps.')
+    for k, vi, en in [('test', 'Test', 'Test'), ('deps', 'Chạm vào', 'Touches'), ('a', 'Sau refactor A', 'After refactoring A'), ('b', 'Sau refactor B', 'After refactoring B'), ('bug', 'Khi phí sai', 'When the fee is wrong')]:
+        z('tg.col.' + k, vi, en)
+    for k, vi, en in [('ok', 'xanh', 'green'), ('broke', 'vỡ (báo nhầm)', 'broken (false alarm)'), ('caught', 'đỏ: bắt được', 'red: caught'), ('missed', 'xanh: lọt lỗi', 'green: bug missed'), ('na', '—', '—')]:
+        z('tg.st.' + k, vi, en)
+    z('tg.legend', 'Ô gạch đỏ: test vỡ dù hành vi không đổi, hay test xanh khi có lỗi thật. Ô đậm: test đỏ đúng lúc có lỗi thật. "—": chưa tới bước đó.', 'Red hatched: a test broken though behaviour did not change, or green while a real bug exists. Bold: a test failing exactly when a real bug exists. "—": that step has not happened yet.')
+
+    C = 'j5'
+    a(C + '.title', 'Thiết kế test: kiểm hành vi, không kiểm cách làm', 'Test design: check behaviour, not implementation')
+    a(C + '.essence', 'Test dễ vỡ là vấn đề thiết kế: test càng chạm sâu vào chi tiết (mock từng lời gọi, một lớp test cho mỗi lớp mã), mỗi lần refactor càng làm vỡ nhiều test dù hành vi không đổi.\nTest kiểm kết quả qua API công khai, với fake viết tay cho những gì ở ngoài (database, mạng), chịu được refactor và chỉ đỏ khi hành vi sai thật.\nMock không xấu tự thân: trường phái London đổi một phần linh hoạt lấy sự chắc chắn. Nhưng mock thay cho phần tính toán thì test không còn kiểm phần đó nữa.',
+      'Fragile tests are a design problem: the deeper tests reach into details (mocking every call, one test class per class), the more each refactoring breaks tests though behaviour has not changed.\nTests checking outcomes through the public API, with hand-written fakes for what lies outside (database, network), survive refactoring and fail only when behaviour really is wrong.\nMocks are not bad in themselves: the London school trades some flexibility for certainty. But a mock standing in for a calculation means the tests no longer check that calculation.')
+    a(C + '.goal.g1', 'Đã thấy refactor làm vỡ test', 'Saw refactoring break tests')
+    a(C + '.goal.g2', 'Đã thấy test nào bắt được lỗi thật', 'Saw which tests catch the real bug')
+    a(C + '.sim.cleancode.testDesign', 'mock từng lời gọi hay kiểm kết quả', 'mock every call or check outcomes')
+
+    S_ = 'hook'
+    a(C + '.sec.%s.title' % S_, 'Đoán trước khi đọc', 'Predict before reading')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'predict', 'Bạn đổi tên một hàm private trong FeeCalculator. App chạy y hệt như trước, nhưng 40 test đỏ. Một tuần sau, có người làm sai phí cuối tuần, và cả 40 test đều xanh. Hai chuyện này có chung một nguyên nhân không?',
+      'You rename a private function in FeeCalculator. The app behaves exactly as before, yet 40 tests fail. A week later someone breaks the weekend fee, and all 40 tests are green. Do these two events share a cause?')
+    B(C, S_, 1, 'ans', 'Có. Các test kiểm cách mã làm việc (gọi hàm nào, với đối số nào), không kiểm kết quả. Vì vậy chúng vỡ khi cách làm đổi mà kết quả giữ nguyên, và im lặng khi kết quả sai mà cách gọi vẫn như cũ. Mô phỏng ngay dưới cho bốn test đi qua hai lần refactor và một lỗi thật.',
+      'Yes. The tests check how the code works (which function is called, with which arguments), not the outcome. So they break when the approach changes but the outcome stays, and stay silent when the outcome is wrong but the calls look the same. The simulation just below walks four tests through two refactorings and one real bug.')
+
+    S_ = 'fragile'
+    a(C + '.sec.%s.title' % S_, 'Test dễ vỡ là vấn đề thiết kế', 'Fragile tests are a design problem')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'p', 'Martin (Clean Craftsmanship ch.4): bộ test dễ vỡ khi thay đổi nhỏ ở mã làm vỡ nhiều test; thay đổi càng nhỏ, test vỡ càng nhiều thì càng nản, và nhiều người bỏ TDD trong vài tháng đầu vì chuyện này. Theo ông, dễ vỡ luôn là vấn đề thiết kế: test cũng là mã và phải được thiết kế theo đúng các quy tắc về coupling và cohesion như mã sản phẩm. [[src:book-craft]]',
+      'Martin (Clean Craftsmanship ch.4): a suite is fragile when small production changes break many tests; the smaller the change and the more tests break, the more frustrating it is, and many people give up TDD in the first months over it. In his view fragility is always a design problem: tests are code too and must follow the same coupling and cohesion rules as production code. [[src:book-craft]]')
+    B(C, S_, 2, 'p', 'Một nguồn hay gặp là tương ứng một-một: mỗi lớp X có một lớp XTest. Cách đó buộc cấu trúc test theo cấu trúc mã, và vì X cần các lớp nó dùng để khởi tạo, XTest cũng dính vào chúng. Quy tắc 12 của ông: tách cấu trúc test khỏi cấu trúc mã. Hành vi nào quan trọng thì phải thấy được qua giao diện, trực tiếp hay gián tiếp, nên test không cần với vào bên trong. [[src:book-craft]]',
+      'A common source is one-to-one correspondence: every class X gets an XTest. That ties the test structure to the code structure, and since X needs the classes it uses to be constructed, XTest ends up tied to them too. His Rule 12: decouple the structure of your tests from the structure of the production code. Any important behaviour must be visible through the interface, directly or indirectly, so tests need not reach inside. [[src:book-craft]]')
+
+    S_ = 'doubles'
+    a(C + '.sec.%s.title' % S_, 'Năm loại test double', 'Five kinds of test double')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'p', 'Martin dùng bộ từ của Gerard Meszaros (xUnit Test Patterns), gọi chung là test double: thứ đứng thay một object thật khi test chạy. Dummy chỉ để điền chỗ, không được dùng. Stub trả giá trị định sẵn để dẫn mã đi đúng nhánh. Spy là stub còn ghi lại những gì đã xảy ra với nó. Mock là spy biết trước kỳ vọng và tự đánh đạt hay trượt. Fake có cài đặt thật nhưng đơn giản, ví dụ repo giữ dữ liệu trong một danh sách. Seemann lưu ý trong thực tế không có định nghĩa chung cho "mock" hay "stub", nên khi cần chính xác hãy nói rõ loại nào. [[src:book-craft]] [[src:book-seemann]]',
+      'Martin uses Gerard Meszaros\'s vocabulary (xUnit Test Patterns), all called test doubles: things standing in for a real object while a test runs. A dummy only fills a slot and is never used. A stub returns preset values to drive the code down a path. A spy is a stub that also records what happened to it. A mock is a spy that knows its expectations and passes or fails the test itself. A fake has a real but simple implementation, say a repository keeping data in a list. Seemann notes that in practice there is no agreed definition of "mock" or "stub", so be explicit when precision matters. [[src:book-craft]] [[src:book-seemann]]')
+    B(C, S_, 2, 'kt', 'class FakeRepo : Repo {                     // fake: cài đặt thật, giữ trong bộ nhớ\n    val saved = mutableListOf<Booking>()\n    override fun save(b: Booking) { saved += b }\n}\n\nclass FixedClock(private val now: Instant) : Clock {   // stub: trả giá trị định sẵn\n    override fun now() = now\n}',
+      'class FakeRepo : Repo {                     // fake: a real implementation, in memory\n    val saved = mutableListOf<Booking>()\n    override fun save(b: Booking) { saved += b }\n}\n\nclass FixedClock(private val now: Instant) : Clock {   // stub: returns a preset value\n    override fun now() = now\n}')
+
+    S_ = 'schools'
+    a(C + '.sec.%s.title' % S_, 'London và Chicago: chắc chắn hay linh hoạt', 'London and Chicago: certainty or flexibility')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'p', 'Martin mô tả hai trường phái. London (theo sách của Steve Freeman và Nat Pryce) coi trọng sự chắc chắn hơn: dùng mock và spy ở mọi ranh giới để chứng minh cách các phần nói chuyện với nhau, thiết kế từ ngoài vào trong. Chicago coi trọng sự linh hoạt hơn: test giá trị (đầu vào → đầu ra) và test thuộc tính, ít mock, nên refactor thuật toán không làm vỡ test, đổi lại đôi khi còn băn khoăn đã kiểm đủ chưa. Ông nói rõ mình nghiêng về Chicago, và cả hai là đánh đổi, không bên nào bỏ hẳn giá trị của bên kia. [[src:book-craft]]',
+      'Martin describes two schools. London (after Steve Freeman and Nat Pryce\'s book) values certainty more: mocks and spies at every boundary to prove how the parts talk, designing outside-in. Chicago values flexibility more: value tests (input → output) and property tests, few mocks, so refactoring an algorithm does not break tests, at the cost of some lingering doubt about completeness. He says plainly he leans Chicago, and that both are trade-offs; neither abandons what the other values. [[src:book-craft]]')
+    B(C, S_, 2, 'p', 'Gợi ý thực dụng cho app Android, là diễn giải của site: dùng fake cho những gì ở ngoài tiến trình (database, mạng, đồng hồ) và gọi code thật cho phần tính toán thuần; chỉ kiểm lời gọi khi chính lời gọi là hành vi cần có, ví dụ "gửi đúng một tin nhắc" tới một dịch vụ bên ngoài.',
+      'A practical suggestion for Android apps, the site\'s interpretation: use fakes for what lies outside the process (database, network, clock) and run the real code for pure calculations; verify calls only when the call itself is the required behaviour, such as "send exactly one reminder" to an external service.')
+
+    S_ = 'aaa'
+    a(C + '.sec.%s.title' % S_, 'Arrange, Act, Assert và sửa test an toàn', 'Arrange, Act, Assert and editing tests safely')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'p', 'Seemann (4.2.2, A.3) xếp mỗi test thành ba phần, cách nhau bởi một dòng trống: Arrange chuẩn bị, Act gọi đúng một thao tác, Assert so kết quả với mong đợi. Nếu phần Arrange lớn tới mức phải thêm dòng trống để dễ nhìn, đó là dấu hiệu test quá lớn. Ông cũng nhắc: sửa test là sửa chính lưới an toàn, nên đừng refactor test và mã sản phẩm trong cùng một lần thay đổi (11.1). [[src:book-seemann]]',
+      'Seemann (4.2.2, A.3) arranges each test in three parts separated by a blank line: Arrange prepares, Act invokes exactly one operation, Assert compares the outcome with the expectation. If Arrange grows so big it needs extra blank lines, the test is too big. He also reminds us that editing tests edits the safety net itself, so do not refactor tests and production code in the same change (11.1). [[src:book-seemann]]')
+    B(C, S_, 2, 'kt', '@Test fun `phí cuối tuần`() {\n    val repo = FakeRepo()\n    val service = bookingService(repo = repo, holidays = emptySet())\n\n    service.book(request(on = SATURDAY))\n\n    assertEquals(300_000, repo.saved.single().fee)\n}',
+      '@Test fun `weekend fee`() {\n    val repo = FakeRepo()\n    val service = bookingService(repo = repo, holidays = emptySet())\n\n    service.book(request(on = SATURDAY))\n\n    assertEquals(300_000, repo.saved.single().fee)\n}')
+
+    S_ = 'bugs'
+    a(C + '.sec.%s.title' % S_, 'Hai lỗi hay gặp', 'Two common bugs')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'bug', 'Đổi tên một hàm private, 40 test đỏ dù app chạy y hệt.', 'Renaming a private function turns 40 tests red though the app behaves identically.')
+    B(C, S_, 1, 'cause', 'Các test mock từng cộng tác viên và kiểm từng lời gọi theo tên; cấu trúc test bám theo cấu trúc mã.', 'The tests mock every collaborator and verify each call by name; the test structure mirrors the code structure.')
+    B(C, S_, 1, 'fix', 'Viết lại các test đó qua API công khai, kiểm kết quả; thay mock của database, mạng bằng fake dùng chung; để phần tính toán thuần chạy code thật.', 'Rewrite those tests through the public API, checking outcomes; replace database and network mocks with shared fakes; let pure calculations run real code.')
+    B(C, S_, 2, 'bug', 'Phí cuối tuần sai trên production, mọi test xanh.', 'The weekend fee is wrong in production, every test green.')
+    B(C, S_, 2, 'cause', 'FeeCalculator bị mock trong mọi test có liên quan; test chỉ kiểm nó "được gọi với thứ bảy", chưa từng kiểm con số.', 'FeeCalculator was mocked in every related test; the tests only checked that it was "called with Saturday", never the number.')
+    B(C, S_, 2, 'fix', 'Viết test tái hiện lỗi qua book() với FakeRepo, kiểm phí đã lưu là 300.000; thấy nó đỏ rồi mới sửa.', 'Write a test reproducing the bug through book() with FakeRepo, checking the stored fee is 300,000; see it fail, then fix.')
+
+    S_ = 'ex'
+    a(C + '.sec.%s.title' % S_, 'Bài tập', 'Exercise')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'ex', 'Test dưới đây kiểm cách hủy lịch hẹn. Liệt kê những refactor không đổi hành vi nhưng sẽ làm nó vỡ, rồi viết lại thành test kiểm kết quả theo AAA.', 'The test below checks how a booking is cancelled. List the behaviour-preserving refactorings that would break it, then rewrite it as an AAA outcome test.')
+    B(C, S_, 1, 'exkt', '@Test fun cancel() {\n    val repo = mockk<Repo>(relaxed = true)\n    val reminders = mockk<Reminders>(relaxed = true)\n    every { repo.find("b1") } returns booking("b1")\n    CancelService(repo, reminders).cancel("b1")\n    verifyOrder {\n        repo.find("b1")\n        reminders.cancelAll("b1")\n        repo.update(match { it.status == CANCELLED })\n    }\n}')
+    B(C, S_, 1, 'hint', 'Thứ tự lời gọi có phải là hành vi người dùng thấy không? Sau khi hủy, người dùng và hệ thống quan sát được gì?', 'Is the order of calls a behaviour users see? After cancelling, what can the user and the system observe?')
+    B(C, S_, 1, 'sol', 'Sẽ vỡ khi: đổi thứ tự cập nhật và hủy nhắc; gộp find và update thành một lời gọi; đổi tên cancelAll; chuyển hủy nhắc sang một lớp khác. Hành vi quan sát được chỉ là: lịch hẹn ở trạng thái đã hủy và không còn lời nhắc nào. Viết lại bằng FakeRepo và FakeReminders, kiểm hai điều đó.',
+      'It breaks when: update and reminder cancelling swap order; find and update merge into one call; cancelAll is renamed; reminder cancelling moves to another class. The observable behaviour is only: the booking is cancelled and no reminder remains. Rewrite with FakeRepo and FakeReminders and check exactly those two things.')
+    B(C, S_, 1, 'solkt', '@Test fun `hủy lịch xóa mọi lời nhắc`() {\n    val repo = FakeRepo(booking("b1"))\n    val reminders = FakeReminders(reminderFor("b1"))\n\n    CancelService(repo, reminders).cancel("b1")\n\n    assertEquals(CANCELLED, repo.byId("b1").status)\n    assertTrue(reminders.forBooking("b1").isEmpty())\n}')
+
+    S_ = 'honest'
+    a(C + '.sec.%s.title' % S_, 'Chương này giản lược những gì', 'What this chapter simplifies')
+    a(C + '.sec.%s.badge' % S_, 'simplified')
+    B(C, S_, 1, 'p', 'Test dễ vỡ, tương ứng một-một, Rule 12, năm loại test double (theo Meszaros), London và Chicago theo Robert C. Martin, Clean Craftsmanship ch.3–4; AAA, việc không có định nghĩa chung cho mock, và sửa test an toàn theo Mark Seemann, Code That Fits in Your Head 4.2.2, 11.1. Đọc ngày 2026-11-24, diễn đạt lại; ví dụ viết lại bằng Kotlin, cú pháp MockK chỉ minh họa. Martin nói rõ quan điểm cá nhân nghiêng về Chicago; chương trình bày cả hai trường phái như đánh đổi. Bốn test, 13 và 8 cạnh, hai lần refactor là số liệu của mô phỏng. Kim tự tháp test và test theo tầng trên Android ở track Kiến trúc (G10).',
+      'Fragile tests, one-to-one correspondence, Rule 12, the five test doubles (after Meszaros), London and Chicago follow Robert C. Martin, Clean Craftsmanship ch.3–4; AAA, the lack of an agreed definition of mock, and editing tests safely follow Mark Seemann, Code That Fits in Your Head 4.2.2 and 11.1. Read on 2026-11-24 and paraphrased; examples rewritten in Kotlin, the MockK syntax illustrative only. Martin states his personal leaning towards Chicago; the chapter presents both schools as trade-offs. Four tests, 13 and 8 edges and two refactorings are the simulation\'s numbers. The test pyramid and layer-by-layer tests on Android are in the Architecture track (G10).')
+
+    for q, qv, qe, av, ae, wv, we in [
+        ('q1', 'Theo Martin, vì sao một bộ test dễ vỡ?', 'According to Martin, why is a test suite fragile?', 'Vì test bị thiết kế dính chặt vào chi tiết của mã.', 'Because the tests are designed tightly coupled to code details.', 'Dễ vỡ luôn là vấn đề thiết kế; Rule 12: tách cấu trúc test khỏi cấu trúc mã.', 'Fragility is always a design problem; Rule 12: decouple test structure from code structure.'),
+        ('q2', 'Fake khác mock ở đâu?', 'How does a fake differ from a mock?', 'Fake có cài đặt thật nhưng đơn giản; mock kiểm kỳ vọng về lời gọi.', 'A fake has a simple working implementation; a mock checks expectations about calls.', 'Test dùng fake kiểm kết quả; test dùng mock kiểm cách gọi.', 'Tests with fakes check outcomes; tests with mocks check how calls happen.'),
+        ('q3', 'Vì sao test mock FeeCalculator không bắt được lỗi phí sai?', 'Why can a test mocking FeeCalculator not catch a wrong fee?', 'Vì mã tính phí thật không chạy trong test; mock trả sẵn con số.', 'Because the real fee code never runs in the test; the mock returns a preset number.', 'Kiểm "đã được gọi" không phải kiểm "kết quả đúng".', 'Checking "was called" is not checking "the result is right".'),
+        ('q4', 'Arrange, Act, Assert: phần Act nên có mấy thao tác?', 'Arrange, Act, Assert: how many operations should Act contain?', 'Một.', 'One.', 'Seemann: Act gọi đúng thao tác cần kiểm; thường là phần nhỏ nhất.', 'Seemann: Act invokes exactly the operation under test; it is usually the smallest part.')]:
+        a(C + '.quiz.%s.q' % q, qv, qe); a(C + '.quiz.%s.a' % q, av, ae); a(C + '.quiz.%s.why' % q, wv, we)

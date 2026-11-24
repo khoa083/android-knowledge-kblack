@@ -5,6 +5,7 @@
   var T = function (k, p) { return ADE.t(K + k, p); };
   var KS = ['s1', 's2', 's3', 's4'];
   var esc = function (x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+  function fitText(str, w) { return String(str).length * 6.6 > w ? ' textLength="' + w + '" lengthAdjust="spacingAndGlyphs"' : ''; }
   function idx(ctx) {
     if (ctx.step) return KS.indexOf(ctx.step.id.split('.').pop());
     return ctx.pos > ctx.N ? 3 : 0;
@@ -138,4 +139,43 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['ex', 'want', 'now', 'seen'].map(function (k) { return h('th', { text: T('td.col.' + k) }); }))), tb)),
       h('div', { class: 'vz-legend', text: T('td.legend') })));
   }, { labelKey: K + 'tab.tdd', icon: 'refresh' });
+
+  /* ---------- J5: đồ thị phụ thuộc test → mã (SVG, hai cột phẳng, không lồng hộp) + bảng từng test qua bốn bước.
+     Cạnh nối vào thứ vừa đổi chuyển đỏ (đổi lớp → chuyển cảnh một lần); thứ đổi có khung đỏ. ---------- */
+  ADE.registerScreen('cleancode.testDesign', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.ccTestDesign, c = ctx.state.case, i = Math.max(0, idx(ctx));
+    var broken = D.brokenAt(c, i), bug = i === D.BUG_STEP, caught = bug ? D.caught(c) : [], chg = D.CHANGE[i];
+    var LX = 8, LW = 168, RX = 392, RW = 200, ty = function (n) { return 22 + n * 58; }, ny = function (n) { return 8 + n * 34; };
+    var svg = '<svg class="vz-dg" viewBox="0 0 600 248" role="img" aria-label="' + esc(T('tg.aria', { e: D.edgeCount(c), b: broken.length })) + '">';
+    D.TESTS.forEach(function (t, a) {
+      D.EDGES[c][t].forEach(function (n) {
+        var b = D.NODES.map(function (x) { return x[0]; }).indexOf(n), isBad = broken.indexOf(t) >= 0 && chg.indexOf(n) >= 0;
+        svg += '<line class="vz-dg-e' + (isBad ? ' bad' : '') + '" data-k="e-' + t + '-' + n + '" x1="' + (LX + LW) + '" y1="' + (ty(a) + 15) + '" x2="' + RX + '" y2="' + (ny(b) + 13) + '"/>';
+      });
+    });
+    D.TESTS.forEach(function (t, a) {
+      var st = broken.indexOf(t) >= 0 ? ' bad' : (bug ? (caught.indexOf(t) >= 0 ? ' ok' : (t === 't2' ? ' bad' : '')) : '');
+      var lb = T('tg.t.' + t);
+      svg += '<g class="vz-dg-n' + st + '"><rect x="' + LX + '" y="' + ty(a) + '" width="' + LW + '" height="30" rx="4"/><text class="vz-dg-t" x="' + (LX + 8) + '" y="' + (ty(a) + 20) + '"' + fitText(lb, LW - 16) + '>' + esc(lb) + '</text></g>';
+    });
+    D.NODES.forEach(function (nd, b) {
+      var used = D.TESTS.some(function (t) { return D.EDGES[c][t].indexOf(nd[0]) >= 0; }), changed = chg.indexOf(nd[0]) >= 0 && (nd[1] === 'int' || (nd[0] === 'FakeRepo' && D.fakeEdits(c, i)));
+      var cls = changed ? ' bad' : (used ? '' : ' skip');
+      svg += '<g class="vz-dg-n' + cls + '"><rect x="' + RX + '" y="' + ny(b) + '" width="' + RW + '" height="26" rx="4"/><text class="vz-dg-t" x="' + (RX + 8) + '" y="' + (ny(b) + 17) + '">' + esc(nd[0]) + '</text><text class="vz-dg-s" x="' + (RX + RW - 6) + '" y="' + (ny(b) + 17) + '" text-anchor="end">' + esc(T('tg.' + nd[1])) + '</text></g>';
+    });
+    svg += '</svg>';
+    var stCell = function (t, col) {
+      if (col > i) return h('td', { class: 'c dim', text: T('tg.st.na') });
+      if (col === D.BUG_STEP) { var ok = caught.indexOf(t) >= 0; if (t !== 't2') return h('td', { class: 'c', text: T('tg.st.ok') }); return h('td', { class: 'c ' + (ok ? 'ok' : 'bad'), text: T(ok ? 'tg.st.caught' : 'tg.st.missed') }); }
+      var b = D.brokenAt(c, col).indexOf(t) >= 0; return h('td', { class: 'c' + (b ? ' bad' : ''), text: T(b ? 'tg.st.broke' : 'tg.st.ok') });
+    };
+    var tb = h('tbody');
+    D.TESTS.forEach(function (t) {
+      tb.appendChild(h('tr', { 'data-k': 'tg-' + t }, h('td', { text: T('tg.t.' + t) }), h('td', { class: 'c', text: String(D.EDGES[c][t].length) }), stCell(t, 1), stCell(t, 2), stCell(t, 3)));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('tg.cap') }), h('div', { class: 'vz-scroll', html: svg }),
+      h('p', { class: 'vz-cap', text: T('tg.tcap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['test', 'deps', 'a', 'b', 'bug'].map(function (k, n) { return h('th', { class: n >= 2 && n - 1 === i ? 'hl' : null, text: T('tg.col.' + k) }); }))), tb)),
+      h('div', { class: 'vz-legend', text: T('tg.legend') })));
+  }, { labelKey: K + 'tab.testDesign', icon: 'layers' });
 })();

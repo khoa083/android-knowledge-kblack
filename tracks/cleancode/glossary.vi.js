@@ -12,5 +12,8 @@ ADE.addGlossary('vi', 'cleancode', {
   "red-green-refactor": { term: "đỏ, xanh, refactor", def: "Vòng của TDD: viết một test đỏ; thay đổi tối thiểu để mọi test xanh; cải thiện mã mà không đổi hành vi; lặp lại.", chapter: "cleancode/j4" },
   "triangulation": { term: "tam giác hóa", def: "Thêm ví dụ cho tới khi cài đặt đơn giản sai không còn qua được test, buộc mã phải tổng quát. Test càng cụ thể, mã càng tổng quát.", chapter: "cleancode/j4" },
   "devils-advocate": { term: "Devil's Advocate", def: "Kỹ thuật của Seemann: cố tình viết cài đặt sai rõ ràng mà vẫn qua mọi test. Làm được thì danh sách test còn thiếu.", chapter: "cleancode/j4" },
+  "test-double-kinds": { term: "năm loại test double", def: "Thứ đứng thay một object thật khi test chạy. Theo Meszaros: dummy (điền chỗ), stub (trả giá trị định sẵn), spy (ghi lại lời gọi), mock (spy biết kỳ vọng), fake (cài đặt thật nhưng đơn giản).", chapter: "cleancode/j5" },
+  "fragile-test": { term: "test dễ vỡ", def: "Test vỡ khi mã đổi mà hành vi không đổi, thường vì nó chạm vào chi tiết bên trong. Martin coi đó là vấn đề thiết kế của test.", chapter: "cleancode/j5" },
+  "arrange-act-assert": { term: "Arrange, Act, Assert", def: "Cấu trúc ba phần của một test: chuẩn bị, gọi đúng một thao tác, so kết quả với mong đợi; cách nhau bởi dòng trống.", chapter: "cleancode/j5" },
   "code-rot": { term: "mã mục dần", def: "Mã phức tạp dần qua từng thay đổi nhỏ mà không ai để ý, tới lúc không còn ai dám sửa. Seemann đề xuất đặt ngưỡng cho một chỉ số để chặn nó.", chapter: "cleancode/j1" }
 });

@@ -20,7 +20,7 @@ a('fam.done', 'ổn', 'fine'); a('fam.fail', 'có vấn đề', 'has a problem')
 for k, vi, en in [('observe', 'đọc', 'read'), ('run', 'chạy', 'run'), ('write', 'sửa', 'edit'), ('skip', 'bỏ qua', 'skip'), ('exception', 'lỗi', 'failure'), ('complete', 'hoàn tất', 'complete')]:
     a('kind.' + k, vi, en)
 
-MODULES = ('cleancode_v2_j1', 'cleancode_v2_j2', 'cleancode_v2_j3', 'cleancode_v2_j4')   # giữ dấu phẩy cuối
+MODULES = ('cleancode_v2_j1', 'cleancode_v2_j2', 'cleancode_v2_j3', 'cleancode_v2_j4', 'cleancode_v2_j5')   # giữ dấu phẩy cuối
 for mod in MODULES:
     assert os.path.exists(os.path.join(HERE, mod + '.py')), 'thiếu module ' + mod
     mm = __import__(mod)
