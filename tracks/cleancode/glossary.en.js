@@ -15,5 +15,7 @@ ADE.addGlossary('en', 'cleancode', {
   "test-double-kinds": { term: "five kinds of test double", def: "Something standing in for a real object while a test runs. After Meszaros: dummy (fills a slot), stub (returns preset values), spy (records calls), mock (a spy that knows expectations), fake (a simple working implementation).", chapter: "cleancode/j5" },
   "fragile-test": { term: "fragile test", def: "A test that breaks when code changes but behaviour does not, usually because it touches internal details. Martin treats it as a design problem in the tests.", chapter: "cleancode/j5" },
   "arrange-act-assert": { term: "Arrange, Act, Assert", def: "The three-part structure of a test: prepare, invoke exactly one operation, compare the outcome with the expectation; separated by blank lines.", chapter: "cleancode/j5" },
+  "refactoring": { term: "refactoring", def: "A sequence of small changes that improve code structure without changing behaviour, with the tests green after each change (Martin's definition).", chapter: "cleancode/j6" },
+  "strangler": { term: "strangler", def: "Making a big change side by side instead of in place: add the new beside the old, move each user over, delete the old when nobody uses it. Named by Martin Fowler after the strangler fig.", chapter: "cleancode/j6" },
   "code-rot": { term: "code rot", def: "Code growing more complex with each small change nobody notices, until nobody dares to touch it. Seemann proposes a threshold on a metric to curb it.", chapter: "cleancode/j1" }
 });

@@ -15,5 +15,7 @@ ADE.addGlossary('vi', 'cleancode', {
   "test-double-kinds": { term: "năm loại test double", def: "Thứ đứng thay một object thật khi test chạy. Theo Meszaros: dummy (điền chỗ), stub (trả giá trị định sẵn), spy (ghi lại lời gọi), mock (spy biết kỳ vọng), fake (cài đặt thật nhưng đơn giản).", chapter: "cleancode/j5" },
   "fragile-test": { term: "test dễ vỡ", def: "Test vỡ khi mã đổi mà hành vi không đổi, thường vì nó chạm vào chi tiết bên trong. Martin coi đó là vấn đề thiết kế của test.", chapter: "cleancode/j5" },
   "arrange-act-assert": { term: "Arrange, Act, Assert", def: "Cấu trúc ba phần của một test: chuẩn bị, gọi đúng một thao tác, so kết quả với mong đợi; cách nhau bởi dòng trống.", chapter: "cleancode/j5" },
+  "refactoring": { term: "refactor", def: "Chuỗi thay đổi nhỏ cải thiện cấu trúc mã mà không đổi hành vi, có bộ test xanh sau mỗi thay đổi (định nghĩa của Martin).", chapter: "cleancode/j6" },
+  "strangler": { term: "strangler", def: "Làm thay đổi lớn song song thay vì tại chỗ: thêm cái mới cạnh cái cũ, chuyển dần từng nơi dùng, xóa cái cũ khi không còn ai dùng. Martin Fowler đặt tên theo cây đa bóp cổ.", chapter: "cleancode/j6" },
   "code-rot": { term: "mã mục dần", def: "Mã phức tạp dần qua từng thay đổi nhỏ mà không ai để ý, tới lúc không còn ai dám sửa. Seemann đề xuất đặt ngưỡng cho một chỉ số để chặn nó.", chapter: "cleancode/j1" }
 });

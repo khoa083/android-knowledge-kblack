@@ -31,4 +31,8 @@
   V('testDesign', { layout: 'pipeline', nodes: [N('testDesign', 'tests', 0, 1, 'check', 'ui'), N('testDesign', 'api', 3, 1, 'target', 'state'), N('testDesign', 'detail', 6, 1, 'layers', 'job'), N('testDesign', 'change', 9, 1, 'source', 'runtime')],
     edges: [E('e1', 'tests', 'api'), E('e2', 'api', 'detail'), E('e3', 'change', 'detail')],
     metrics: [T('testDesign', 'edges'), T('testDesign', 'broken'), T('testDesign', 'caught')] });
+  /* J6: thay đổi → biên dịch → test → commit */
+  V('refactor', { layout: 'pipeline', nodes: [N('refactor', 'edit', 0, 1, 'source', 'ui'), N('refactor', 'build', 3, 1, 'chip', 'job'), N('refactor', 'test', 6, 1, 'check', 'state'), N('refactor', 'commit', 9, 1, 'store', 'runtime')],
+    edges: [E('e1', 'edit', 'build'), E('e2', 'build', 'test'), E('e3', 'test', 'commit')],
+    metrics: [T('refactor', 'suspects'), T('refactor', 'lost'), T('refactor', 'release')] });
 })();

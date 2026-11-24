@@ -178,4 +178,26 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['test', 'deps', 'a', 'b', 'bug'].map(function (k, n) { return h('th', { class: n >= 2 && n - 1 === i ? 'hl' : null, text: T('tg.col.' + k) }); }))), tb)),
       h('div', { class: 'vz-legend', text: T('tg.legend') })));
   }, { labelKey: K + 'tab.testDesign', icon: 'layers' });
+
+  /* ---------- J6: dãy ô commit (bảng phẳng: mỗi cột một thay đổi, hàng test và hàng commit) + dòng trạng thái biên dịch/test ---------- */
+  ADE.registerScreen('cleancode.refactor', function (box, ctx) {
+    var h = ADE.ui.h, R = ADE.ccRefactor, c = ctx.state.case, i = Math.max(0, idx(ctx)), now = R.CELLS[c][i], fr = R.fresh(c, i);
+    var num = function (k) { return k === 'c4b' ? '4′' : k.slice(1); };
+    var head = h('tr', null, [h('th', null)].concat(R.COLS[c].map(function (k) { return h('th', { class: 'c' + (fr.indexOf(k) >= 0 ? ' hl' : ''), title: T('rf.c.' + k), text: num(k) }); })));
+    var cell = function (k, part) {
+      var v = now[k]; if (!v) return h('td', { class: 'c dim', 'data-k': 'rf-' + part + k, text: T('rf.st.none') });
+      var st = v[part], cls = part === 0 ? (st === 'green' ? 'ok' : (st === 'gone' ? 'dim' : 'bad')) : (st === 'yes' ? 'ok' : (st === 'undo' ? 'bad' : 'dim'));
+      return h('td', { class: 'c ' + cls, 'data-k': 'rf-' + part + k, text: T('rf.st.' + st) });
+    };
+    var tb = h('tbody', null, h('tr', null, [h('th', { text: T('rf.row.test') })].concat(R.COLS[c].map(function (k) { return cell(k, 0); }))),
+      h('tr', null, [h('th', { text: T('rf.row.commit') })].concat(R.COLS[c].map(function (k) { return cell(k, 1); }))));
+    var b = R.BUILD[c][i], red = R.RED[c][i], sus = R.suspects(c, i);
+    var status = T('rf.status', { b: b ? T('rf.build.err', { n: b }) : T('rf.build.ok'), r: red == null ? '?' : red, s: sus });
+    var names = R.COLS[c].map(function (k) { return num(k) + ' ' + T('rf.c.' + k); }).join(' · ');
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('rf.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-cells' }, h('thead', null, head), tb)),
+      h('p', { class: 'vz-note', text: names }),
+      h('p', { class: 'vz-note' + (b || sus || red ? ' bad' : ' ok'), text: status }),
+      h('div', { class: 'vz-legend', text: T('rf.legend') })));
+  }, { labelKey: K + 'tab.refactor', icon: 'grid' });
 })();

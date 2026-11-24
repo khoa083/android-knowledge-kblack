@@ -186,4 +186,26 @@
     c('    assertEquals(300_000, repo.saved.single().fee)            // assert: kết quả', '    assertEquals(300_000, repo.saved.single().fee)            // assert: the outcome'),
     '}'
   ]);
+
+  /* J6: đổi tại chỗ (j6.big, nhật ký theo giờ) và song song kiểu strangler (j6.small) */
+  add('j6.big', [
+    'data class Appointment(',
+    c('    val time: LocalDateTime,                  // đổi tại chỗ: mọi nơi đọc chuỗi đều vỡ', '    val time: LocalDateTime,                  // changed in place: every string reader breaks'),
+    ')',
+    c('// 13:00  17 lỗi biên dịch ở 6 file', '// 13:00  17 compile errors in 6 files'),
+    c('// 15:00  40 lỗi biên dịch ở 12 file', '// 15:00  40 compile errors in 12 files'),
+    c('// 17:30  biên dịch được; 3 test đỏ: do thay đổi nào trong 8?', '// 17:30  it compiles; 3 tests fail: which of the 8 changes?'),
+    '// 18:00  git reset --hard before-refactor'
+  ]);
+  add('j6.small', [
+    'data class Appointment(',
+    c('    @Deprecated("dùng startsAt") val time: String,', '    @Deprecated("use startsAt") val time: String,'),
+    c('    val startsAt: LocalDateTime? = null,      // bước 1: đặt cạnh cái cũ', '    val startsAt: LocalDateTime? = null,      // step 1: placed beside the old'),
+    ')',
+    c('// bước 2: kho dữ liệu ghi cả hai trường', '// step 2: storage writes both fields'),
+    c('val sorted = items.sortedBy { it.startsAt }                          // bước 3, 6', 'val sorted = items.sortedBy { it.startsAt }                          // steps 3, 6'),
+    c('reminders.schedule(a.startsAt!!.toInstant(ZoneOffset.UTC))           // bước 4: đỏ, lệch 7 tiếng', 'reminders.schedule(a.startsAt!!.toInstant(ZoneOffset.UTC))           // step 4: red, 7 hours off'),
+    c('reminders.schedule(a.startsAt!!.atZone(clinicZone).toInstant())      // bước 4′: xanh', 'reminders.schedule(a.startsAt!!.atZone(clinicZone).toInstant())      // step 4′: green'),
+    c('// bước 8: xóa time khi không còn ai đọc', '// step 8: delete time when nothing reads it')
+  ]);
 })();

@@ -336,4 +336,60 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã (8 dòng)', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); }); } }] });
   })();
+
+  /* ================= J6: đổi tại chỗ một lần so với song song từng bước nhỏ (strangler) =================
+     Theo Martin, Clean Craftsmanship ch.5 (chuỗi thay đổi nhỏ, test xanh sau MỖI thay đổi; nhỏ tới mức không gỡ lỗi; không để test đỏ quá vài
+     phút; cấu trúc mới song song rồi chuyển dần; chừa đường lui) và Seemann 10.2, A.24 (strangler). Bảng CELLS là nguồn sự thật: số thay đổi
+     bị nghi = số ô đang "nghi" hay ô đỏ ở bước đó; phút bỏ đi tính từ ô hoàn tác. Thời gian và số lỗi là minh họa. */
+  (function () {
+    var m = 'refactor', CASES = ['big', 'small'], KS = ['s1', 's2', 's3', 's4'], STEP_MIN = 15, DAY_MIN = 300;
+    var COLS = { big: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8'], small: ['c1', 'c2', 'c3', 'c4', 'c4b', 'c5', 'c6', 'c7', 'c8'] };
+    // trạng thái [test, commit] của từng cột sau mỗi bước (null = chưa làm)
+    var CELLS = {
+      big: [
+        { c1: ['nobuild', 'no'], c2: ['nobuild', 'no'], c3: ['nobuild', 'no'], c4: ['nobuild', 'no'] },
+        { c1: ['nobuild', 'no'], c2: ['nobuild', 'no'], c3: ['nobuild', 'no'], c4: ['nobuild', 'no'], c5: ['nobuild', 'no'], c6: ['nobuild', 'no'], c7: ['nobuild', 'no'], c8: ['nobuild', 'no'] },
+        { c1: ['sus', 'no'], c2: ['sus', 'no'], c3: ['sus', 'no'], c4: ['sus', 'no'], c5: ['sus', 'no'], c6: ['sus', 'no'], c7: ['sus', 'no'], c8: ['sus', 'no'] },
+        { c1: ['gone', 'no'], c2: ['gone', 'no'], c3: ['gone', 'no'], c4: ['gone', 'no'], c5: ['gone', 'no'], c6: ['gone', 'no'], c7: ['gone', 'no'], c8: ['gone', 'no'] }],
+      small: [
+        { c1: ['green', 'yes'], c2: ['green', 'yes'] },
+        { c1: ['green', 'yes'], c2: ['green', 'yes'], c3: ['green', 'yes'], c4: ['red', 'undo'] },
+        { c1: ['green', 'yes'], c2: ['green', 'yes'], c3: ['green', 'yes'], c4: ['red', 'undo'], c4b: ['green', 'yes'], c5: ['green', 'yes'], c6: ['green', 'yes'] },
+        { c1: ['green', 'yes'], c2: ['green', 'yes'], c3: ['green', 'yes'], c4: ['red', 'undo'], c4b: ['green', 'yes'], c5: ['green', 'yes'], c6: ['green', 'yes'], c7: ['green', 'yes'], c8: ['green', 'yes'] }]
+    };
+    var BUILD = { big: [17, 40, 0, 0], small: [0, 0, 0, 0] }, RED = { big: [null, null, 3, 0], small: [0, 1, 0, 0] };
+    function fresh(c, i) { var now = CELLS[c][i], prev = i > 0 ? CELLS[c][i - 1] : {}; return COLS[c].filter(function (k) { return now[k] && (!prev[k] || prev[k][0] !== now[k][0]); }); }
+    function suspects(c, i) { var now = CELLS[c][i]; if (c === 'big') return COLS.big.filter(function (k) { return now[k] && (now[k][0] === 'sus' || now[k][0] === 'gone'); }).length;
+      return fresh(c, i).filter(function (k) { return now[k][0] === 'red'; }).length; }
+    function lost(c, i) { var now = CELLS[c][i]; if (c === 'big') return now.c1 && now.c1[0] === 'gone' ? DAY_MIN : 0; return COLS.small.filter(function (k) { return now[k] && now[k][1] === 'undo'; }).length * STEP_MIN; }
+    function releasable(c, i) { var now = CELLS[c][i]; return COLS[c].every(function (k) { return !now[k] || now[k][0] === 'green' || now[k][1] === 'undo' || now[k][0] === 'gone'; }) ? 1 : 0; }
+    ADE.ccRefactor = { COLS: COLS, CELLS: CELLS, BUILD: BUILD, RED: RED, fresh: fresh, suspects: suspects };
+    var HL = { big: [[2, 4], [5], [6], [7]], small: [[2, 3, 5], [6, 7], [8, 6], [9, 2]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var sus = suspects(c, i), bad = BUILD[c][i] > 0 || sus > 0 || lost(c, i) >= DAY_MIN, node = BUILD[c][i] > 0 ? 'build' : (sus ? 'test' : 'commit');
+        var ns = { edit: K + 'st.done' }; ns[node] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: ['edit', node], nodeStates: ns,
+          metrics: { suspects: sus, lost: lost(c, i), release: releasable(c, i) },
+          codeHighlight: { snippet: 'j6.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: node === 'build' ? 'e1' : (node === 'test' ? 'e2' : 'e3'), tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (node === 'commit' ? 'complete' : 'run'), subject: node }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 && c === 'big' ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        if (c === 'small' && i === 1) o.callouts[0].kind = 'source';
+        return o;
+      });
+    }
+    var LEN = { 'j6.big': 7, 'j6.small': 9 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'big' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'đổi tại chỗ: 2 bước không biên dịch được, 8 thay đổi bị nghi khi 3 test đỏ, bỏ 300 phút', run: function () {
+          return BUILD.big[0] > 0 && BUILD.big[1] > 0 && suspects('big', 2) === 8 && RED.big[2] === 3 && lost('big', 3) === 300; } },
+        { name: 'song song: mọi commit xanh trừ một bước đỏ được hoàn tác; lúc đỏ chỉ 1 thay đổi bị nghi; bỏ 15 phút; luôn phát hành được', run: function () {
+          var last = CELLS.small[3], reds = COLS.small.filter(function (k) { return last[k][0] === 'red'; });
+          return reds.length === 1 && last[reds[0]][1] === 'undo' && suspects('small', 1) === 1 && lost('small', 3) === 15 && [0, 1, 2, 3].every(function (i) { return releasable('small', i) === 1; }); } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j6.' + c]; }); }); }); } }] });
+  })();
 })();
