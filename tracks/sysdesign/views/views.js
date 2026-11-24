@@ -19,4 +19,8 @@
   V('process', { layout: 'pipeline', nodes: [N('process', 'app', 0, 1.5, 'phone', 'ui'), N('process', 'camera', 4, 0, 'eye', 'runtime'), N('process', 'lmkd', 8, 1.5, 'cross', 'job'), N('process', 'store', 4, 3, 'store', 'state')],
     edges: [E('e1', 'app', 'camera'), E('e2', 'camera', 'lmkd'), E('e3', 'lmkd', 'app'), E('e4', 'app', 'store')],
     metrics: [T('process', 'fields'), T('process', 'free'), T('process', 'starts')] });
+  /* I3: hai luồng bên trái, hai khóa bên phải */
+  V('lock', { layout: 'pipeline', nodes: [N('lock', 'main', 0, 0, 'thread', 'ui'), N('lock', 'sync', 0, 3, 'thread', 'runtime'), N('lock', 'cache', 6, 0, 'list', 'state'), N('lock', 'db', 6, 3, 'store', 'job')],
+    edges: [E('e1', 'main', 'cache'), E('e2', 'main', 'db'), E('e3', 'sync', 'cache'), E('e4', 'sync', 'db')],
+    metrics: [T('lock', 'blocked'), T('lock', 'anr'), T('lock', 'cycle')] });
 })();

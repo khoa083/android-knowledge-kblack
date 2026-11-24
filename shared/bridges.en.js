@@ -32,5 +32,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X16.title': 'Offline-first: role and mechanism',
   'shared.bridge.X16.summary': 'The architecture chapter teaches the role: the repository reads from the database as the source of truth and writes locally first. The owner chapter teaches the mechanism: a pending-sync column in Room and WorkManager draining the queue when online, surviving even an app kill.',
   'shared.bridge.X17.title': 'Process death and the state that remains',
-  'shared.bridge.X17.summary': 'The Compose chapter teaches the tools: rememberSaveable and SavedStateHandle, saving custom types, the Bundle limits. The owner chapter teaches why they are needed: the system kills the whole process when RAM runs low, the ViewModel goes with it, and only the saved-state copy outside the process and data on disk remain.'
+  'shared.bridge.X17.summary': 'The Compose chapter teaches the tools: rememberSaveable and SavedStateHandle, saving custom types, the Bundle limits. The owner chapter teaches why they are needed: the system kills the whole process when RAM runs low, the ViewModel goes with it, and only the saved-state copy outside the process and data on disk remain.',
+  'shared.bridge.X18.title': 'Locks, ANRs and Mutex',
+  'shared.bridge.X18.summary': 'The coroutines chapter teaches the tools: Mutex, withLock, state shared between coroutines. The owner chapter teaches why: a main thread waiting for a lock is an ANR, two locks in opposite orders are a deadlock, and one shared lock order breaks the cycle.'
 });

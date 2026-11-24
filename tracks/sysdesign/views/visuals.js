@@ -4,6 +4,8 @@
   var K = 'track.sysdesign.vz.';
   var T = function (k, p) { return ADE.t(K + k, p); };
   var KS = ['s1', 's2', 's3', 's4'];
+  var esc = function (x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+  var uidN = 0;
   function idx(ctx) {
     if (ctx.step) return KS.indexOf(ctx.step.id.split('.').pop());
     return ctx.pos > ctx.N ? 3 : 0;
@@ -56,4 +58,39 @@
       h('p', { class: 'vz-cap', text: T('pr.scap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['where', 'holds', 'st'].map(function (k) { return h('th', { text: T('pr.scol.' + k) }); }))), sb)),
       h('div', { class: 'vz-legend', text: T('pr.legend') })));
   }, { labelKey: K + 'tab.pr', icon: 'layers' });
+
+  /* ---------- I3: làn thời gian hai luồng (SVG), đồ thị chờ (SVG), bảng bốn điều kiện ---------- */
+  ADE.registerScreen('sysdesign.lock', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.sysLock, c = ctx.state.case, i = Math.max(0, idx(ctx)), t = P.TS[c][i];
+    var X0 = 86, PX = 63, X = function (s) { return (X0 + s * PX).toFixed(1); };
+    var svg = '<svg class="vz-tl" viewBox="0 0 600 124" role="img" aria-label="' + esc(T('lk.aria', { ms: P.blocked(c, i) })) + '">';
+    [['main', 22], ['sync', 64]].forEach(function (ln) {
+      svg += '<text class="vz-tl-n" x="4" y="' + (ln[1] + 19) + '">' + esc(T('lk.lane.' + ln[0])) + '</text><line class="vz-tl-base" x1="' + X0 + '" x2="' + X(8) + '" y1="' + (ln[1] + 15) + '" y2="' + (ln[1] + 15) + '"/>';
+      P.LANES[c][ln[0]].forEach(function (g) {
+        if (g[0] >= t) return;
+        var e = Math.min(g[1], t), w = (e - g[0]) * PX;
+        svg += '<rect class="vz-tl-' + g[2] + '" x="' + X(g[0]) + '" y="' + ln[1] + '" width="' + w.toFixed(1) + '" height="30"/>';
+        var lb = g[3] ? T('lk.seg.' + g[3]) : '';
+        if (lb && w > lb.length * 6.8 + 10) svg += '<text class="vz-tl-t" x="' + (+X(g[0]) + 5) + '" y="' + (ln[1] + 19) + '">' + esc(lb) + '</text>';
+      });
+    });
+    for (var s = 0; s <= 8; s++) svg += '<line class="vz-tl-tick" x1="' + X(s) + '" x2="' + X(s) + '" y1="98" y2="103"/><text class="vz-tl-ax" x="' + X(s) + '" y="117">' + s + 's</text>';
+    if (P.ANR[c] !== null && t >= P.ANR[c]) svg += '<line class="vz-tl-anr" x1="' + X(P.ANR[c]) + '" x2="' + X(P.ANR[c]) + '" y1="14" y2="100"/><text class="vz-tl-anrt" x="' + (+X(P.ANR[c]) + 4) + '" y="12">' + esc(T('lk.seg.anr')) + '</text>';
+    svg += '<line class="vz-tl-cur" x1="' + X(t) + '" x2="' + X(t) + '" y1="16" y2="100"/></svg>';
+    // đồ thị chờ
+    var wf = P.WF[c][i], cyc = wf.length === 2 && wf[0][0] === wf[1][1], u = 'lkwf' + (++uidN);
+    var g = '<svg class="vz-wf" viewBox="0 0 360 132" role="img" aria-label="' + esc(T('lk.g.aria')) + '"><defs><marker id="' + u + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-dg-head' + (cyc ? ' bad' : '') + '"/></marker></defs>';
+    [['main', 20], ['sync', 240]].forEach(function (n) { g += '<g class="vz-dg-n' + (cyc ? ' bad' : '') + '"><rect x="' + n[1] + '" y="46" width="100" height="40" rx="4"/><text class="vz-dg-t" x="' + (n[1] + 50) + '" y="70" text-anchor="middle">' + esc(T('lk.lane.' + n[0])) + '</text></g>'; });
+    wf.forEach(function (e) {
+      var top = e[0] === 'main', d = top ? 'M120 54 C 165 14, 195 14, 238 54' : 'M240 78 C 195 118, 165 118, 122 78';
+      g += '<path class="vz-dg-e' + (cyc ? ' bad' : '') + '" d="' + d + '" marker-end="url(#' + u + ')"/><text class="vz-dg-s" x="180" y="' + (top ? 18 : 126) + '" text-anchor="middle">' + esc(e[2]) + '</text>';
+    });
+    g += '</svg>';
+    var k = P.conds(c, i), all = k.me && k.hw && k.np && k.cw, cb = h('tbody');
+    ['me', 'hw', 'np', 'cw'].forEach(function (q) { cb.appendChild(h('tr', null, h('th', { text: T('lk.c.' + q) }), h('td', { class: k[q] ? (all ? 'bad' : 'ok') : 'dim', text: T(k[q] ? 'lk.c.yes' : 'lk.c.no') }))); });
+    cb.appendChild(h('tr', null, h('th', { text: T('lk.c.verdict') }), h('td', { class: all ? 'bad' : 'ok', text: T(all ? 'lk.c.dead' : 'lk.c.alive') })));
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('lk.cap') }), h('div', { class: 'vz-scroll', html: svg }), h('div', { class: 'vz-legend', text: T('lk.legend') }),
+      h('p', { class: 'vz-cap', text: T('lk.gcap') }), wf.length ? h('div', { html: g }) : h('p', { class: 'vz-cap dim', text: T('lk.g.none') }),
+      h('p', { class: 'vz-cap', text: T('lk.ccap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, cb))));
+  }, { labelKey: K + 'tab.lk', icon: 'thread' });
 })();

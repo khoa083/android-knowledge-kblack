@@ -8,11 +8,13 @@ ADE.registerTrack({
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
     { id: 'i1', titleKey: 'track.sysdesign.i1.title', sims: ['sysdesign.plan'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'i2', titleKey: 'track.sysdesign.i2.title', sims: ['sysdesign.process'], simAfter: 'hook', bridges: ['X17'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
+    { id: 'i2', titleKey: 'track.sysdesign.i2.title', sims: ['sysdesign.process'], simAfter: 'hook', bridges: ['X17'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'i3', titleKey: 'track.sysdesign.i3.title', sims: ['sysdesign.lock'], simAfter: 'hook', bridges: ['X18'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'sysdesign-plan', model: 'sysdesign.plan', titleKey: 'track.sysdesign.preset.plan' },
-    { id: 'sysdesign-process', model: 'sysdesign.process', titleKey: 'track.sysdesign.preset.process' }
+    { id: 'sysdesign-process', model: 'sysdesign.process', titleKey: 'track.sysdesign.preset.process' },
+    { id: 'sysdesign-lock', model: 'sysdesign.lock', titleKey: 'track.sysdesign.preset.lock' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

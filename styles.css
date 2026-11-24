@@ -787,6 +787,20 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 .vz-sw.sys, .vz-sw.oth { opacity: .4; }
 .vz-sw.cam, .vz-sw.our { opacity: .7; }
 .vz-sw.free { border-style: dashed; background: none; }
+/* làn thời gian hai luồng và đồ thị chờ (track I, I3) */
+.vz-tl { display: block; width: 100%; min-width: 520px; height: auto; font-family: var(--mono); }
+.vz-tl-n { font-size: 12px; font-weight: 700; fill: var(--ink-2); }
+.vz-tl-base { stroke: var(--line); stroke-dasharray: 2 4; }
+.vz-tl-run { fill: var(--paper-2); stroke: var(--line-strong); }
+.vz-tl-hold { fill: var(--paper); stroke: var(--brand); stroke-width: 2.2; }
+.vz-tl-wait { fill: var(--tok-error); fill-opacity: .16; stroke: var(--tok-error); stroke-width: 1.6; }
+.vz-tl-t { font-size: 11px; fill: var(--ink); }
+.vz-tl-tick { stroke: var(--line-strong); }
+.vz-tl-ax { font-size: 11px; fill: var(--ink-2); text-anchor: middle; }
+.vz-tl-anr { stroke: var(--tok-error); stroke-width: 2; }
+.vz-tl-anrt { font-size: 11px; font-weight: 700; fill: var(--tok-error); }
+.vz-tl-cur { stroke: var(--focus); stroke-width: 1.6; stroke-dasharray: 4 3; }
+.vz-wf { display: block; width: 100%; max-width: 420px; height: auto; font-family: var(--mono); }
 @media (max-width: 560px) {
   .vz-mig { flex-direction: column; min-width: 0; }
   .vz-mig-e { grid-auto-flow: column; justify-content: start; gap: 8px; min-height: 36px; }

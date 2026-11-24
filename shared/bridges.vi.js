@@ -32,5 +32,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X16.title': 'Offline-first: vai trò và cơ chế',
   'shared.bridge.X16.summary': 'Chương kiến trúc dạy vai trò: repository đọc từ database làm nguồn sự thật và ghi máy trước. Chương chủ sở hữu dạy cơ chế: cột trạng thái chờ gửi trong Room và WorkManager rút hàng chờ khi có mạng, sống qua cả lần tắt app.',
   'shared.bridge.X17.title': 'Process bị giết và trạng thái còn lại',
-  'shared.bridge.X17.summary': 'Chương Compose dạy công cụ: rememberSaveable và SavedStateHandle, cách lưu kiểu tùy biến, giới hạn của Bundle. Chương chủ sở hữu dạy vì sao cần: hệ thống giết cả process khi thiếu RAM, ViewModel mất theo, chỉ còn bản sao saved state ngoài process và dữ liệu trên đĩa.'
+  'shared.bridge.X17.summary': 'Chương Compose dạy công cụ: rememberSaveable và SavedStateHandle, cách lưu kiểu tùy biến, giới hạn của Bundle. Chương chủ sở hữu dạy vì sao cần: hệ thống giết cả process khi thiếu RAM, ViewModel mất theo, chỉ còn bản sao saved state ngoài process và dữ liệu trên đĩa.',
+  'shared.bridge.X18.title': 'Khóa, ANR và Mutex',
+  'shared.bridge.X18.summary': 'Chương coroutine dạy công cụ: Mutex, withLock, trạng thái dùng chung giữa nhiều coroutine. Chương chủ sở hữu dạy vì sao: main thread chờ khóa là ANR, hai khóa lấy ngược thứ tự là deadlock, và một thứ tự khóa chung cắt được vòng chờ.'
 });

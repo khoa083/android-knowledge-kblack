@@ -1,0 +1,178 @@
+# Thiết kế hệ thống phía mobile · I3: luồng, khóa, ANR và deadlock (Phần 1)
+# Nguồn: developer.android.com (ANRs, Processes and threads overview), kotlinx.coroutines Mutex (1.11.0);
+# OS Concepts bản 10 ch.8 (8.2 ví dụ hai mutex, 8.3.1 bốn điều kiện, 8.4, 8.5.4 thứ tự khóa, 8.7.1 đồ thị chờ). Đọc 2026-11-24.
+
+SEC_ORDER = {'i3': ['hook', 'main', 'contention', 'deadlock', 'prevent', 'bugs', 'ex', 'honest']}
+
+
+def add(a):
+    def B(ch, sec, n, field, vi, en=None):
+        a('%s.sec.%s.b.%02d.%s' % (ch, sec, n, field), vi, vi if en is None else en)
+
+    a('preset.lock', 'Thiết kế hệ thống · khóa, ANR và deadlock', 'System design · locks, ANRs and deadlock')
+    m = lambda k, vi, en=None: a('m.lock.' + k, vi, en)
+    m('title', 'Chờ khóa trên main thread, khóa ngược thứ tự, hay một thứ tự chung', 'Waiting for a lock on the main thread, locks in opposite orders, or one shared order')
+    m('overview', 'App Hẹn Khám có hai khóa: cacheLock bảo vệ danh sách lịch hẹn trong bộ nhớ, dbLock bảo vệ việc ghi database. Một luồng nền đồng bộ dữ liệu; người dùng chạm vào danh sách ở giây thứ 1. Ba cách viết: luồng nền giữ cacheLock suốt lúc ghi database; hai luồng lấy hai khóa theo thứ tự ngược nhau; hoặc mọi nơi lấy cùng một thứ tự và chỉ giữ khóa đủ lâu để sao chép.',
+      'ClinicBook has two locks: cacheLock guards the in-memory appointment list, dbLock guards database writes. A background thread syncs data; the user taps the list at second 1. Three ways to write it: the background thread holds cacheLock for the whole database write; the two threads take the two locks in opposite orders; or every place takes them in one order and holds them only long enough to copy.')
+    m('wrapup', 'Main thread chờ một khóa thì cũng là main thread bị chặn: quá 5 giây không xử lý được một lần chạm là ANR. Hai luồng giữ khóa này và chờ khóa kia theo vòng thì không bao giờ tự gỡ, vì đủ cả bốn điều kiện của deadlock. Cắt một điều kiện là đủ, và điều kiện dễ cắt nhất là vòng chờ: mọi nơi lấy khóa theo cùng một thứ tự, giữ khóa ngắn, làm I/O ngoài khóa, và trong coroutine thì dùng Mutex để treo thay vì chặn luồng.',
+      'A main thread waiting for a lock is a blocked main thread: a tap not handled within 5 seconds is an ANR. Two threads that each hold one lock and wait for the other in a cycle never untangle, because all four deadlock conditions hold. Breaking one condition is enough, and the easiest one to break is the circular wait: every place takes locks in the same order, holds them briefly, does I/O outside them, and in coroutines uses a Mutex that suspends instead of blocking the thread.')
+    m('simp.1', 'Thời gian (ghi database 6 giây, chạm ở giây 1) là minh họa. Mốc ANR 5 giây là ngưỡng cho sự kiện nhập theo tài liệu; mô phỏng coi lần chạm ở giây 1 là sự kiện bị treo.', 'The timings (a 6-second database write, a tap at second 1) are illustrative. The 5-second ANR mark is the documented threshold for input events; the simulation treats the tap at second 1 as the stuck event.')
+    m('simp.2', 'Bốn điều kiện và đồ thị chờ theo OS Concepts ch.8; ANR và cách sửa theo trang ANRs của Android; Mutex theo tài liệu kotlinx.coroutines. Đọc ngày 2026-11-24.', 'The four conditions and the wait-for graph follow OS Concepts ch.8; ANRs and fixes follow the Android ANRs page; Mutex follows the kotlinx.coroutines docs. Read on 2026-11-24.')
+    m('ctl.hint', 'Đổi cách viết rồi đi lại; so làn thời gian, đồ thị chờ và bảng bốn điều kiện.', 'Switch the way it is written and walk again; compare the timeline, the wait-for graph and the four-conditions table.')
+    m('ctl.case', 'Cách dùng khóa', 'How the locks are used')
+    for k, vi, en in [('hold', 'giữ khóa suốt lúc ghi DB', 'hold the lock for the whole DB write'), ('cycle', 'hai khóa, thứ tự ngược nhau', 'two locks, opposite orders'), ('order', 'một thứ tự chung, giữ ngắn', 'one shared order, held briefly')]:
+        m('ctl.case.' + k, vi, en)
+    m('diagramTitle', 'Hai luồng, hai khóa', 'Two threads, two locks')
+    m('diagramDesc', 'Main thread và luồng đồng bộ cùng cần cacheLock và dbLock', 'The main thread and the sync thread both need cacheLock and dbLock')
+    for k, vi, en in [('main', 'Main thread', 'Main thread'), ('sync', 'Luồng đồng bộ', 'Sync thread'), ('cache', 'cacheLock (danh sách)', 'cacheLock (the list)'), ('db', 'dbLock (ghi DB)', 'dbLock (DB writes)')]:
+        m('n.' + k, vi, en)
+    m('met.blocked', 'Main thread bị chặn (ms)', 'Main thread blocked (ms)'); m('met.anr', 'ANR đã xảy ra', 'ANR happened'); m('met.cycle', 'Đồ thị chờ có vòng', 'Wait-for graph has a cycle')
+    a('cap.lock', 'Hai luồng bên trái, hai khóa bên phải; cạnh sáng là luồng đang giữ hay đang chờ khóa đó.', 'Two threads on the left, two locks on the right; a lit edge means the thread holds or waits for that lock.')
+    S = [
+        ('hold', 's1', 'Giây 0–1: luồng nền lấy cacheLock rồi ghi 200 lịch hẹn vào DB', 'Seconds 0–1: the background thread takes cacheLock, then writes 200 appointments to the DB',
+         'Việc ghi mất khoảng 6 giây, và suốt thời gian đó luồng nền vẫn giữ cacheLock. Ở giây 1, người dùng chạm vào danh sách.', 'The write takes about 6 seconds, and the background thread keeps cacheLock the whole time. At second 1 the user taps the list.'),
+        ('hold', 's2', 'Giây 3: main thread đứng chờ cacheLock', 'Second 3: the main thread is stuck waiting for cacheLock',
+         'Hàm xử lý lần chạm vào synchronized(cacheLock) và bị chặn. Main thread không vẽ khung hình, không nhận chạm nào khác. Đồ thị chờ có một cạnh: main chờ luồng nền.', 'The tap handler enters synchronized(cacheLock) and blocks. The main thread draws no frames and takes no other taps. The wait-for graph has one edge: main waits for the background thread.'),
+        ('hold', 's3', 'Giây 6: lần chạm đã chờ 5 giây, hệ thống báo ANR', 'Second 6: the tap has waited 5 seconds, the system reports an ANR',
+         'Không có vòng chờ, nên đây không phải deadlock: luồng nền rồi sẽ nhả khóa. Nhưng người dùng đã thấy hộp thoại "ứng dụng không phản hồi".', 'There is no cycle, so this is not a deadlock: the background thread will release the lock eventually. But the user has already seen the "app isn\'t responding" dialog.'),
+        ('hold', 's4', 'Giây 7: luồng nền nhả khóa, main chạy tiếp, nhưng đã muộn', 'Second 7: the background thread releases, main continues, too late',
+         'Main thread bị chặn 6 giây. Nếu người dùng đã bấm "Đóng ứng dụng" trên hộp thoại ANR, phần ghi DB dở dang cũng mất theo process.', 'The main thread was blocked for 6 seconds. If the user tapped "Close app" on the ANR dialog, the unfinished DB write died with the process.'),
+        ('cycle', 's1', 'Giây 0–1: luồng nền lấy dbLock; người dùng chạm', 'Seconds 0–1: the background thread takes dbLock; the user taps',
+         'Luồng nền đi theo thứ tự dbLock rồi cacheLock. Main thread đi theo thứ tự ngược lại: cacheLock rồi dbLock.', 'The background thread goes dbLock, then cacheLock. The main thread goes the other way: cacheLock, then dbLock.'),
+        ('cycle', 's2', 'Giây 2: main lấy cacheLock', 'Second 2: main takes cacheLock',
+         'Mỗi luồng đang giữ một khóa. Chưa ai chờ ai, nên mọi thứ trông vẫn ổn.', 'Each thread holds one lock. Nobody waits for anybody yet, so everything still looks fine.'),
+        ('cycle', 's3', 'Giây 3: mỗi luồng chờ khóa luồng kia đang giữ', 'Second 3: each thread waits for the lock the other holds',
+         'Main chờ dbLock (luồng nền giữ); luồng nền chờ cacheLock (main giữ). Đồ thị chờ có vòng: đủ bốn điều kiện, deadlock.', 'Main waits for dbLock (held by the background thread); the background thread waits for cacheLock (held by main). The wait-for graph has a cycle: all four conditions hold, deadlock.'),
+        ('cycle', 's4', 'Giây 6 trở đi: ANR, và không bao giờ tự gỡ', 'Second 6 onward: an ANR, and it never untangles',
+         'Không luồng nào tự nhả khóa. Chỉ còn cách giết process. Lỗi chỉ xảy ra khi hai luồng xen nhau đúng kiểu này, nên rất khó tái hiện.', 'Neither thread will ever release its lock. The only way out is killing the process. It only happens when the threads interleave exactly like this, so it is hard to reproduce.'),
+        ('order', 's1', 'Giây 1: luồng nền lấy cacheLock rồi dbLock, chỉ để sao chép', 'Second 1: the background thread takes cacheLock then dbLock, only to copy',
+         'Mọi nơi trong app lấy khóa theo cùng thứ tự: cacheLock trước, dbLock sau. Luồng nền chỉ giữ hai khóa đủ lâu để lấy một bản sao danh sách.', 'Every place in the app takes the locks in the same order: cacheLock first, dbLock second. The background thread holds both only long enough to take a copy of the list.'),
+        ('order', 's2', 'Main thread chờ cacheLock khoảng 200 ms', 'The main thread waits about 200 ms for cacheLock',
+         'Vẫn có chờ, nhưng main không giữ khóa nào trong lúc chờ, và luồng nền không chờ main: đồ thị chờ không thể có vòng.', 'There is still a wait, but main holds no lock while waiting, and the background thread does not wait for main: the wait-for graph cannot have a cycle.'),
+        ('order', 's3', 'Luồng nền nhả khóa; main lấy danh sách và vẽ', 'The background thread releases; main takes the list and draws',
+         'Việc ghi DB chạy tiếp trên luồng nền, không giữ khóa nào của danh sách.', 'The DB write continues on the background thread, holding none of the list\'s locks.'),
+        ('order', 's4', 'Giây 7: ghi DB xong; không ANR, không vòng chờ', 'Second 7: the DB write finishes; no ANR, no cycle',
+         'Main thread chỉ bị chặn khoảng 200 ms. Trong mã coroutine, Mutex.withLock còn tốt hơn: coroutine treo lại, luồng main vẫn rảnh để vẽ.', 'The main thread was blocked for about 200 ms. In coroutine code, Mutex.withLock is better still: the coroutine suspends and the main thread stays free to draw.'),
+    ]
+    for case, k, tv, te, xv, xe in S:
+        sid = case + '.' + k
+        m('s.%s.title' % sid, tv, te); m('s.%s.explain' % sid, xv, xe); m('ev.' + sid, tv, te)
+    for k, vi, en in [
+        ('try', 'Đi hết bốn bước của mỗi cách; nhìn đoạn đỏ trên làn main và đồ thị chờ.', 'Walk all four steps of each approach; watch the red stretch on the main lane and the wait-for graph.'),
+        ('hold.s2', 'Trang ANRs: main thread chờ một khối synchronized trong lúc luồng khác làm việc dài là một mẫu ANR thường gặp. [[src:ax-anr]]', 'The ANRs page: the main thread waiting on a synchronized block while another thread does long work is a common ANR pattern. [[src:ax-anr]]'),
+        ('hold.s3', 'Trang ANRs: sự kiện nhập không được phản hồi trong 5 giây thì thành ANR. [[src:ax-anr]]', 'The ANRs page: an input event not answered within 5 seconds becomes an ANR. [[src:ax-anr]]'),
+        ('hold.s4', 'Processes and threads: quy tắc thứ nhất là đừng chặn UI thread. [[src:and-threads]]', 'Processes and threads: the first rule is not to block the UI thread. [[src:and-threads]]'),
+        ('cycle.s2', 'OS Concepts (8.2): deadlock chỉ có thể xảy ra nếu luồng một lấy khóa thứ nhất đúng lúc luồng hai lấy khóa thứ hai; nó phụ thuộc vào cách CPU xếp lịch. [[src:book-osc]]', 'OS Concepts (8.2): the deadlock can only happen if thread one gets the first lock just as thread two gets the second; it depends on how the CPU schedules them. [[src:book-osc]]'),
+        ('cycle.s3', 'OS Concepts (8.3.1): deadlock cần đủ bốn điều kiện cùng lúc: loại trừ lẫn nhau, giữ và chờ, không tước được, chờ vòng. [[src:book-osc]]', 'OS Concepts (8.3.1): deadlock needs all four conditions at once: mutual exclusion, hold and wait, no preemption, circular wait. [[src:book-osc]]'),
+        ('cycle.s4', 'Trang ANRs: deadlock là khi một luồng chờ tài nguyên luồng khác giữ, mà luồng đó lại chờ tài nguyên luồng đầu giữ; nếu main thread dính vào thì gần như chắc chắn ANR. [[src:ax-anr]]', 'The ANRs page: deadlock is a thread waiting for a resource held by another thread that in turn waits for one the first holds; if the main thread is caught in it, an ANR is likely. [[src:ax-anr]]'),
+        ('order.s2', 'OS Concepts (8.5.4): đặt một thứ tự toàn cục cho mọi khóa và chỉ lấy theo thứ tự tăng dần, thì không thể có vòng chờ. [[src:book-osc]]', 'OS Concepts (8.5.4): give all locks one global order and only take them in increasing order, and a circular wait cannot happen. [[src:book-osc]]'),
+        ('order.s3', 'Trang ANRs: chuyển I/O ra khỏi main thread, ví dụ withContext(Dispatchers.IO) trong ViewModel hay repository. [[src:ax-anr]]', 'The ANRs page: move I/O off the main thread, for example withContext(Dispatchers.IO) in a ViewModel or repository. [[src:ax-anr]]'),
+        ('order.s4', 'Trang ANRs gợi ý thay khóa nguyên thủy bằng Mutex.withLock của coroutine; lock() của Mutex là hàm suspend, không chặn luồng. [[src:ax-anr]] [[src:kx-mutex]]', 'The ANRs page suggests replacing primitive locks with the coroutine Mutex.withLock; Mutex.lock() is a suspend function and does not block the thread. [[src:ax-anr]] [[src:kx-mutex]]')]:
+        m('co.' + k, vi, en)
+
+    z = lambda k, vi, en=None: a('vz.' + k, vi, en)
+    z('tab.lk', 'Làn thời gian và đồ thị chờ', 'Timeline and wait-for graph')
+    z('lk.cap', 'Làn thời gian của hai luồng (0–8 giây). Vạch đỏ dọc là mốc ANR, vạch đứt là thời điểm hiện tại.', 'The two threads\' timeline (0–8 seconds). The red vertical line is the ANR mark, the dashed line is now.')
+    z('lk.lane.main', 'luồng main', 'main'); z('lk.lane.sync', 'nền', 'sync')
+    for k, vi, en in [('ui', 'xử lý chạm', 'handle tap'), ('waitC', 'chờ cacheLock', 'waits cacheLock'), ('waitD', 'chờ dbLock', 'waits dbLock'), ('draw', 'vẽ danh sách', 'draw the list'),
+                      ('holdC', 'giữ cacheLock, ghi DB', 'holds cacheLock, writes DB'), ('holdD', 'giữ dbLock', 'holds dbLock'), ('holdC2', 'giữ cacheLock', 'holds cacheLock'),
+                      ('copy', 'sao chép', 'copy'), ('write', 'ghi DB, không giữ khóa', 'writes DB, holds no lock'), ('anr', 'mốc ANR', 'ANR')]:
+        z('lk.seg.' + k, vi, en)
+    z('lk.aria', 'Làn thời gian: main thread bị chặn {ms} ms', 'Timeline: main thread blocked for {ms} ms')
+    z('lk.gcap', 'Đồ thị chờ: mũi tên từ A tới B nghĩa là A đang chờ khóa mà B giữ. Có vòng là có deadlock.', 'Wait-for graph: an arrow from A to B means A waits for a lock B holds. A cycle means deadlock.')
+    z('lk.g.none', 'Chưa ai chờ ai.', 'Nobody is waiting.')
+    z('lk.g.aria', 'Đồ thị chờ', 'Wait-for graph')
+    z('lk.ccap', 'Bốn điều kiện cần của deadlock (OS Concepts 8.3.1), lúc này.', 'The four necessary conditions for deadlock (OS Concepts 8.3.1), right now.')
+    for k, vi, en in [('me', 'Loại trừ lẫn nhau: mỗi khóa chỉ một luồng giữ', 'Mutual exclusion: one thread per lock'), ('hw', 'Giữ và chờ: giữ một khóa trong lúc chờ khóa khác', 'Hold and wait: holding one lock while waiting for another'),
+                      ('np', 'Không tước được: chỉ người giữ tự nhả', 'No preemption: only the holder releases'), ('cw', 'Chờ vòng: đồ thị chờ có vòng', 'Circular wait: the wait-for graph has a cycle')]:
+        z('lk.c.' + k, vi, en)
+    z('lk.c.yes', 'có', 'yes'); z('lk.c.no', 'không', 'no')
+    z('lk.c.verdict', 'Có deadlock?', 'Deadlock?'); z('lk.c.dead', 'có: đủ cả bốn', 'yes: all four hold'); z('lk.c.alive', 'không', 'no')
+    z('lk.legend', 'Ô viền xanh: giữ khóa. Ô đỏ: chờ khóa. Ô nhạt: chạy, không giữ khóa.', 'Green-edged: holding a lock. Red: waiting for a lock. Light: running, no lock.')
+
+    C = 'i3'
+    a(C + '.title', 'Luồng, khóa, ANR và deadlock', 'Threads, locks, ANRs and deadlock')
+    a(C + '.essence', 'Main thread vẽ giao diện và nhận chạm. Chờ một khóa trên main thread cũng là chặn nó: một lần chạm không được xử lý trong 5 giây là ANR.\nHai luồng giữ khóa này và chờ khóa kia theo vòng thì là deadlock: đủ bốn điều kiện (loại trừ lẫn nhau, giữ và chờ, không tước được, chờ vòng) và không bao giờ tự gỡ.\nCắt vòng chờ bằng một thứ tự khóa chung; giữ khóa ngắn, làm I/O ngoài khóa, và trong coroutine dùng Mutex để treo thay vì chặn luồng.',
+      'The main thread draws the UI and takes taps. Waiting for a lock on it is blocking it: a tap not handled within 5 seconds is an ANR.\nTwo threads that hold one lock and wait for the other in a cycle are a deadlock: all four conditions hold (mutual exclusion, hold and wait, no preemption, circular wait) and it never untangles.\nBreak the cycle with one shared lock order; hold locks briefly, do I/O outside them, and in coroutines use a Mutex that suspends instead of blocking.')
+    a(C + '.goal.g1', 'Đã thấy main thread bị chặn hay vòng chờ', 'Saw the main thread blocked or the cycle')
+    a(C + '.goal.g2', 'Đã thấy kết quả cuối', 'Saw the final outcome')
+    a(C + '.sim.sysdesign.lock', 'giữ khóa lâu, khóa ngược thứ tự, hay một thứ tự chung', 'a long-held lock, opposite orders, or one shared order')
+
+    S_ = 'hook'
+    a(C + '.sec.%s.title' % S_, 'Đoán trước khi đọc', 'Predict before reading')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'predict', 'Luồng đồng bộ chạy synchronized(dbLock) { synchronized(cacheLock) { … } }. Ở màn danh sách, khi chạm, main thread chạy synchronized(cacheLock) { synchronized(dbLock) { … } }. Chạy thử trăm lần đều ổn. Bạn có dám phát hành không, và nếu có lỗi thì người dùng thấy gì?',
+      'The sync thread runs synchronized(dbLock) { synchronized(cacheLock) { … } }. On the list screen, on a tap, the main thread runs synchronized(cacheLock) { synchronized(dbLock) { … } }. A hundred test runs are fine. Would you ship it, and if it fails, what does the user see?')
+    B(C, S_, 1, 'ans', 'Không nên. Hai luồng lấy hai khóa theo thứ tự ngược nhau: nếu mỗi luồng vừa lấy được khóa đầu tiên thì cả hai chờ nhau mãi. Main thread kẹt nên người dùng thấy hộp thoại ANR, và app chỉ thoát được bằng cách bị giết. Trăm lần thử ổn chỉ vì lịch chạy chưa xen đúng kiểu đó. [[src:book-osc]] [[src:ax-anr]]',
+      'Better not. The two threads take two locks in opposite orders: if each has just taken its first lock, they wait for each other forever. The main thread is stuck, so the user sees the ANR dialog, and the app only gets out by being killed. A hundred good runs just mean the schedule has not interleaved that way yet. [[src:book-osc]] [[src:ax-anr]]')
+
+    S_ = 'main'
+    a(C + '.sec.%s.title' % S_, 'Main thread và ANR', 'The main thread and ANRs')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'Khi app khởi động, hệ thống tạo một luồng gọi là main thread. Nó phát sự kiện tới các widget, kể cả việc vẽ, và chạy các callback vòng đời; vì vậy còn gọi là UI thread. Tài liệu đặt hai quy tắc: đừng chặn UI thread, và đừng đụng vào bộ công cụ UI từ luồng khác. Lời gọi IPC tới bound service hay ContentProvider thì chạy trên thread pool của binder, nên các hàm đó phải an toàn với nhiều luồng. [[src:and-threads]]',
+      'When an app starts, the system creates a thread called the main thread. It dispatches events to widgets, drawing included, and runs lifecycle callbacks; hence its other name, the UI thread. The docs set two rules: do not block the UI thread, and do not touch the UI toolkit from another thread. IPC calls into a bound service or a ContentProvider run on the binder thread pool, so those methods must be thread-safe. [[src:and-threads]]')
+    B(C, S_, 2, 'p', 'ANR (Application Not Responding) là khi hệ thống thấy app không phản hồi. Các ngưỡng tài liệu ghi: sự kiện nhập (chạm, phím) không được xử lý trong 5 giây; startForegroundService mà không gọi startForeground trong 5 giây; BroadcastReceiver chưa xong trong 10 giây khi app có Activity ở foreground; Service và JobService không xong các callback trong "vài giây". Nguyên nhân thường gặp: I/O hay tính toán dài trên main thread, lời gọi binder đồng bộ chậm, main thread chờ khóa mà luồng khác giữ lâu, và deadlock. [[src:ax-anr]]',
+      'An ANR (Application Not Responding) is the system deciding the app is unresponsive. The documented thresholds: an input event (tap, key) not handled within 5 seconds; startForegroundService without startForeground within 5 seconds; a BroadcastReceiver not finished within 10 seconds while the app has a foreground activity; Service and JobService callbacks not finished within "a few seconds". Common causes: long I/O or computation on the main thread, slow synchronous binder calls, the main thread waiting for a lock another thread holds for long, and deadlock. [[src:ax-anr]]')
+
+    S_ = 'contention'
+    a(C + '.sec.%s.title' % S_, 'Khóa và tranh chấp khóa', 'Locks and lock contention')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'Khóa (mutex, synchronized) tồn tại để chặn race condition: hai luồng cùng sửa một dữ liệu, kết quả tùy thứ tự chạy. Đoạn mã trong khóa là critical section, mỗi lúc chỉ một luồng vào. Cái giá: luồng tới sau phải đứng chờ, và nếu đó là main thread thì giao diện đứng theo. [[src:book-osc]]',
+      'Locks (a mutex, synchronized) exist to prevent race conditions: two threads changing the same data, with the result depending on who runs first. The code inside the lock is a critical section; one thread at a time gets in. The price: the thread that comes second has to wait, and if that is the main thread, the UI freezes with it. [[src:book-osc]]')
+    B(C, S_, 2, 'p', 'Vì vậy khóa càng giữ ngắn càng tốt: chỉ giữ khi đọc hay sửa dữ liệu dùng chung, rồi nhả, và làm việc dài (ghi DB, gọi mạng) trên bản sao, ngoài khóa. Trong mô phỏng, cách "giữ khóa suốt lúc ghi DB" không có deadlock, nhưng vẫn ANR, vì main thread chờ quá 5 giây. [[src:ax-anr]]',
+      'So hold locks as briefly as possible: only while reading or changing shared data, then release, and do long work (DB writes, network calls) on a copy, outside the lock. In the simulation, "hold the lock for the whole DB write" has no deadlock but still causes an ANR, because the main thread waits more than 5 seconds. [[src:ax-anr]]')
+    B(C, S_, 3, 'kt', '// luồng nền: giữ khóa chỉ để sao chép, ghi DB ngoài khóa\nval rows = synchronized(cacheLock) { cache.toList() }\nwithContext(Dispatchers.IO) { db.insertAll(rows) }\n\n// main thread: chờ vài mili giây là cùng\nval list = synchronized(cacheLock) { cache.toList() }\nadapter.submitList(list)',
+      '// background thread: hold the lock only to copy, write the DB outside it\nval rows = synchronized(cacheLock) { cache.toList() }\nwithContext(Dispatchers.IO) { db.insertAll(rows) }\n\n// main thread: waits a few milliseconds at most\nval list = synchronized(cacheLock) { cache.toList() }\nadapter.submitList(list)')
+
+    S_ = 'deadlock'
+    a(C + '.sec.%s.title' % S_, 'Deadlock: bốn điều kiện và đồ thị chờ', 'Deadlock: four conditions and the wait-for graph')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'OS Concepts (ch.8) nêu bốn điều kiện phải cùng đúng thì mới có deadlock. Loại trừ lẫn nhau: tài nguyên chỉ một luồng dùng mỗi lúc. Giữ và chờ: một luồng đang giữ tài nguyên này lại chờ tài nguyên khác. Không tước được: tài nguyên chỉ được nhả khi người giữ tự nhả. Chờ vòng: T0 chờ T1, T1 chờ T2, … và Tn chờ lại T0. [[src:book-osc]]',
+      'OS Concepts (ch.8) gives four conditions that must all hold for a deadlock. Mutual exclusion: a resource is used by one thread at a time. Hold and wait: a thread holding one resource waits for another. No preemption: a resource is only released by its holder, voluntarily. Circular wait: T0 waits for T1, T1 for T2, … and Tn waits for T0 again. [[src:book-osc]]')
+    B(C, S_, 2, 'p', 'Khi mỗi tài nguyên chỉ có một bản (như một khóa), có thể vẽ đồ thị chờ: cạnh từ Ti tới Tj nghĩa là Ti đang chờ Tj nhả một tài nguyên. Đồ thị có vòng thì có deadlock. Sách cũng nhắc: phần lớn hệ điều hành, gồm Linux và Windows, không tự xử lý deadlock của app; người viết app phải tự phòng. Và vì deadlock chỉ xảy ra với một cách xếp lịch nhất định, nó rất khó tìm bằng thử nghiệm. [[src:book-osc]]',
+      'When each resource has a single instance (like a lock), you can draw a wait-for graph: an edge from Ti to Tj means Ti waits for Tj to release a resource. A cycle in the graph means deadlock. The book also notes that most operating systems, Linux and Windows included, do not handle application deadlocks; developers must prevent them. And because deadlock only happens under particular schedules, it is hard to find by testing. [[src:book-osc]]')
+
+    S_ = 'prevent'
+    a(C + '.sec.%s.title' % S_, 'Phòng: thứ tự khóa, giữ ngắn, Mutex', 'Prevention: lock order, short holds, Mutex')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'Ba điều kiện đầu thường không bỏ được trong thực tế. Điều kiện thứ tư thì cắt được: gán cho mỗi khóa một số thứ tự toàn cục và mọi luồng chỉ lấy khóa theo thứ tự tăng dần. Khi đó không thể có vòng chờ. Cách làm trên app: ghi thứ tự ngay cạnh chỗ khai báo khóa, và tốt hơn nữa là thiết kế để không phải giữ hai khóa cùng lúc. [[src:book-osc]]',
+      'The first three conditions usually cannot be dropped in practice. The fourth can: give each lock a global order number and have every thread take locks only in increasing order. Then a circular wait is impossible. In an app: write the order next to where the locks are declared, and better still, design so no code needs two locks at once. [[src:book-osc]]')
+    B(C, S_, 2, 'p', 'Trong mã coroutine, trang ANRs gợi ý thay khóa nguyên thủy bằng Mutex.withLock. lock() của Mutex là hàm suspend: coroutine chờ thì treo lại, luồng main vẫn rảnh để vẽ và nhận chạm. Lưu ý: Mutex không reentrant, coroutine đang giữ khóa mà gọi lock lần nữa sẽ tự treo mãi; và Mutex không chống được deadlock do lấy hai Mutex ngược thứ tự. [[src:ax-anr]] [[src:kx-mutex]]',
+      'In coroutine code, the ANRs page suggests replacing primitive locks with Mutex.withLock. Mutex.lock() is a suspend function: a waiting coroutine suspends, and the main thread stays free to draw and take taps. Note: Mutex is not reentrant, so a coroutine that holds it and calls lock again suspends forever; and Mutex does not prevent the deadlock of taking two Mutexes in opposite orders. [[src:ax-anr]] [[src:kx-mutex]]')
+    B(C, S_, 3, 'kt', 'private val listMutex = Mutex()\n\nsuspend fun refresh() {\n    val fresh = withContext(Dispatchers.IO) { api.appointments() }   // ngoài khóa\n    listMutex.withLock { cache = fresh }                               // treo nếu đang bận\n}',
+      'private val listMutex = Mutex()\n\nsuspend fun refresh() {\n    val fresh = withContext(Dispatchers.IO) { api.appointments() }   // outside the lock\n    listMutex.withLock { cache = fresh }                               // suspends if busy\n}')
+    B(C, S_, 4, 'note', 'Tìm ANR đã xảy ra: StrictMode khi phát triển để bắt I/O trên main thread; ApplicationExitInfo (Android 11 trở lên) để biết lần chạy trước kết thúc vì ANR; và file trace trong /data/anr/ cho biết từng luồng đang chờ khóa nào. [[src:ax-anr]]',
+      'Finding ANRs that happened: StrictMode during development to catch I/O on the main thread; ApplicationExitInfo (Android 11 and higher) to learn that the previous run ended in an ANR; and the trace files in /data/anr/ show which lock each thread is waiting for. [[src:ax-anr]]')
+    B(C, S_, 4, 'kind', 'android')
+
+    S_ = 'bugs'
+    a(C + '.sec.%s.title' % S_, 'Hai lỗi hay gặp', 'Two common bugs')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'bug', 'Báo cáo ANR tăng mỗi sáng thứ Hai, đúng lúc nhiều người mở app sau cuối tuần.', 'ANR reports spike every Monday morning, when many people open the app after the weekend.')
+    B(C, S_, 1, 'cause', 'Luồng đồng bộ tải dữ liệu của cả tuần và giữ cacheLock suốt lúc ghi DB; main thread chờ cùng khóa đó khi người dùng chạm.', 'The sync thread pulls a week of data and holds cacheLock through the whole DB write; the main thread waits for the same lock when the user taps.')
+    B(C, S_, 1, 'fix', 'Chỉ giữ khóa để sao chép; ghi DB ngoài khóa trên Dispatchers.IO. Hoặc để database là nguồn sự thật (track G, G4) và bỏ cache có khóa.', 'Hold the lock only to copy; write the DB outside it on Dispatchers.IO. Or make the database the source of truth (track G, G4) and drop the locked cache.')
+    B(C, S_, 2, 'bug', 'App thỉnh thoảng đứng hẳn khi vừa đăng nhập xong; không tái hiện được trên máy dev.', 'The app occasionally freezes right after sign-in; it cannot be reproduced on developer phones.')
+    B(C, S_, 2, 'cause', 'Hai đoạn mã lấy sessionLock và cacheLock theo thứ tự ngược nhau; chỉ khi chạy xen đúng lúc mới deadlock.', 'Two pieces of code take sessionLock and cacheLock in opposite orders; it only deadlocks when they interleave at just the wrong moment.')
+    B(C, S_, 2, 'fix', 'Đọc trace ANR để thấy hai luồng chờ nhau; đặt một thứ tự chung cho hai khóa, hoặc sửa để không đoạn nào giữ cả hai cùng lúc.', 'Read the ANR trace to see the two threads waiting on each other; set one shared order for the two locks, or change the code so nothing holds both at once.')
+
+    S_ = 'ex'
+    a(C + '.sec.%s.title' % S_, 'Bài tập', 'Exercise')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'ex', 'Có ba khóa: sessionLock, cacheLock, dbLock. Đăng xuất lấy sessionLock rồi dbLock (xóa dữ liệu). Đồng bộ lấy dbLock rồi cacheLock. Màn danh sách lấy cacheLock rồi sessionLock (kiểm còn đăng nhập). Vẽ đồ thị chờ trong trường hợp xấu nhất, chỉ ra vòng, và đề xuất một thứ tự chung.',
+      'There are three locks: sessionLock, cacheLock, dbLock. Sign-out takes sessionLock then dbLock (to wipe data). Sync takes dbLock then cacheLock. The list screen takes cacheLock then sessionLock (to check the session). Draw the wait-for graph in the worst case, point out the cycle, and propose one shared order.')
+    B(C, S_, 1, 'hint', 'Mỗi đoạn mã giữ khóa đầu và chờ khóa thứ hai. Nối "chờ" tới "ai đang giữ".', 'Each piece of code holds its first lock and waits for its second. Connect "waits for" to "who holds it".')
+    B(C, S_, 1, 'sol', 'Trường hợp xấu nhất: đăng xuất giữ session chờ db; đồng bộ giữ db chờ cache; danh sách giữ cache chờ session. Đồ thị: đăng xuất → đồng bộ → danh sách → đăng xuất, một vòng ba luồng. Thứ tự chung, ví dụ session (1), cache (2), db (3): đăng xuất lấy 1 rồi 3 (đúng), đồng bộ phải lấy 2 rồi 3 (đảo lại), danh sách phải lấy 1 rồi 2 (đảo lại). Tốt hơn nữa: màn danh sách đọc trạng thái đăng nhập từ một StateFlow, không cần sessionLock.',
+      'Worst case: sign-out holds session and waits for db; sync holds db and waits for cache; the list holds cache and waits for session. The graph: sign-out → sync → list → sign-out, a three-thread cycle. One shared order, e.g. session (1), cache (2), db (3): sign-out takes 1 then 3 (fine), sync must take 2 then 3 (reversed), the list must take 1 then 2 (reversed). Better still: the list reads the session state from a StateFlow and needs no sessionLock.')
+
+    S_ = 'honest'
+    a(C + '.sec.%s.title' % S_, 'Chương này giản lược những gì', 'What this chapter simplifies')
+    a(C + '.sec.%s.badge' % S_, 'simplified')
+    B(C, S_, 1, 'p', 'Ngưỡng và nguyên nhân ANR theo trang ANRs của Android; main thread và hai quy tắc theo "Processes and threads overview"; Mutex theo tài liệu kotlinx.coroutines 1.11.0; bốn điều kiện, đồ thị chờ và thứ tự khóa theo OS Concepts bản 10 ch.8; đọc ngày 2026-11-24, diễn đạt lại. Hai khóa của app Hẹn Khám, mọi mốc thời gian và mã ví dụ là của site. Mô phỏng chỉ có hai luồng; app thật có thêm thread pool của binder, Dispatchers.IO và luồng của thư viện.',
+      'ANR thresholds and causes follow the Android ANRs page; the main thread and its two rules follow "Processes and threads overview"; Mutex follows the kotlinx.coroutines 1.11.0 docs; the four conditions, the wait-for graph and lock ordering follow OS Concepts 10th edition ch.8; read on 2026-11-24, paraphrased. ClinicBook\'s two locks, every timing and the example code are the site\'s. The simulation has only two threads; a real app also has the binder thread pool, Dispatchers.IO and library threads.')
+
+    for q, qv, qe, av, ae, wv, we in [
+        ('q1', 'Main thread chờ một khóa mà luồng nền giữ 6 giây. Có deadlock không? Có ANR không?', 'The main thread waits 6 seconds for a lock a background thread holds. Is it a deadlock? Is it an ANR?', 'Không deadlock (không có vòng chờ), nhưng có ANR nếu một lần chạm chờ quá 5 giây.', 'No deadlock (no cycle), but an ANR if a tap waits more than 5 seconds.', 'Chặn lâu và deadlock là hai chuyện khác nhau; cả hai đều có thể gây ANR.', 'Long blocking and deadlock are different things; both can cause an ANR.'),
+        ('q2', 'Bốn điều kiện của deadlock là gì?', 'What are the four deadlock conditions?', 'Loại trừ lẫn nhau, giữ và chờ, không tước được, chờ vòng.', 'Mutual exclusion, hold and wait, no preemption, circular wait.', 'Phải đủ cả bốn cùng lúc; cắt một là đủ.', 'All four must hold at once; breaking one is enough.'),
+        ('q3', 'Cách thực tế nhất để chặn deadlock giữa các khóa là gì?', 'What is the most practical way to prevent deadlock between locks?', 'Một thứ tự khóa chung, mọi nơi lấy theo thứ tự đó.', 'One shared lock order that every place follows.', 'Nó cắt điều kiện chờ vòng.', 'It breaks the circular-wait condition.'),
+        ('q4', 'Vì sao Mutex.withLock tốt hơn synchronized trên main thread?', 'Why is Mutex.withLock better than synchronized on the main thread?', 'Vì coroutine chờ thì treo lại, luồng main không bị chặn.', 'Because a waiting coroutine suspends; the main thread is not blocked.', 'Nhưng Mutex không reentrant và vẫn deadlock được nếu lấy hai Mutex ngược thứ tự.', 'But Mutex is not reentrant and can still deadlock with two Mutexes in opposite orders.')]:
+        a(C + '.quiz.%s.q' % q, qv, qe); a(C + '.quiz.%s.a' % q, av, ae); a(C + '.quiz.%s.why' % q, wv, we)

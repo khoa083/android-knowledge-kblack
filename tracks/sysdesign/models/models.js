@@ -115,4 +115,53 @@
         { name: 'quay lại: chỉ ViewModel thì form rỗng và ảnh mồ côi; saved state thì đủ 3 ô', run: function () { return fields('vm', 3) === 0 && SURV.vm[3][2][2] === 'orphan' && fields('saved', 3) === 3 && SURV.saved[3][1][2] === 'restored'; } },
         { name: 'mỗi cách có 4 bước, dòng mã nằm trong đoạn mã', run: function () { return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (n) { return n >= 1 && n <= (c === 'vm' ? 9 : 10); }); }); }); } }] });
   })();
+
+  /* ================= I3: luồng, khóa, ANR và deadlock — giữ khóa lâu, hai khóa ngược thứ tự, một thứ tự chung =================
+     Theo developer.android.com ANRs (sự kiện nhập 5 giây; main thread chờ khóa; deadlock; Mutex.withLock), Processes and threads
+     overview (đừng chặn UI thread); kotlinx.coroutines Mutex; OS Concepts bản 10 ch.8 (bốn điều kiện, đồ thị chờ, thứ tự khóa).
+     Mốc thời gian là minh họa: chạm ở giây 1, ANR ở giây 6. */
+  (function () {
+    var m = 'lock', CASES = ['hold', 'cycle', 'order'], KS = ['s1', 's2', 's3', 's4'];
+    // làn thời gian: [bắt đầu, kết thúc (giây), loại, nhãn]
+    var LANES = {
+      hold: { main: [[1, 7, 'wait', 'waitC'], [7, 8, 'run', 'draw']], sync: [[0, 7, 'hold', 'holdC']] },
+      cycle: { main: [[1, 2, 'run', 'ui'], [2, 3, 'hold', 'holdC2'], [3, 8, 'wait', 'waitD']], sync: [[0, 3, 'hold', 'holdD'], [3, 8, 'wait', 'waitC']] },
+      order: { main: [[1.1, 1.3, 'wait', ''], [1.3, 1.4, 'hold', ''], [1.4, 2, 'run', 'draw']], sync: [[1, 1.3, 'hold', 'copy'], [1.3, 7, 'run', 'write']] }
+    };
+    var TS = { hold: [1, 3, 6, 8], cycle: [1, 2, 3, 8], order: [1.1, 1.3, 2, 8] };
+    var ANR = { hold: 6, cycle: 6, order: null };
+    var WF = { hold: [[], [['main', 'sync', 'cacheLock']], [['main', 'sync', 'cacheLock']], []],
+      cycle: [[], [], [['main', 'sync', 'dbLock'], ['sync', 'main', 'cacheLock']], [['main', 'sync', 'dbLock'], ['sync', 'main', 'cacheLock']]],
+      order: [[], [['main', 'sync', 'cacheLock']], [], []] };
+    function blocked(c, i) { var t = TS[c][i]; return Math.round(LANES[c].main.reduce(function (acc, g) { return g[2] === 'wait' && g[0] < t ? acc + Math.min(g[1], t) - g[0] : acc; }, 0) * 1000); }
+    function anr(c, i) { return ANR[c] !== null && TS[c][i] >= ANR[c] ? 1 : 0; }
+    function cyc(c, i) { var e = WF[c][i]; return e.some(function (a) { return e.some(function (b) { return a[0] === b[1] && a[1] === b[0]; }); }) ? 1 : 0; }
+    // bốn điều kiện tại bước: loại trừ, giữ và chờ, không tước, chờ vòng
+    function conds(c, i) { var w = cyc(c, i) === 1; return { me: true, hw: c === 'cycle' && i >= 2, np: true, cw: w }; }
+    ADE.sysLock = { LANES: LANES, TS: TS, ANR: ANR, WF: WF, blocked: blocked, conds: conds };
+    var LINES = { hold: [[2, 3], [6], [6], [4, 7]], cycle: [[2], [6], [3, 7], [3, 7]], order: [[1, 2], [5], [3, 6], [7]] };
+    var NODES = { hold: [['sync', 'cache'], ['main', 'cache'], ['main'], ['main', 'sync']], cycle: [['sync', 'db'], ['main', 'cache'], ['main', 'sync', 'cache', 'db'], ['main', 'sync']], order: [['sync', 'cache', 'db'], ['main', 'cache'], ['main', 'sync'], ['sync', 'db']] };
+    var EDGE = { hold: ['e3', 'e1', 'e1', 'e1'], cycle: ['e4', 'e1', 'e2', 'e2'], order: ['e3', 'e1', 'e1', 'e4'] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var bad = anr(c, i) === 1 || cyc(c, i) === 1, type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism');
+        var ns = {}; NODES[c][i].forEach(function (n) { ns[n] = K + 'st.' + (bad && (n === 'main' || n === 'sync') ? 'surprise' : 'done'); });
+        var o = S(m, c + '.' + k, { type: type, activeNodes: NODES[c][i], nodeStates: ns,
+          metrics: { blocked: blocked(c, i), anr: anr(c, i), cycle: cyc(c, i) },
+          codeHighlight: { snippet: 'i3.' + c, lines: LINES[c][i] },
+          movingSignals: [{ edge: EDGE[c][i], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : 'run'), subject: NODES[c][i][0] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'hold' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'giữ khóa lâu: ANR nhưng không có vòng chờ; main bị chặn 6 giây', run: function () { return anr('hold', 3) === 1 && [0, 1, 2, 3].every(function (i) { return cyc('hold', i) === 0; }) && blocked('hold', 3) === 6000; } },
+        { name: 'ngược thứ tự: vòng chờ từ bước 3, đủ bốn điều kiện, rồi ANR', run: function () { var k = conds('cycle', 2); return cyc('cycle', 2) === 1 && k.me && k.hw && k.np && k.cw && anr('cycle', 3) === 1; } },
+        { name: 'một thứ tự chung: không vòng, không ANR, main chờ dưới 1 giây', run: function () { return [0, 1, 2, 3].every(function (i) { return cyc('order', i) === 0 && anr('order', i) === 0 && blocked('order', i) < 1000; }); } },
+        { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { hold: 8, cycle: 8, order: 7 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
+  })();
 })();
