@@ -776,3 +776,7 @@ Trạng thái: `chưa / đang / xong`.
   - **Track G chuyển `stable`** với 12 chương G0–G11. Đã cập nhật roadmap, README, next-prompt.
   - **Kiểm:** report 0 lỗi, 120 cảnh báo; track-check arch 0 ở 1280 và 360; routes-check 165 route, không lỗi; đã xem ảnh bảng tra.
   - **Tiếp theo:** track H (Lưu dữ liệu).
+- **Lưu dữ liệu · khung track H và H1 (2026-11-24):** dựng track `storage` (H, order 80, `draft`): manifest, `dev/gen/storage_content.py`, sources, glossary, misconceptions, models, views, visuals, code; thêm script vào `index.html` và `dev/report.html`.
+  - **H1 Chọn nơi lưu** (`storage_v2_h1.py`, 8 mục): bốn nhóm nơi lưu, bốn câu hỏi, vì sao danh sách không nên nằm trong SharedPreferences (mã AOSP `SharedPreferencesImpl`), 2 bug, bài tập xếp 6 loại dữ liệu, quiz 4 câu.
+  - **Sim `storage.choose`:** năm loại dữ liệu (500 lịch hẹn, cài đặt, ảnh hồ sơ, PDF kết quả, bản nháp) đi qua tối đa bốn câu hỏi. Tab chính là **cây quyết định dạng bậc thang** (CSS `.vz-dt-*`) kèm bảng thuộc tính năm nơi lưu.
+  - **Kiểm:** report 0 lỗi, 121 cảnh báo (+1: nguồn `ax-sp-editor` khai báo trước cho H3); track-check storage 0 ở 1280 và 360; đã xem ảnh.
