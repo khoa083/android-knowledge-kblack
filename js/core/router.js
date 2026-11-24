@@ -9,7 +9,7 @@
 (function () {
   'use strict';
   var ADE = window.ADE = window.ADE || {};
-  var PAGES = ['live', 'misconceptions', 'glossary', 'sources', 'about', 'search'];
+  var PAGES = ['live', 'progress', 'misconceptions', 'glossary', 'sources', 'about', 'search'];
   var listeners = [];
 
   function parse(hash) {

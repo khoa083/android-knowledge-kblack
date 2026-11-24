@@ -109,6 +109,28 @@ Quy tắc:
 - Mỗi bước mô phỏng: sơ đồ có một chuyển động chính (cái vừa đổi). Chuyển cảnh panel, nháy chỉ số và dòng log là xác nhận cục bộ ở vùng riêng của chúng, được phép chạy cùng lúc; không thêm hiệu ứng trang trí nào khác.
 - Track hoặc view mới có thể thêm chuyển động riêng cho sơ đồ, nhưng phải theo các quy tắc trên và kiểm cả hai chế độ chuyển động.
 
+### 5.2 Mọi hình đều phải chuyển động; hình phải dễ đọc (thêm 2026-11-24, quyết định của người dùng)
+
+Người dùng kiểm tra và thấy nhiều bảng, sơ đồ trong "màn hình trực quan" (`ADE.registerScreen`) đứng yên, và một cây quyết định vẽ bằng hộp lồng nhiều tầng rất khó đọc. Từ nay áp cho mọi track hiện có và track mới:
+
+| Chỗ | Chuyển động (lõi tự làm) |
+|---|---|
+| Màn hình trực quan (`.view-screen`, mọi track) | `ui.labMotion` gắn sẵn: số chạy dần, ô đổi chữ hay đổi lớp nháy rồi giữ `.mo-live`; đường SVG mới vẽ dần từ đầu tới cuối; hình chữ nhật mới mọc ra; phần tử mới hiện dần |
+| Phần "hiện tại" trong màn hình | liên tục: ô `.hl` nhịp viền, ô `.bad` nhịp viền đỏ, mũi tên `.vz-sq-m.cur` chảy, thanh `.vz-tl-cur` viền chạy, cạnh `.vz-dg-e.up`/luồng dữ liệu chảy, node `.vz-dg-n.on` viền chạy, vạch mốc nhịp sáng |
+| Ô giữ chỗ ("?", "·", "…", "—") | nhấp nháy như khung chờ nạp (`.mo-wait`) |
+| Màn hình chưa có gì "hiện tại" | phần tử đầu (gốc cây, hàng đầu bảng, sơ đồ) nhịp viền nhẹ (`.mo-start`) |
+| Nền mọi màn hình | vạch quét mảnh ở mép trên (`.view-screen::before`) |
+| Sơ đồ node | vòng lặp liên tục chạy cả khi vẽ "tức thì" (đổi tab); `.calm` chỉ bỏ hiệu ứng một lần; trang tổng quan (`.idle`): mọi cạnh chảy chậm |
+| Dòng thời gian, đồ thị cầu nối | sự kiện hiện tại nhịp sáng, đường đời chảy; cạnh cầu nối chảy, node trung tâm thở |
+| Khối "Mã ở bước này" | dòng đang chạy nháy khi vào rồi giữ vạch trái nhịp sáng |
+
+Quy tắc khi làm hình mới:
+- Kiểm bằng `dev/tools/motion-check.js` cho track (đi mọi chương, mọi tab sim, vài vị trí): phải **0 hình đứng yên**. Công cụ không tính vạch quét nền.
+- Không lồng hộp nhiều tầng; chọn dạng phẳng dễ dò nhất: đường đi dạng bậc thang, bảng, ma trận, làn thời gian, sơ đồ tuần tự, dãy ô. Ví dụ đã sửa: cây chọn API của Animation C0 thành đường đi dọc + bảng tra.
+- Học cách trình bày (không chép mã, hình) từ byte-sized-algorithms.vercel.app: vật thể di chuyển giữa vị trí qua các bước, số đếm gắn trên vật, mã đi cùng bước với dòng đang chạy được tô.
+- Chương có đoạn mã: mọi bước nên có `codeHighlight`; lõi hiện "Mã ở bước này" ngay dưới phần giải thích, không bắt người học đổi tab.
+- Giảm chuyển động: mọi thứ trên tắt (khối CSS reduced-motion); đã kiểm 0 animation chạy.
+
 - [ ] Tab/Shift+Tab qua mọi điều khiển; Enter/Space kích hoạt; focus ring rõ (cam đậm/vàng, 2px + offset 2px, ≥ 3:1).
 - [ ] Phím tắt mô phỏng (`←` `→` `Space` `R`, `1–9`, `[ ]`, `?`, `Ctrl+K` hoặc `/`) **bỏ qua** khi focus ở `button`, `input`, `select`, `textarea` hoặc slider; ghi chú trên giao diện bằng cả hai ngôn ngữ.
 - [ ] Vùng chạm ≥ 44×44 CSS px. Không cuộn ngang ở 360px.

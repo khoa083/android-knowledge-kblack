@@ -152,12 +152,6 @@
     ui.clear(header);
     drawerBtn = h('button', { type: 'button', 'data-fk': 'drawer-btn', class: 'btn icon', 'aria-label': ADE.t('app.catalog'), 'aria-expanded': 'false', 'aria-controls': 'drawer', onclick: function () { toggleDrawer(drawer.hidden); } }, icon('menu', { size: 20 }));
     var brand = h('a', { class: 'brand', href: href(''), 'aria-label': ADE.t('app.name') + ' — ' + ADE.t('app.home') }, h('span', { class: 'logo-wrap', html: ADE.diagram.logo(36) }), h('span', { class: 'brand-t' }, h('span', { class: 'wordmark', text: ADE.t('app.name') }), h('span', { class: 'tagline', text: ADE.t('app.tagline') })));
-    var ctx = h('div', { class: 'ctx-now', 'aria-live': 'off' });
-    if (trk) {
-      var tp = trackProgress(trk);
-      ctx.appendChild(h('span', { class: 'ctx-track' }, h('i', { class: 'accent-dot', style: 'background:' + trk.accent, 'aria-hidden': 'true' }), h('span', { text: ADE.t(trk.titleKey) })));
-      if (ADE.trackOpen(trk)) ctx.appendChild(h('span', { class: 'ctx-prog', title: ADE.t('app.progress') }, h('progress', { max: String(tp.total), value: String(tp.done), 'aria-label': ADE.t('app.progress') }), h('span', { text: tp.done + '/' + tp.total })));
-    }
     var langSeg = h('div', { class: 'seg', role: 'group', 'aria-label': ADE.t('app.language') });
     ADE.langs.forEach(function (l) {
       langSeg.appendChild(h('button', { type: 'button', 'data-fk': 'lang-' + l, class: 'seg-b' + (l === ADE.lang ? ' on' : ''), 'aria-pressed': l === ADE.lang ? 'true' : 'false', lang: l, title: ADE.t('app.langName.' + l), 'aria-label': ADE.t('app.langName.' + l), onclick: function () { switchLang(l); }, text: l.toUpperCase() }));
@@ -175,17 +169,28 @@
     var modeSeg = h('div', { class: 'seg mode', role: 'group', 'aria-label': ADE.t('app.mode') },
       h('a', { 'data-fk': 'mode-guided', class: 'seg-b' + (!live ? ' on' : ''), href: lastGuidedHref(), 'aria-current': !live ? 'page' : null, text: ADE.t('app.guided') }),
       h('a', { 'data-fk': 'mode-live', class: 'seg-b' + (live ? ' on' : ''), href: href('live'), 'aria-current': live ? 'page' : null, text: ADE.t('app.live') }));
-    header.appendChild(h('div', { class: 'topbar-in' }, drawerBtn, brand, ctx, h('div', { class: 'top-right' }, modeSeg, bMotion, bTheme, langSeg)));
+    header.appendChild(h('div', { class: 'topbar-in' }, drawerBtn, brand, h('div', { class: 'top-right' }, modeSeg, bMotion, bTheme, langSeg)));
 
     // toolbar: ô tìm kiếm + chip ngữ cảnh + liên kết trang chung
     ui.clear(toolbar);
     var search = h('button', { type: 'button', 'data-fk': 'search', class: 'searchbox', 'aria-label': ADE.t('app.search'), onclick: function () { ADE.search.openDialog(); } }, icon('search', { size: 16 }), h('span', { class: 'ph', text: ADE.t('app.searchPlaceholder') }), h('kbd', { text: 'Ctrl K' }));
-    var chips = h('div', { class: 'ctx-chips', role: 'navigation', 'aria-label': ADE.t('app.tracks') });
+    // chọn track: một menu thả xuống (trước đây là 9 chip chiếm 3 hàng trên mọi trang)
+    var tmenu = h('details', { class: 'trk-menu', 'data-fk': 'trk-menu' });
+    tmenu.appendChild(h('summary', { 'aria-label': ADE.t('app.tracks') }, trk ? h('i', { class: 'accent-dot', style: 'background:' + trk.accent, 'aria-hidden': 'true' }) : icon('layers', { size: 14 }),
+      h('span', { class: 'trk-menu-t', text: trk ? trk.code + ' · ' + ADE.t(trk.titleKey) : ADE.t('app.tracks') }),
+      trk && ADE.trackOpen(trk) ? h('span', { class: 'trk-menu-p', title: ADE.t('app.progress'), text: trackProgress(trk).done + '/' + trackProgress(trk).total }) : null, icon('chevd', { size: 14 })));
+    var tlist = h('ul', { class: 'trk-list', role: 'list' });
     ADE.tracks.forEach(function (t) {
-      chips.appendChild(h('a', { class: 'ctx-chip' + (trk && trk.id === t.id ? ' on' : ''), href: href(t.id), 'aria-current': trk && trk.id === t.id ? 'page' : null }, h('i', { class: 'accent-dot', style: 'background:' + t.accent, 'aria-hidden': 'true' }), h('span', { text: t.code + ' · ' + ADE.t(t.titleKey) })));
+      var open = ADE.trackOpen(t), tp = trackProgress(t), on = trk && trk.id === t.id;
+      tlist.appendChild(h('li', null, h('a', { class: 'trk-item' + (on ? ' on' : '') + (open ? '' : ' soon'), href: href(t.id), 'aria-current': on ? 'page' : null, style: '--accent:' + t.accent, onclick: function () { tmenu.open = false; } },
+        h('span', { class: 'pg-code', text: t.code }), h('span', { class: 'trk-item-t', text: ADE.t(t.titleKey) }),
+        h('span', { class: 'trk-item-p', text: open ? tp.done + '/' + tp.total : ADE.t('app.soonShort') }))));
     });
+    tmenu.appendChild(h('div', { class: 'trk-pop' }, tlist));
+    tmenu.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tmenu.open) { tmenu.open = false; tmenu.querySelector('summary').focus(); } });
+    document.addEventListener('click', function (e) { if (tmenu.open && !tmenu.contains(e.target)) tmenu.open = false; });
     var links = h('nav', { class: 'toplinks', 'aria-label': ADE.t('app.pages') });
-    [['misconceptions', 'app.nav.misconceptions'], ['glossary', 'app.nav.glossary'], ['sources', 'app.nav.sources'], ['about', 'app.nav.about']].forEach(function (p) {
+    [['progress', 'app.nav.progress'], ['misconceptions', 'app.nav.misconceptions'], ['glossary', 'app.nav.glossary'], ['sources', 'app.nav.sources'], ['about', 'app.nav.about']].forEach(function (p) {
       links.appendChild(h('a', { href: href(p[0]), class: r.page === p[0] ? 'on' : '', 'aria-current': r.page === p[0] ? 'page' : null, text: ADE.t(p[1]) }));
     });
     var help = h('button', { type: 'button', 'data-fk': 'help', class: 'btn icon', 'aria-label': ADE.t('app.shortcuts'), title: ADE.t('app.shortcuts') + ' (?)', onclick: openHelp }, icon('keyboard', { size: 18 }));
@@ -193,7 +198,7 @@
     var bSans = h('button', { type: 'button', 'data-fk': 'sans', class: 'btn toggle small', 'aria-pressed': sansOn ? 'true' : 'false', title: ADE.t('app.sansHint'), onclick: function () {
       var on = !root.classList.contains('sans-prose'); root.classList.toggle('sans-prose', on); ADE.store.set('sans', on); renderChrome();
     } }, icon('sans', { size: 14 }), h('span', { text: ADE.t('app.sans') }));
-    toolbar.appendChild(h('div', { class: 'toolbar-in' }, search, chips, links, bSans, help));
+    toolbar.appendChild(h('div', { class: 'toolbar-in' }, search, tmenu, links, h('div', { class: 'tool-btns' }, bSans, help)));
     renderFooter();
     renderRail(r);
     renderDrawer();
@@ -250,10 +255,15 @@
     var doms = ADE.domains();
     drawer.appendChild(h('header', { class: 'drawer-h' }, h('h2', { class: 'caps', text: ADE.t('app.catalog') }), h('button', { type: 'button', class: 'btn icon', 'aria-label': ADE.t('app.close'), onclick: function () { toggleDrawer(false); } }, icon('close', { size: 16 }))));
     var dl = h('nav', { class: 'drawer-links', 'aria-label': ADE.t('app.pages') });
-    [['', 'app.home'], ['misconceptions', 'app.nav.misconceptions'], ['glossary', 'app.nav.glossary'], ['sources', 'app.nav.sources'], ['about', 'app.nav.about']].forEach(function (p) {
+    [['', 'app.home'], ['progress', 'app.nav.progress'], ['misconceptions', 'app.nav.misconceptions'], ['glossary', 'app.nav.glossary'], ['sources', 'app.nav.sources'], ['about', 'app.nav.about']].forEach(function (p) {
       dl.appendChild(h('a', { href: href(p[0]), onclick: function () { toggleDrawer(false); }, text: ADE.t(p[1]) }));
     });
     drawer.appendChild(dl);
+    // trên mobile, nút "Giảm chuyển động" nằm ở đây (header chỉ giữ chế độ, giao diện, ngôn ngữ cho vừa một hàng)
+    var red = ADE.motionReduced();
+    drawer.appendChild(h('div', { class: 'drawer-settings' }, h('button', { type: 'button', 'data-fk': 'motion-drawer', class: 'btn toggle', 'aria-pressed': red ? 'true' : 'false', title: ADE.t('app.reducedMotionHint'), onclick: function () {
+      ADE.store.set('motion', ADE.motionReduced() ? 'full' : 'reduce'); applyMotion(); renderChrome(); rerender();
+    } }, icon('motion', { size: 16 }), h('span', { text: ADE.t('app.reducedMotion') }))));
     var chips = h('div', { class: 'chips filter', role: 'group', 'aria-label': ADE.t('app.filterDomain') });
     var total = ADE.tracks.length;
     chips.appendChild(h('button', { type: 'button', 'data-fk': 'dchip-all', class: 'chip btn' + (drawerDomain === 'all' ? ' on' : ''), 'aria-pressed': drawerDomain === 'all' ? 'true' : 'false', onclick: function () { drawerDomain = 'all'; renderDrawer(); } }, h('span', { text: ADE.t('app.all') }), h('b', { text: String(total) })));
@@ -344,6 +354,7 @@
         case 'glossary': node = pageGlossary(r); break;
         case 'sources': node = pageSources(r); break;
         case 'about': node = pageAbout(); break;
+        case 'progress': node = pageProgress(); break;
         case 'search': node = pageSearch(r); break;
         default: node = pageNotFound();
       }
@@ -372,7 +383,8 @@
       var pg = getProg(last.track, last.chapter);
       wrap.appendChild(h('section', { class: 'panel continue' }, h('h2', { class: 'caps', text: ADE.t('app.continue') }),
         h('p', null, h('b', { text: ADE.t(lc.track.titleKey) }), ' › ', ADE.t(lc.chapter.titleKey), pg.done ? ' (' + ADE.t('app.done') + ')' : ''),
-        h('a', { class: 'btn primary', href: href(last.track + '/' + last.chapter) }, h('span', { text: ADE.t('app.continueBtn') }), icon('next', { size: 14 }))));
+        h('div', { class: 'row-actions' }, h('a', { class: 'btn primary', href: href(last.track + '/' + last.chapter) }, h('span', { text: ADE.t('app.continueBtn') }), icon('next', { size: 14 })),
+          h('a', { class: 'btn', href: href('progress') }, icon('list', { size: 14 }), h('span', { text: ADE.t('app.prog.open') })))));
     }
 
     // hai chế độ + phím tắt
@@ -792,6 +804,95 @@
     });
     return wrap;
   }
+  /* ================= tiến độ: tổng quan, biểu đồ theo track, xóa có xác nhận và hoàn tác ================= */
+  var progUndo = null;   // bản sao trước lần xóa gần nhất (chỉ trong phiên này)
+  function chapState(tid, cid) { var p = getProg(tid, cid); return p.done ? 'done' : (p.max > 0 || Object.keys(p.quiz || {}).length ? 'started' : 'none'); }
+  function progStats(list) {
+    var st = { done: 0, started: 0, total: 0, quiz: 0, tracks: 0 };
+    list.forEach(function (t) {
+      var any = false;
+      t.chapters.forEach(function (c) {
+        var k = chapState(t.id, c.id); st.total++;
+        if (k === 'done') st.done++; if (k === 'started') st.started++; if (k !== 'none') any = true;
+        st.quiz += Object.keys(getProg(t.id, c.id).quiz || {}).length;
+      });
+      if (any) st.tracks++;
+    });
+    return st;
+  }
+  function clearProgress(tid) {
+    progUndo = { progress: JSON.parse(JSON.stringify(progress)), last: ADE.store.get('last', null), scope: tid || '' };
+    Object.keys(progress).forEach(function (k) { if (!tid || k.indexOf(tid + '/') === 0) delete progress[k]; });
+    ADE.store.set('progress', progress);
+    var last = ADE.store.get('last', null); if (last && (!tid || last.track === tid)) ADE.store.set('last', null);
+  }
+  function undoClear() {
+    if (!progUndo) return;
+    Object.keys(progress).forEach(function (k) { delete progress[k]; });
+    Object.keys(progUndo.progress).forEach(function (k) { progress[k] = progUndo.progress[k]; });
+    ADE.store.set('progress', progress); ADE.store.set('last', progUndo.last); progUndo = null;
+  }
+  function donut(st) {
+    var R = 52, C = 2 * Math.PI * R, fd = st.total ? st.done / st.total : 0, fs = st.total ? st.started / st.total : 0, pct = Math.round(fd * 100);
+    var arc = function (cls, frac, off, i) { return frac > 0 ? '<circle class="pg-arc ' + cls + '" cx="64" cy="64" r="' + R + '" style="--len:' + (frac * C).toFixed(1) + ';--c:' + C.toFixed(1) + ';--i:' + i + '" stroke-dashoffset="' + (-off * C).toFixed(1) + '"/>' : ''; };
+    return '<svg viewBox="0 0 128 128" class="pg-donut" role="img" aria-label="' + ADE.esc(ADE.t('app.prog.donut', { pct: pct })) + '"><g transform="rotate(-90 64 64)"><circle class="pg-track" cx="64" cy="64" r="' + R + '"/>' +
+      arc('done', fd, 0, 0) + arc('started', fs, fd, 1) + '</g><text class="pg-pct" x="64" y="64" text-anchor="middle">' + pct + '%</text><text class="pg-pct-s" x="64" y="82" text-anchor="middle">' + ADE.esc(ADE.t('app.prog.doneShort')) + '</text></svg>';
+  }
+  function pageProgress() {
+    setTitle(ADE.t('app.nav.progress'));
+    var list = ADE.tracks.filter(function (t) { return ADE.trackOpen(t); }), st = progStats(list);
+    var wrap = stdPage(ADE.t('app.prog.title'), [para(ADE.t('app.prog.lead'))]);
+    wrap.classList.add('progress-page');
+    if (progUndo) {
+      var sc = progUndo.scope ? ADE.getTrack(progUndo.scope) : null;
+      wrap.appendChild(h('div', { class: 'panel pg-toast', role: 'status' }, icon('check', { size: 16 }),
+        h('span', { text: sc ? ADE.t('app.prog.clearedTrack', { track: ADE.t(sc.titleKey) }) : ADE.t('app.prog.clearedAll') }),
+        h('button', { type: 'button', class: 'btn small', 'data-fk': 'prog-undo', onclick: function () { undoClear(); rerender(); } }, h('span', { text: ADE.t('app.prog.undo') }))));
+    }
+    // tổng quan: vòng tròn + bốn ô số + chú giải
+    var tile = function (n, k, cls) { return h('div', { class: 'pg-tile ' + (cls || '') }, h('b', { class: 'pg-n', text: String(n) }), h('span', { text: ADE.t(k) })); };
+    wrap.appendChild(h('section', { class: 'panel pg-over' },
+      h('div', { class: 'pg-ring', html: donut(st) }),
+      h('div', { class: 'pg-side' },
+        h('div', { class: 'pg-tiles' }, tile(st.done + '/' + st.total, 'app.prog.tDone', 'done'), tile(st.started, 'app.prog.tStarted', 'started'), tile(st.quiz, 'app.prog.tQuiz'), tile(st.tracks + '/' + list.length, 'app.prog.tTracks')),
+        h('div', { class: 'pg-legend', role: 'list' }, ['done', 'started', 'none'].map(function (k) { return h('span', { role: 'listitem', class: 'pg-lg' }, h('i', { class: 'pg-sw ' + k, 'aria-hidden': 'true' }), h('span', { text: ADE.t('app.prog.s.' + k) })); })))));
+    if (!st.done && !st.started) wrap.appendChild(h('section', { class: 'panel pad pg-empty' }, para(ADE.t('app.prog.empty')), h('a', { class: 'btn primary', href: href('') }, icon('layers', { size: 16 }), h('span', { text: ADE.t('app.browseCatalog') }))));
+    // biểu đồ theo track: thanh xếp chồng (xong, đang học) + dải ô từng chương (bấm để mở chương)
+    var chart = h('section', { class: 'panel pg-chart' }, h('h2', { class: 'caps', text: ADE.t('app.prog.byTrack') }));
+    list.forEach(function (t, i) {
+      var tst = progStats([t]), pd = tst.total ? tst.done / tst.total * 100 : 0, ps = tst.total ? tst.started / tst.total * 100 : 0;
+      var cells = h('div', { class: 'pg-cells', role: 'list', 'aria-label': ADE.t('app.prog.cells', { track: ADE.t(t.titleKey) }) });
+      t.chapters.forEach(function (c, j) {
+        var k = chapState(t.id, c.id), lb = ADE.t(c.titleKey) + ' · ' + ADE.t('app.prog.s.' + k);
+        cells.appendChild(h('a', { class: 'pg-cell ' + k, role: 'listitem', href: href(t.id + '/' + c.id), style: '--j:' + j, title: lb, 'aria-label': lb }));
+      });
+      chart.appendChild(h('div', { class: 'pg-row', style: '--accent:' + t.accent + ';--i:' + i },
+        h('a', { class: 'pg-name', href: href(t.id), title: ADE.t(t.titleKey) }, h('span', { class: 'pg-code', text: t.code }), h('span', { class: 'pg-tt', text: ADE.t(t.titleKey) })),
+        h('div', { class: 'pg-bar', role: 'img', 'aria-label': ADE.t('app.prog.bar', { done: tst.done, started: tst.started, total: tst.total }) },
+          h('span', { class: 'pg-seg done', style: 'width:' + pd.toFixed(2) + '%' }), h('span', { class: 'pg-seg started', style: 'width:' + ps.toFixed(2) + '%' })),
+        h('span', { class: 'pg-count', text: tst.done + '/' + tst.total }), cells));
+    });
+    wrap.appendChild(chart);
+    // xóa tiến độ: chọn phạm vi → xác nhận (nêu số chương bị xóa) → xóa, hiện thông báo kèm "Hoàn tác"
+    var started = list.filter(function (t) { var x = progStats([t]); return x.done || x.started || x.quiz; });
+    var scopeSel = h('select', { class: 'sel', 'data-fk': 'prog-scope', 'aria-label': ADE.t('app.prog.scope') }, [h('option', { value: '', text: ADE.t('app.prog.scopeAll') })].concat(
+      started.map(function (t) { return h('option', { value: t.id, text: t.code + ' · ' + ADE.t(t.titleKey) }); })));
+    var confirmBox = h('div', { class: 'pg-confirm', hidden: true, role: 'alertdialog', 'aria-label': ADE.t('app.prog.clearTitle') });
+    var openConfirm = function () {
+      var tid = scopeSel.value, tt = tid ? ADE.getTrack(tid) : null, x = progStats(tt ? [tt] : list), n = x.done + x.started;
+      ui.clear(confirmBox); confirmBox.hidden = false;
+      confirmBox.appendChild(h('p', { text: tt ? ADE.t('app.prog.confirmTrack', { n: n, track: ADE.t(tt.titleKey) }) : ADE.t('app.prog.confirmAll', { n: n }) }));
+      confirmBox.appendChild(h('div', { class: 'row-actions' },
+        h('button', { type: 'button', class: 'btn danger', 'data-fk': 'prog-clear-yes', onclick: function () { clearProgress(tid); rerender(); } }, icon('cross', { size: 14 }), h('span', { text: ADE.t('app.prog.clearYes') })),
+        h('button', { type: 'button', class: 'btn', 'data-fk': 'prog-clear-no', onclick: function () { confirmBox.hidden = true; } }, h('span', { text: ADE.t('app.prog.cancel') }))));
+      var yes = confirmBox.querySelector('[data-fk=prog-clear-yes]'); if (yes) yes.focus();
+    };
+    wrap.appendChild(h('section', { class: 'panel pg-danger' }, h('h2', { class: 'caps', text: ADE.t('app.prog.clearTitle') }), para(ADE.t('app.prog.clearLead')),
+      h('div', { class: 'row-actions' }, scopeSel, h('button', { type: 'button', class: 'btn', 'data-fk': 'prog-clear', disabled: started.length ? null : true, onclick: openConfirm }, icon('cross', { size: 14 }), h('span', { text: ADE.t('app.prog.clear') }))),
+      confirmBox));
+    return wrap;
+  }
+
   function pageAbout() {
     setTitle(ADE.t('app.nav.about'));
     var wrap = stdPage(ADE.t('app.nav.about'), []);

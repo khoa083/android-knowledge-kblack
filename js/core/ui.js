@@ -245,6 +245,8 @@
     var screenFn = disc ? ADE.screens[opts.modelId] || null : null;
     var screenBox = h('div', { class: 'view-screen', tabindex: '0', role: 'region', 'aria-label': ADE.t('app.screenView') });
     if (screenFn && !vs.screenSeen) { vs.screenSeen = true; vs.canvasTab = 'screen'; }
+    // chuyển động cho hình trực quan: so cây DOM trước và sau mỗi lần vẽ lại (số chạy, ô đổi nháy, phần mới hiện dần, SVG nội suy)
+    var screenMo = screenFn ? ui.labMotion(screenBox) : null;
     if (!screenFn && vs.canvasTab === 'screen') vs.canvasTab = 'diagram';
     var conceptual = h('span', { class: 'badge badge-simplified conceptual', text: ADE.t('app.conceptual') });
     var diagOnly = h('button', { type: 'button', class: 'btn small toggle', 'aria-pressed': ADE.diagramOnly() ? 'true' : 'false', title: ADE.t('app.diagramOnlyHint'), onclick: function () {
@@ -375,6 +377,18 @@
       if (!info || !info.sn) return h('p', { class: 'muted pad', text: ADE.t('app.noCode') });
       return ui.codeBlock(info.sn, info.lines);
     }
+    // mã thu gọn đi cùng bước: chỉ khi bước có dòng được tô; khung cao giới hạn, tự cuộn tới dòng đang chạy
+    function codeMini(step) {
+      var info = snippetFor(step);
+      if (!info || !info.sn || !step.codeHighlight || !info.lines.length) return null;
+      var blk = ui.codeBlock(info.sn, info.lines); blk.classList.add('code-mini');
+      var full = h('button', { type: 'button', class: 'btn small', 'data-fk': 'code-full', onclick: function () { vs.sideTab = 'code'; renderSide(); } }, ui.icon('chevr', { size: 12 }), h('span', { text: ADE.t('app.codeFull') }));
+      setTimeout(function () {
+        var pre = blk.querySelector('pre'), hl = blk.querySelector('.cl.hl');
+        if (pre && hl) pre.scrollTop = Math.max(0, hl.offsetTop - pre.clientHeight / 2 + hl.offsetHeight / 2);
+      }, 0);
+      return h('div', { class: 'ctx-block code-here' }, h('div', { class: 'code-here-h' }, h('h3', { class: 'caps sub', text: ADE.t('app.codeHere') }), full), blk);
+    }
     function nameOfPos(p) { return p === 0 ? ADE.t('app.overview') : (p > S.N ? ADE.t('app.wrapup') : titleOf(S.steps[p - 1])); }
     function renderSide() {
       ui.clear(sideBody); ui.clear(sideTabs);
@@ -421,6 +435,7 @@
       d.appendChild(h('h3', { class: 'step-title', text: titleOf(step) }));
       d.appendChild(h('p', { class: 'prose', html: ADE.tm(step.explainKey, step.params) }));
       (step.callouts || []).forEach(function (c) { d.appendChild(ui.callout(c.kind, ADE.tm(c.textKey, c.params))); });
+      var mini = codeMini(step); if (mini) d.appendChild(mini);
       if ((step.stateBefore && step.stateBefore.length) || (step.stateAfter && step.stateAfter.length)) {
         d.appendChild(h('div', { class: 'ctx-block ba' }, h('h3', { class: 'caps sub', text: ADE.t('app.state') }),
           h('div', { class: 'ba-cols' }, h('div', null, h('h4', { text: ADE.t('app.before') }), stateList(step.stateBefore)), h('div', null, h('h4', { text: ADE.t('app.after') }), stateList(step.stateAfter)))));
@@ -532,7 +547,7 @@
     return {
       root: root,
       refresh: function () { all(false); },
-      destroy: function () { offs.forEach(function (f) { f(); }); if (scene) scene.destroy(); if (mq.removeEventListener) mq.removeEventListener('change', mqh); else mq.removeListener(mqh); if (root.parentNode) root.parentNode.removeChild(root); }
+      destroy: function () { offs.forEach(function (f) { f(); }); if (scene) scene.destroy(); if (screenMo) screenMo.destroy(); if (mq.removeEventListener) mq.removeEventListener('change', mqh); else mq.removeListener(mqh); if (root.parentNode) root.parentNode.removeChild(root); }
     };
   };
 
@@ -570,13 +585,18 @@
     var off = function () { return ADE.motionReduced() || ADE.diagramOnly(); };
     var last = null, lastMut = 0, settle = null, mo = null, dead = false, gen = 0;
     function take() {
-      var m = {};
+      var m = {}, keyed = {};
+      // phần tử có data-k (định danh ổn định) nhớ vị trí trên màn hình để lần sau trượt từ chỗ cũ tới chỗ mới (FLIP)
+      Object.defineProperty(m, '__keyed', { value: keyed, enumerable: false });
       (function walk(el, key) {
         var seen = {}, kids = el.children;
         for (var i = 0; i < kids.length; i++) {
           var c = kids[i], t = c.tagName; seen[t] = (seen[t] || 0) + 1;
           var k = key + '/' + t + seen[t], info = { el: c, tag: t };
           if (!c.children.length && !SKIP[t]) info.txt = c.textContent;
+          info.cls = c.getAttribute('class') || '';
+          var dk = c.getAttribute('data-k');
+          if (dk && !keyed[dk]) { var rc = c.getBoundingClientRect(); if (rc.width || rc.height) keyed[dk] = { x: rc.left, y: rc.top }; }
           if (c instanceof SVGElement) { info.g = {}; GEO.forEach(function (a) { var v = c.getAttribute(a); if (v != null) info.g[a] = v; }); }
           m[k] = info;
           if (!SKIP[t]) walk(c, k);
@@ -620,6 +640,12 @@
           }
           flash.push(n.el); live.push(n.el);
         }
+        // chỉ đổi lớp (ô được tô, mũi tên thành "hiện tại"…): nháy một lần và giữ chuyển động liên tục
+        if (n.cls !== o.cls && (n.txt == null || n.txt === o.txt)) {
+          if (n.el instanceof SVGElement) n.el.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 420, easing: 'ease-out' });
+          else flash.push(n.el);
+          live.push(n.el);
+        }
         if (n.g && o.g) {
           var ch = GEO.filter(function (a) { return n.g[a] != null && o.g[a] != null && n.g[a] !== o.g[a] && geoSkel(n.g[a]) === geoSkel(o.g[a]); });
           if (ch.length) {
@@ -636,7 +662,27 @@
           }
         }
       });
+      // vật có định danh đổi vị trí: trượt từ chỗ cũ tới chỗ mới thay vì nhảy
+      var ok = old.__keyed || {}, moved = 0;
+      if (Object.keys(ok).length) [].forEach.call(root.querySelectorAll('[data-k]'), function (el) {
+        var o = ok[el.getAttribute('data-k')]; if (!o || moved > 80) return;
+        var rc = el.getBoundingClientRect(), dx = o.x - rc.left, dy = o.y - rc.top;
+        if ((rc.width || rc.height) && Math.abs(dx) + Math.abs(dy) > 2) {
+          moved++; var i = fresh.indexOf(el); if (i >= 0) fresh.splice(i, 1);
+          el.animate([{ transform: 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px)' }, { transform: 'none' }], { duration: 560, easing: 'cubic-bezier(.2,.7,.2,1)' });
+        }
+      });
       fresh.slice(0, 60).forEach(function (el) {
+        var tg = el.tagName && el.tagName.toLowerCase();
+        if ((tg === 'line' || tg === 'path' || tg === 'polyline') && el.getTotalLength) {
+          // đường mới: vẽ dần từ đầu tới cuối (sau đó trả về nét của CSS)
+          var L = 0; try { L = el.getTotalLength(); } catch (e) { L = 0; }
+          if (L > 4) { el.animate([{ strokeDasharray: L + ' ' + L, strokeDashoffset: L }, { strokeDasharray: L + ' ' + L, strokeDashoffset: 0 }], { duration: 480, easing: 'ease-out' }); return; }
+        }
+        if (tg === 'rect' && !(el.parentNode && el.parentNode.tagName && el.parentNode.tagName.toLowerCase() === 'marker')) {
+          el.animate([{ transformBox: 'fill-box', transformOrigin: 'left center', transform: 'scaleX(0.04)', opacity: 0.3 }, { transformBox: 'fill-box', transformOrigin: 'left center', transform: 'scaleX(1)', opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.2,.7,.2,1)' });
+          return;
+        }
         if (el instanceof SVGElement) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' });
         else el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 280, easing: 'cubic-bezier(.2,.7,.2,1)' });
       });

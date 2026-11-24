@@ -212,9 +212,11 @@
     var tb = h('tbody'), n = Math.max(k.srv.length, k.app.length);
     for (var r = 0; r < n; r++) {
       var sm = k.srvMk[r], am = k.appMk[r], sx = k.srv[r], ax = k.app[r];
+      // nhãn bài có data-k: khi bài mới chèn lên đầu, các bài cũ TRƯỢT xuống một hàng (ui.labMotion, FLIP)
+      var occ = {}; for (var q = 0; q < r; q++) if (k.app[q] === ax) occ[ax] = (occ[ax] || 0) + 1;
       tb.appendChild(h('tr', null, h('td', { class: 'c dim', text: String(r + 1) }),
-        h('td', { class: sx === undefined ? 'dim' : (sm === 'miss' ? 'bad' : (sm === 'new' ? 'hl' : null)), text: sx === undefined ? '' : T('pg.post', { n: sx }) + (sm ? ' · ' + T('pg.mk.' + sm) : '') }),
-        h('td', { class: ax === undefined ? 'dim' : (am === 'dup' ? 'bad' : (am === 'gone' ? 'dim' : (fresh[r] ? 'hl' : null))), text: ax === undefined ? '' : T('pg.post', { n: ax }) + (am ? ' · ' + T('pg.mk.' + am) : '') }),
+        h('td', { class: sx === undefined ? 'dim' : (sm === 'miss' ? 'bad' : (sm === 'new' ? 'hl' : null)) }, sx === undefined ? null : h('span', { class: 'vz-item', 'data-k': 's' + sx, text: T('pg.post', { n: sx }) + (sm ? ' · ' + T('pg.mk.' + sm) : '') })),
+        h('td', { class: ax === undefined ? 'dim' : (am === 'dup' ? 'bad' : (am === 'gone' ? 'dim' : (fresh[r] ? 'hl' : null))) }, ax === undefined ? null : h('span', { class: 'vz-item', 'data-k': 'a' + ax + '-' + (occ[ax] || 0), text: T('pg.post', { n: ax }) + (am ? ' · ' + T('pg.mk.' + am) : '') })),
         h('td', { class: 'dim', text: ax === undefined ? '' : pageOf[r] })));
     }
     var req = P.REQ[c][i], ev = P.EV[c];

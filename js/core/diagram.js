@@ -450,7 +450,9 @@
     // chuyển động: chỉ khi không giảm chuyển động và không ở chế độ "chỉ sơ đồ"
     this._camera(this._zoomTarget(changed.length ? changed : active), opts.instant || !step);
     var anim = !ADE.motionReduced() && !ADE.diagramOnly() && !opts.instant;
-    if (!anim) this.svg.classList.add('still'); else this.svg.classList.remove('still');
+    // vòng lặp liên tục (quầng, cạnh chảy) chạy cả khi vẽ tức thì (đổi tab); .calm chỉ bỏ hiệu ứng một lần
+    var loops = !ADE.motionReduced() && !ADE.diagramOnly();
+    this.svg.classList.toggle('still', !loops); this.svg.classList.toggle('calm', loops && !anim);
     sig.forEach(function (s) { self._token(s, anim, opts.speed || 1); });
     if (fly && anim) { var b0 = this.nodeBox[fly.from], b1 = this.nodeBox[fly.to]; var cy = function (b) { return b.cy != null ? b.cy : (b.y0 + b.y1) / 2; }; if (b0 && b1) this._flyPts([[b0.cx, cy(b0)], [b1.cx, cy(b1)]], fly.tok, opts.speed || 1, true); }
     if (step && step.typing) this._typing(step.typing, anim);
@@ -651,7 +653,9 @@
     }
     this.full = full; this.setVB(full); this._fit();
     this.svg.innerHTML = '<title>' + ADE.esc(ADE.t(v.titleKey)) + '</title><desc>' + ADE.esc(ADE.t(v.descKey) + (step ? ' — ' + ADE.t(step.titleKey, step.params) : '')) + '</desc>' + html;
-    if (!anim) this.svg.classList.add('still'); else this.svg.classList.remove('still');
+    // vòng lặp liên tục (quầng, cạnh chảy) chạy cả khi vẽ tức thì (đổi tab); .calm chỉ bỏ hiệu ứng một lần
+    var loops = !ADE.motionReduced() && !ADE.diagramOnly();
+    this.svg.classList.toggle('still', !loops); this.svg.classList.toggle('calm', loops && !anim);
     this._laneTween(anim, d.now != null ? sx(d.now) : null, opts);
     var pc = this._laneCur, here = liveRun || cur;
     if (anim && pc && here && pc.row !== here.row) this._flyPts([[pc.x, pc.y + 11], [here.x, here.y + 11]], null, opts.speed || 1, true);
