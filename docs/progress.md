@@ -854,5 +854,5 @@ Trạng thái: `chưa / đang / xong`.
   - Lượt 1 (xong): script bỏ token trích dẫn (ch.N, Item N, Exercise N.N, số mục sau tên sách hay tác giả) ở 782 chuỗi, 62 file; sửa tay các chỗ còn lại; bộ sinh của 7 track lọc khoá `.sec.honest.`; gỡ 3 nguồn chỉ còn dùng ở mục đọc thêm (kt-reflection, kt-ksp, kt-contracts). Report 0 lỗi, 120 cảnh báo; track-check 0; 251 route sạch.
   - K1 viết lại hẳn theo giọng dạy học làm mẫu. Quy tắc giọng văn ghi ở `docs/chapter-template-v2.md`, mục Quy tắc viết.
   - Lượt 2 (đang làm): viết lại từng chương theo giọng dạy học, xoá cả nhắc ví dụ chỉ có trong sách và tên viết tắt sách (AAT, DDIA…). Thứ tự: fp, cleancode, sysdesign, kotlin, arch, storage, coroutines, runtime, animation. UX và UI bỏ qua (người dùng: đang tạm dừng).
-  - Đã xong lượt 2: K1, K2, K3, K4, J0. Tiếp theo: J1. Người dùng đặt bộ đếm trong phiên lúc 02:21 thứ Tư 2026-11-25 (sau reset hạn mức) để làm tiếp, dừng khi hạn mức 5 giờ khoảng 98%.
+  - Đã xong lượt 2: K1, K2, K3, K4, J0, J1. Tiếp theo: J2. Người dùng đặt bộ đếm trong phiên lúc 02:21 thứ Tư 2026-11-25 (sau reset hạn mức) để làm tiếp, dừng khi hạn mức 5 giờ khoảng 98%.
   - Sau lượt 2: K5 (lỗi là giá trị), rồi K6…K10, K0 cuối; sau K là L. D (UX) và E (UI) đang tạm dừng.
