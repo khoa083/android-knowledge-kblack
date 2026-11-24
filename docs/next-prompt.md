@@ -6,10 +6,11 @@
 Đọc CLAUDE.md, docs/progress.md (mục cuối) và docs/roadmap-v2.md (bảng "Trạng thái các track") trước.
 
 Trạng thái:
-- Đã xong và stable: A Coroutines, B Runtime, C Animation (v2), F Kotlin (14 chương), G Kiến trúc (12 chương).
+- Đã xong và stable: A Coroutines, B Runtime, C Animation (v2), F Kotlin (14 chương), G Kiến trúc (12 chương), H Lưu dữ liệu (10 chương).
 - Tạm dừng, KHÔNG đụng tới: D UX, E UI ("Sắp ra mắt"). Phần SM dở dang của UX nằm trong git stash.
 - Đã xong và stable: G Kiến trúc app Android (track `arch`, 12 chương G0–G11, 2026-11-24).
-- Đã duyệt dàn ý (2026-11-24), CHƯA xây, làm theo thứ tự sau G: H docs/tracks/H-saving-data.md → I docs/tracks/I-mobile-system-design.md → J docs/tracks/J-clean-code.md → K docs/tracks/K-functional-kotlin.md.
+- Đã xong và stable: H Lưu dữ liệu (track `storage`, 10 chương H0–H9, 2026-11-24). Hình mới có thể dùng lại: cây quyết định bậc thang (.vz-dt), sơ đồ tuần tự SVG (.vz-sq, trong tracks/storage/views/visuals.js), dãy ô phiên bản (.vz-mig), hai bảng cạnh nhau (.vz-pair), cây thư mục trong bảng (.vz-tree-p).
+- Đã duyệt dàn ý (2026-11-24), CHƯA xây, làm theo thứ tự: I docs/tracks/I-mobile-system-design.md → J docs/tracks/J-clean-code.md → K docs/tracks/K-functional-kotlin.md.
 - Sau K: L Gỡ lỗi và hiệu năng Android docs/tracks/L-debugging-performance.md (đã duyệt 2026-11-24).
 
 Quy tắc đã chốt với người dùng:
@@ -36,5 +37,5 @@ Git:
 
 Hạn mức: kiểm usage định kỳ, dừng ở khoảng 90–98% của cửa sổ 5 giờ. Trước khi dừng: commit, push, ghi vào docs/progress.md đang dừng ở đâu.
 
-Việc tiếp theo: bắt đầu track H Lưu dữ liệu (`storage`) theo docs/tracks/H-saving-data.md (đã duyệt): dựng khung track (manifest, generator dev/gen/storage_content.py, sources, glossary, misconceptions, models, views, visuals) theo mẫu track arch, rồi viết h1 → h9, h0 cuối. Hình mỗi chương theo cột "Hình chính" của spec (h7 cần sơ đồ tuần tự MỚI).
+Việc tiếp theo: bắt đầu track I Thiết kế hệ thống phía mobile (`sysdesign`) theo docs/tracks/I-mobile-system-design.md (đã duyệt): dựng khung track theo mẫu track storage (dev/gen/storage_content.py, tracks/storage/), rồi viết i1 → i13, i0 cuối. Hình mỗi chương theo cột "Hình chính" của spec; sơ đồ tuần tự đã có ở track storage (H7) thì viết lại gọn trong track I hoặc chuyển thành hàm dùng chung nếu hợp lý (không đưa id track vào js/core). Trước khi viết mỗi chương: đọc trang chính thức liên quan (qua agent web-fetch) và ghi bảng nguồn vào docs/research/sysdesign.md.
 ```

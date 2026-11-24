@@ -1,6 +1,6 @@
 # TRACK H — Lưu dữ liệu trên Android / Saving Data on Android (`storage`)
 
-> **ĐÃ DUYỆT (2026-11-24).** Người dùng duyệt IN/OUT và dàn chương. Hai câu hỏi cuối theo mặc định (người dùng đổi được): **giữ h8**, **bỏ hẳn Firebase**. Chưa xây; làm sau khi xong track G.
+> **ĐÃ XÂY XONG, stable (2026-11-24).** Người dùng duyệt IN/OUT và dàn chương cùng ngày; giữ h8, bỏ hẳn Firebase. Cả 10 chương H0–H9 đã viết theo cột "Hình chính" dưới đây (h7 có sơ đồ tuần tự mới). Cầu nối đã làm: X16 (h7 ↔ G4). Nguồn: `docs/research/storage.md`. Phiên bản theo tài liệu đọc ngày 2026-11-24: DataStore 1.3.0, Room 3.0 (`androidx.room3`).
 > Nguyên tắc: **cần và đủ**. Mỗi chương bắt đầu từ một lỗi thật: mất dữ liệu, ANR, crash khi nâng cấp app.
 
 ## Manifest đề xuất

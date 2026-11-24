@@ -1,12 +1,13 @@
 /* Track H: Lưu dữ liệu trên Android. Nội dung sinh từ dev/gen/storage_content.py (module storage_v2_<chương>.py).
-   Spec: docs/tracks/H-saving-data.md (10 chương, đã duyệt 2026-11-24). Trong lúc viết: status 'draft'. */
+   Spec: docs/tracks/H-saving-data.md (10 chương, đã duyệt 2026-11-24). Xong 10 chương H0–H9 (2026-11-24): status 'stable'. */
 ADE.registerTrack({
   id: 'storage', code: 'H', order: 80, domain: 'engineering',
   accent: '#4F7CA8', icon: 'store',
   titleKey: 'track.storage.title', summaryKey: 'track.storage.summary',
-  level: 'intermediate', estMinutes: 300, status: 'draft',
+  level: 'intermediate', estMinutes: 300, status: 'stable',
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
+    { id: 'h0', titleKey: 'track.storage.h0.title', sims: ['storage.map'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'h1', titleKey: 'track.storage.h1.title', sims: ['storage.choose'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'h2', titleKey: 'track.storage.h2.title', sims: ['storage.file'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'h3', titleKey: 'track.storage.h3.title', sims: ['storage.prefs'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
@@ -26,7 +27,8 @@ ADE.registerTrack({
     { id: 'storage-mig', model: 'storage.mig', titleKey: 'track.storage.preset.mig' },
     { id: 'storage-sync', model: 'storage.sync', titleKey: 'track.storage.preset.sync' },
     { id: 'storage-media', model: 'storage.media', titleKey: 'track.storage.preset.media' },
-    { id: 'storage-backup', model: 'storage.backup', titleKey: 'track.storage.preset.backup' }
+    { id: 'storage-backup', model: 'storage.backup', titleKey: 'track.storage.preset.backup' },
+    { id: 'storage-map', model: 'storage.map', titleKey: 'track.storage.preset.map' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

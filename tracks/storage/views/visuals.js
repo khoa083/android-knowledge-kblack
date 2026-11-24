@@ -218,4 +218,20 @@
       i >= 3 ? h('p', { class: 'vz-cap' }, h('b', { text: T('bk.out') + ' ' }), ADE.t('track.storage.m.backup.out.' + B.OUT[c])) : null,
       h('div', { class: 'vz-legend', text: T('bk.legend') })));
   }, { labelKey: K + 'tab.bk', icon: 'list' });
+
+  /* ---------- H0: bảng tra triệu chứng → lúc lộ ra → chương; hàng đang chọn được viền, ô "?" mở dần ---------- */
+  ADE.registerScreen('storage.map', function (box, ctx) {
+    // bước của H0 có id dạng <triệu chứng>.start/first/next/end
+    var h = ADE.ui.h, cur = ctx.state.symptom, i = ctx.step ? ['start', 'first', 'next', 'end'].indexOf(ctx.step.id.split('.').pop()) : (ctx.pos > ctx.N ? 3 : -1);
+    var head = h('tr', null, ['sym', 'phase', 'ch'].map(function (k) { return h('th', { text: T('map.col.' + k) }); }));
+    var tb = h('tbody');
+    ADE.storageMap.forEach(function (r) {
+      var on = r[0] === cur;
+      tb.appendChild(h('tr', null, h('td', { class: on ? 'hl' : null, text: ADE.t('track.storage.m.map.s.' + r[0] + '.title') }),
+        h('td', { class: on && i < 1 ? 'dim' : (on ? 'hl' : null), text: on && i < 1 ? '?' : ADE.t('track.storage.m.map.phase.' + r[2]) }),
+        h('td', { class: on && i < 3 ? 'dim' : (on ? 'hl' : null), text: on && i < 3 ? '?' : r[1].toUpperCase() })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('map.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)), h('div', { class: 'vz-legend', text: T('map.legend') })));
+  }, { labelKey: K + 'tab.map', icon: 'grid' });
 })();

@@ -406,4 +406,39 @@
         { name: 'mặc định sao lưu cả file phiên đăng nhập; quy tắc loại trừ đúng file đó và giữ phần còn lại', run: function () { return ST.default.session === 'b' && ST.rules.session === 'r' && ['draft', 'settings', 'clinicdb'].every(function (l) { return ST.rules[l] === 'b'; }); } },
         { name: 'chỉ cấu hình có quy tắc cho kết quả tốt trên máy mới', run: function () { return CASES.every(function (c) { return (OUT[c] === 'fresh') === (c === 'rules'); }); } }] });
   })();
+
+  /* ================= H0: bản đồ track: triệu chứng → lúc lộ ra → nguyên nhân → chương ================= */
+  (function () {
+    var m = 'map';
+    // [triệu chứng, chương, lúc lộ ra: runtime | silent | update | device]
+    var SYM = [['slowLaunch', 'h1', 'runtime'], ['photoGone', 'h1', 'silent'], ['halfFile', 'h2', 'runtime'], ['cacheMissing', 'h2', 'runtime'],
+      ['anrStop', 'h3', 'runtime'], ['multiDs', 'h3', 'runtime'], ['staleList', 'h4', 'silent'], ['dupAppt', 'h5', 'silent'],
+      ['crashUpdate', 'h6', 'update'], ['wiped', 'h6', 'update'], ['neverSent', 'h7', 'silent'], ['android10', 'h8', 'runtime'], ['oldToken', 'h9', 'device']];
+    var IDS = SYM.map(function (x) { return x[0]; });
+    ADE.storageMap = SYM;
+    var PH = { runtime: 'broken', silent: 'surprise', update: 'broken', device: 'surprise' };
+    function steps(s) {
+      var row = SYM.filter(function (x) { return x[0] === s.symptom; })[0] || SYM[0], id = row[0], ch = row[1], ph = row[2];
+      var met = function (i) { return { phase: i >= 1 ? M(m, 'phase.' + ph) : M(m, 'phase.none'), chapter: i >= 3 ? M(m, 'ch.' + ch) : M(m, 'ch.none') }; };
+      var st = function (i, type, nodes, ns0, kind, subj, titleKey, explainKey, edge) {
+        var ns = {}; Object.keys(ns0).forEach(function (n) { ns[n] = K + 'st.' + ns0[n]; });
+        return S(m, id + '.' + ['start', 'first', 'next', 'end'][i], { type: type, activeNodes: nodes, nodeStates: ns, metrics: met(i), titleKey: titleKey, explainKey: explainKey,
+          movingSignals: edge ? [{ edge: edge, tok: type === 'pitfall' ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: kind, subject: subj, detailKey: titleKey }] });
+      };
+      var a = st(0, 'scenario', ['symptom'], {}, 'observe', 'symptom', M(m, 's.' + id + '.title'), M(m, 's.' + id + '.detail'), null);
+      a.callouts = [{ kind: 'try', textKey: M(m, 'co.try') }];
+      var b = st(1, 'mechanism', ['symptom', 'phase'], { phase: PH[ph] }, 'run', 'phase', M(m, 'phase.' + ph), M(m, 'phase.' + ph + '.explain'), 'e1');
+      var c = st(2, 'pitfall', ['phase', 'cause'], { phase: PH[ph], cause: 'done' }, 'observe', 'cause', M(m, 's.' + id + '.cause'), M(m, 's.' + id + '.causeDetail'), 'e2');
+      c.callouts = [{ kind: 'pitfall', textKey: M(m, 'co.cause') }];
+      var d = st(3, 'mechanism', ['cause', 'chapter'], { phase: PH[ph], cause: 'done', chapter: 'done' }, 'complete', 'chapter', M(m, 'go.' + ch), M(m, 's.' + id + '.fix'), 'e3');
+      d.callouts = [{ kind: 'mechanism', textKey: M(m, 'co.chapter') }];
+      return [a, b, c, d];
+    }
+    reg(m, { controls: [sel(m, 'symptom', IDS)], init: function () { return { symptom: 'anrStop' }; }, act: setter(['symptom']), steps: steps,
+      selfChecks: [
+        { name: 'mỗi triệu chứng có 4 bước và trỏ tới một chương', run: function () { return IDS.every(function (k) { var x = steps({ symptom: k }); return x.length === 4 && x[3].metrics.chapter !== M(m, 'ch.none'); }); } },
+        { name: 'mọi chương H1–H9 có ít nhất một triệu chứng, và chương đó có trong manifest', run: function () { var t = ADE.getTrack && ADE.getTrack('storage'), chs = t ? t.chapters.map(function (c) { return c.id; }) : [];
+          return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8', 'h9'].every(function (g) { return SYM.some(function (x) { return x[1] === g; }) && (!t || chs.indexOf(g) >= 0); }); } },
+        { name: 'lúc lộ ra chỉ là một trong bốn: lúc chạy, sai lặng lẽ, sau cập nhật, khi đổi máy', run: function () { return SYM.every(function (x) { return !!PH[x[2]]; }); } }] });
+  })();
 })();

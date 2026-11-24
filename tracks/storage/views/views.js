@@ -47,4 +47,8 @@
   V('backup', { layout: 'pipeline', nodes: [N('backup', 'old', 0, 0, 'phone', 'ui'), N('backup', 'cloud', 4, 0, 'store', 'state'), N('backup', 'new', 8, 0, 'phone', 'runtime')],
     edges: [E('e1', 'old', 'cloud'), E('e2', 'cloud', 'new')],
     metrics: [T('backup', 'backed'), T('backup', 'session'), T('backup', 'out')] });
+  /* H0: triệu chứng → lúc lộ ra → nguyên nhân → chương */
+  V('map', { layout: 'pipeline', nodes: [N('map', 'symptom', 0, 0, 'eye', 'ui'), N('map', 'phase', 3, 0, 'clock', 'state'), N('map', 'cause', 6, 0, 'mechanism', 'runtime'), N('map', 'chapter', 9, 0, 'source', 'job')],
+    edges: [E('e1', 'symptom', 'phase'), E('e2', 'phase', 'cause'), E('e3', 'cause', 'chapter')],
+    metrics: [T('map', 'phase'), T('map', 'chapter')] });
 })();
