@@ -154,4 +154,48 @@
           return c[1].metrics.main === M(m, 'main.blocked') && a[0].metrics.main === M(m, 'main.free') && a[2].metrics.main === M(m, 'main.blocked') && a[3].metrics.saved === M(m, 'saved.unknown'); } },
         { name: 'DataStore không bao giờ chặn main thread', run: function () { return steps({ case: 'datastore' }).every(function (x) { return x.metrics.main === M(m, 'main.free'); }); } }] });
   })();
+
+  /* ================= H4: Room — truy vấn một lần (suspend) so với truy vấn quan sát (Flow) qua ba lần ghi =================
+     Theo Room (ba thành phần; kiểm SQL lúc biên dịch), Async queries (không truy cập database trên main thread; truy vấn một lần
+     dùng suspend; truy vấn quan sát dùng Flow và chạy lại khi bảng được tham chiếu đổi, kể cả khi dòng đổi không nằm trong kết quả;
+     dùng distinctUntilChanged để chỉ báo UI khi kết quả thật sự đổi), Accessing data (@Insert trả rowId; @Query kiểm lúc biên dịch).
+     Ba lần ghi giống nhau ở hai cách: thêm lịch của bác sĩ A, sửa lịch của bác sĩ B, thêm một ghi chú (bảng khác). */
+  (function () {
+    var m = 'room', CASES = ['flow', 'oneshot'], KS = ['s1', 's2', 's3', 's4'];
+    var WRITES = ['ins', 'updB', 'note'], TABLE = { ins: 'appointment', updB: 'appointment', note: 'note' };
+    // theo từng lần ghi: [truy vấn chạy lại, kết quả đổi, màn hình nhận]
+    var W = {
+      flow: { ins: ['yes', 'yes', 'emit'], updB: ['yes', 'no', 'emitSame'], note: ['no', 'no', 'none'] },
+      oneshot: { ins: ['no', 'yes', 'stale'], updB: ['no', 'no', 'none'], note: ['no', 'no', 'none'] }
+    };
+    // mỗi bước: tầng sáng trong luồng DAO → mã sinh → SQLite → kết quả, số đo {shown, runs}, loại bước, dòng mã, loại log, chủ thể
+    var P = {
+      flow: [[['dao', 'impl', 'sqlite', 'out'], { shown: 3, runs: 1 }, 'scenario', [3, 5], 'run', 'dao'],
+        [['sqlite', 'impl', 'out'], { shown: 4, runs: 2 }, 'mechanism', [6, 7], 'write', 'sqlite'],
+        [['sqlite', 'impl', 'out'], { shown: 4, runs: 3 }, 'mechanism', [8], 'write', 'sqlite'],
+        [['sqlite'], { shown: 4, runs: 3 }, 'mechanism', [9], 'write', 'sqlite']],
+      oneshot: [[['dao', 'impl', 'sqlite', 'out'], { shown: 3, runs: 1 }, 'scenario', [3, 4], 'run', 'dao'],
+        [['sqlite'], { shown: 3, runs: 1 }, 'pitfall', [6, 7], 'write', 'sqlite'],
+        [['sqlite'], { shown: 3, runs: 1 }, 'mechanism', [8], 'write', 'sqlite'],
+        [['sqlite'], { shown: 3, runs: 1 }, 'pitfall', [9], 'observe', 'out']]
+    };
+    ADE.storageRoom = { WRITES: WRITES, TABLE: TABLE, W: W, STAGES: ['dao', 'impl', 'sqlite', 'out'], lit: function (c, k) { return P[c][k][0]; } };
+    function steps(s) {
+      return P[s.case].map(function (p, i) {
+        var ns = {}; ['dao', 'impl', 'sqlite', 'out'].forEach(function (n) { ns[n] = K + 'st.' + (p[0].indexOf(n) >= 0 ? (p[2] === 'pitfall' && n !== 'sqlite' ? 'surprise' : 'done') : 'skipped'); });
+        if (p[2] === 'pitfall') ns.out = K + 'st.surprise';
+        var o = S(m, s.case + '.' + KS[i], { type: p[2], activeNodes: p[0], nodeStates: ns, metrics: { shown: p[1].shown, runs: p[1].runs }, codeHighlight: { snippet: 'h4.' + s.case, lines: p[3] },
+          movingSignals: p[0].length > 1 ? [{ edge: 'e3', tok: p[2] === 'pitfall' ? 'signal' : 'state' }] : [], logEvents: [{ t: i, kind: p[4], subject: p[5] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (p[2] === 'pitfall' ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'flow' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'Flow chạy lại sau mọi lần ghi vào bảng appointment, kể cả khi kết quả không đổi; không chạy lại khi ghi bảng khác', run: function () {
+          return WRITES.every(function (w) { return (W.flow[w][0] === 'yes') === (TABLE[w] === 'appointment'); }) && W.flow.updB[1] === 'no' && W.flow.updB[2] === 'emitSame'; } },
+        { name: 'truy vấn một lần không bao giờ chạy lại: màn hình cũ sau khi thêm lịch', run: function () { return WRITES.every(function (w) { return W.oneshot[w][0] === 'no'; }) && steps({ case: 'oneshot' })[3].metrics.shown === 3; } },
+        { name: 'số lần chạy truy vấn của Flow = 1 + số lần ghi vào bảng được tham chiếu', run: function () { return steps({ case: 'flow' })[3].metrics.runs === 1 + WRITES.filter(function (w) { return TABLE[w] === 'appointment'; }).length; } }] });
+  })();
 })();

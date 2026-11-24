@@ -9,12 +9,14 @@ ADE.registerTrack({
   chapters: [
     { id: 'h1', titleKey: 'track.storage.h1.title', sims: ['storage.choose'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'h2', titleKey: 'track.storage.h2.title', sims: ['storage.file'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'h3', titleKey: 'track.storage.h3.title', sims: ['storage.prefs'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'h3', titleKey: 'track.storage.h3.title', sims: ['storage.prefs'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'h4', titleKey: 'track.storage.h4.title', sims: ['storage.room'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'storage-choose', model: 'storage.choose', titleKey: 'track.storage.preset.choose' },
     { id: 'storage-file', model: 'storage.file', titleKey: 'track.storage.preset.file' },
-    { id: 'storage-prefs', model: 'storage.prefs', titleKey: 'track.storage.preset.prefs' }
+    { id: 'storage-prefs', model: 'storage.prefs', titleKey: 'track.storage.preset.prefs' },
+    { id: 'storage-room', model: 'storage.room', titleKey: 'track.storage.preset.room' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

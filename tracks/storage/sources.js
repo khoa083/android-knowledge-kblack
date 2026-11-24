@@ -33,5 +33,12 @@
     s('ax-room','Save data in a local database using Room', D + 'training/data-storage/room', 'Android Developers', 'stable',
       'Ba thành phần: lớp database, entity, DAO. Room kiểm câu SQL lúc biên dịch, giảm mã lặp, có đường migration. Nên dùng Room thay cho API SQLite trực tiếp (H1, H4).',
       'Three components: the database class, entities, DAOs. Room verifies SQL at compile time, reduces boilerplate and provides migration paths. Use Room rather than the SQLite APIs directly (H1, H4).')
+,
+    s('ax-room-async', 'Write asynchronous DAO queries', D + 'training/data-storage/room/async-queries', 'Android Developers', 'stable',
+      'Room không cho truy cập database trên main thread. Ba loại truy vấn: ghi một lần, đọc một lần (suspend), đọc quan sát (Flow) chạy lại khi bảng được tham chiếu đổi, kể cả khi dòng đổi không nằm trong kết quả; dùng distinctUntilChanged để UI chỉ nhận khi kết quả đổi. Room 3.0 bắt buộc suspend cho truy vấn một lần (H4).',
+      'Room does not allow database access on the main thread. Three kinds of query: one-shot write, one-shot read (suspend), observable read (Flow) that reruns when a referenced table changes, even if the changed row is not in the result; use distinctUntilChanged so the UI only hears about real changes. Room 3.0 requires suspend for one-shot queries (H4).'),
+    s('ax-room-dao', 'Accessing data using Room DAOs', D + 'training/data-storage/room/accessing-data', 'Android Developers', 'stable',
+      'DAO là interface hay abstract class gắn @Dao; Room sinh mã lúc biên dịch. @Insert trả rowId, @Update và @Delete khớp theo khóa chính, @Upsert chèn hoặc cập nhật. @Query được kiểm lúc biên dịch: câu sai là lỗi biên dịch (H4).',
+      'A DAO is an interface or abstract class annotated @Dao; Room generates the code at compile time. @Insert returns the rowId, @Update and @Delete match by primary key, @Upsert inserts or updates. @Query is checked at compile time: a wrong query is a compile error (H4).')
   ]);
 })();

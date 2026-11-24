@@ -50,3 +50,12 @@
 | DataStore: Flow, updateData/edit giao dịch nguyên tử; ba quy tắc; nhiều tiến trình từ 1.1.0; bản 1.3.0 | ax-datastore | stable / version |
 | SharedPreferencesMigration: kiểu hỗ trợ, không chép lại khóa đã có, cố xóa prefs rỗng, deadlock nếu đọc DataStore trong migration | ax-sp-migration | stable |
 | Máy bộ nhớ chậm, đĩa đầy làm apply lỗi | site | simplified |
+
+### H4 · Room cơ bản
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Ba phần (database, entity, DAO); kiểm SQL lúc biên dịch; một instance mỗi tiến trình; hướng dẫn dùng Room 3.0 `androidx.room3`, KSP, setDriver | ax-room | stable / version |
+| Không truy cập database trên main thread; ba loại truy vấn; suspend và Flow; Room 3.0 bắt buộc suspend cho truy vấn một lần | ax-room-async | stable / version |
+| Flow chạy lại khi bất kỳ dòng nào của bảng được tham chiếu đổi; distinctUntilChanged; invalidationTracker.createFlow | ax-room-async | stable |
+| @Insert trả rowId; @Update/@Delete theo khóa chính, trả số dòng; @Upsert; @Query kiểm lúc biên dịch | ax-room-dao | stable |
+| Room 2.x: IllegalStateException khi truy vấn trên main, allowMainThreadQueries | kiến thức bản cũ, ghi rõ trên site là Room 2.x | version |

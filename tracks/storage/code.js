@@ -2,6 +2,28 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('storage', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('h4.flow', [
+    '@Dao interface AppointmentDao {',
+    '    @Query("SELECT * FROM appointment WHERE doctorId = :doctorId ORDER BY time")',
+    c('    fun byDoctor(doctorId: Long): Flow<List<Appointment>>   // quan sát', '    fun byDoctor(doctorId: Long): Flow<List<Appointment>>   // observable'),
+    '}',
+    c('dao.byDoctor(A).collect { show(it) }                      // chạy lần đầu: 3 lịch', 'dao.byDoctor(A).collect { show(it) }                      // first run: 3 appointments'),
+    c('dao.insert(Appointment(doctorId = A, …))                  // bảng appointment đổi', 'dao.insert(Appointment(doctorId = A, …))                  // the appointment table changes'),
+    c('//   → Room chạy lại truy vấn, Flow phát 4 lịch', '//   → Room reruns the query, the Flow emits 4'),
+    c('dao.update(apptOfDoctorB.copy(status = "done"))          // vẫn bảng appointment: chạy lại, kết quả như cũ', 'dao.update(apptOfDoctorB.copy(status = "done"))          // same table: rerun, same result'),
+    c('noteDao.insert(Note(…))                                   // bảng note: truy vấn này không chạy lại', 'noteDao.insert(Note(…))                                   // note table: this query does not rerun')
+  ]);
+  add('h4.oneshot', [
+    '@Dao interface AppointmentDao {',
+    '    @Query("SELECT * FROM appointment WHERE doctorId = :doctorId ORDER BY time")',
+    c('    suspend fun byDoctorOnce(doctorId: Long): List<Appointment>   // một lần', '    suspend fun byDoctorOnce(doctorId: Long): List<Appointment>   // one-shot'),
+    c('}                                                                 // show(dao.byDoctorOnce(A)): 3 lịch', '}                                                                 // show(dao.byDoctorOnce(A)): 3 appointments'),
+    '',
+    c('dao.insert(Appointment(doctorId = A, …))       // database có 4 lịch', 'dao.insert(Appointment(doctorId = A, …))       // the database has 4'),
+    c('//   → màn hình vẫn 3: không ai đọc lại', '//   → the screen still shows 3: nobody reads again'),
+    c('dao.update(apptOfDoctorB.copy(status = "done"))', 'dao.update(apptOfDoctorB.copy(status = "done"))'),
+    c('noteDao.insert(Note(…))                        // màn hình vẫn 3 tới khi tự tải lại', 'noteDao.insert(Note(…))                        // still 3 until you reload by hand')
+  ]);
   add('h3.commit', [
     c('// màn Cài đặt, trong onClick (main thread)', '// Settings screen, inside onClick (main thread)'),
     c('val ok = prefs.edit().putBoolean("dark_theme", true).commit()   // chờ ghi xong cả file', 'val ok = prefs.edit().putBoolean("dark_theme", true).commit()   // waits for the whole file to be written'),

@@ -75,4 +75,26 @@
   }
   laneScreen('storage.file', function () { return ADE.storageFile; }, 'fl', 'tab.fl');   // H2: app, hệ thống, đĩa
   laneScreen('storage.prefs', function () { return ADE.storagePrefs; }, 'pf', 'tab.pf');  // H3: main thread, luồng IO, đĩa
+
+  /* ---------- H4: dãy bốn tầng (DAO → mã sinh → SQLite → kết quả) và bảng "ghi vào bảng nào → truy vấn có chạy lại không" ---------- */
+  ADE.registerScreen('storage.room', function (box, ctx) {
+    var h = ADE.ui.h, R = ADE.storageRoom, c = ctx.state.case, i = idx(ctx), lit = R.lit(c, Math.max(0, i));
+    var chain = h('div', { class: 'vz-legend' }, R.STAGES.map(function (st, k) {
+      var on = lit.indexOf(st) >= 0;
+      return h('span', null, h('span', { class: 'vz-chip' + (on ? ' hl' : ' dim'), text: T('rm.stage.' + st + (st === 'out' ? '.' + c : '')) }), k < R.STAGES.length - 1 ? ' → ' : '');
+    }));
+    var cols = ['write', 'table', 'rerun', 'changed', 'screen'];
+    var head = h('tr', null, cols.map(function (k) { return h('th', { text: T('rm.col.' + k) }); }));
+    var tb = h('tbody');
+    R.WRITES.forEach(function (w, k) {
+      var shown = k < i, cur = k === i - 1, v = R.W[c][w];
+      if (!shown) { tb.appendChild(h('tr', null, cols.map(function (cc, j) { return h('td', { class: 'dim', text: j === 0 ? T('rm.w.' + w) : '·' }); }))); return; }
+      var scr = v[2], scrCls = scr === 'stale' ? 'bad' : (scr === 'emitSame' ? 'bad' : (scr === 'emit' ? 'ok' : null));
+      tb.appendChild(h('tr', null, h('td', { class: cur ? 'hl' : null, text: T('rm.w.' + w) }), h('td', { class: cur ? 'hl' : null, text: R.TABLE[w] }),
+        h('td', { class: cur ? 'hl' : null, text: T('rm.yn.' + v[0]) }), h('td', { class: cur ? 'hl' : null, text: T('rm.yn.' + v[1]) }),
+        h('td', { class: cur ? 'hl' : scrCls, text: T('rm.scr.' + scr) })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('rm.cap') }), chain,
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)), h('div', { class: 'vz-legend', text: T('rm.legend') })));
+  }, { labelKey: K + 'tab.rm', icon: 'grid' });
 })();

@@ -23,4 +23,8 @@
   V('prefs', { layout: 'pipeline', nodes: [N('prefs', 'main', 0, 0, 'thread', 'ui'), N('prefs', 'io', 3, 3, 'thread', 'runtime'), N('prefs', 'disk', 6, 0, 'store', 'state')],
     edges: [E('e1', 'main', 'disk'), E('e2', 'io', 'disk')],
     metrics: [T('prefs', 'main'), T('prefs', 'saved')] });
+  /* H4: DAO (interface) → mã Room sinh → SQLite → kết quả (Flow hay danh sách) */
+  V('room', { layout: 'pipeline', nodes: [N('room', 'dao', 0, 0, 'source', 'ui'), N('room', 'impl', 3, 0, 'mechanism', 'runtime'), N('room', 'sqlite', 6, 0, 'store', 'state'), N('room', 'out', 9, 0, 'screen', 'job')],
+    edges: [E('e1', 'dao', 'impl'), E('e2', 'impl', 'sqlite'), E('e3', 'sqlite', 'out')],
+    metrics: [T('room', 'shown'), T('room', 'runs')] });
 })();
