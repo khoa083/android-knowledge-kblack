@@ -1,0 +1,5 @@
+/* Misconceptions for the fp track (English). */
+ADE.addMisconceptions('en', 'fp', {
+  "no-mutation-means-pure": { wrong: "A function that changes no variables is pure.", right: "It must also be deterministic: reading the clock, random numbers, UUIDs, files or a database all make the same call return different results. [[src:book-seemann]] [[src:book-fp-tut]]", example: "Chapter K1: fee() changes nothing but a counter, yet returns 200,000 on Monday and 300,000 on Saturday.", chapter: "fp/p1" },
+  "extract-variable-always-safe": { wrong: "Extracting an expression into a variable, or inlining a variable, is always a safe refactoring.", right: "Only for referentially transparent expressions. With calls that have side effects or are not deterministic, changing how many times they run changes the program. [[src:book-fp-tut]]", example: "Chapter K1: val a = fee(); a + a bumps the counter by 1 instead of 2; creating the UUID inside a retry loop instead of once outside gives every attempt a different key.", chapter: "fp/p1" }
+});

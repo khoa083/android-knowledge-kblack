@@ -1,0 +1,13 @@
+/* Nguồn của track K (Lập trình hàm với Kotlin). Sách đọc từ bản trong thư viện cá nhân từ 2026-11-24 (docs/research/fp.md).
+   Code That Fits in Your Head (book-seemann) đã khai báo ở tracks/sysdesign/sources.js với tracks gồm cả fp. */
+(function () {
+  var s = function (id, title, url, org, label, vi, en) { return { id: id, title: title, url: url, org: org, tracks: ['fp'], label: label, lang: 'en', supports: { vi: vi, en: en } }; };
+  ADE.addSources([
+    s('book-fp-tut', 'Functional Programming in Kotlin by Tutorials (Massimo Carli, Kodeco, 2022)', 'https://www.kodeco.com/books/functional-programming-in-kotlin-by-tutorials', 'Kodeco (sách)', 'guideline',
+      'Ch.3: hàm thuần có hai điều kiện: cùng đầu vào luôn cho cùng đầu ra, và không làm thế giới bên ngoài đổi sau mỗi lần gọi; ví dụ twice và twiceAndLog (println là side effect), randomInc (Random đổi trạng thái); referential transparency: thay biểu thức bằng kết quả ở mọi chỗ dùng mà chương trình không đổi; mô hình thay thế (substitution model); ngoại lệ cũng là side effect (K1). Ví dụ của sách, site viết lại theo app Hẹn Khám.',
+      'Ch.3: a pure function meets two conditions: the same input always gives the same output, and the universe does not change after each call; the twice and twiceAndLog examples (println is a side effect), randomInc (Random changes state); referential transparency: replacing an expression with its result wherever it is used without changing the program; the substitution model; exceptions are side effects too (K1). The book\'s examples are rewritten by the site for the ClinicBook app.'),
+    s('book-fp-manning', 'Functional Programming in Kotlin (Marco Vermeulen, Rúnar Bjarnason, Paul Chiusano, Manning, 2021)', 'https://www.manning.com/books/functional-programming-in-kotlin', 'Manning (sách)', 'guideline',
+      'Ch.1: ví dụ quán cà phê: buyCoffee gọi cc.charge là side effect, khó test, không dùng lại được; trả về Charge như một giá trị thì test không cần mock; đẩy hiệu ứng ra lớp ngoài, lõi thuần; định nghĩa referential transparency và hàm thuần; mô hình thay thế, suy luận như giải phương trình; ví dụ String.reversed (thay được) và StringBuilder.append (không thay được); sửa dữ liệu cục bộ mà không ai bên ngoài thấy thì vẫn chấp nhận được (K1).',
+      'Ch.1: the coffee shop example: buyCoffee calling cc.charge is a side effect, hard to test, not reusable; returning a Charge as a value makes tests need no mocks; push effects to the outer layer, a pure core; the definitions of referential transparency and a pure function; the substitution model, reasoning like solving an equation; String.reversed (substitutable) versus StringBuilder.append (not); mutating local data nobody outside can observe is still acceptable (K1).')
+  ]);
+})();
