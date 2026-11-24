@@ -21,7 +21,7 @@ a('fam.done', 'chạy đúng', 'working'); a('fam.fail', 'có vấn đề', 'has
 for k, vi, en in [('observe', 'quan sát', 'observe'), ('run', 'chạy', 'run'), ('write', 'ghi', 'write'), ('skip', 'bỏ qua', 'skip'), ('exception', 'ném ngoại lệ', 'exception thrown'), ('complete', 'hoàn tất', 'complete')]:
     a('kind.' + k, vi, en)
 
-MODULES = ('storage_v2_h1',)   # giữ dấu phẩy cuối
+MODULES = ('storage_v2_h1', 'storage_v2_h2')   # giữ dấu phẩy cuối
 for mod in MODULES:
     assert os.path.exists(os.path.join(HERE, mod + '.py')), 'thiếu module ' + mod
     mm = __import__(mod)

@@ -18,7 +18,13 @@
     s('aosp-sp-impl', 'SharedPreferencesImpl.java (AOSP, nhánh main)', 'https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/java/android/app/SharedPreferencesImpl.java', 'Android Open Source Project', 'impl',
       'Nạp cả file XML vào một map trong bộ nhớ ở luồng nền (loadFromDisk); hàm get chờ tới khi nạp xong (awaitLoadedLocked). Mỗi lần ghi, writeToFile ghi lại toàn bộ map rồi sync; có file .bak để khôi phục khi ghi hỏng (H1, H3).',
       'Loads the whole XML file into an in-memory map on a background thread (loadFromDisk); getters wait until loading finishes (awaitLoadedLocked). Each write, writeToFile writes the whole map then syncs; a .bak file allows recovery from a failed write (H1, H3).'),
-    s('ax-room', 'Save data in a local database using Room', D + 'training/data-storage/room', 'Android Developers', 'stable',
+    s('ax-atomicfile', 'AtomicFile (androidx.core.util)', D + 'reference/androidx/core/util/AtomicFile', 'Android Developers', 'stable',
+      'Ghi vào file "<tên>.new", sync xuống đĩa rồi đổi tên đè lên file gốc. startWrite trả stream (không tự đóng); finishWrite đóng, sync và chốt; failWrite đóng và xóa file mới. Không khóa file: phải tự loại trừ nhiều luồng hay tiến trình cùng ghi (H2).',
+      'Writes to a "<name>.new" file, syncs it to disk, then renames it over the original. startWrite returns a stream (do not close it yourself); finishWrite closes, syncs and commits; failWrite closes and deletes the new file. No file locking: you must keep several threads or processes from writing at once (H2).'),
+    s('man-rename', 'rename(2), Linux manual page', 'https://man7.org/linux/man-pages/man2/rename.2.html', 'man7.org', 'impl',
+      'Nếu tên đích đã có, nó được thay thế một cách nguyên tử: không có lúc nào tên đích không tồn tại (H2).',
+      'If the new path already exists, it is replaced atomically: there is no point at which the new path is missing (H2).'),
+    s('ax-room','Save data in a local database using Room', D + 'training/data-storage/room', 'Android Developers', 'stable',
       'Ba thành phần: lớp database, entity, DAO. Room kiểm câu SQL lúc biên dịch, giảm mã lặp, có đường migration. Nên dùng Room thay cho API SQLite trực tiếp (H1, H4).',
       'Three components: the database class, entities, DAOs. Room verifies SQL at compile time, reduces boilerplate and provides migration paths. Use Room rather than the SQLite APIs directly (H1, H4).')
   ]);

@@ -47,4 +47,31 @@
       h('p', { class: 'vz-cap', text: T('pt.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)),
       h('div', { class: 'vz-legend', text: T('dt.legend') })));
   }, { labelKey: K + 'tab.dt', icon: 'diamond' });
+
+  /* ---------- bảng làn thời gian: mỗi hàng là một làn, mỗi cột là một bước; chỉ cột của bước đang xem được viền ---------- */
+  var KS = ['s1', 's2', 's3', 's4'];
+  function idx(ctx) {
+    if (ctx.step) return KS.indexOf(ctx.step.id.split('.').pop());
+    return ctx.pos > ctx.N ? 3 : 0;
+  }
+  function laneScreen(modelId, getSrc, p, tabKey) {
+    ADE.registerScreen(modelId, function (box, ctx) {
+      var h = ADE.ui.h, c = ctx.state.case, i = idx(ctx), E = getSrc();
+      var head = h('tr', null, h('th', { text: T(p + '.lane') }), [0, 1, 2, 3].map(function (k) { return h('th', { class: k === i ? 'hl' : null, text: T(p + '.col.' + c + '.' + k) }); }));
+      var tb = h('tbody');
+      E.LANES.forEach(function (ln) {
+        var tr = h('tr', null, h('th', { text: T(p + '.lane.' + ln) }));
+        for (var k = 0; k < 4; k++) {
+          if (k > i) { tr.appendChild(h('td', { class: 'dim', text: '·' })); continue; }
+          var cell = E.at(c, k)[ln], cls = cell[1] || '';
+          if (k < i && cls === 'hl') cls = '';
+          tr.appendChild(h('td', { class: cls || null, text: T(p + '.cell.' + cell[0]) }));
+        }
+        tb.appendChild(tr);
+      });
+      box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T(p + '.cap') }),
+        h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-lanes' }, h('thead', null, head), tb)), h('div', { class: 'vz-legend', text: T(p + '.legend') })));
+    }, { labelKey: K + tabKey, icon: 'clock' });
+  }
+  laneScreen('storage.file', function () { return ADE.storageFile; }, 'fl', 'tab.fl');   // H2: app, hệ thống, đĩa
 })();

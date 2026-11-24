@@ -15,4 +15,8 @@
   V('choose', { layout: 'pipeline', nodes: [N('choose', 'data', 0, 0, 'source', 'ui'), N('choose', 'question', 3, 0, 'diamond', 'state'), N('choose', 'place', 6, 0, 'store', 'runtime'), N('choose', 'chapter', 9, 0, 'eye', 'job')],
     edges: [E('e1', 'data', 'question'), E('e2', 'question', 'place'), E('e3', 'place', 'chapter')],
     metrics: [T('choose', 'place'), T('choose', 'chapter')] });
+  /* H2: app, hệ thống, file trên đĩa */
+  V('file', { layout: 'pipeline', nodes: [N('file', 'app', 0, 0, 'phone', 'ui'), N('file', 'disk', 6, 0, 'store', 'state'), N('file', 'sys', 3, 3, 'android', 'runtime')],
+    edges: [E('e1', 'app', 'disk'), E('e2', 'sys', 'app')],
+    metrics: [T('file', 'file'), T('file', 'lost')] });
 })();

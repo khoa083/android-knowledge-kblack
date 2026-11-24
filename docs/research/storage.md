@@ -31,3 +31,12 @@
 | DataStore cho dữ liệu nhỏ, không cập nhật từng phần hay ràng buộc tham chiếu → Room | ax-datastore | stable |
 | SharedPreferences nạp cả file, mỗi lần ghi ghi lại toàn bộ | aosp-sp-impl | impl |
 | Thứ tự bốn câu hỏi dạng bậc thang | site | simplified |
+
+### H2 · File riêng của app
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| filesDir, cacheDir không cần quyền; external không cần quyền từ 4.4; openFileOutput khác MODE_PRIVATE ném SecurityException từ 7.0; FileProvider để chia sẻ | ax-app-specific | stable |
+| Cache có thể bị xóa khi thiếu bộ nhớ trong; kiểm còn trước khi đọc; đừng trông vào hệ thống dọn; getCacheQuotaBytes, getAllocatableBytes/allocateBytes | ax-app-specific | stable |
+| AtomicFile: ghi `.new`, sync rồi đổi tên; startWrite/finishWrite/failWrite; không khóa file | ax-atomicfile | stable |
+| Đổi tên đè lên tên có sẵn là nguyên tử | man-rename | impl |
+| FileOutputStream không nối thêm cắt file khi mở | Java SE (kiến thức chuẩn, không gắn nguồn trên site) | stable |
