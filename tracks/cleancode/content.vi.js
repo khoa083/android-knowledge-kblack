@@ -628,7 +628,7 @@ ADE.addTrackStrings('cleancode', 'vi', {
   "track.cleancode.m.tdd.s.tdd.s4.explain": "Test đỏ, thêm nhánh ngày lễ cho xanh, rồi refactor thành when với hằng BASE. Bốn test, cả bốn đã từng đỏ rồi xanh. Ngày 2/9 tính đúng 400.000.",
   "track.cleancode.m.tdd.ev.tdd.s4": "Ví dụ 4: 2/9 → 400.000, rồi dọn mã",
   "track.cleancode.m.tdd.co.try": "Theo vòng ba pha và bảng test; để ý test nào đã từng đỏ.",
-  "track.cleancode.m.tdd.co.after.s2": "Quy tắc ngón tay cái: đừng tin một test chưa từng thấy nó đỏ. Assertion (dòng khẳng định kết quả phải bằng gì) luôn đúng bất kể mã, gọi là tautological, dễ viết hơn ta tưởng; nếu chưa thấy test đỏ thì chưa biết nó có kiểm gì không. [[src:book-seemann]]",
+  "track.cleancode.m.tdd.co.after.s2": "Quy tắc ngón tay cái: đừng tin một test chưa từng thấy nó đỏ. Assertion là dòng khẳng định kết quả phải bằng gì. Một assertion luôn đúng bất kể mã (gọi là tautological) dễ viết hơn ta tưởng; nếu chưa thấy test đỏ thì chưa biết nó có kiểm gì không. [[src:book-seemann]]",
   "track.cleancode.m.tdd.co.after.s3": "Test viết sau mã thường đi theo đúng đường mã đã có. Danh sách ví dụ viết trước mã là chỗ để nghĩ tới trường hợp biên.",
   "track.cleancode.m.tdd.co.after.s4": "Lỗi đã lọt ra môi trường thật chứng tỏ lỗi đó có thể xảy ra; hãy viết một test tái hiện nó trước khi sửa. [[src:book-seemann]]",
   "track.cleancode.m.tdd.co.tdd.s1": "Devil's Advocate (người cố tình cãi ngược, cách gọi của Seemann): cố tình viết cài đặt sai rõ ràng mà vẫn qua mọi test. Làm được thì danh sách test chưa đủ. [[src:book-seemann]]",
