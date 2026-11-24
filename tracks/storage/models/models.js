@@ -281,4 +281,48 @@
         { name: 'đủ đường: đi qua từng phiên bản theo thứ tự và giữ nguyên 12 lịch', run: function () { var c = P.complete; return c[1].at === 2 && c[2].at === 3 && c.every(function (x) { return x.rows === 12; }) && EDGES.complete.indexOf('missing') < 0; } },
         { name: 'mỗi cách có 4 bước', run: function () { return CASES.every(function (c) { return steps({ case: c }).length === 4; }); } }] });
   })();
+
+  /* ================= H7: đặt lịch lúc mất mạng rồi tắt app — ghi online, ghi local + coroutine, ghi lazy + WorkManager =================
+     Theo Build an offline-first app (ba chiến lược ghi: online-only, queued, lazy; lazy là lựa chọn đúng khi dữ liệu quan trọng; hàng chờ
+     có thể giữ trong Room và rút bằng WorkManager; enqueueUniqueWork với ExistingWorkPolicy.KEEP, NetworkType.CONNECTED, Result.retry
+     thì WorkManager thử lại với backoff lũy thừa), Persistent work (công việc sống qua khởi động lại app và máy; lưu trong SQLite nội bộ;
+     coroutine dừng ngay khi app đóng). Lịch #9 và thời điểm có mạng lại là tình huống của site. */
+  (function () {
+    var m = 'sync', CASES = ['online', 'coroutine', 'lazy'], KS = ['s1', 's2', 's3', 's4'];
+    var PARTS = ['app', 'db', 'wm', 'server'];
+    // tin nhắn: [từ, tới, khóa nhãn, xấu?]; từ = tới là tin tự gửi
+    var MSG = {
+      online: [[['app', 'server', 'post', 1]], [['server', 'app', 'ioerr', 1]], [['app', 'app', 'showErr', 0]], [['app', 'app', 'closed', 1]]],
+      coroutine: [[['app', 'db', 'insertPending', 0], ['db', 'app', 'flowShow', 0]], [['app', 'app', 'retryLater', 0]], [['app', 'app', 'killedCo', 1]], [['db', 'db', 'stuck', 1]]],
+      lazy: [[['app', 'db', 'insertPending', 0], ['app', 'wm', 'enqueue', 0]], [['app', 'app', 'closed', 0], ['wm', 'wm', 'persisted', 0]],
+        [['wm', 'db', 'readPending', 0], ['wm', 'server', 'postWm', 0], ['server', 'wm', 'created', 0]], [['wm', 'db', 'markSynced', 0], ['db', 'app', 'flowSynced', 0]]]
+    };
+    // hàng chờ gửi của lịch #9 sau mỗi bước: [có trong DB, trạng thái, máy chủ có]
+    var Q = {
+      online: [['no', 'none', 'no'], ['no', 'none', 'no'], ['no', 'none', 'no'], ['no', 'none', 'no']],
+      coroutine: [['yes', 'pending', 'no'], ['yes', 'pending', 'no'], ['yes', 'pending', 'no'], ['yes', 'pending', 'no']],
+      lazy: [['yes', 'pending', 'no'], ['yes', 'pending', 'no'], ['yes', 'sending', 'yes'], ['yes', 'synced', 'yes']]
+    };
+    var TYPE = { online: ['scenario', 'pitfall', 'mechanism', 'pitfall'], coroutine: ['scenario', 'mechanism', 'pitfall', 'pitfall'], lazy: ['scenario', 'mechanism', 'mechanism', 'mechanism'] };
+    var LINES = { online: [[2], [3], [4], [5]], coroutine: [[2, 3], [4, 5], [6], [6]], lazy: [[2, 3, 4], [5], [7, 8, 9], [10]] };
+    ADE.storageSync = { PARTS: PARTS, msgs: function (c, k) { return MSG[c][k]; }, q: function (c, k) { return Q[c][k]; } };
+    function steps(s) {
+      return MSG[s.case].map(function (ms, i) {
+        var type = TYPE[s.case][i], bad = type === 'pitfall', nodes = [];
+        ms.forEach(function (x) { [x[0], x[1]].forEach(function (p) { if (nodes.indexOf(p) < 0) nodes.push(p); }); });
+        var ns = {}; nodes.forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var q = Q[s.case][i];
+        var o = S(m, s.case + '.' + KS[i], { type: type, activeNodes: nodes, nodeStates: ns, metrics: { inDb: M(m, 'yn.' + q[0]), state: M(m, 'q.' + q[1]), server: M(m, 'yn.' + q[2]) },
+          codeHighlight: { snippet: 'h7.' + s.case, lines: LINES[s.case][i] }, movingSignals: [], logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : 'run'), subject: nodes[0] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'online' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'chỉ ghi lazy + WorkManager mới đưa được lịch #9 lên máy chủ sau khi app bị tắt', run: function () { return CASES.every(function (c) { return (Q[c][3][2] === 'yes') === (c === 'lazy'); }); } },
+        { name: 'ghi online lúc mất mạng không lưu gì xuống máy; ghi local thì có lịch trong DB từ bước 1', run: function () { return Q.online.every(function (r) { return r[0] === 'no'; }) && Q.coroutine[0][0] === 'yes' && Q.lazy[0][0] === 'yes'; } },
+        { name: 'mọi tin nhắn đi giữa bốn bên đã khai báo', run: function () { return CASES.every(function (c) { return MSG[c].every(function (ms) { return ms.every(function (x) { return PARTS.indexOf(x[0]) >= 0 && PARTS.indexOf(x[1]) >= 0; }); }); }); } }] });
+  })();
 })();

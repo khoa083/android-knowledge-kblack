@@ -5,6 +5,9 @@
   'use strict';
   var K = 'track.storage.vz.', MC = 'track.storage.m.choose.';
   var T = function (k, p) { return ADE.t(K + k, p); };
+  function esc(s) { return ADE.esc(String(s)); }
+  // chữ monospace 11px rộng khoảng 6.6px mỗi ký tự; nhãn dài hơn chỗ trống thì ép vừa thay vì tràn
+  function fitText(str, w) { return String(str).length * 6.6 > w ? ' textLength="' + w + '" lengthAdjust="spacingAndGlyphs"' : ''; }
   // vị trí bước của H1, tính từ id bước (<loại>.start | <loại>.<câu hỏi> | <loại>.leaf); số bước thay đổi theo tình huống
   function chooseIdx(ctx, C, ans) {
     if (!ctx.step) return ctx.pos > ctx.N ? ans.length + 1 : 0;
@@ -139,4 +142,42 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('mg.cap') }), h('div', { class: 'vz-scroll' }, row),
       h('p', { class: 'vz-cap' }, h('b', { text: T('mg.status') + ' ' }), ADE.t('track.storage.m.mig.st.' + d.st)), h('div', { class: 'vz-legend', text: T('mg.legend') })));
   }, { labelKey: K + 'tab.mg', icon: 'grid' });
+
+  /* ---------- H7: SƠ ĐỒ TUẦN TỰ (mới) — cột là các bên, hàng là tin nhắn theo thời gian; tin của bước đang xem được tô ----------
+     Tin nhắn lấy từ ADE.storageSync (models.js). Tin tự gửi (từ = tới) vẽ thành vòng nhỏ bên phải đường đời. */
+  var SQ_W = 600, SQ_COL = { app: 75, db: 225, wm: 375, server: 525 }, SQ_ROW = 34, SQ_TOP = 52;
+  ADE.registerScreen('storage.sync', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.storageSync, c = ctx.state.case, i = idx(ctx);
+    var uid = 'sq' + Math.random().toString(36).slice(2, 8), rows = [];
+    for (var k = 0; k <= i; k++) Y.msgs(c, k).forEach(function (x) { rows.push({ x: x, cur: k === i, step: k }); });
+    var H = SQ_TOP + Math.max(rows.length, 1) * SQ_ROW + 16;
+    var svg = '<svg viewBox="0 0 ' + SQ_W + ' ' + H + '" class="vz-dg vz-sq" role="img" aria-label="' + esc(T('sq.cap')) + '"><title>' + esc(T('sq.cap')) + '</title><defs>' +
+      ['n', 'c', 'b'].map(function (t) { return '<marker id="' + uid + t + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-sq-head ' + t + '"/></marker>'; }).join('') + '</defs>';
+    Y.PARTS.forEach(function (p) {
+      var x = SQ_COL[p];
+      svg += '<line class="vz-sq-life" x1="' + x + '" y1="' + (SQ_TOP - 8) + '" x2="' + x + '" y2="' + (H - 6) + '"/>' +
+        '<rect class="vz-sq-part" x="' + (x - 66) + '" y="6" width="132" height="30" rx="4"/><text class="vz-dg-t" x="' + x + '" y="26" text-anchor="middle"' + fitText(T('sq.p.' + p), 120) + '>' + esc(T('sq.p.' + p)) + '</text>';
+    });
+    rows.forEach(function (r, n) {
+      var y = SQ_TOP + n * SQ_ROW + 20, a = SQ_COL[r.x[0]], b = SQ_COL[r.x[1]], bad = r.x[3] === 1, t = 'vz-sq-m' + (bad ? ' bad' : '') + (r.cur ? ' cur' : '');
+      var mk = 'url(#' + uid + (bad ? 'b' : (r.cur ? 'c' : 'n')) + ')', label = esc(T('sq.m.' + r.x[2]));
+      if (a === b) {
+        svg += '<path class="' + t + '" d="M' + a + ' ' + (y - 10) + ' h 22 v 14 h -20" marker-end="' + mk + '"/>' +
+          '<text class="vz-sq-l' + (bad ? ' bad' : '') + '" x="' + (a + 28) + '" y="' + (y + 1) + '"' + fitText(T('sq.m.' + r.x[2]), a > 450 ? 40 : 150 + (a < 100 ? 140 : 0)) + '>' + label + '</text>';
+      } else {
+        var dir = b > a ? 1 : -1, mid = (a + b) / 2, w = Math.abs(b - a) - 16;
+        svg += '<line class="' + t + '" x1="' + (a + dir * 4) + '" y1="' + y + '" x2="' + (b - dir * 6) + '" y2="' + y + '" marker-end="' + mk + '"/>' +
+          '<text class="vz-sq-l' + (bad ? ' bad' : '') + '" x="' + mid + '" y="' + (y - 6) + '" text-anchor="middle"' + fitText(T('sq.m.' + r.x[2]), w) + '>' + label + '</text>';
+      }
+    });
+    svg += '</svg>';
+    var q = Y.q(c, Math.max(0, i)), M7 = 'track.storage.m.sync.';
+    var qt = h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['appt', 'inDb', 'state', 'server'].map(function (k) { return h('th', { text: T('sq.qc.' + k) }); }))),
+      h('tbody', null, h('tr', null, h('td', { text: '#9' }), h('td', { class: q[0] === 'no' ? 'bad' : 'ok', text: ADE.t(M7 + 'yn.' + q[0]) }),
+        h('td', { class: q[1] === 'synced' ? 'ok' : (q[1] === 'none' ? 'dim' : null), text: ADE.t(M7 + 'q.' + q[1]) }),
+        h('td', { class: q[2] === 'yes' ? 'ok' : null, text: ADE.t(M7 + 'yn.' + q[2]) }))));
+    var holder = h('div', { class: 'vz-scroll' }); holder.innerHTML = svg;
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('sq.cap') }), holder, h('p', { class: 'vz-cap', text: T('sq.qcap') }), h('div', { class: 'vz-scroll' }, qt),
+      h('div', { class: 'vz-legend', text: T('sq.legend') })));
+  }, { labelKey: K + 'tab.sq', icon: 'list' });
 })();

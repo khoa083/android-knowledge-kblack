@@ -760,6 +760,16 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 .vz-mig-e.bad { color: var(--tok-error); border: 1px dashed var(--tok-error); }
 .vz-mig-e.cur { outline: 2px solid var(--focus); outline-offset: -2px; }
 .vz-mig-v { overflow-wrap: anywhere; }
+/* sơ đồ tuần tự (track H, H7): cột là các bên, hàng là tin nhắn */
+.vz-sq { min-width: 520px; }
+.vz-sq-part { fill: var(--paper-2); stroke: var(--ink); stroke-width: 1.3; }
+.vz-sq-life { stroke: var(--line-strong); stroke-dasharray: 3 4; }
+.vz-sq-m { fill: none; stroke: var(--ink-2); stroke-width: 1.4; }
+.vz-sq-m.cur { stroke: var(--brand); stroke-width: 2.2; }
+.vz-sq-m.bad { stroke: var(--tok-error); stroke-width: 2; stroke-dasharray: 6 4; }
+.vz-sq-head.n { fill: var(--ink-2); } .vz-sq-head.c { fill: var(--brand); } .vz-sq-head.b { fill: var(--tok-error); }
+.vz-sq-l { font-size: 11px; fill: var(--ink); }
+.vz-sq-l.bad { fill: var(--tok-error); font-weight: 700; }
 @media (max-width: 560px) {
   .vz-mig { flex-direction: column; min-width: 0; }
   .vz-mig-e { grid-auto-flow: column; justify-content: start; gap: 8px; min-height: 36px; }

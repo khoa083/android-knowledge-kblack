@@ -77,3 +77,11 @@
 | AutoMigration cần schema đã xuất; spec @RenameColumn/@DeleteColumn/@RenameTable/@DeleteTable cho thay đổi mơ hồ | ax-room-migrations | stable |
 | Kiểm schema sau khi chạy hết migration; MigrationTestHelper createDatabase / runMigrationsAndValidate; không dùng DAO trong test vì schema mới nhất | ax-room-migrations | stable |
 | Room 3.0: migrate(connection: SQLiteConnection) suspend, plugin androidx.room3 schemaDirectory; Room 2.x: SupportSQLiteDatabase | ax-room-migrations / bản cũ | version |
+
+### H7 · Offline-first và đồng bộ nền
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Nguồn cục bộ là nguồn sự thật; ba chiến lược ghi online-only / queued / lazy và khi nào dùng; lazy có thể sinh xung đột; last write wins | ax-offline-first-data | guideline |
+| Hàng chờ có thể giữ trong Room, rút bằng WorkManager; ví dụ enqueueUniqueWork KEEP, NetworkType.CONNECTED, Result.retry → backoff lũy thừa | ax-offline-first-data | stable |
+| WorkManager sống qua tắt app và khởi động lại; lưu trong SQLite nội bộ; coroutine dừng khi app đóng; ràng buộc, công việc duy nhất, backoff | ax-persistent-work | stable |
+| Cột PENDING/SYNCED, id do máy sinh chống gửi trùng, bài tập Hủy lịch | site | simplified |

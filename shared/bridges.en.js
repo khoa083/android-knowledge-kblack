@@ -28,5 +28,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X14.title': 'Exceptions and errors across layers',
   'shared.bridge.X14.summary': 'An over-broad catch swallows programming errors and CancellationException too. The owner chapter teaches Kotlin\'s exception mechanics; the architecture chapter uses them to map expected errors to failures in the repository.',
   'shared.bridge.X15.title': 'by viewModels() and DI',
-  'shared.bridge.X15.summary': 'by viewModels() is a delegate (ViewModelLazy) that fetches the ViewModel from a ViewModelStore; with Hilt, the ViewModel receives its dependencies through an @Inject constructor. The owner chapter teaches delegates.'
+  'shared.bridge.X15.summary': 'by viewModels() is a delegate (ViewModelLazy) that fetches the ViewModel from a ViewModelStore; with Hilt, the ViewModel receives its dependencies through an @Inject constructor. The owner chapter teaches delegates.',
+  'shared.bridge.X16.title': 'Offline-first: role and mechanism',
+  'shared.bridge.X16.summary': 'The architecture chapter teaches the role: the repository reads from the database as the source of truth and writes locally first. The owner chapter teaches the mechanism: a pending-sync column in Room and WorkManager draining the queue when online, surviving even an app kill.'
 });

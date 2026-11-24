@@ -28,5 +28,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X14.title': 'Ngoại lệ và lỗi qua các tầng',
   'shared.bridge.X14.summary': 'catch quá rộng nuốt cả lỗi lập trình và CancellationException. Chương chủ sở hữu giảng cơ chế ngoại lệ của Kotlin; chương kiến trúc dùng nó để đổi lỗi dự đoán được thành failure ở repository.',
   'shared.bridge.X15.title': 'by viewModels() và DI',
-  'shared.bridge.X15.summary': 'by viewModels() là một delegate (ViewModelLazy) lấy ViewModel từ ViewModelStore; với Hilt, ViewModel nhận phụ thuộc qua @Inject constructor. Chương chủ sở hữu giảng delegate.'
+  'shared.bridge.X15.summary': 'by viewModels() là một delegate (ViewModelLazy) lấy ViewModel từ ViewModelStore; với Hilt, ViewModel nhận phụ thuộc qua @Inject constructor. Chương chủ sở hữu giảng delegate.',
+  'shared.bridge.X16.title': 'Offline-first: vai trò và cơ chế',
+  'shared.bridge.X16.summary': 'Chương kiến trúc dạy vai trò: repository đọc từ database làm nguồn sự thật và ghi máy trước. Chương chủ sở hữu dạy cơ chế: cột trạng thái chờ gửi trong Room và WorkManager rút hàng chờ khi có mạng, sống qua cả lần tắt app.'
 });

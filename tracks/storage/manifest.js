@@ -12,7 +12,8 @@ ADE.registerTrack({
     { id: 'h3', titleKey: 'track.storage.h3.title', sims: ['storage.prefs'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'h4', titleKey: 'track.storage.h4.title', sims: ['storage.room'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'h5', titleKey: 'track.storage.h5.title', sims: ['storage.rel'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'h6', titleKey: 'track.storage.h6.title', sims: ['storage.mig'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
+    { id: 'h6', titleKey: 'track.storage.h6.title', sims: ['storage.mig'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'h7', titleKey: 'track.storage.h7.title', sims: ['storage.sync'], simAfter: 'hook', bridges: ['X16'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'storage-choose', model: 'storage.choose', titleKey: 'track.storage.preset.choose' },
@@ -20,7 +21,8 @@ ADE.registerTrack({
     { id: 'storage-prefs', model: 'storage.prefs', titleKey: 'track.storage.preset.prefs' },
     { id: 'storage-room', model: 'storage.room', titleKey: 'track.storage.preset.room' },
     { id: 'storage-rel', model: 'storage.rel', titleKey: 'track.storage.preset.rel' },
-    { id: 'storage-mig', model: 'storage.mig', titleKey: 'track.storage.preset.mig' }
+    { id: 'storage-mig', model: 'storage.mig', titleKey: 'track.storage.preset.mig' },
+    { id: 'storage-sync', model: 'storage.sync', titleKey: 'track.storage.preset.sync' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

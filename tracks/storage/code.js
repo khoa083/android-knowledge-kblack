@@ -2,6 +2,36 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('storage', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('h7.online', [
+    c('fun book(slot: Slot) = viewModelScope.launch {', 'fun book(slot: Slot) = viewModelScope.launch {'),
+    c('    try { api.book(slot) }                         // mất mạng: ném IOException', '    try { api.book(slot) }                         // offline: throws IOException'),
+    c('    catch (e: IOException) { _error.value = e }     // không có gì được lưu', '    catch (e: IOException) { _error.value = e }     // nothing is stored'),
+    c('}                                                 // báo lỗi cho người dùng', '}                                                 // shows an error'),
+    c('// người dùng tắt app: lịch chưa từng tồn tại ở đâu', '// the user closes the app: the booking never existed anywhere')
+  ]);
+  add('h7.coroutine', [
+    c('fun book(slot: Slot) = viewModelScope.launch {', 'fun book(slot: Slot) = viewModelScope.launch {'),
+    c('    val id = dao.insert(Appointment(slot, sync = PENDING))   // lưu máy trước', '    val id = dao.insert(Appointment(slot, sync = PENDING))   // local first'),
+    c('    // UI đọc Flow từ dao nên hiện lịch ngay', '    // the UI reads a Flow from the dao, so it shows at once'),
+    c('    while (true) { try { api.book(slot); dao.markSynced(id); break }', '    while (true) { try { api.book(slot); dao.markSynced(id); break }'),
+    c('                   catch (e: IOException) { delay(30_000) } }   // thử lại trong coroutine', '                   catch (e: IOException) { delay(30_000) } }   // retries inside the coroutine'),
+    c('}   // app đóng: coroutine dừng, #9 kẹt PENDING', '}   // app closes: the coroutine stops, #9 is stuck PENDING')
+  ]);
+  add('h7.lazy', [
+    c('suspend fun book(slot: Slot) {', 'suspend fun book(slot: Slot) {'),
+    c('    dao.insert(Appointment(slot, sync = PENDING))            // 1. lưu máy trước', '    dao.insert(Appointment(slot, sync = PENDING))            // 1. local first'),
+    '    workManager.enqueueUniqueWork("sync", ExistingWorkPolicy.KEEP,',
+    c('        OneTimeWorkRequestBuilder<SyncWorker>().setConstraints(onlyWhenOnline).build())   // 2. giao cho WorkManager', '        OneTimeWorkRequestBuilder<SyncWorker>().setConstraints(onlyWhenOnline).build())   // 2. hand it to WorkManager'),
+    c('}   // app có thể bị tắt ngay sau dòng này', '}   // the app may be killed right after this line'),
+    'class SyncWorker(ctx: Context, p: WorkerParameters) : CoroutineWorker(ctx, p) {',
+    '    override suspend fun doWork(): Result {',
+    c('        for (a in dao.pending()) {                           // đọc hàng chờ trong Room', '        for (a in dao.pending()) {                           // reads the queue in Room'),
+    c('            try { api.book(a.slot) } catch (e: IOException) { return Result.retry() }', '            try { api.book(a.slot) } catch (e: IOException) { return Result.retry() }'),
+    c('            dao.markSynced(a.id) }                           // 3. đánh dấu đã đồng bộ', '            dao.markSynced(a.id) }                           // 3. mark it synced'),
+    '        return Result.success()',
+    '    }',
+    '}'
+  ]);
   add('h6.missing', [
     c('@Database(entities = [Appointment::class], version = 3)   // app mới khai báo v3', '@Database(entities = [Appointment::class], version = 3)   // the new app declares v3'),
     c('Room.databaseBuilder<AppDatabase>(ctx, "clinic.db")', 'Room.databaseBuilder<AppDatabase>(ctx, "clinic.db")'),

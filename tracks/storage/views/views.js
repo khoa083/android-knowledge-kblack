@@ -35,4 +35,8 @@
   V('mig', { layout: 'pipeline', nodes: [N('mig', 'app', 0, 0, 'phone', 'ui'), N('mig', 'room', 4, 0, 'mechanism', 'runtime'), N('mig', 'db', 8, 0, 'store', 'state')],
     edges: [E('e1', 'app', 'room'), E('e2', 'room', 'db')],
     metrics: [T('mig', 'ver'), T('mig', 'rows'), T('mig', 'st')] });
+  /* H7: app, Room, WorkManager, máy chủ */
+  V('sync', { layout: 'pipeline', nodes: [N('sync', 'app', 0, 0, 'phone', 'ui'), N('sync', 'db', 3, 0, 'store', 'state'), N('sync', 'wm', 6, 0, 'job', 'runtime'), N('sync', 'server', 9, 0, 'source', 'job')],
+    edges: [E('e1', 'app', 'db'), E('e2', 'db', 'wm'), E('e3', 'wm', 'server')],
+    metrics: [T('sync', 'inDb'), T('sync', 'state'), T('sync', 'server')] });
 })();
