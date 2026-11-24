@@ -229,7 +229,7 @@
     '}'
   ]);
   add('effCounter', [
-    { vi: '// biến thể LaunchedEffectDemo của Kunneth (Ch.7): thêm DisposableEffect và SideEffect cùng chỗ', en: '// a variant of Kunneth\'s LaunchedEffectDemo (Ch.7): DisposableEffect and SideEffect added alongside' },
+    { vi: '// biến thể LaunchedEffectDemo của Kunneth: thêm DisposableEffect và SideEffect cùng chỗ', en: '// a variant of Kunneth\'s LaunchedEffectDemo: DisposableEffect and SideEffect added alongside' },
     'var clickCount by rememberSaveable { mutableStateOf(0) }',
     'var counter by rememberSaveable { mutableStateOf(0) }',
     { vi: 'Button(onClick = { clickCount += 1 }) { Text("Start / Restart") }', en: 'Button(onClick = { clickCount += 1 }) { Text("Start / Restart") }' },

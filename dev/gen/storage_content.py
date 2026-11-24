@@ -35,6 +35,8 @@ for mod in MODULES:
         E[:] = [e for i, e in enumerate(E) if i not in sidx]
         E[first:first] = items
 
+# Quyết định 2026-11-24: bỏ mục "Chương này giản lược những gì" (khoá .sec.honest.) khỏi site; nguồn nằm ở docs/research.
+E[:] = [e for e in E if '.sec.honest.' not in e[0]]
 def norm(s): return unicodedata.normalize('NFC', s)
 keys = [k for k, _, _ in E]; dup = sorted(set(k for k in keys if keys.count(k) > 1)); assert not dup, dup
 for lang, idx in (('vi', 1), ('en', 2)):
