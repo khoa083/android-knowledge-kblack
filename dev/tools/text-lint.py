@@ -14,6 +14,7 @@ PATS = [
     r'The Clean Coder|Clean Agile|Software Craftsman',
     r'(?-i:System Design Interview|Mobile System Design(?! track)|early release)',
     r'\b(tập|vol\.)\s*[0-9]',
+    r'\bOS Concepts\b|Operating System Concepts|\b10th edition\b|\bbản 10\b',
     r'Clean Craftsmanship|Clean Coder|xUnit Test Patterns|Effective Kotlin|Clean Architecture',
     r'\b(Rule|Quy tắc)\s*[0-9]+(?![0-9/])',
     r'\(\s*[0-9]+\.[0-9]+(\.[0-9]+)?\s*\)',
