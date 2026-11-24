@@ -26,7 +26,7 @@ PATS = [
     r'theo của',
     r'(Exercise|Bài tập)\s*[0-9]+\.[0-9]',
     r'\b(DDIA|AAT)\b',
-    r'(Martin|Moskała|Seemann|Kleppmann|Carli|Vermeulen|Tjeerd|Xu):\s',
+    r'(Martin|Moskała|Seemann|Kleppmann|Carli|Vermeulen|Tjeerd|Xu|Tan):\s',
 ]
 rx = [re.compile(p, re.I) for p in PATS]
 tot = collections.Counter()
