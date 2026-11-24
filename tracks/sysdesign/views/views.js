@@ -67,4 +67,8 @@
   V('compat', { layout: 'pipeline', nodes: [N('compat', 'apps', 0, 1, 'phone', 'ui'), N('compat', 'server', 6, 1, 'store', 'job')],
     edges: [E('e1', 'server', 'apps'), E('e2', 'apps', 'server')],
     metrics: [T('compat', 'broken'), T('compat', 'forced'), T('compat', 'apis')] });
+  /* I13: điện thoại người gửi ↔ server ↔ máy người nhận */
+  V('chat', { layout: 'pipeline', nodes: [N('chat', 'phone', 0, 1, 'phone', 'ui'), N('chat', 'server', 4, 1, 'store', 'job'), N('chat', 'peer', 8, 1, 'phone', 'state')],
+    edges: [E('e1', 'phone', 'server'), E('e2', 'server', 'peer')],
+    metrics: [T('chat', 'ticks'), T('chat', 'copies'), T('chat', 'devices')] });
 })();

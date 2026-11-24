@@ -720,4 +720,66 @@
         { name: 'API /v2: không ai lỗi, nhưng server giữ hai phiên bản; bắt cập nhật: 4% thấy màn cập nhật thay vì crash', run: function () { return share('versioned', 'crash') === 0 && APIS.versioned === 2 && share('forced', 'update') === 4 && share('forced', 'crash') === 0; } },
         { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { return CASES.every(function (c) { return steps({ case: c }).length === 4 && CODE[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 5; }); }); }); } }] });
   })();
+
+  /* ================= I13: bài mẫu — một tin nhắn từ lúc gõ tới "đã xem", qua các chương trước =================
+     Theo Alex Xu tập 1 ch.12 (message_id duy nhất, tăng theo thời gian; cur_max_message_id mỗi thiết bị; push khi người nhận offline) và
+     Zhiyong Tan, Acing ch.14 (xác nhận đã nhận, đã xem; ghi ở message service trước; phía nhận kiểm tra trùng). Cách ghép các phần là của site.
+     Sáu bước: gửi → chờ mạng → server nhận → giao → đã xem → thiết bị thứ hai đồng bộ. */
+  (function () {
+    var m = 'chat', CASES = ['online', 'offline', 'away'], KS = ['s1', 's2', 's3', 's4', 's5', 's6'];
+    // thành phần của app và server cho đồ thị; cạnh [từ, tới]
+    // ba hàng để không có đường cắt nhau: giao diện → repository → kết nối sống; Room, WorkManager; nhận push dưới WorkManager; server bên phải
+    var COMP = { ui: [70, 40], vm: [200, 40], repo: [330, 40], ws: [460, 40], db: [330, 120], worker: [460, 120], push: [460, 200], server: [590, 120] };
+    var EDGES = [['ui', 'vm'], ['vm', 'repo'], ['repo', 'db'], ['worker', 'db'], ['worker', 'server'], ['server', 'ws'], ['ws', 'repo'], ['server', 'push'], ['push', 'worker']];
+    // mỗi bước: [thành phần sáng, cạnh sáng (chỉ số), cạnh lỗi, tin trên sơ đồ tuần tự [từ, tới, nhãn, xấu?], dấu tick 0..3, số bản tin trên server, máy người gửi đã có]
+    var P = {
+      online: [
+        [['ui', 'vm', 'repo', 'db'], [0, 1, 2], [], [['a', 'a', 'pending', 0]], 0, 0, 1],
+        [['worker', 'db'], [3], [], [['a', 'a', 'netok', 0]], 0, 0, 1],
+        [['worker', 'server'], [4], [], [['a', 'srv', 'post', 0], ['srv', 'a', 'ack', 0]], 1, 1, 1],
+        [['server', 'ws'], [5], [], [['srv', 'b', 'wsdeliver', 0], ['b', 'srv', 'delivered', 0], ['srv', 'a', 'ticks2', 0]], 2, 1, 1],
+        [['ws', 'repo', 'ui'], [6], [], [['b', 'srv', 'read', 0], ['srv', 'a', 'seen', 0]], 3, 1, 1],
+        [['server', 'repo', 'db'], [6, 2], [], [['a2', 'srv', 'sync', 0], ['srv', 'a2', 'syncres', 0]], 3, 1, 2]],
+      offline: [
+        [['ui', 'vm', 'repo', 'db'], [0, 1, 2], [], [['a', 'a', 'pending', 0]], 0, 0, 1],
+        [['worker', 'db'], [3], [4], [['a', 'a', 'netwait', 1]], 0, 0, 1],
+        [['worker', 'server'], [4], [], [['a', 'srv', 'post', 0], ['srv', 'srv', 'stored', 0], ['srv', 'a', 'lostack', 1], ['a', 'srv', 'retry', 0], ['srv', 'a', 'samekey', 0]], 1, 1, 1],
+        [['server', 'ws'], [5], [], [['srv', 'b', 'wsdeliver', 0], ['b', 'srv', 'delivered', 0], ['srv', 'a', 'ticks2', 0]], 2, 1, 1],
+        [['ws', 'repo', 'ui'], [6], [], [['b', 'srv', 'read', 0], ['srv', 'a', 'seen', 0]], 3, 1, 1],
+        [['server', 'repo', 'db'], [6, 2], [], [['a2', 'srv', 'sync', 0], ['srv', 'a2', 'syncres', 0]], 3, 1, 2]],
+      away: [
+        [['ui', 'vm', 'repo', 'db'], [0, 1, 2], [], [['a', 'a', 'pending', 0]], 0, 0, 1],
+        [['worker', 'db'], [3], [], [['a', 'a', 'netok', 0]], 0, 0, 1],
+        [['worker', 'server'], [4], [], [['a', 'srv', 'post', 0], ['srv', 'a', 'ack', 0]], 1, 1, 1],
+        [['server', 'push', 'worker'], [7, 8], [5], [['srv', 'b', 'wsnone', 1], ['srv', 'b', 'tickle', 0], ['b', 'srv', 'fetch', 0], ['b', 'srv', 'delivered', 0]], 2, 1, 1],
+        [['ws', 'repo', 'ui'], [6], [], [['b', 'srv', 'read', 0], ['srv', 'a', 'seen', 0]], 3, 1, 1],
+        [['server', 'repo', 'db'], [6, 2], [], [['a2', 'srv', 'sync', 0], ['srv', 'a2', 'syncres', 0]], 3, 1, 2]]
+    };
+    ADE.sysChat = { COMP: COMP, EDGES: EDGES, P: P, PARTS: ['a', 'a2', 'srv', 'b'] };
+    var LINES = [[2, 3], [4], [6], [7], [8], [8]];
+    var NODEMAP = { ui: 'phone', vm: 'phone', repo: 'phone', db: 'phone', worker: 'phone', ws: 'phone', push: 'phone', server: 'server' };
+    function steps(st) {
+      var c = st.case;
+      return KS.map(function (k, i) {
+        var p = P[c][i], bad = p[3].some(function (x) { return x[3] === 1; }), type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), ns = {};
+        var nodes = []; p[0].forEach(function (x) { var n = NODEMAP[x]; if (nodes.indexOf(n) < 0) nodes.push(n); });
+        if (p[3].some(function (x) { return x[0] === 'b' || x[1] === 'b'; })) nodes.push('peer');
+        nodes.forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var o = S(m, c + '.' + k, { type: type, activeNodes: nodes, nodeStates: ns,
+          metrics: { ticks: p[4], copies: p[5], devices: p[6] },
+          codeHighlight: { snippet: 'i13.send', lines: LINES[i] },
+          movingSignals: [{ edge: nodes.indexOf('peer') >= 0 ? 'e2' : 'e1', tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 5 ? 'complete' : 'run'), subject: nodes[nodes.length - 1] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'online' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mọi tình huống: dấu tick đi 0 → 1 → 2 → 3, server chỉ giữ một bản tin', run: function () { return CASES.every(function (c) { var t = P[c].map(function (p) { return p[4]; }); return t[0] === 0 && t[2] === 1 && t[3] === 2 && t[5] === 3 && P[c].every(function (p) { return p[5] <= 1; }); }); } },
+        { name: 'mất mạng: response đầu mất, gửi lại cùng khóa, server không tạo bản thứ hai', run: function () { var m3 = P.offline[2][3].map(function (x) { return x[2]; }); return m3.indexOf('lostack') >= 0 && m3.indexOf('samekey') >= 0 && P.offline[2][5] === 1; } },
+        { name: 'người nhận tắt app: không có WebSocket, push chỉ báo rồi app tự tải', run: function () { var m4 = P.away[3][3].map(function (x) { return x[2]; }); return m4.indexOf('wsnone') >= 0 && m4.indexOf('tickle') >= 0 && m4.indexOf('fetch') >= 0; } },
+        { name: 'mỗi tình huống 6 bước; dòng mã nằm trong đoạn mã', run: function () { return CASES.every(function (c) { return steps({ case: c }).length === 6; }) && LINES.every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); } }] });
+  })();
 })();

@@ -2,6 +2,16 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('sysdesign', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('i13.send', [
+    c('suspend fun send(convId: String, text: String) {', 'suspend fun send(convId: String, text: String) {'),
+    c('    val clientId = UUID.randomUUID().toString()                 // khóa chống gửi trùng (I5)', '    val clientId = UUID.randomUUID().toString()                 // the duplicate-send key (I5)'),
+    c('    db.outbox.insert(Pending(clientId, convId, text))            // ghi trước, gửi sau: sống qua process chết (I2)', '    db.outbox.insert(Pending(clientId, convId, text))            // write first, send later: survives process death (I2)'),
+    c('    WorkManager.getInstance(ctx).enqueueUniqueWork(clientId, KEEP, sendWork(clientId))   // ràng buộc: có mạng', '    WorkManager.getInstance(ctx).enqueueUniqueWork(clientId, KEEP, sendWork(clientId))   // constraint: network'),
+    '}',
+    c('// SendWorker: POST /messages, Idempotency-Key: clientId → server cấp messageId tăng dần; outbox → messages (đã gửi)', '// SendWorker: POST /messages, Idempotency-Key: clientId → the server assigns an increasing messageId; outbox → messages (sent)'),
+    c('// nhận: push chỉ báo "có tin mới" (I9) → GET /messages?after=curMaxId (I7) → bỏ tin trùng theo messageId → lưu, hiện', '// receive: push only says "new message" (I9) → GET /messages?after=curMaxId (I7) → drop duplicates by messageId → store, show'),
+    c('// đã xem: gửi read receipt kèm messageId lớn nhất đã đọc; mọi thiết bị của người gửi đồng bộ theo curMaxId (I8)', '// seen: send a read receipt with the highest messageId read; every sender device syncs by curMaxId (I8)')
+  ]);
   add('i12.flag', [
     c('val booking2 = remoteConfig.getBoolean("booking_v2")    // cờ do server điều khiển, mặc định tắt', 'val booking2 = remoteConfig.getBoolean("booking_v2")    // a server-controlled flag, off by default'),
     'if (booking2) NewBookingScreen() else BookingScreen()',

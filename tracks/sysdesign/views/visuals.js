@@ -400,4 +400,38 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['app', 'share', 'before', 'after', 'v2'].map(function (k) { return h('th', { text: T('cp.col.' + k) }); }))), tb)),
       h('div', { class: 'vz-legend', text: T('cp.legend') })));
   }, { labelKey: K + 'tab.cp', icon: 'list' });
+
+  /* ---------- I13: đồ thị thành phần của app (thành phần sáng theo bước) + sơ đồ tuần tự của tin nhắn ---------- */
+  ADE.registerScreen('sysdesign.chat', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.sysChat, c = ctx.state.case, i = Math.max(0, idx(ctx)), p = Y.P[c][i], u = 'chg' + (++uidN), BW = 108, BH = 34;
+    var g = '<svg viewBox="0 0 660 248" class="vz-dg" role="img" aria-label="' + esc(T('ct.gcap')) + '"><defs><marker id="' + u + 'a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-dg-head"/></marker><marker id="' + u + 'b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-dg-head bad"/></marker></defs>';
+    g += '<rect class="vz-dg-mod" x="8" y="8" width="520" height="232" rx="6"/><text class="vz-dg-modt" x="16" y="234">' + esc(T('ct.app')) + '</text>';
+    Y.EDGES.forEach(function (e, k) {
+      var a = Y.COMP[e[0]], b = Y.COMP[e[1]], on = p[1].indexOf(k) >= 0, bd = p[2].indexOf(k) >= 0;
+      // điểm đầu, cuối nằm trên viền hộp: co vector nối tâm theo nửa kích thước hộp
+      var dx = b[0] - a[0], dy = b[1] - a[1], tt = Math.min(dx ? (BW / 2 + 3) / Math.abs(dx) : 1e9, dy ? (BH / 2 + 3) / Math.abs(dy) : 1e9);
+      var sx = a[0] + dx * tt, sy = a[1] + dy * tt, tx = b[0] - dx * tt, ty = b[1] - dy * tt;
+      g += '<line class="vz-dg-e' + (bd ? ' bad' : (on ? ' up' : '')) + '" x1="' + sx.toFixed(1) + '" y1="' + sy.toFixed(1) + '" x2="' + tx.toFixed(1) + '" y2="' + ty.toFixed(1) + '" marker-end="url(#' + u + (bd ? 'b' : 'a') + ')"/>';
+    });
+    Object.keys(Y.COMP).forEach(function (k) {
+      var q = Y.COMP[k], on = p[0].indexOf(k) >= 0, lb = T('ct.c.' + k);
+      g += '<g class="vz-dg-n' + (on ? ' on' : ' skip') + '"><rect x="' + (q[0] - BW / 2) + '" y="' + (q[1] - BH / 2) + '" width="' + BW + '" height="' + BH + '" rx="4"/><text class="vz-dg-t" x="' + q[0] + '" y="' + (q[1] + 5) + '" text-anchor="middle"' + fitText(lb, BW - 10) + '>' + esc(lb) + '</text></g>';
+    });
+    g += '</svg>';
+    // sơ đồ tuần tự: máy người gửi, máy thứ hai của người gửi, server, máy người nhận; hiện các bước tới bước hiện tại
+    var COL = { a: 70, a2: 230, srv: 390, b: 560 }, ROW = 30, TOP = 50, W = 640, rows = [];
+    for (var s = 0; s <= i; s++) Y.P[c][s][3].forEach(function (x) { rows.push({ x: x, cur: s === i }); });
+    var H = TOP + rows.length * ROW + 14, v = 'chsq' + (++uidN);
+    var sq = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="vz-dg vz-sq" role="img" aria-label="' + esc(T('ct.scap')) + '"><defs>' + ['n', 'c', 'b'].map(function (t) { return '<marker id="' + v + t + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-sq-head ' + t + '"/></marker>'; }).join('') + '</defs>';
+    Y.PARTS.forEach(function (pt) { var x = COL[pt]; sq += '<line class="vz-sq-life" x1="' + x + '" y1="' + (TOP - 8) + '" x2="' + x + '" y2="' + (H - 6) + '"/><rect class="vz-sq-part" x="' + (x - 64) + '" y="6" width="128" height="30" rx="4"/><text class="vz-dg-t" x="' + x + '" y="26" text-anchor="middle"' + fitText(T('ct.p.' + pt), 120) + '>' + esc(T('ct.p.' + pt)) + '</text>'; });
+    rows.forEach(function (r, n) {
+      var y = TOP + n * ROW + 18, a = COL[r.x[0]], b = COL[r.x[1]], bd = r.x[3] === 1, cl = 'vz-sq-m' + (bd ? ' bad' : '') + (r.cur ? ' cur' : ''), mk = 'url(#' + v + (bd ? 'b' : (r.cur ? 'c' : 'n')) + ')', lb = T('ct.m.' + r.x[2]);
+      if (a === b) { var right = a < 400, tx = right ? a + 28 : a - 28; sq += '<path class="' + cl + '" d="M' + a + ' ' + (y - 10) + ' h ' + (right ? 22 : -22) + ' v 14 h ' + (right ? -20 : 20) + '" marker-end="' + mk + '"/><text class="vz-sq-l' + (bd ? ' bad' : '') + '" x="' + tx + '" y="' + (y + 1) + '"' + (right ? '' : ' text-anchor="end"') + fitText(lb, right ? W - tx - 8 : a - 40) + '>' + esc(lb) + '</text>'; }
+      else { var dir = b > a ? 1 : -1; sq += '<line class="' + cl + '" x1="' + (a + dir * 4) + '" y1="' + y + '" x2="' + (b - dir * 6) + '" y2="' + y + '" marker-end="' + mk + '"/><text class="vz-sq-l' + (bd ? ' bad' : '') + '" x="' + ((a + b) / 2) + '" y="' + (y - 6) + '" text-anchor="middle"' + fitText(lb, Math.abs(b - a) - 16) + '>' + esc(lb) + '</text>'; }
+    });
+    sq += '</svg>';
+    var tick = h('div', { class: 'vz-box' + (i === Y.P[c].length - 1 ? ' hl' : '') }, h('div', { class: 'vz-h', text: T('ct.tickh') }), h('div', { text: T('ct.tick.' + p[4]) }));
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('ct.gcap') }), h('div', { class: 'vz-scroll', html: g }), tick,
+      h('p', { class: 'vz-cap', text: T('ct.scap') }), h('div', { class: 'vz-scroll', html: sq }), h('div', { class: 'vz-legend', text: T('ct.legend') })));
+  }, { labelKey: K + 'tab.ct', icon: 'layers' });
 })();
