@@ -127,7 +127,7 @@ ADE.addTrackStrings('sysdesign', 'en', {
   "track.sysdesign.i1.sec.backend.b.02.kt": "// error codes agreed with the backend, localised by the app\nwhen (error.code) {\n    11 -> R.string.err_list_unavailable      // \"Could not load the list\"\n    12 -> R.string.err_session_expired       // go to sign-in, keep the draft\n    else -> R.string.err_generic             // inline error, never blocks the screen\n}",
   "track.sysdesign.i1.sec.estimate.title": "Quick estimates for a phone",
   "track.sysdesign.i1.sec.estimate.badge": "simplified",
-  "track.sysdesign.i1.sec.estimate.b.01.p": "Alex Xu describes back-of-the-envelope estimation as rough calculation to see which designs meet the requirements. Xu's advice: the process matters, not precision; round the numbers; write down assumptions; write the units. Xu estimates for servers (requests per second, storage). [[src:book-xu1]]",
+  "track.sysdesign.i1.sec.estimate.b.01.p": "Alex Xu describes back-of-the-envelope estimation as rough calculation to see which designs meet the requirements. Xu's advice: the process matters, not precision; round the numbers; write down assumptions; write the units. Xu estimates for servers (requests, meaning calls to the server, per second; storage). [[src:book-xu1]]",
   "track.sysdesign.i1.sec.estimate.b.02.p": "On the phone side, the numbers worth estimating are mobile data per month, storage on the device, and how often the network chip must wake up. With the site's assumptions: 2 photos a day × 4 MB originals × 30 days ≈ 240 MB a month; resized to 300 KB, ≈ 18 MB. One multiplication becomes a requirement: resize photos before sending.",
   "track.sysdesign.i1.sec.bugs.title": "Two common bugs",
   "track.sysdesign.i1.sec.bugs.badge": "stable",

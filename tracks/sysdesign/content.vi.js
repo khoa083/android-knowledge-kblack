@@ -127,7 +127,7 @@ ADE.addTrackStrings('sysdesign', 'vi', {
   "track.sysdesign.i1.sec.backend.b.02.kt": "// thỏa thuận mã lỗi với backend, app tự dịch\nwhen (error.code) {\n    11 -> R.string.err_list_unavailable      // \"Không tải được danh sách\"\n    12 -> R.string.err_session_expired       // về màn đăng nhập, giữ bản nháp\n    else -> R.string.err_generic             // lỗi tại chỗ, không chặn màn hình\n}",
   "track.sysdesign.i1.sec.estimate.title": "Ước lượng nhanh cho điện thoại",
   "track.sysdesign.i1.sec.estimate.badge": "simplified",
-  "track.sysdesign.i1.sec.estimate.b.01.p": "Alex Xu mô tả ước lượng nhanh là tính áng chừng để biết thiết kế nào đáp ứng yêu cầu. Lời khuyên của Xu: quan trọng là quá trình, không phải độ chính xác; làm tròn số; ghi giả định; ghi đơn vị. Xu tính cho server (số request mỗi giây, dung lượng lưu trữ). [[src:book-xu1]]",
+  "track.sysdesign.i1.sec.estimate.b.01.p": "Alex Xu mô tả ước lượng nhanh là tính áng chừng để biết thiết kế nào đáp ứng yêu cầu. Lời khuyên của Xu: quan trọng là quá trình, không phải độ chính xác; làm tròn số; ghi giả định; ghi đơn vị. Xu tính cho server (số request, tức lượt gọi server, mỗi giây, dung lượng lưu trữ). [[src:book-xu1]]",
   "track.sysdesign.i1.sec.estimate.b.02.p": "Phía điện thoại, các con số đáng ước lượng là dữ liệu di động mỗi tháng, dung lượng trên máy và số lần mạng phải bật. Ví dụ với giả định của site: 2 ảnh mỗi ngày × 4 MB ảnh gốc × 30 ngày ≈ 240 MB mỗi tháng; thu nhỏ còn 300 KB thì ≈ 18 MB. Một phép nhân đổi thành một yêu cầu: thu nhỏ ảnh trước khi gửi.",
   "track.sysdesign.i1.sec.bugs.title": "Hai lỗi hay gặp",
   "track.sysdesign.i1.sec.bugs.badge": "stable",

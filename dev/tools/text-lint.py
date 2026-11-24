@@ -7,12 +7,12 @@ track = sys.argv[1] if len(sys.argv) > 1 else '*'
 prefix = sys.argv[2] if len(sys.argv) > 2 else ''
 mode = sys.argv[3] if len(sys.argv) > 3 else ''
 PATS = [
-    r'(mục|section|in|ở|chương|chapter|ch\.)\s*[0-9]+\.[0-9]+(\.[0-9]+)?\b(?!\s*(s|giây|ms|%|px|đ|dòng|lines|GB|MB|KB))',
+    r'\b(mục|section|in|ở|chương|chapter|ch\.)\s*[0-9]+\.[0-9]+(\.[0-9]+)?\b(?!\s*(s|giây|ms|%|px|đ|dòng|lines|GB|MB|KB))',
     r'\bItem\s*[0-9]',
     r'\bch\.\s*[0-9]+',
     r'(\bIn|\bỞ),?\s+(he|she|his|ông|bà)\b',
     r'The Clean Coder|Clean Agile|Software Craftsman',
-    r'System Design Interview|Mobile System Design|early release',
+    r'(?-i:System Design Interview|Mobile System Design(?! track)|early release)',
     r'\b(tập|vol\.)\s*[0-9]',
     r'Clean Craftsmanship|Clean Coder|xUnit Test Patterns|Effective Kotlin|Clean Architecture',
     r'\b(Rule|Quy tắc)\s*[0-9]+(?![0-9/])',
