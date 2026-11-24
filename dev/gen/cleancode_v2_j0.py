@@ -1,7 +1,7 @@
 # Mã sạch và kỷ luật làm nghề · J0: bản đồ track (viết cuối, đặt đầu track)
 # Tổng hợp từ J1–J11; mọi khẳng định và con số lấy từ chương được trỏ tới (nguồn ở chương đó). Trần: 6 mục.
 
-SEC_ORDER = {'j0': ['hook', 'order', 'index', 'links', 'recall', 'honest']}
+SEC_ORDER = {'j0': ['hook', 'order', 'index', 'links', 'recall']}
 
 
 def add(a):
@@ -81,8 +81,8 @@ def add(a):
 
     C = 'j0'
     a(C + '.title', 'Bản đồ track: triệu chứng và chương', 'Track map: symptoms and chapters')
-    a(C + '.essence', 'Track này dạy viết mã mà người sau đọc và sửa được, theo sách của Seemann, Martin và Moskała, với ví dụ Kotlin trên app Hẹn Khám. Mọi quy tắc là heuristic có ghi tên tác giả, kèm lúc nên và không nên dùng.\nPhần 1 (J1–J3) là mã đọc được: vừa trong đầu, đặt tên, parse một lần. Phần 2 (J4–J7) là thay đổi an toàn: TDD, thiết kế test, refactor từng bước, gỡ lỗi có phương pháp. Phần 3 (J8–J9) là thiết kế: SOLID cho lớp, nguyên lý thành phần cho module. Phần 4 (J10–J11) là làm nghề: làm việc nhóm, ước lượng và nói không.\nNếu bạn đang gặp một vấn đề cụ thể, bắt đầu từ bảng tra triệu chứng bên dưới.',
-      'This track teaches writing code the next person can read and change, following the books of Seemann, Martin and Moskała, with Kotlin examples on the ClinicBook app. Every rule is a heuristic credited to its author, with when to use it and when not to.\nPart 1 (J1–J3) is readable code: fitting in your head, naming, parsing once. Part 2 (J4–J7) is safe change: TDD, test design, refactoring in small steps, methodical debugging. Part 3 (J8–J9) is design: SOLID for classes, component principles for modules. Part 4 (J10–J11) is the craft: teamwork, estimating and saying no.\nIf you are facing a specific problem, start from the symptom lookup table below.')
+    a(C + '.essence', 'Track này dạy cách viết mã mà người đến sau, kể cả chính bạn ba tháng sau, đọc hiểu và sửa được mà không sợ. Ví dụ đều bằng Kotlin trên app Hẹn Khám.\nPhần 1 (J1–J3) là mã dễ đọc: vừa sức trí nhớ, tên nói đúng việc, dữ liệu được kiểm một lần ở cửa vào. Phần 2 (J4–J7) là sửa mã an toàn: viết test trước, test kiểm kết quả, sửa từng bước nhỏ, tìm lỗi có phương pháp. Phần 3 (J8–J9) là thiết kế lớp và module để thêm tính năng mà không phải sửa khắp nơi. Phần 4 (J10–J11) là làm việc nhóm và giữ lời hứa.\nĐang gặp một vấn đề cụ thể? Hãy bắt đầu từ bảng tra bên dưới: tìm triệu chứng giống của bạn, rồi đọc chương được chỉ tới.',
+      'This track teaches writing code that the next person, including you three months from now, can understand and change without fear. All examples are Kotlin on the ClinicBook app.\nPart 1 (J1–J3) is readable code: fitting in your head, names that say what they do, data checked once at the door. Part 2 (J4–J7) is changing code safely: tests first, tests that check results, small steps, methodical bug hunting. Part 3 (J8–J9) is designing classes and modules so a new feature does not mean editing everywhere. Part 4 (J10–J11) is teamwork and keeping promises.\nFacing a specific problem? Start from the lookup table below: find the symptom that looks like yours, then read the chapter it points to.')
     a(C + '.goal.g1', 'Đã thấy lúc triệu chứng lộ ra', 'Saw when the symptom shows up')
     a(C + '.goal.g2', 'Đã tới chương cần đọc', 'Reached the chapter to read')
     a(C + '.sim.cleancode.map', 'triệu chứng và chương', 'symptoms and chapters')
@@ -110,20 +110,14 @@ def add(a):
     S_ = 'links'
     a(C + '.sec.%s.title' % S_, 'Cầu nối sang track khác', 'Bridges to other tracks')
     a(C + '.sec.%s.badge' % S_, 'guideline')
-    B(C, S_, 1, 'p', 'J3 nối với Kotlin K6 (require, check) qua X20, J4 nối với Kiến trúc G10 (test theo tầng) qua X21, J8 nối với G2 (hướng phụ thuộc giữa các tầng) qua X22, J9 nối với G9 (module hóa) qua X23. Sách của Seemann cũng là nguồn của track Thiết kế hệ thống phía mobile.',
-      'J3 links to Kotlin K6 (require, check) through X20, J4 to Architecture G10 (testing by layer) through X21, J8 to G2 (dependency direction between layers) through X22, J9 to G9 (modularisation) through X23. Seemann\'s book is also a source for the Mobile System Design track.')
+    B(C, S_, 1, 'p', 'J3 nối với Kotlin K6 (require, check) qua X20, J4 nối với Kiến trúc G10 (test theo tầng) qua X21, J8 nối với G2 (hướng phụ thuộc giữa các tầng) qua X22, J9 nối với G9 (module hóa) qua X23.',
+      'J3 links to Kotlin K6 (require, check) through X20, J4 to Architecture G10 (testing by layer) through X21, J8 to G2 (dependency direction between layers) through X22, J9 to G9 (modularisation) through X23.')
 
     S_ = 'recall'
     a(C + '.sec.%s.title' % S_, 'Tự trả lời', 'Answer it yourself')
     a(C + '.sec.%s.badge' % S_, 'stable')
     B(C, S_, 1, 'ask', 'Ba lúc một vấn đề của track này lộ ra là gì? Cho mỗi lúc một ví dụ từ bảng tra.', 'What are the three moments when a problem in this track shows up? Give one example from the lookup table for each.')
     B(C, S_, 1, 'ans', 'Khi sửa hay thêm tính năng (thêm MoMo phải sửa 5 file); khi chạy ngoài máy dev (ngày 2/9 tính phí ngày thường); khi làm cùng người khác (PR 3.000 dòng duyệt sau 2 phút).', 'When changing or adding a feature (adding MoMo means editing 5 files); when running beyond the dev machine (2 September charged the weekday fee); when working with others (a 3,000-line PR approved in 2 minutes).')
-
-    S_ = 'honest'
-    a(C + '.sec.%s.title' % S_, 'Track này giản lược những gì', 'What this track simplifies')
-    a(C + '.sec.%s.badge' % S_, 'simplified')
-    B(C, S_, 1, 'p', 'Track theo Code That Fits in Your Head (Seemann), Clean Code, The Clean Coder, Clean Craftsmanship và Clean Architecture (Martin), Effective Kotlin (Moskała), cùng tài liệu chính thức của Kotlin và git, đọc từ 2026-11-24. Mọi quy tắc là heuristic của tác giả được ghi tên, không phải định luật; các ngưỡng như 7 mẩu thông tin hay 80/24 là con số gợi ý, và khi hai tác giả khác nhau, chương nói rõ. Ví dụ Java của sách được viết lại bằng Kotlin, không chép mã. App Hẹn Khám, số dòng, giờ công, số lần build và số ngày trong các mô phỏng là minh họa của site.',
-      'The track follows Code That Fits in Your Head (Seemann), Clean Code, The Clean Coder, Clean Craftsmanship and Clean Architecture (Martin), Effective Kotlin (Moskała), along with the official Kotlin and git docs, read from 2026-11-24. Every rule is a heuristic credited to its author, not a law; thresholds such as 7 chunks or 80/24 are suggestions, and where two authors disagree the chapter says so. The books\' Java examples are rewritten in Kotlin, not copied. The ClinicBook app and the line counts, hours, build counts and days in the simulations are the site\'s illustrations.')
 
     for q, qv, qe, av, ae, wv, we in [
         ('q1', 'Một lần refactor không đổi hành vi mà nhiều test đỏ: đọc chương nào?', 'A refactoring that keeps behaviour unchanged turns many tests red: which chapter?', 'J5 · Thiết kế test.', 'J5 · Test design.', 'Test dính vào cách làm (mock từng lời gọi) thay vì kiểm kết quả.', 'The tests are tied to the implementation (mocking every call) instead of checking outcomes.'),
