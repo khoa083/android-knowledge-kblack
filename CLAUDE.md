@@ -67,5 +67,5 @@ Thư mục `E:\AndroidDeepDiveExplorer-Prompts\` chứa toàn bộ đặc tả. 
 ## Git (quyết định của người dùng, 2026-11-22)
 
 - Commit bằng danh tính đã đặt trong `git config` của repo này (`khoa083`). Không thêm dòng `Co-Authored-By: Claude …` hay bất kỳ dòng ghi công Claude/Anthropic nào vào commit message hay PR.
-- Commit sau mỗi phần đã xong và kiểm sạch. **Cập nhật 2026-11-24 (người dùng):** KHÔNG push sau mỗi commit; chỉ push lên `origin main` (https://github.com/khoa083/android-knowledge-kblack) khi hạn mức 5 giờ sắp chạm giới hạn, ngay trước khi dừng. Không force push trừ khi người dùng yêu cầu.
+- Commit sau mỗi phần đã xong và kiểm sạch. **Cập nhật 2026-11-24 (người dùng):** KHÔNG tự push, kể cả khi hạn mức sắp hết. Chỉ push lên `origin main` (https://github.com/khoa083/android-knowledge-kblack) khi người dùng bảo push trong tin nhắn. Không force push trừ khi người dùng yêu cầu.
 - Chỉ `git add` đúng các file đã sửa, không `git add -A`.
