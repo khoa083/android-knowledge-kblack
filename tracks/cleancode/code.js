@@ -208,4 +208,21 @@
     c('reminders.schedule(a.startsAt!!.atZone(clinicZone).toInstant())      // bước 4′: xanh', 'reminders.schedule(a.startsAt!!.atZone(clinicZone).toInstant())      // step 4′: green'),
     c('// bước 8: xóa time khi không còn ai đọc', '// step 8: delete time when nothing reads it')
   ]);
+
+  /* J7: lùi từng commit (j7.linear) và chia đôi tự động (j7.bisect); test tái hiện ở dòng 4 của mỗi đoạn */
+  add('j7.linear', [
+    c('# test tái hiện: ReminderTimeTest (cố định múi giờ Asia/Ho_Chi_Minh)', '# reproducing test: ReminderTimeTest (pins the Asia/Ho_Chi_Minh zone)'),
+    c('git checkout HEAD~1                     # lùi một commit', 'git checkout HEAD~1                     # step back one commit'),
+    './gradlew testDebugUnitTest --tests "*ReminderTimeTest"',
+    c('# lặp lại hai dòng trên: 64 lần, khoảng 3 phút mỗi lần', '# repeat the two lines above: 64 times, about 3 minutes each')
+  ]);
+  add('j7.bisect', [
+    'git bisect start',
+    c('git bisect bad HEAD                     # commit 200: có lỗi', 'git bisect bad HEAD                     # commit 200: broken'),
+    c('git bisect good v1.4                    # commit 0: chưa có lỗi', 'git bisect good v1.4                    # commit 0: fine'),
+    'git bisect run ./gradlew testDebugUnitTest --tests "*ReminderTimeTest"',
+    c('# mã thoát 0 = tốt; 1–127 trừ 125 = xấu; 125 = bỏ qua commit không build được', '# exit 0 = good; 1–127 except 125 = bad; 125 = skip a commit that does not build'),
+    '# ... 137 is the first bad commit',
+    'git bisect reset'
+  ]);
 })();

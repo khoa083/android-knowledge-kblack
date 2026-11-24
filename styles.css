@@ -894,6 +894,12 @@ pre.code { position: relative; }
 .vz-ring-t { font: 700 11px/1 var(--mono); fill: var(--ink-2); text-anchor: middle; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
 .vz-ring-t.on { fill: var(--ink); }
 .vz-ring-c { font: 700 18px/1 var(--mono); fill: var(--ink); text-anchor: middle; }
+.vz-commits { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 2px; font: 9px/1 var(--mono); }
+.vz-cm { height: 18px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line-strong); background: var(--paper); color: var(--ink-3); overflow: hidden; transition: background-color var(--mo-base, .3s) ease, opacity var(--mo-base, .3s) ease; }
+.vz-cm.g { background: color-mix(in srgb, var(--brand) 38%, var(--paper)); border-color: color-mix(in srgb, var(--brand) 55%, var(--paper)); color: var(--ink-2); }
+.vz-cm.x { background: repeating-linear-gradient(45deg, transparent 0 4px, color-mix(in srgb, var(--ink-3) 28%, transparent) 4px 7px); opacity: .4; }
+.vz-cm.p { outline: 2px solid var(--focus); outline-offset: -1px; color: var(--ink); font-weight: 700; opacity: 1; }
+.vz-cm.cul { background: var(--tok-error); border-color: var(--tok-error); color: #fff; font-weight: 700; opacity: 1; }
 .vz-sub { display: block; font-size: 11px; color: var(--ink-3); font-weight: 400; }
 .vz-note { margin: 0; font: 12px/1.45 var(--mono); color: var(--ink-2); }
 .vz-note.bad { color: var(--tok-error); font-weight: 700; }

@@ -35,4 +35,8 @@
   V('refactor', { layout: 'pipeline', nodes: [N('refactor', 'edit', 0, 1, 'source', 'ui'), N('refactor', 'build', 3, 1, 'chip', 'job'), N('refactor', 'test', 6, 1, 'check', 'state'), N('refactor', 'commit', 9, 1, 'store', 'runtime')],
     edges: [E('e1', 'edit', 'build'), E('e2', 'build', 'test'), E('e3', 'test', 'commit')],
     metrics: [T('refactor', 'suspects'), T('refactor', 'lost'), T('refactor', 'release')] });
+  /* J7: báo lỗi → test tái hiện → chọn commit → tốt hay xấu */
+  V('bisect', { layout: 'pipeline', nodes: [N('bisect', 'report', 0, 1, 'phone', 'ui'), N('bisect', 'test', 3, 1, 'check', 'state'), N('bisect', 'pick', 6, 1, 'list', 'job'), N('bisect', 'verdict', 9, 1, 'target', 'runtime')],
+    edges: [E('e1', 'report', 'test'), E('e2', 'test', 'pick'), E('e3', 'pick', 'verdict')],
+    metrics: [T('bisect', 'probes'), T('bisect', 'left'), T('bisect', 'minutes')] });
 })();

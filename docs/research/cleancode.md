@@ -28,6 +28,7 @@
 | `book-craft` | Robert C. Martin, *Clean Craftsmanship* (2021) | ch.2: The Three Laws of TDD, The Fourth Law; ch.3: Test Doubles, Mock, The TDD Uncertainty Principle, London versus Chicago; ch.4: The Fragile Test Problem, The One-to-One Correspondence, Breaking the Correspondence; ch.5: What Is Refactoring?, The Disciplines (2026-11-24); URL informit.com kiểm HTTP 200 |
 | `book-effective-kotlin` (khai báo ở `tracks/kotlin/sources.js`, tracks gồm cả cleancode) | Marcin Moskała, *Effective Kotlin* | Item 15, Item 17 (2026-11-24) |
 | `kt-conventions` | Kotlin coding conventions (kotlinlang.org) | Choose good names, Function names (curl 2026-11-24) |
+| `git-bisect` | git-scm.com/docs/git-bisect | DESCRIPTION, Bisect run, mã thoát 125 (curl 2026-11-24) |
 | `kt-inline-classes` | Inline value classes (kotlinlang.org) | Members (init, require), Inline classes vs type aliases (curl 2026-11-24) |
 
 URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN 9780132350884), blog.ploeh.dk/code-that-fits-in-your-head/.
@@ -105,3 +106,15 @@ URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN
 | Refactor an toàn của IDE dùng được cho cả test | Seemann 11.1.3 |
 | Danh mục mùi F3, G5, G9, G30 | Martin, Clean Code ch.17 (mục lục) |
 | **Của site:** đổi Appointment.time sang LocalDateTime, tám thay đổi, thời gian, số lỗi biên dịch, lỗi múi giờ | — |
+
+### J7 Gỡ lỗi có phương pháp
+| Ý trên site | Nguồn |
+|---|---|
+| Hiểu trước khi sửa; "lập trình theo may rủi"; phương pháp khoa học; mục tiêu là hiểu | Seemann 12.1, 12.1.1 |
+| Đơn giản hóa (bỏ mã thử); giới hạn thời gian 25 phút, rời máy, nhờ người khác | Seemann 12.1.2, 12.1.3 |
+| Số lỗi lý tưởng là không; sửa ngay; "xây chất lượng vào trong" | Seemann 12.2 |
+| Tái hiện lỗi thành test; đỏ là giả thuyết đúng và thành test hồi quy; phần khó là hiểu và tái hiện | Seemann 12.2.1, A.19 |
+| Lỗi không tất định (race condition) | Seemann 12.2.3 |
+| Chia đôi mã; ví dụ tối giản; git bisect, câu chuyện khoảng 130 commit; lỗi cần bisect thường là lỗi bộ test bỏ sót | Seemann 12.3, 12.3.1, A.4 |
+| git bisect là tìm kiếm nhị phân; bisect run và mã thoát 0, 1–127 trừ 125, 125 | git-scm.com git-bisect |
+| **Của site:** 200 commit, commit 137, 3 phút mỗi lần, lỗi múi giờ; phép tính ⌈log2 n⌉; hai chiến lược được cài thật trong model | — |

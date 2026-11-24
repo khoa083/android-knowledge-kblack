@@ -392,4 +392,54 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j6.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= J7: lùi từng commit so với chia đôi (git bisect run) =================
+     Theo Seemann ch.12 (tái hiện lỗi thành test; chia đôi; git bisect) và tài liệu git-bisect (tìm kiếm nhị phân; mã thoát của bisect run).
+     Hai chiến lược được CÀI THẬT: danh sách lần thử, khoảng nghi ngờ và số phút đều tính bằng cách chạy chúng với commit lỗi đầu tiên = 137.
+     Lịch sử thẳng; git bisect thật chọn theo đồ thị commit. */
+  (function () {
+    var m = 'bisect', CASES = ['linear', 'bisect'], KS = ['s1', 's2', 's3', 's4'], N = 200, CULPRIT = 137, MIN_PER = 3;
+    var isBad = function (c) { return c >= CULPRIT; };
+    // mỗi lần thử: [commit, xấu?, lo (tốt cao nhất đã biết), hi (xấu thấp nhất đã biết)]
+    function run(c) {
+      var lo = 0, hi = N, out = [];
+      if (c === 'linear') { for (var k = N - 1; k > lo && hi - lo > 1; k--) { var b = isBad(k); if (b) hi = k; else lo = k; out.push([k, b, lo, hi]); } return out; }
+      while (hi - lo > 1) { var mid = Math.floor((lo + hi) / 2), bb = isBad(mid); if (bb) hi = mid; else lo = mid; out.push([mid, bb, lo, hi]); }
+      return out;
+    }
+    var RUNS = { linear: run('linear'), bisect: run('bisect') };
+    var UPTO = { linear: [0, 10, 30, RUNS.linear.length], bisect: [0, 2, 5, RUNS.bisect.length] };   // số lần thử đã xong sau mỗi bước
+    function state(c, i) {
+      var n = UPTO[c][i], last = n ? RUNS[c][n - 1] : [null, null, 0, N], prev = i ? UPTO[c][i - 1] : 0;
+      return { probes: n, lo: last[2], hi: last[3], left: last[3] - last[2], found: last[3] - last[2] === 1 ? last[3] : null, fresh: RUNS[c].slice(prev, n), minutes: n * MIN_PER, all: RUNS[c].slice(0, n) };
+    }
+    ADE.ccBisect = { N: N, state: state };
+    var HL = { linear: [[1], [2, 3], [2, 3, 4], [4]], bisect: [[1, 2, 3], [4], [4, 5], [6, 7]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var st = state(c, i), slow = c === 'linear' && i >= 2, nodes = i === 0 ? ['report', 'test'] : ['pick', 'verdict'];
+        var ns = {}; nodes.forEach(function (n) { ns[n] = K + 'st.done'; }); if (slow) ns.verdict = K + 'st.surprise';
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (slow ? 'pitfall' : 'mechanism'), activeNodes: nodes, nodeStates: ns,
+          metrics: { probes: st.probes, left: i === 0 ? N : (st.found ? 1 : st.left), minutes: st.minutes },
+          codeHighlight: { snippet: 'j7.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: i === 0 ? 'e1' : 'e3', tok: slow ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: st.found ? 'complete' : (i === 0 ? 'observe' : 'run'), subject: nodes[nodes.length - 1] }] });
+        o.callouts = [{ kind: i === 0 && c === 'linear' ? 'try' : (slow ? 'pitfall' : 'source'), textKey: i === 0 && c === 'linear' ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        if (c === 'linear' && i === 1) o.callouts[0].kind = 'pitfall';
+        return o;
+      });
+    }
+    var LEN = { 'j7.linear': 4, 'j7.bisect': 7 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'linear' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'chia đôi: 8 lần thử (= ⌈log2 200⌉), lần lượt 100, 150, 125, 137, 131, 134, 135, 136; tìm ra 137', run: function () {
+          var r = RUNS.bisect; return r.length === Math.ceil(Math.log(N) / Math.LN2) && r.map(function (x) { return x[0]; }).join() === '100,150,125,137,131,134,135,136' && state('bisect', 3).found === CULPRIT; } },
+        { name: 'lùi từng commit: 64 lần (199 tới 136), 192 phút; sau 10 lần còn 190, sau 30 lần còn 170 commit bị nghi', run: function () {
+          return RUNS.linear.length === 64 && state('linear', 3).minutes === 192 && state('linear', 1).left === 190 && state('linear', 2).left === 170 && state('linear', 3).found === CULPRIT; } },
+        { name: 'chia đôi: sau 2 lần còn 50, sau 5 lần còn 6 commit bị nghi', run: function () { return state('bisect', 1).left === 50 && state('bisect', 2).left === 6; } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j7.' + c]; }); }); }); } }] });
+  })();
 })();

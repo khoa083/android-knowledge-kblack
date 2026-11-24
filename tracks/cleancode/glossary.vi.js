@@ -17,5 +17,7 @@ ADE.addGlossary('vi', 'cleancode', {
   "arrange-act-assert": { term: "Arrange, Act, Assert", def: "Cấu trúc ba phần của một test: chuẩn bị, gọi đúng một thao tác, so kết quả với mong đợi; cách nhau bởi dòng trống.", chapter: "cleancode/j5" },
   "refactoring": { term: "refactor", def: "Chuỗi thay đổi nhỏ cải thiện cấu trúc mã mà không đổi hành vi, có bộ test xanh sau mỗi thay đổi (định nghĩa của Martin).", chapter: "cleancode/j6" },
   "strangler": { term: "strangler", def: "Làm thay đổi lớn song song thay vì tại chỗ: thêm cái mới cạnh cái cũ, chuyển dần từng nơi dùng, xóa cái cũ khi không còn ai dùng. Martin Fowler đặt tên theo cây đa bóp cổ.", chapter: "cleancode/j6" },
+  "bisection": { term: "chia đôi (bisection)", def: "Tìm nguyên nhân bằng cách loại một nửa khoảng nghi ngờ sau mỗi lần thử: một nửa mã, hay một nửa số commit. n commit cần khoảng log2(n) lần thử.", chapter: "cleancode/j7" },
+  "regression-test": { term: "test hồi quy", def: "Test được viết để tái hiện một lỗi đã gặp; sau khi sửa, nó ở lại để lỗi đó không quay lại.", chapter: "cleancode/j7" },
   "code-rot": { term: "mã mục dần", def: "Mã phức tạp dần qua từng thay đổi nhỏ mà không ai để ý, tới lúc không còn ai dám sửa. Seemann đề xuất đặt ngưỡng cho một chỉ số để chặn nó.", chapter: "cleancode/j1" }
 });

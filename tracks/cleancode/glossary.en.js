@@ -17,5 +17,7 @@ ADE.addGlossary('en', 'cleancode', {
   "arrange-act-assert": { term: "Arrange, Act, Assert", def: "The three-part structure of a test: prepare, invoke exactly one operation, compare the outcome with the expectation; separated by blank lines.", chapter: "cleancode/j5" },
   "refactoring": { term: "refactoring", def: "A sequence of small changes that improve code structure without changing behaviour, with the tests green after each change (Martin's definition).", chapter: "cleancode/j6" },
   "strangler": { term: "strangler", def: "Making a big change side by side instead of in place: add the new beside the old, move each user over, delete the old when nobody uses it. Named by Martin Fowler after the strangler fig.", chapter: "cleancode/j6" },
+  "bisection": { term: "bisection", def: "Finding a cause by removing half the suspect range after each probe: half the code, or half the commits. n commits need about log2(n) probes.", chapter: "cleancode/j7" },
+  "regression-test": { term: "regression test", def: "A test written to reproduce a defect once found; after the fix it stays so the defect cannot return.", chapter: "cleancode/j7" },
   "code-rot": { term: "code rot", def: "Code growing more complex with each small change nobody notices, until nobody dares to touch it. Seemann proposes a threshold on a metric to curb it.", chapter: "cleancode/j1" }
 });

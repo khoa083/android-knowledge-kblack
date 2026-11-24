@@ -200,4 +200,30 @@
       h('p', { class: 'vz-note' + (b || sus || red ? ' bad' : ' ok'), text: status }),
       h('div', { class: 'vz-legend', text: T('rf.legend') })));
   }, { labelKey: K + 'tab.refactor', icon: 'grid' });
+
+  /* ---------- J7: dãy 200 commit (lưới phẳng 20 × 10; ô đổi lớp khi bị loại → nháy một lần) + bảng các lần thử của bước ---------- */
+  ADE.registerScreen('cleancode.bisect', function (box, ctx) {
+    var h = ADE.ui.h, B = ADE.ccBisect, c = ctx.state.case, i = Math.max(0, idx(ctx)), st = B.state(c, i);
+    var probed = {}; st.fresh.forEach(function (p) { probed[p[0]] = true; });
+    var cells = [];
+    for (var k = 1; k <= B.N; k++) {
+      var cls = 'vz-cm' + (st.found === k ? ' cul' : (k <= st.lo ? ' g' : (k > st.hi ? ' x' : (st.found === null && k === st.hi && st.probes ? '' : '')))) + (probed[k] ? ' p' : '');
+      cells.push(h('span', { class: cls, title: String(k) }, (k % 20 === 1 || probed[k] || st.found === k) ? String(k) : ''));
+    }
+    var tb = h('tbody'), rows = st.fresh, more = 0;
+    if (rows.length > 6) { more = rows.length - 6; rows = rows.slice(-6); }
+    if (more) tb.appendChild(h('tr', null, h('td', { class: 'dim', colspan: '4', text: T('bs.more', { n: more }) })));
+    rows.forEach(function (p) {
+      var n = st.all.indexOf(p) + 1;
+      tb.appendChild(h('tr', { 'data-k': 'bs-' + p[0] }, h('td', { class: 'c', text: String(n) }), h('td', { class: 'c', text: String(p[0]) }), h('td', { class: 'c ' + (p[1] ? 'bad' : 'ok'), text: T(p[1] ? 'bs.bad' : 'bs.good') }),
+        h('td', { class: 'c' + (p[3] - p[2] === 1 ? ' hl' : ''), text: p[3] - p[2] === 1 ? T('bs.found', { c: p[3] }) : T('bs.range', { a: p[2] + 1, b: p[3], n: p[3] - p[2] }) })));
+    });
+    var out = [h('p', { class: 'vz-cap', text: T('bs.cap') }),
+      h('div', { class: 'vz-commits', role: 'img', 'aria-label': T('bs.aria', { n: st.found ? 1 : st.left, p: st.probes }) }, cells),
+      h('p', { class: 'vz-note', text: T('bs.math') })];
+    if (i === 0) out.push(h('p', { class: 'vz-note ok', text: T('bs.repro') }));
+    else out.push(h('p', { class: 'vz-cap', text: T('bs.tcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['n', 'commit', 'res', 'range'].map(function (q) { return h('th', { text: T('bs.col.' + q) }); }))), tb)));
+    out.push(h('div', { class: 'vz-legend', text: T('bs.legend') }));
+    box.appendChild(h('div', { class: 'vz' }, out));
+  }, { labelKey: K + 'tab.bisect', icon: 'grid' });
 })();
