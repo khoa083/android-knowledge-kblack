@@ -2,6 +2,29 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('sysdesign', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('i7.offset', [
+    'class NewsSource(private val api: NewsApi) : PagingSource<Int, Post>() {',
+    '    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Post> {',
+    c('        val offset = params.key ?: 0                                     // khóa là vị trí trong danh sách', '        val offset = params.key ?: 0                                     // the key is a position in the list'),
+    c('        val posts = api.news(offset = offset, limit = params.loadSize)   // GET /news?offset=4&limit=4', '        val posts = api.news(offset = offset, limit = params.loadSize)   // GET /news?offset=4&limit=4'),
+    '        return LoadResult.Page(posts, prevKey = null,',
+    c('            nextKey = if (posts.isEmpty()) null else offset + posts.size)  // vị trí lệch khi danh sách đổi', '            nextKey = if (posts.isEmpty()) null else offset + posts.size)  // positions shift when the list changes'),
+    '    }',
+    c('    override fun getRefreshKey(state: PagingState<Int, Post>): Int? = null   // làm mới: tải lại từ đầu', '    override fun getRefreshKey(state: PagingState<Int, Post>): Int? = null   // refresh: reload from the top'),
+    '}',
+    c('// LazyColumn { items(posts.itemCount, key = posts.itemKey { it.id }) { … } }  // id trùng → crash', '// LazyColumn { items(posts.itemCount, key = posts.itemKey { it.id }) { … } }  // duplicate id → crash')
+  ]);
+  add('i7.cursor', [
+    'class NewsSource(private val api: NewsApi) : PagingSource<String, Post>() {',
+    '    override suspend fun load(params: LoadParams<String>): LoadResult<String, Post> {',
+    c('        val res = api.news(pageToken = params.key, limit = params.loadSize)  // GET /news?limit=4&page_token=tk1', '        val res = api.news(pageToken = params.key, limit = params.loadSize)  // GET /news?limit=4&page_token=tk1'),
+    '        return LoadResult.Page(res.posts, prevKey = null,',
+    c('            nextKey = res.nextPageToken.ifEmpty { null })                  // rỗng: hết danh sách', '            nextKey = res.nextPageToken.ifEmpty { null })                  // empty: end of the list'),
+    '    }',
+    c('    override fun getRefreshKey(state: PagingState<String, Post>): String? = null  // làm mới: tải lại từ đầu', '    override fun getRefreshKey(state: PagingState<String, Post>): String? = null  // refresh: reload from the top'),
+    '}',
+    c('// server giải tk1 thành (giờ đăng, id) của bài 17: WHERE (published_at, id) < (t17, 17) ORDER BY published_at DESC, id DESC', '// the server decodes tk1 as (published time, id) of post 17: WHERE (published_at, id) < (t17, 17) ORDER BY published_at DESC, id DESC')
+  ]);
   add('i6.none', [
     c('suspend fun fees(): List<Fee> = api.fees()         // mỗi lần mở: tải 200 KB', 'suspend fun fees(): List<Fee> = api.fees()         // every open: download 200 KB')
   ]);

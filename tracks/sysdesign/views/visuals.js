@@ -203,4 +203,27 @@
       h('p', { class: 'vz-cap', text: T('ca.hcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, hb)),
       h('div', { class: 'vz-legend', text: T('ca.legend') })));
   }, { labelKey: K + 'tab.ca', icon: 'layers' });
+
+  /* ---------- I7: hai dãy ô đặt cạnh nhau: danh sách trên server lúc này và danh sách app đã tải theo trang ---------- */
+  ADE.registerScreen('sysdesign.paging', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.sysPaging, c = ctx.state.case, i = Math.max(0, idx(ctx)), k = P.marks(c, i), ps = P.pages(c, i);
+    var pageOf = [], fresh = [];
+    ps.forEach(function (p) { p[2].forEach(function (x, j) { pageOf.push(j === 0 ? T('pg.page.' + p[1]) : ''); fresh.push(p[0] === i); }); });
+    var tb = h('tbody'), n = Math.max(k.srv.length, k.app.length);
+    for (var r = 0; r < n; r++) {
+      var sm = k.srvMk[r], am = k.appMk[r], sx = k.srv[r], ax = k.app[r];
+      tb.appendChild(h('tr', null, h('td', { class: 'c dim', text: String(r + 1) }),
+        h('td', { class: sx === undefined ? 'dim' : (sm === 'miss' ? 'bad' : (sm === 'new' ? 'hl' : null)), text: sx === undefined ? '' : T('pg.post', { n: sx }) + (sm ? ' · ' + T('pg.mk.' + sm) : '') }),
+        h('td', { class: ax === undefined ? 'dim' : (am === 'dup' ? 'bad' : (am === 'gone' ? 'dim' : (fresh[r] ? 'hl' : null))), text: ax === undefined ? '' : T('pg.post', { n: ax }) + (am ? ' · ' + T('pg.mk.' + am) : '') }),
+        h('td', { class: 'dim', text: ax === undefined ? '' : pageOf[r] })));
+    }
+    var req = P.REQ[c][i], ev = P.EV[c];
+    var top = h('div', { class: 'vz-box' + (i === 1 ? ' hl' : '') }, h('div', { class: 'vz-h', text: T(i === 1 ? 'pg.evh' : 'pg.reqh') }),
+      h('div', { text: i === 1 ? [ev.ins ? T('pg.ev.ins') : '', ev.del ? T('pg.ev.del') : ''].filter(Boolean).join(' ') : (req || T('pg.req.none')) }));
+    var kids = [h('p', { class: 'vz-cap', text: T('pg.cap') }), top,
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['pos', 'srv', 'app', 'page'].map(function (q) { return h('th', { text: T('pg.col.' + q) }); }))), tb))];
+    if (P.CRASH[c][i]) kids.push(h('div', { class: 'vz-box bad' }, h('div', { class: 'vz-h', text: T('pg.crashh') }), h('div', { text: 'Key "17" was already used. If you are using LazyColumn/Row please make sure you provide a unique key for each item.' })));
+    kids.push(h('div', { class: 'vz-legend', text: T('pg.legend') }));
+    box.appendChild(h('div', { class: 'vz' }, kids));
+  }, { labelKey: K + 'tab.pg', icon: 'list' });
 })();

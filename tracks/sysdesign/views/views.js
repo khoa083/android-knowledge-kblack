@@ -35,4 +35,8 @@
   V('cache', { layout: 'pipeline', nodes: [N('cache', 'ui', 0, 1, 'screen', 'ui'), N('cache', 'mem', 3, 1, 'chip', 'state'), N('cache', 'disk', 6, 1, 'store', 'job'), N('cache', 'net', 9, 1, 'source', 'runtime')],
     edges: [E('e1', 'ui', 'mem'), E('e2', 'mem', 'disk'), E('e3', 'disk', 'net')],
     metrics: [T('cache', 'kb'), T('cache', 'right'), T('cache', 'net')] });
+  /* I7: màn tin → PagingSource → server; người biên tập đổi danh sách trên server */
+  V('paging', { layout: 'pipeline', nodes: [N('paging', 'ui', 0, 1, 'screen', 'ui'), N('paging', 'pager', 3, 1, 'list', 'state'), N('paging', 'server', 6, 1, 'store', 'job'), N('paging', 'editor', 9, 1, 'source', 'runtime')],
+    edges: [E('e1', 'ui', 'pager'), E('e2', 'pager', 'server'), E('e3', 'editor', 'server')],
+    metrics: [T('paging', 'dup'), T('paging', 'miss'), T('paging', 'gone')] });
 })();

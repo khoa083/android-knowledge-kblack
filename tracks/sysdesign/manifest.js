@@ -12,7 +12,8 @@ ADE.registerTrack({
     { id: 'i3', titleKey: 'track.sysdesign.i3.title', sims: ['sysdesign.lock'], simAfter: 'hook', bridges: ['X18'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'i4', titleKey: 'track.sysdesign.i4.title', sims: ['sysdesign.channel'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'i5', titleKey: 'track.sysdesign.i5.title', sims: ['sysdesign.retry'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'i6', titleKey: 'track.sysdesign.i6.title', sims: ['sysdesign.cache'], simAfter: 'hook', bridges: ['X19'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
+    { id: 'i6', titleKey: 'track.sysdesign.i6.title', sims: ['sysdesign.cache'], simAfter: 'hook', bridges: ['X19'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'i7', titleKey: 'track.sysdesign.i7.title', sims: ['sysdesign.paging'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'sysdesign-plan', model: 'sysdesign.plan', titleKey: 'track.sysdesign.preset.plan' },
@@ -20,7 +21,8 @@ ADE.registerTrack({
     { id: 'sysdesign-lock', model: 'sysdesign.lock', titleKey: 'track.sysdesign.preset.lock' },
     { id: 'sysdesign-channel', model: 'sysdesign.channel', titleKey: 'track.sysdesign.preset.channel' },
     { id: 'sysdesign-retry', model: 'sysdesign.retry', titleKey: 'track.sysdesign.preset.retry' },
-    { id: 'sysdesign-cache', model: 'sysdesign.cache', titleKey: 'track.sysdesign.preset.cache' }
+    { id: 'sysdesign-cache', model: 'sysdesign.cache', titleKey: 'track.sysdesign.preset.cache' },
+    { id: 'sysdesign-paging', model: 'sysdesign.paging', titleKey: 'track.sysdesign.preset.paging' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

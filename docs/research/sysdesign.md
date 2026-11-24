@@ -111,3 +111,14 @@ Sách đọc bằng pdftotext ngày 2026-11-24 (Xu tập 1 ch.2 dòng "Tips", ch
 | Ba tầng của app, OkHttp Cache, DB là nguồn sự thật khác cache HTTP, gợi ý header theo loại dữ liệu, mọi con số | site | simplified |
 | immutable không có trong RFC 9111 (không nhắc) | — | ghi chú |
 
+### I7 · Phân trang
+Đọc ngày 2026-11-24: Acing bằng pdftotext (12.7.1); AIP-158, ba trang Paging 3 và SubcomposeLayout.kt qua agent web-fetch (200). Xu tập 1 và DDIA bản 2 không có phần phân trang API (chỉ có offset của log), nên không trích. Phần cuối SubcomposeLayout.kt công cụ chỉ trả bản tóm tắt; thông điệp lỗi lấy nguyên văn, kiểu ngoại lệ (requirePrecondition) không nêu cụ thể.
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Trang theo số lệch khi thêm ở đầu (trang 2 trả 10–19 thay vì 11–20); page_version chỉ đúng khi thay đổi ở đầu; tốt hơn là gửi previous_last / previous_first | book-acing 12.7.1 | guideline |
+| page_size, page_token, next_page_token; token mờ, URL-safe, không đọc được (Base64 không đủ), không cấp quyền; next_page_token rỗng là cách duy nhất báo hết; trang ngắn hay rỗng chưa chắc là hết; đổi tham số khác → INVALID_ARGUMENT; token hết hạn khoảng 3 ngày; thêm phân trang sau là thay đổi không tương thích | aip-158 | stable |
+| Paging 3.5.3: cache trong bộ nhớ, gộp request, làm mới, thử lại; PagingSource / Pager / PagingData / collectAsLazyPagingItems theo tầng; LoadResult.Page(prevKey, nextKey), null là hết; LoadResult.Error; getRefreshKey; nguồn bất biến, invalidate() → PagingSource mới | ax-paging | stable |
+| RemoteMediator; database là nguồn sự thật; LoadType; bảng remote_keys ghi cùng transaction; initialize() SKIP/LAUNCH_INITIAL_REFRESH | ax-paging-db | stable |
+| Key trùng trong lazy list → Key "…" was already used (subcompose, requirePrecondition) | ax-subcompose-src (commit 3fa4054, 2026-10-15) | impl |
+| Key ổn định và duy nhất cho mỗi mục | cp-lists | stable |
+| Phép đếm lặp/sót, SQL theo (published_at, id), số bài, cỡ trang 4, token "tk1", nhận xét khi nào offset còn dùng được | site | simplified |

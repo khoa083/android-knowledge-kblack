@@ -310,4 +310,79 @@
         { name: 'cache bộ nhớ mất sau khi process bị giết (bước 3)', run: function () { return CASES.every(function (c) { return P[c][2][0][0] !== 'hit' && P[c][2][0][0] !== 'fresh'; }); } },
         { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { none: 1, forever: 5, maxage: 6, etag: 6 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
   })();
+
+  /* ================= I7: phân trang — offset khi có bài chèn lên đầu, offset khi có bài bị xóa, cursor =================
+     Theo Zhiyong Tan, Acing the System Design Interview 12.7.1 (trang lệch khi thêm ở đầu; gửi mục cuối hiện có), AIP-158 (page_token mờ,
+     next_page_token rỗng là hết), Paging 3 (PagingSource, LoadResult.Page, getRefreshKey, invalidate). Server có bài 20 → 9 (mới trước),
+     trang 4 bài; ở bước 2 có bài 21 đăng lên đầu và/hoặc bài 18 bị xóa. Số bài, cỡ trang, token "tk1" là minh họa. */
+  (function () {
+    var m = 'paging', CASES = ['offset', 'offsetdel', 'cursor'], KS = ['s1', 's2', 's3', 's4'], LIM = 4;
+    var BASE = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9];
+    var EV = { offset: { ins: 1, del: 0 }, offsetdel: { ins: 0, del: 1 }, cursor: { ins: 1, del: 1 } };
+    function srv(c, i) {
+      if (i === 0) return BASE.slice();
+      var l = BASE.filter(function (x) { return !(EV[c].del && x === 18); });
+      return EV[c].ins ? [21].concat(l) : l;
+    }
+    function older(l, id, n) { return l.filter(function (x) { return x < id; }).slice(0, n); }
+    // các trang app đã tải sau mỗi bước: [bước tải, nhãn, các bài]
+    var PG = {
+      offset: [[[0, 'p1', srv('offset', 0).slice(0, 4)]], null, [[2, 'p2', srv('offset', 2).slice(4, 8)]], []],
+      offsetdel: [[[0, 'p1', srv('offsetdel', 0).slice(0, 4)]], null, [[2, 'p2', srv('offsetdel', 2).slice(4, 8)]], [[3, 'p3', srv('offsetdel', 3).slice(8, 12)]]],
+      cursor: [[[0, 'p1', srv('cursor', 0).slice(0, 4)]], null, [[2, 'p2', older(srv('cursor', 2), 17, 4)]], 'refresh']
+    };
+    function pages(c, i) {
+      var out = [];
+      for (var k = 0; k <= i; k++) {
+        var p = PG[c][k];
+        if (p === 'refresh') out = [[k, 'rf', srv(c, k).slice(0, 8)]];
+        else if (p) out = out.concat(p);
+      }
+      return out;
+    }
+    var REQ = {
+      offset: ['GET /news?offset=0&limit=4', null, 'GET /news?offset=4&limit=4', null],
+      offsetdel: ['GET /news?offset=0&limit=4', null, 'GET /news?offset=4&limit=4', 'GET /news?offset=8&limit=4'],
+      cursor: ['GET /news?limit=4', null, 'GET /news?limit=4&page_token=tk1', 'GET /news?limit=8']
+    };
+    var CRASH = { offset: [0, 0, 0, 1], offsetdel: [0, 0, 0, 0], cursor: [0, 0, 0, 0] };
+    // đánh dấu từng ô: app → 'dup' | 'gone' | ''; server → 'miss' | 'new' | ''
+    function marks(c, i) {
+      var s = srv(c, i), ps = pages(c, i), app = [], seen = {}, app_ = [];
+      ps.forEach(function (p) { p[2].forEach(function (x) { app.push(x); }); });
+      app.forEach(function (x) { app_.push(seen[x] ? 'dup' : (s.indexOf(x) < 0 ? 'gone' : '')); seen[x] = 1; });
+      var hi = Math.max.apply(null, app), lo = Math.min.apply(null, app);
+      var sv = s.map(function (x) { return seen[x] ? '' : (x > hi ? 'new' : (x > lo ? 'miss' : '')); });
+      return { app: app, appMk: app_, srv: s, srvMk: sv };
+    }
+    function count(a, v) { return a.filter(function (x) { return x === v; }).length; }
+    ADE.sysPaging = { LIM: LIM, srv: srv, pages: pages, marks: marks, REQ: REQ, CRASH: CRASH, EV: EV };
+    var SNIP = { offset: 'i7.offset', offsetdel: 'i7.offset', cursor: 'i7.cursor' };
+    var LINES = { offset: [[3, 4], [6], [4, 6], [10]], offsetdel: [[3, 4], [6], [4, 6], [4]], cursor: [[3, 5], [9], [3, 9], [7]] };
+    var NODES = [['ui', 'pager', 'server'], ['editor', 'server'], ['ui', 'pager', 'server'], null];
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var mk = marks(c, i), dup = count(mk.appMk, 'dup'), miss = count(mk.srvMk, 'miss'), gone = count(mk.appMk, 'gone');
+        var bad = i >= 2 && (dup > 0 || miss > 0 || CRASH[c][i] === 1), type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism');
+        var nodes = NODES[i] || (c === 'offset' ? ['ui'] : ['ui', 'pager', 'server']), ns = {};
+        nodes.forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var edge = i === 1 ? 'e3' : (i === 3 && c === 'offset' ? 'e1' : 'e2');
+        var o = S(m, c + '.' + k, { type: type, activeNodes: nodes, nodeStates: ns,
+          metrics: { dup: dup, miss: miss, gone: gone },
+          codeHighlight: { snippet: SNIP[c], lines: LINES[c][i] },
+          movingSignals: [{ edge: edge, tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 1 ? 'write' : (REQ[c][i] ? 'run' : 'observe')), subject: nodes[nodes.length - 1] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'offset' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'offset sau khi chèn bài 21: trang 2 bắt đầu bằng bài 17, lặp đúng một bài', run: function () { var k = marks('offset', 2); return pages('offset', 2)[1][2][0] === 17 && count(k.appMk, 'dup') === 1 && count(k.srvMk, 'miss') === 0; } },
+        { name: 'offset sau khi xóa bài 18: bài 16 bị bỏ sót tới cuối danh sách', run: function () { var k = marks('offsetdel', 3); return k.app.indexOf(16) < 0 && count(k.srvMk, 'miss') === 1 && count(k.appMk, 'dup') === 0 && k.app[k.app.length - 1] === 9; } },
+        { name: 'cursor: trang 2 là 16..13, không lặp không sót; làm mới thì có bài 21 và mất bài 18', run: function () { var k = marks('cursor', 2), r = marks('cursor', 3); return pages('cursor', 2)[1][2].join() === '16,15,14,13' && count(k.appMk, 'dup') + count(k.srvMk, 'miss') === 0 && r.app[0] === 21 && r.app.indexOf(18) < 0 && count(r.appMk, 'gone') === 0; } },
+        { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { offset: 10, offsetdel: 10, cursor: 9 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
+  })();
 })();
