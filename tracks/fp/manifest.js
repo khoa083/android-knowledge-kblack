@@ -8,11 +8,13 @@ ADE.registerTrack({
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
     { id: 'p1', titleKey: 'track.fp.p1.title', sims: ['fp.pure'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'p2', titleKey: 'track.fp.p2.title', sims: ['fp.persist'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'p2', titleKey: 'track.fp.p2.title', sims: ['fp.persist'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'p3', titleKey: 'track.fp.p3.title', sims: ['fp.compose'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'fp-pure', model: 'fp.pure', titleKey: 'track.fp.preset.pure' },
-    { id: 'fp-persist', model: 'fp.persist', titleKey: 'track.fp.preset.persist' }
+    { id: 'fp-persist', model: 'fp.persist', titleKey: 'track.fp.preset.persist' },
+    { id: 'fp-compose', model: 'fp.compose', titleKey: 'track.fp.preset.compose' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

@@ -57,4 +57,28 @@
     c('    is Cons -> total(xs.tail, acc + xs.head.fee)  // lời gọi là việc cuối cùng', '    is Cons -> total(xs.tail, acc + xs.head.fee)  // the call is the last thing done'),
     '}'
   ]);
+
+  /* K3: hàm 6 tham số gọi ở 4 chỗ; ba tham số cấu hình lặp lại; dòng 7 chép múi giờ UTC từ test */
+  add('p3.nested', [
+    'fun formatAppointment(locale: Locale, currency: Currency, zone: ZoneId,',
+    '                      b: Booking, fee: Long, compact: Boolean): String = TODO()',
+    '',
+    c('val b = assign(parse(raw))                                     // đọc từ trong ra', 'val b = assign(parse(raw))                                     // read inside out'),
+    c('formatAppointment(VI, VND, CLINIC_ZONE, b, price(b), true)     // danh sách', 'formatAppointment(VI, VND, CLINIC_ZONE, b, price(b), true)     // list'),
+    c('formatAppointment(VI, VND, CLINIC_ZONE, b, price(b), false)    // chi tiết', 'formatAppointment(VI, VND, CLINIC_ZONE, b, price(b), false)    // detail'),
+    c('formatAppointment(VI, VND, ZoneOffset.UTC, b, price(b), false) // nhắc lịch: chép từ test', 'formatAppointment(VI, VND, ZoneOffset.UTC, b, price(b), false) // reminder: copied from a test'),
+    c('formatAppointment(VI, VND, CLINIC_ZONE, b, price(b), false)    // biên lai', 'formatAppointment(VI, VND, CLINIC_ZONE, b, price(b), false)    // receipt')
+  ]);
+  /* K3: ghép theo thứ tự chạy; cố định ba tham số chung một lần (partial application) */
+  add('p3.composed', [
+    c('infix fun <A, B, C> ((A) -> B).compose(g: (B) -> C): (A) -> C = { a -> g(this(a)) }   // như compose của Carli', 'infix fun <A, B, C> ((A) -> B).compose(g: (B) -> C): (A) -> C = { a -> g(this(a)) }   // like Carli\'s compose'),
+    c('val toPriced: (String) -> Priced = ::parse compose ::assign compose ::price   // đọc theo thứ tự chạy', 'val toPriced: (String) -> Priced = ::parse compose ::assign compose ::price   // reads in run order'),
+    'fun formatFor(locale: Locale, currency: Currency, zone: ZoneId): (Priced, Boolean) -> String =',
+    '    { p, compact -> formatAppointment(locale, currency, zone, p.booking, p.fee, compact) }',
+    c('val show = formatFor(VI, VND, CLINIC_ZONE)                    // ba tham số chung: một lần', 'val show = formatFor(VI, VND, CLINIC_ZONE)                    // the three shared ones: once'),
+    c('show(toPriced(raw), true)                                     // danh sách', 'show(toPriced(raw), true)                                     // list'),
+    c('show(toPriced(raw), false)                                    // chi tiết', 'show(toPriced(raw), false)                                    // detail'),
+    c('show(toPriced(raw), false)                                    // nhắc lịch', 'show(toPriced(raw), false)                                    // reminder'),
+    c('show(toPriced(raw), false)                                    // biên lai', 'show(toPriced(raw), false)                                    // receipt')
+  ]);
 })();

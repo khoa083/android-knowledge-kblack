@@ -80,4 +80,39 @@
       h('p', { class: 'vz-sub' + (v.crashed ? ' bad' : ''), 'data-k': 'ps-result', text: result }),
       h('div', { class: 'vz-legend', text: T('persist.legend') })));
   }, { labelKey: K + 'tab.persist', icon: 'layers' });
+
+  /* ---------- K3: (1) luồng dữ liệu: bốn hàm theo thứ tự chạy, kiểu vào → ra và giá trị sau mỗi hàm; cột "thứ tự đọc trong mã" lệch đỏ
+     khi viết lồng nhau; (2) bảng bốn chỗ gọi: đối số (cấu hình lặp lại mờ, múi giờ sai đỏ) và chuỗi hiển thị, mở dần theo bước. ---------- */
+  ADE.registerScreen('fp.compose', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.fpCompose, c = ctx.state.case, i = Math.max(0, idx(ctx)), bad = c === 'nested';
+    var READ = bad ? [4, 3, 2, 1] : [1, 2, 3, 4];
+    var t1 = h('tbody');
+    P.stages().forEach(function (x, n) {
+      t1.appendChild(h('tr', { 'data-k': 'cp-st-' + x[0] }, h('td', { class: 'c', text: String(n + 1) }),
+        h('td', { class: 'c' + (READ[n] !== n + 1 ? ' bad' : ' ok') + (i === 0 ? ' hl' : ''), text: String(READ[n]) }),
+        h('td', { translate: 'no', text: x[0] }), h('td', { translate: 'no', text: x[1] + ' → ' + x[2] }), h('td', { translate: 'no', text: x[3] })));
+    });
+    var calls = P.calls(c), out = P.render(c), good = P.render('composed'), t2 = h('tbody');
+    if (!bad) t2.appendChild(h('tr', { 'data-k': 'cp-site-build' }, h('td', { text: T('compose.site.build') }),
+      h('td', null, ['VI', 'VND', 'CLINIC_ZONE'].map(function (a, k) { return h('span', { class: 'vz-chip' + (i < 1 ? ' dim' : (i === 3 ? ' hl' : ' ok')), 'data-k': 'cp-b-' + k, translate: 'no', text: i < 1 ? '?' : a }); })),
+      h('td', { class: i < 1 ? 'dim' : '', text: i < 1 ? '?' : T('compose.build.out') })));
+    calls.forEach(function (x, n) {
+      var chips = x.args.map(function (a, k) {
+        var cfg = k < x.config, wrong = cfg && a === 'UTC';
+        var cls = 'vz-chip' + (i < 1 ? ' dim' : (wrong && i >= 2 ? ' bad' : (cfg ? (i === 3 ? ' hl' : ' dim') : ' ok')));
+        return h('span', { class: cls, 'data-k': 'cp-a-' + x.site + '-' + k, translate: 'no', text: i < 1 ? '?' : a });
+      });
+      var res = i < 2 ? '?' : out[n], off = i >= 2 && out[n] !== good[n];
+      t2.appendChild(h('tr', { 'data-k': 'cp-site-' + x.site }, h('td', { text: T('compose.site.' + x.site) }), h('td', null, chips),
+        h('td', { class: (i < 2 ? 'dim' : (off ? 'bad' : '')), translate: 'no', text: res })));
+    });
+    var n = P.count(c), sub = i < 3 ? T('compose.edits.none') : T('compose.edits.' + c, { n: n.edits });
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-cap', text: T('compose.cap.' + c) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['run', 'read', 'fn', 'type', 'value'].map(function (k) { return h('th', { text: T('compose.col.' + k) }); }))), t1)),
+      h('p', { class: 'vz-cap', text: T('compose.scap', { a: i >= 1 ? n.args : '?', r: i >= 1 ? n.repeated : '?' }) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['site', 'args', 'out'].map(function (k) { return h('th', { text: T('compose.col.' + k) }); }))), t2)),
+      h('p', { class: 'vz-sub', 'data-k': 'cp-edits', text: sub }),
+      h('div', { class: 'vz-legend', text: T('compose.legend') })));
+  }, { labelKey: K + 'tab.compose', icon: 'list' });
 })();

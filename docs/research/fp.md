@@ -43,3 +43,11 @@
 | Vị trí đuôi; Kotlin cần tailrec mới bỏ tail call; gắn tailrec cho hàm không có lời gọi đuôi chỉ bị cảnh báo; foldRight không stack-safe, foldLeft tailrec (Exercise 3.9) | Vermeulen và cộng sự ch.2, ch.3 |
 | Điều kiện của tailrec: gọi chính nó như thao tác cuối; không khi còn mã sau lời gọi, trong try/catch/finally, hàm open; trình biên dịch để lại một vòng lặp | Kotlin docs, Functions (đọc 2026-11-24; nguồn kt-functions của track Kotlin, mở rộng cho fp) |
 | **Của site:** FList tự viết, màn "Chọn lịch để hủy", 50.000 lịch, phí 200.000 đ, giới hạn minh họa 10.000 khung (độ sâu thật tùy stack của luồng) | — |
+
+### K3 Ghép hàm: composition, currying, partial application
+| Ý trên site | Nguồn |
+|---|---|
+| compose và after; ví dụ double, square, stringify; tính kết hợp; curry, mọi hàm nhiều tham số thành hàm bậc cao một tham số, sum(3)(4); tên Haskell Curry; pipe; partial application với CalculatorFactory, gần với dependency injection; đặt tham số ít đổi lên trước, quá nhiều tham số là thói quen xấu; curry và flip với nhiều tham số làm mã khó đọc; side effect phá ghép: map(f).map(g) và map(f compose g) | Carli ch.8 |
+| partial1, curry, uncurry, compose như câu đố kiểu (chỉ một thân hàm hợp kiểu); closure giữ a (Exercise 2.3–2.5) | Vermeulen và cộng sự ch.2 |
+| Đếm tham số như thứ phải giữ trong đầu | Seemann 7.2.7 (đã dùng ở J1) |
+| **Của site:** bốn hàm parse, assign, price, format; hàm 6 tham số gọi ở bốn màn; lỗi UTC chép từ test; formatFor; let như pipe của thư viện chuẩn; hai múi giờ trong mô phỏng | — |

@@ -19,4 +19,8 @@
   V('persist', { layout: 'pipeline', nodes: [N('persist', 'selected', 0, 0, 'list', 'ui'), N('persist', 'booked', 4, 0, 'store', 'state'), N('persist', 'fold', 0, 2, 'mechanism', 'job'), N('persist', 'stack', 4, 2, 'layers', 'runtime')],
     edges: [E('e1', 'selected', 'booked'), E('e2', 'booked', 'fold'), E('e3', 'fold', 'stack')],
     metrics: [T('persist', 'touched'), T('persist', 'nodes'), T('persist', 'depth')] });
+  /* K3: chuỗi đầu vào → các hàm ghép → bốn màn hình; cấu hình phòng khám → bốn màn hình */
+  V('compose', { layout: 'pipeline', nodes: [N('compose', 'raw', 0, 0, 'source', 'ui'), N('compose', 'pipe', 3, 0, 'mechanism', 'job'), N('compose', 'screens', 6, 1, 'screen', 'state'), N('compose', 'config', 3, 2, 'list', 'runtime')],
+    edges: [E('e1', 'raw', 'pipe'), E('e2', 'pipe', 'screens'), E('e3', 'config', 'screens')],
+    metrics: [T('compose', 'args'), T('compose', 'repeated'), T('compose', 'wrong'), T('compose', 'edits')] });
 })();

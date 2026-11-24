@@ -173,4 +173,84 @@
           return LISTS.every(function (l) { return RECS.every(function (r) { var x = steps({ list: l, rec: r }); return x.length === 4 && (r === 'plain') === view({ list: l, rec: r }, 3).crashed; }); }) &&
             Object.keys(HL).every(function (k) { return HL[k].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p2.' + k]; }); }); }); } }] });
   })();
+
+  /* ================= K3: ghép hàm: lời gọi lồng nhau và hàm 6 tham số so với compose và partial application =================
+     Theo Carli ch.8 (compose, after, curry, pipe, partial application, đặt tham số ít đổi lên trước, quá nhiều tham số là thói quen xấu);
+     Vermeulen và cộng sự ch.2 (partial1, curry, compose: chữ ký dẫn đường, closure giữ a). CÀI THẬT: bốn hàm parse, assign, price, format
+     chạy trên một lịch hẹn, compose và partial viết bằng JS; bốn chỗ gọi tính ra chuỗi thật; đếm đối số từ danh sách đối số của từng chỗ gọi.
+     Múi giờ chỉ có hai: giờ phòng khám (UTC+7) và UTC. Lịch hẹn, bác sĩ, phí là của site. */
+  (function () {
+    var m = 'compose', CASES = ['nested', 'composed'], KS = ['s1', 's2', 's3', 's4'];
+    var ZONES = { clinic: 7, utc: 0 }, DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    var RAW = 'an|2026-11-28T02:00Z';
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    // bốn bước của luồng, mỗi bước một hàm một tham số
+    var parse = function (raw) { var p = raw.split('|'), t = p[1]; return { doctor: p[0], y: +t.slice(0, 4), mo: +t.slice(5, 7), d: +t.slice(8, 10), h: +t.slice(11, 13), mi: +t.slice(14, 16) }; };
+    var assign = function (r) { return { doctor: 'BS ' + r.doctor.charAt(0).toUpperCase() + r.doctor.slice(1), utc: Date.UTC(r.y, r.mo - 1, r.d, r.h, r.mi) }; };
+    var local = function (utc, zone) { var x = new Date(utc + ZONES[zone] * 3600000); return { dow: x.getUTCDay(), d: x.getUTCDate(), mo: x.getUTCMonth() + 1, h: x.getUTCHours(), mi: x.getUTCMinutes() }; };
+    var price = function (b) { var w = local(b.utc, 'clinic').dow; return { booking: b, fee: (w === 0 || w === 6) ? 300000 : 200000 }; };   // phí theo ngày ở phòng khám (chương K1)
+    var money = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' đ'; };
+    var format = function (locale, currency, zone, b, fee, compact) {
+      var t = local(b.utc, zone), when = DOW[t.dow] + ' ' + pad(t.d) + '/' + pad(t.mo) + ' ' + pad(t.h) + ':' + pad(t.mi);
+      return compact ? when : when + ' · ' + b.doctor + ' · ' + money(fee);
+    };
+    var compose = function (f, g) { return function (a) { return g(f(a)); }; };
+    var formatFor = function (locale, currency, zone) { return function (p, compact) { return format(locale, currency, zone, p.booking, p.fee, compact); }; };
+    var SITES = ['list', 'detail', 'reminder', 'receipt'], COMPACT = { list: true, detail: false, reminder: false, receipt: false };
+    // đối số ở từng chỗ gọi (để đếm); nested: 6 đối số, ba cái đầu là cấu hình; chỗ nhắc lịch chép UTC từ test
+    function calls(c) {
+      return SITES.map(function (site) {
+        if (c === 'nested') { var zone = site === 'reminder' ? 'utc' : 'clinic'; return { site: site, args: ['VI', 'VND', zone === 'utc' ? 'UTC' : 'CLINIC_ZONE', 'b', 'price(b)', String(COMPACT[site])], config: 3, zone: zone }; }
+        return { site: site, args: ['toPriced(raw)', String(COMPACT[site])], config: 0, zone: 'clinic' };
+      });
+    }
+    function render(c) {
+      if (c === 'nested') { var b = assign(parse(RAW)); return calls(c).map(function (x) { return format('vi', 'VND', x.zone, b, price(b).fee, COMPACT[x.site]); }); }
+      var toPriced = compose(compose(parse, assign), price), show = formatFor('vi', 'VND', 'clinic');
+      return SITES.map(function (site) { return show(toPriced(RAW), COMPACT[site]); });
+    }
+    // luồng: giá trị sau từng hàm, kiểu vào và ra
+    function stages() {
+      var r = parse(RAW), b = assign(r), p = price(b);
+      return [['parse', 'String', 'Request', r.doctor + ' · ' + r.y + '-' + pad(r.mo) + '-' + pad(r.d) + ' ' + pad(r.h) + ':' + pad(r.mi) + 'Z'],
+        ['assign', 'Request', 'Booking', b.doctor + ' · ' + format('vi', 'VND', 'clinic', b, 0, true)],
+        ['price', 'Booking', 'Priced', money(p.fee)],
+        ['format', 'Priced', 'String', format('vi', 'VND', 'clinic', b, p.fee, false)]];
+    }
+    // số đối số phải sửa khi thêm một tham số cấu hình (ví dụ đồng hồ 24 giờ): mọi chỗ gọi có truyền cấu hình, hay chỉ một lần dựng show
+    var EDITS = { nested: SITES.length, composed: 1 };
+    function count(c) {
+      var cs = calls(c), out = render(c), good = render('composed');
+      return { args: cs.reduce(function (n, x) { return n + x.args.length; }, 0), repeated: cs.reduce(function (n, x) { return n + x.config; }, 0),
+        wrong: out.filter(function (s, k) { return s !== good[k]; }).length, edits: EDITS[c] };
+    }
+    ADE.fpCompose = { RAW: RAW, SITES: SITES, calls: calls, render: render, stages: stages, count: count };
+    var HL = { nested: [[4], [5, 6, 7, 8], [7], [1, 2]], composed: [[1, 2], [3, 4, 5], [8], [5]] };
+    var NODES = [[['raw', 'pipe'], 'pipe', 'e1'], [['config', 'screens'], 'screens', 'e3'], [['pipe', 'screens'], 'screens', 'e2'], [['config', 'screens'], 'config', 'e3']];
+    function steps(s) {
+      var c = s.case, bad = c === 'nested', n = count(c);
+      return KS.map(function (k, i) {
+        var nd = NODES[i], ns = {}; ns[nd[1]] = K + 'st.' + (bad && i > 0 ? (i === 2 ? 'broken' : 'surprise') : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { args: i >= 1 ? n.args : 0, repeated: i >= 1 ? n.repeated : 0, wrong: i >= 2 ? n.wrong : 0, edits: i >= 3 ? n.edits : 0 },
+          codeHighlight: { snippet: 'p3.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad && i > 0 ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad && i === 2 ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        o.callouts = [{ kind: i === 0 && bad ? 'try' : (bad && i > 0 ? 'pitfall' : 'source'), textKey: i === 0 && bad ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'p3.nested': 8, 'p3.composed': 9 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'nested' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'luồng: 02:00Z ngày 28/11/2026 là 09:00 thứ Bảy ở phòng khám (UTC+7), phí cuối tuần 300.000 đ', run: function () {
+          var st = stages(); return st[3][3] === 'T7 28/11 09:00 · BS An · 300.000 đ' && st.map(function (x) { return x[0]; }).join() === 'parse,assign,price,format'; } },
+        { name: 'ghép compose(parse, assign, price) rồi show cho cùng chuỗi với lời gọi lồng nhau ở mọi chỗ gọi đúng múi giờ', run: function () {
+          var a = render('nested'), b = render('composed'); return a[0] === b[0] && a[1] === b[1] && a[3] === b[3] && b[0] === 'T7 28/11 09:00'; } },
+        { name: 'đếm: lồng nhau 24 đối số, 12 là cấu hình lặp lại, 1 chỗ sai giờ (02:00), thêm tham số sửa 4 chỗ; ghép: 8 đối số, 0 lặp, 0 sai, sửa 1 chỗ', run: function () {
+          var a = count('nested'), b = count('composed'); return a.args === 24 && a.repeated === 12 && a.wrong === 1 && a.edits === 4 && render('nested')[2].indexOf('02:00') > 0 && b.args === 8 && b.repeated === 0 && b.wrong === 0 && b.edits === 1; } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p3.' + c]; }); }); }); } }] });
+  })();
 })();
