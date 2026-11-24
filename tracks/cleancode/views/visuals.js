@@ -81,4 +81,30 @@
     out.push(h('div', { class: 'vz-legend', text: T('nm.legend') }));
     box.appendChild(h('div', { class: 'vz' }, out));
   }, { labelKey: K + 'tab.names', icon: 'list' });
+
+  /* ---------- J3: dòng chảy phẳng thô → ranh giới → bên trong → gửi SMS (bảng, mỗi hàng một số điện thoại).
+     Không lồng hộp: các chặng là cột đặt cạnh nhau, cột mở dần theo bước; số sai đi tiếp có gạch đỏ. ---------- */
+  ADE.registerScreen('cleancode.parse', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.ccParse, c = ctx.state.case, i = Math.max(0, idx(ctx));
+    var cols = ['raw', 'edge', 'inside', 'sms'];
+    var head = h('tr', null, cols.map(function (k, n) { return h('th', { class: n === i && i > 0 ? 'hl' : null, text: (n ? '→ ' : '') + T('ps.col.' + k) }); }));
+    var tb = h('tbody');
+    P.rows(c).forEach(function (r) {
+      var cell = function (n, key, cls, extra) {
+        if (n > i) return h('td', { class: 'dim c', text: '?' });
+        return h('td', { class: cls || null }, h('span', { text: T('ps.v.' + key) }), extra ? h('small', { class: 'vz-sub', text: extra }) : null);
+      };
+      var leak = r.badLeak ? 'bad' : null;
+      tb.appendChild(h('tr', { 'data-k': 'ps-' + r.from },
+        h('td', null, h('code', { text: '"' + r.raw + '"' }), h('small', { class: 'vz-sub', text: T('ps.from.' + r.from) })),
+        cell(1, r.edge, r.edge === 'parsed' ? 'ok' : (r.edge === 'rejected' ? 'hl' : leak), r.value ? '("' + r.value + '")' : null),
+        cell(2, r.inside, r.inside === 'typed' ? 'ok' : (r.inside === 'stopped' ? 'dim' : leak)),
+        cell(3, r.sms, r.sms === 'sent' ? 'ok' : (r.sms === 'failed' ? 'bad' : 'dim'))));
+    });
+    var nRules = i === 0 ? 0 : (c === 'validate' ? (i < 3 ? 3 : 4) : 1);
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('ps.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)),
+      h('p', { class: 'vz-note' + (nRules > 1 ? ' bad' : (nRules === 1 ? ' ok' : '')), text: T('ps.rules', { n: nRules }) }),
+      h('div', { class: 'vz-legend', text: T('ps.legend') })));
+  }, { labelKey: K + 'tab.parse', icon: 'rail' });
 })();

@@ -162,4 +162,56 @@
         { name: 'mỗi bản 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && [0, 1, 2, 3].every(function (i) { return hlLines(c, i).every(function (l) { return l >= 1 && l <= LEN[SNIP[c]]; }); }); }); } }] });
   })();
+
+  /* ================= J3: kiểm rải rác so với parse một lần ở ranh giới =================
+     Theo Seemann 5.2.4 (Postel: dễ dãi đầu vào, fail fast), 5.3 (hiểu biết mất sau khi kiểm), 5.3.1 (luôn hợp lệ, kiểm ở constructor),
+     7.2.5 (parse, don't validate); Kotlin docs inline value classes (init + require; khác typealias). Các luật dưới đây được CÀI THẬT
+     bằng JS: kết quả từng ô của hình tính từ chúng, không gõ tay. Luật số di động là minh họa của site. */
+  (function () {
+    var m = 'parse', CASES = ['validate', 'parse'], KS = ['s1', 's2', 's3', 's4'];
+    var RULE = {   // ba luật rải rác của ba màn hình (cố ý khác nhau) và luật thứ tư ở bộ gửi SMS
+      booking: function (s) { return s.replace(/ /g, '').length === 10; },
+      profile: function (s) { return s.indexOf('+84') === 0 || s.indexOf('0') === 0; },
+      reminder: function (s) { return s.length >= 9; }
+    };
+    function smsOk(s) { return /^0\d{9}$/.test(s.replace(/ /g, '')); }
+    function parsePhone(raw) { var d = raw.replace(/\D/g, ''), local = d.indexOf('84') === 0 ? '0' + d.slice(2) : d; return /^0[35789]\d{8}$/.test(local) ? local : null; }
+    var INPUTS = [['booking', '0912 345 678'], ['profile', '+84 912 345 678'], ['reminder', '091234567']];
+    // một hàng của hình: giá trị ở từng chặng và nó có phải số sai đang đi tiếp không
+    function row(c, x) {
+      var from = x[0], raw = x[1], p = parsePhone(raw);
+      if (c === 'validate') { var pass = RULE[from](raw), ok = pass && smsOk(raw); return { from: from, raw: raw, edge: pass ? 'pass.' + from : 'rejected', inside: pass ? 'string' : 'stopped', sms: !pass ? 'none' : (ok ? 'sent' : 'failed'), badLeak: pass && !p, value: null }; }
+      return { from: from, raw: raw, edge: p ? 'parsed' : 'rejected', inside: p ? 'typed' : 'stopped', sms: p ? 'sent' : 'none', badLeak: false, value: p };
+    }
+    function rows(c) { return INPUTS.map(function (x) { return row(c, x); }); }
+    function tally(c) { var r = rows(c); return { checks: c === 'validate' ? 4 : 1, form: r.filter(function (x) { return x.edge === 'rejected'; }).length, late: r.filter(function (x) { return x.sms === 'failed'; }).length }; }
+    var HL = { validate: [[1], [2, 3, 4], [7], [11, 12]], parse: [[7], [8, 9, 10], [2, 3, 13], [14]] };
+    ADE.ccParse = { rows: rows, tally: tally };
+    function steps(s) {
+      var c = s.case, t = tally(c);
+      return KS.map(function (k, i) {
+        var bad = c === 'validate' && (i === 3 || i === 2), node = ['screen', 'boundary', 'repo', 'sms'][i];
+        var ns = {}; ns[node] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: i === 0 ? ['screen'] : [['screen', 'boundary'], ['boundary', 'repo'], ['repo', 'sms']][i - 1], nodeStates: ns,
+          metrics: { checks: i === 0 ? 0 : (c === 'validate' && i < 3 ? 3 : t.checks), form: i >= 1 ? t.form : 0, late: i === 3 ? t.late : 0 },
+          codeHighlight: { snippet: 'j3.' + c, lines: HL[c][i] },
+          movingSignals: i === 0 ? [] : [{ edge: 'e' + i, tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : 'run'), subject: node }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        if (c === 'validate' && i === 1) o.callouts[0].kind = 'pitfall';
+        return o;
+      });
+    }
+    var LEN = { 'j3.validate': 15, 'j3.parse': 14 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'validate' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'kiểm rải rác: cả ba số qua kiểm ở màn hình, một số sai thật lọt vào trong, hai SMS hỏng lúc gửi (một do số sai, một do luật thứ tư khác)', run: function () {
+          var r = rows('validate'); return r.every(function (x) { return x.edge !== 'rejected'; }) && r.filter(function (x) { return x.badLeak; }).length === 1 && tally('validate').late === 2; } },
+        { name: 'parse: +84 chuẩn hóa thành 0912345678, số thiếu chữ số bị từ chối tại form, không SMS nào hỏng', run: function () {
+          var r = rows('parse'); return r[0].value === '0912345678' && r[1].value === '0912345678' && r[2].edge === 'rejected' && tally('parse').late === 0 && tally('parse').form === 1; } },
+        { name: 'số +84 hợp lệ nhưng luật thứ tư của bản rải rác vẫn từ chối (luật khác nhau, không phải số sai)', run: function () { return parsePhone('+84 912 345 678') !== null && !smsOk('+84 912 345 678'); } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j3.' + c]; }); }); }); } }] });
+  })();
 })();

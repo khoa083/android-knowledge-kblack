@@ -23,10 +23,11 @@
 ## Sách (bản trong thư viện cá nhân; trên site chỉ ghi trang của nhà xuất bản hoặc tác giả)
 | Id nguồn | Sách | Đã đọc thân chương |
 |---|---|---|
-| `book-seemann` (khai báo ở `tracks/sysdesign/sources.js`, tracks gồm cả cleancode) | Mark Seemann, *Code That Fits in Your Head* | 3.2.1, 7.1.1–7.1.3, 7.2.1, 7.2.7, phụ lục A.2, A.7, A.8 (2026-11-24) |
+| `book-seemann` (khai báo ở `tracks/sysdesign/sources.js`, tracks gồm cả cleancode) | Mark Seemann, *Code That Fits in Your Head* | 3.2.1, 5.2.3–5.2.4, 5.3, 5.3.1, 7.1.1–7.1.3, 7.2.1, 7.2.5, 7.2.7, 8.1.3–8.1.7, phụ lục A.2, A.7, A.8 (2026-11-24) |
 | `book-cleancode` | Robert C. Martin, *Clean Code* (2008) | ch.2 (mục lục và Pick One Word per Concept); ch.3: Small!, Blocks and Indenting, Do One Thing, One Level of Abstraction, Stepdown Rule, Flag Arguments, Have No Side Effects, Output Arguments, Command Query Separation; ch.4 phần mở đầu (2026-11-24) |
 | `book-effective-kotlin` (khai báo ở `tracks/kotlin/sources.js`, tracks gồm cả cleancode) | Marcin Moskała, *Effective Kotlin* | Item 15, Item 17 (2026-11-24) |
 | `kt-conventions` | Kotlin coding conventions (kotlinlang.org) | Choose good names, Function names (curl 2026-11-24) |
+| `kt-inline-classes` | Inline value classes (kotlinlang.org) | Members (init, require), Inline classes vs type aliases (curl 2026-11-24) |
 
 URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN 9780132350884), blog.ploeh.dk/code-that-fits-in-your-head/.
 
@@ -56,3 +57,17 @@ URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN
 | Gọi tham số bằng tên, kiểu riêng mạnh hơn | Moskała Item 17 |
 | Lớp danh từ, hàm động từ, sort/sorted, tránh Manager/Wrapper | Kotlin coding conventions |
 | **Của site:** lớp AppointmentRepo hai phiên bản, "đoán đọc hay ghi" như một phép đếm, lỗi huy hiệu 0 khi mất mạng, lỗi property gọi mạng | — |
+
+### J3 Đóng gói, bất biến, parse một lần
+| Ý trên site | Nguồn |
+|---|---|
+| Đóng gói là hợp đồng (Design by Contract, Meyer), không phải getter/setter; định nghĩa trừu tượng của Martin | Seemann 5.2.3, 5.4 |
+| Luật Postel diễn giải cho API: nhận chừng nào còn làm việc được, không thì fail fast; email khó kiểm, chỉ gửi thư mới biết | Seemann 5.2.4, A.16 |
+| Hiểu biết sau khi kiểm bị mất khi gọi repository; luôn hợp lệ; object bất biến chỉ kiểm ở constructor | Seemann 5.3, 5.3.1 |
+| Parse, don't validate (Validate trả Reservation?), trích ý Alexis King về parser | Seemann 7.2.5, A.15 |
+| Đừng trả null, đừng truyền null | Martin ch.7 |
+| Object và cấu trúc dữ liệu đối xứng nhau; Law of Demeter (chỉ nhắc) | Martin ch.6 |
+| Ranh giới với mã bên thứ ba, bọc lại (ví dụ Map) | Martin ch.8 |
+| Lợi ích của object bất biến (6 điểm), sửa phần tử trong Set | Moskała Item 1 |
+| Value class: một property, init + require, khác typealias, biểu diễn lúc chạy | Kotlin docs inline-classes |
+| **Của site:** luật số di động Việt Nam minh họa, ba luật rải rác cố ý khác nhau, ba số điện thoại; hình dòng chảy phẳng thay cho "hộp lồng" của dàn ý (quy tắc không lồng hộp) | — |

@@ -19,4 +19,8 @@
   V('names', { layout: 'pipeline', nodes: [N('names', 'sig', 0, 1, 'eye', 'ui'), N('names', 'name', 3, 1, 'source', 'state'), N('names', 'impl', 6, 1, 'list', 'job'), N('names', 'screen', 9, 1, 'screen', 'runtime')],
     edges: [E('e1', 'sig', 'name'), E('e2', 'name', 'impl'), E('e3', 'impl', 'screen')],
     metrics: [T('names', 'right'), T('names', 'both'), T('names', 'second')] });
+  /* J3: màn hình → ranh giới → kho dữ liệu → gửi SMS */
+  V('parse', { layout: 'pipeline', nodes: [N('parse', 'screen', 0, 1, 'screen', 'ui'), N('parse', 'boundary', 3, 1, 'target', 'state'), N('parse', 'repo', 6, 1, 'store', 'job'), N('parse', 'sms', 9, 1, 'phone', 'runtime')],
+    edges: [E('e1', 'screen', 'boundary'), E('e2', 'boundary', 'repo'), E('e3', 'repo', 'sms')],
+    metrics: [T('parse', 'checks'), T('parse', 'form'), T('parse', 'late')] });
 })();

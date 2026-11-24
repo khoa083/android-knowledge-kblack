@@ -36,5 +36,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X18.title': 'Khóa, ANR và Mutex',
   'shared.bridge.X18.summary': 'Chương coroutine dạy công cụ: Mutex, withLock, trạng thái dùng chung giữa nhiều coroutine. Chương chủ sở hữu dạy vì sao: main thread chờ khóa là ANR, hai khóa lấy ngược thứ tự là deadlock, và một thứ tự khóa chung cắt được vòng chờ.',
   'shared.bridge.X19.title': 'Cache HTTP và nguồn sự thật',
-  'shared.bridge.X19.summary': 'Chương kiến trúc dạy database là nguồn sự thật mà màn hình quan sát. Chương chủ sở hữu dạy cache HTTP: bản sao có hạn dùng theo max-age, hỏi lại bằng ETag và 304, hợp với dữ liệu chỉ đọc như bảng giá; hai thứ không thay nhau.'
+  'shared.bridge.X19.summary': 'Chương kiến trúc dạy database là nguồn sự thật mà màn hình quan sát. Chương chủ sở hữu dạy cache HTTP: bản sao có hạn dùng theo max-age, hỏi lại bằng ETag và 304, hợp với dữ liệu chỉ đọc như bảng giá; hai thứ không thay nhau.',
+  'shared.bridge.X20.title': 'require trong constructor và parse ở ranh giới',
+  'shared.bridge.X20.summary': 'Chương Kotlin dạy công cụ: require ném IllegalArgumentException khi đối số sai, check cho trạng thái. Chương chủ sở hữu dạy dùng nó ở đâu: require trong init của value class để không tạo được giá trị sai, và một hàm parse trả kiểu có dấu ? ở ranh giới để người dùng được báo lỗi ngay thay vì app ném ngoại lệ.'
 });

@@ -93,4 +93,39 @@
     '    suspend fun findNextFreeSlot(doctor: DoctorId): Slot? = api.nextFreeSlot(doctor)',
     '}'
   ]);
+
+  /* J3: kiểm rải rác (ba luật ở dòng 2–4, luật thứ tư ở dòng 12) và parse một lần (dòng 7–10), bên trong chỉ nhận PhoneNumber */
+  add('j3.validate', [
+    c('// ba màn hình, ba luật; giá trị qua kiểm vẫn là String', '// three screens, three rules; a checked value is still a String'),
+    'fun bookingPhoneOk(s: String) = s.replace(" ", "").length == 10',
+    'fun profilePhoneOk(s: String) = s.startsWith("+84") || s.startsWith("0")',
+    'fun reminderPhoneOk(s: String) = s.length >= 9',
+    '',
+    'class PatientRepo {',
+    c('    fun savePhone(id: PatientId, phone: String) { /* lưu nguyên chuỗi */ }', '    fun savePhone(id: PatientId, phone: String) { /* stored as typed */ }'),
+    '}',
+    'class SmsSender {',
+    '    fun send(phone: String, text: String) {',
+    '        val d = phone.replace(" ", "")',
+    c('        if (!Regex("0\\\\d{9}").matches(d)) error("bad phone: $phone")   // luật thứ tư', '        if (!Regex("0\\\\d{9}").matches(d)) error("bad phone: $phone")   // a fourth rule'),
+    '        gateway.send(d, text)',
+    '    }',
+    '}'
+  ]);
+  add('j3.parse', [
+    '@JvmInline',
+    'value class PhoneNumber(val digits: String) {',
+    c('    init { require(VN_MOBILE.matches(digits)) }     // không tạo được giá trị sai', '    init { require(VN_MOBILE.matches(digits)) }     // an invalid value cannot be built'),
+    '}',
+    'private val VN_MOBILE = Regex("0[35789]\\\\d{8}")',
+    '',
+    c('fun parsePhone(raw: String): PhoneNumber? {        // ranh giới: thô → kiểu đã chắc đúng', 'fun parsePhone(raw: String): PhoneNumber? {        // the boundary: raw → a type known to be valid'),
+    '    val d = raw.filter(Char::isDigit)',
+    '    val local = if (d.startsWith("84")) "0" + d.drop(2) else d',
+    '    return if (VN_MOBILE.matches(local)) PhoneNumber(local) else null',
+    '}',
+    '',
+    'class PatientRepo { fun savePhone(id: PatientId, phone: PhoneNumber) { /* ... */ } }',
+    'class SmsSender { fun send(phone: PhoneNumber, text: String) = gateway.send(phone.digits, text) }'
+  ]);
 })();

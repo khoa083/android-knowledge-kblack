@@ -882,6 +882,7 @@ pre.code { position: relative; }
 .vz-slot small { font-size: 10px; color: var(--ink-3); }
 .vz-slot.bad { background: repeating-linear-gradient(45deg, transparent 0 5px, rgba(196, 43, 50, .10) 5px 10px); }
 .vz-limit { align-self: stretch; display: inline-flex; align-items: center; padding: 0 4px 0 6px; border-left: 2px dashed var(--tok-error); color: var(--tok-error); font: 11px/1.2 var(--mono); }
+.vz-sub { display: block; font-size: 11px; color: var(--ink-3); font-weight: 400; }
 .vz-note { margin: 0; font: 12px/1.45 var(--mono); color: var(--ink-2); }
 .vz-note.bad { color: var(--tok-error); font-weight: 700; }
 .vz-note.ok { color: var(--ink); font-weight: 700; }
