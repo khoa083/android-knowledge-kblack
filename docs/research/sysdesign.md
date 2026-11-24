@@ -87,3 +87,15 @@ Sách đọc bằng pdftotext ngày 2026-11-24 (Xu tập 1 ch.2 dòng "Tips", ch
 | Chu kỳ 5 giây, tin ở giây 7, hạn chờ 30 giây, "gần như ngay", bảng so sánh, cách phối hợp WebSocket + FCM, độ trễ polling = nửa chu kỳ | site | simplified |
 | Trang network-access-optimization **không** nói về polling hay FCM; khẳng định "dùng FCM thay kết nối riêng" lấy từ trang Doze | — | ghi chú |
 
+### I5 · Mạng không tin cậy
+Đọc ngày 2026-11-24: DDIA bản 2 bằng pdftotext (ch.2 hộp "When an Overloaded System Won't Recover", ch.9 "Unreliable Networks", ch.12 idempotence); qua agent web-fetch: WorkManager define-work, bản nháp IETF Idempotency-Key 09 (200). Bài AWS của Marc Brooker: agent chỉ lấy được phần điều hướng, **chưa đọc thân bài**, chỉ nhắc qua lời dẫn của DDIA. RFC 9110 (rfc-editor, 200) dùng cho mục 9.2.2.
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Không response thì không phân biệt được request mất, server sập, response mất; timeout vẫn không biết server đã nhận chưa | book-ddia2 ch.9 | guideline |
+| Idempotent: làm nhiều lần như một lần; ví dụ xóa khóa và tăng bộ đếm; làm idempotent bằng siêu dữ liệu | book-ddia2 ch.12 | guideline |
+| Retry storm, lỗi metastable; tăng và ngẫu nhiên hóa khoảng thử (exponential backoff), circuit breaker | book-ddia2 ch.2 | guideline |
+| PUT, DELETE, phương thức an toàn là idempotent; không tự thử lại request không idempotent | rfc9110 9.2.2 | stable |
+| Idempotency-Key: chuỗi duy nhất (UUID), POST/PATCH; không dùng lại cho nội dung khác; đã xong → response nhất quán; đang xử lý → 409; khác nội dung → 422 | ietf-idem-key (bản 09) | version |
+| Result.retry(), LINEAR/EXPONENTIAL, mặc định EXPONENTIAL 30 giây, tối thiểu 10 giây, ví dụ ~20, 40, 80 giây | ax-define-work | stable |
+| Key sinh một lần và lưu cùng bản nháp; timeout 10 giây; giá trị jitter; đỉnh trong nửa giây; bài tập 5 thao tác | site | simplified |
+

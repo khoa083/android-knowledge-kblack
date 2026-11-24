@@ -131,4 +131,52 @@
       h('p', { class: 'vz-cap', text: T('ch.tcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, h('th', { text: T('ch.col.ch') }), cols.map(function (k) { return h('th', { text: T('ch.col.' + k) }); }))), tb)),
       h('div', { class: 'vz-legend', text: T('ch.legend') })));
   }, { labelKey: K + 'tab.ch', icon: 'queue' });
+
+  /* ---------- I5: sơ đồ tuần tự app, mạng, server (tin mất dừng ở giữa) + bảng lịch; tình huống bão: làn thử lại của 5 máy ---------- */
+  ADE.registerScreen('sysdesign.retry', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.sysRetry, c = ctx.state.case, i = Math.max(0, idx(ctx));
+    if (c === 'storm') {
+      var kind = Y.STORM_KIND[i], X0 = 70, PX = 32, X = function (t) { return (X0 + t * PX).toFixed(1); }, pk = Y.peak(kind);
+      var sv = '<svg class="vz-tl" viewBox="0 0 600 236" role="img" aria-label="' + esc(T('rt.s.aria', { n: pk })) + '">';
+      for (var n = 0; n < 5; n++) {
+        var y = 20 + n * 36;
+        sv += '<text class="vz-tl-n" x="4" y="' + (y + 4) + '">' + esc(T('rt.s.phone', { n: n + 1 })) + '</text><line class="vz-tl-base" x1="' + X0 + '" x2="' + X(16) + '" y1="' + y + '" y2="' + y + '"/>';
+        sv += '<circle class="vz-rt-fail" cx="' + X(0) + '" cy="' + y + '" r="6"/>';
+        Y.SCHED[kind][n].forEach(function (t) { sv += '<circle class="vz-rt-dot" cx="' + X(t) + '" cy="' + y + '" r="6"/>'; });
+      }
+      for (var s = 0; s <= 16; s += 2) sv += '<line class="vz-tl-tick" x1="' + X(s) + '" x2="' + X(s) + '" y1="194" y2="200"/><text class="vz-tl-ax" x="' + X(s) + '" y="214">' + s + 's</text>';
+      sv += '<text class="' + (pk >= 4 ? 'vz-tl-anrt' : 'vz-tl-t') + '" x="' + X0 + '" y="232">' + esc(T('rt.s.' + kind) + ' · ' + T('rt.s.peak', { n: pk })) + '</text></svg>';
+      box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('rt.scap') }), h('div', { class: 'vz-scroll', html: sv })));
+      return;
+    }
+    var COL = { app: 90, mid: 300, server: 510 }, ROW = 34, TOP = 52, W = 600;
+    var rows = []; for (var k = 0; k <= i; k++) Y.MSGS[c][k].forEach(function (x) { rows.push({ x: x, cur: k === i }); });
+    var H = TOP + rows.length * ROW + 16, u = 'rtsq' + (++uidN);
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="vz-dg vz-sq" role="img" aria-label="' + esc(T('rt.cap')) + '"><defs>' +
+      ['n', 'c', 'b'].map(function (t) { return '<marker id="' + u + t + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5 1 8.5z" class="vz-sq-head ' + t + '"/></marker>'; }).join('') + '</defs>';
+    ['app', 'server'].forEach(function (p) {
+      var x = COL[p];
+      svg += '<line class="vz-sq-life" x1="' + x + '" y1="' + (TOP - 8) + '" x2="' + x + '" y2="' + (H - 6) + '"/><rect class="vz-sq-part" x="' + (x - 66) + '" y="6" width="132" height="30" rx="4"/><text class="vz-dg-t" x="' + x + '" y="26" text-anchor="middle">' + esc(T('rt.p.' + p)) + '</text>';
+    });
+    rows.forEach(function (r, n) {
+      var y = TOP + n * ROW + 20, a = COL[r.x[0]], b = COL[r.x[1]], bad = r.x[3] === 1, cl = 'vz-sq-m' + (bad ? ' bad' : '') + (r.cur ? ' cur' : '');
+      var mk = 'url(#' + u + (bad ? 'b' : (r.cur ? 'c' : 'n')) + ')', lb = T('rt.m.' + r.x[2]);
+      if (r.x[0] === 'mid') { svg += '<text class="vz-sq-l bad" x="' + a + '" y="' + (y + 1) + '" text-anchor="middle">' + esc(lb) + '</text>'; return; }
+      if (a === b) {
+        var right = a < 300, tx = right ? a + 28 : a - 28;
+        svg += '<path class="' + cl + '" d="M' + a + ' ' + (y - 10) + ' h ' + (right ? 22 : -22) + ' v 14 h ' + (right ? -20 : 20) + '" marker-end="' + mk + '"/><text class="vz-sq-l' + (bad ? ' bad' : '') + '" x="' + tx + '" y="' + (y + 1) + '"' + (right ? '' : ' text-anchor="end"') + fitText(lb, right ? 300 : a - 40) + '>' + esc(lb) + '</text>';
+      } else {
+        var dir = b > a ? 1 : -1, end = b === COL.mid ? b : b - dir * 6;
+        svg += '<line class="' + cl + '" x1="' + (a + dir * 4) + '" y1="' + y + '" x2="' + end + '" y2="' + y + '"' + (b === COL.mid ? '' : ' marker-end="' + mk + '"') + '/>' + (b === COL.mid ? '<text class="vz-sq-l bad" x="' + (b + dir * 10) + '" y="' + (y + 4) + '"' + (dir < 0 ? ' text-anchor="end"' : '') + '>✕</text>' : '') +
+          '<text class="vz-sq-l' + (bad ? ' bad' : '') + '" x="' + ((a + b) / 2) + '" y="' + (y - 6) + '" text-anchor="middle"' + fitText(lb, Math.abs(b - a) - 16) + '>' + esc(lb) + '</text>';
+      }
+    });
+    svg += '</svg>';
+    var bk = Y.BOOK[c][i], tb = h('tbody');
+    if (!bk.length) tb.appendChild(h('tr', null, h('td', { class: 'dim', colspan: '2', text: T('rt.t.none') })));
+    bk.forEach(function (b) { tb.appendChild(h('tr', null, h('td', { class: b[2] ? 'bad' : 'ok', text: b[0] + (b[2] ? ' · ' + T('rt.t.dup') : '') }), h('td', { class: b[1] ? null : 'dim', text: b[1] || T('rt.t.nokey') }))); });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('rt.cap') }), h('div', { class: 'vz-scroll', html: svg }),
+      h('p', { class: 'vz-cap', text: T('rt.tcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, h('th', { text: T('rt.t.id') }), h('th', { text: T('rt.t.key') }))), tb)),
+      h('div', { class: 'vz-legend', text: T('rt.legend') })));
+  }, { labelKey: K + 'tab.rt', icon: 'replay' });
 })();

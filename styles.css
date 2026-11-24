@@ -800,6 +800,8 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 .vz-tl-anr { stroke: var(--tok-error); stroke-width: 2; }
 .vz-tl-anrt { font-size: 11px; font-weight: 700; fill: var(--tok-error); }
 .vz-tl-cur { stroke: var(--focus); stroke-width: 1.6; stroke-dasharray: 4 3; }
+.vz-rt-dot { fill: var(--brand); fill-opacity: .7; stroke: var(--brand); }
+.vz-rt-fail { fill: var(--tok-error); fill-opacity: .5; stroke: var(--tok-error); }
 .vz-wf { display: block; width: 100%; max-width: 420px; height: auto; font-family: var(--mono); }
 @media (max-width: 560px) {
   .vz-mig { flex-direction: column; min-width: 0; }

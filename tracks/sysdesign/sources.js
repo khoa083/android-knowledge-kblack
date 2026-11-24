@@ -55,6 +55,18 @@
       'A one-way server → client connection, text/event-stream content type, reconnects automatically; the retry field sets the reconnection delay (I4).'),
     s('mdn-websocket', 'The WebSocket API (MDN)', 'https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API', 'MDN Web Docs', 'stable',
       'Phiên giao tiếp hai chiều, gửi nhận không cần polling; API WebSocket không hỗ trợ backpressure (I4).',
-      'A two-way session, sending and receiving without polling; the WebSocket API does not support backpressure (I4).')
+      'A two-way session, sending and receiving without polling; the WebSocket API does not support backpressure (I4).'),
+    s('book-ddia2', 'Designing Data-Intensive Applications, 2nd edition (Kleppmann, Riccomini)', 'https://dataintensive.net/', "O'Reilly (sách)", 'guideline',
+      'Ch.2: cơn bão thử lại và lỗi metastable; tăng và ngẫu nhiên hóa khoảng thử lại (exponential backoff), circuit breaker. Ch.9: gửi request không có response thì không biết request mất, server chết hay response mất; timeout. Ch.12: thao tác idempotent, làm idempotent bằng siêu dữ liệu (I5).',
+      'Ch.2: retry storms and metastable failure; increase and randomise retry intervals (exponential backoff), circuit breakers. Ch.9: a request without a response cannot tell a lost request, a dead server or a lost response apart; timeouts. Ch.12: idempotent operations, made idempotent with metadata (I5).'),
+    s('rfc9110', 'RFC 9110: HTTP Semantics', 'https://www.rfc-editor.org/rfc/rfc9110.html', 'IETF', 'stable',
+      'Mục 9.2.2: PUT, DELETE và các phương thức an toàn là idempotent; client không nên tự thử lại request không idempotent khi không biết kết quả (I5).',
+      'Section 9.2.2: PUT, DELETE and the safe methods are idempotent; a client should not automatically retry a non-idempotent request when the outcome is unknown (I5).'),
+    s('ietf-idem-key', 'The Idempotency-Key HTTP Header Field (draft-ietf-httpapi-idempotency-key-header-09)', 'https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/', 'IETF HTTPAPI (bản nháp)', 'version',
+      'Bản nháp 09 (21/11/2026): client gửi key duy nhất (nên dùng UUID) để POST, PATCH chịu được lỗi; không dùng lại key cho nội dung khác; key đã xong thì trả response nhất quán; đang xử lý thì 409; nội dung khác thì 422 (I5).',
+      'Draft 09 (21 Nov 2026): the client sends a unique key (UUID recommended) to make POST and PATCH fault-tolerant; never reuse a key for a different payload; completed key: a consistent response; still processing: 409; different payload: 422 (I5).'),
+    s('ax-define-work', 'Define work requests (WorkManager)', 'https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work', 'Android Developers', 'stable',
+      'Result.retry() và chính sách backoff LINEAR hay EXPONENTIAL; mặc định EXPONENTIAL 30 giây, tối thiểu 10 giây (MIN_BACKOFF_MILLIS); ví dụ EXPONENTIAL khoảng 20, 40, 80 giây; thời điểm lệch vài giây (I5).',
+      'Result.retry() and the LINEAR or EXPONENTIAL backoff policy; the default is EXPONENTIAL with 30 seconds, at least 10 seconds (MIN_BACKOFF_MILLIS); an EXPONENTIAL example of about 20, 40, 80 seconds; times drift by a few seconds (I5).')
   ]);
 })();

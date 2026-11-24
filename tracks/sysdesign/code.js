@@ -2,6 +2,30 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('sysdesign', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('i5.nokey', [
+    'suspend fun book(slot: Slot): Appointment {',
+    '    repeat(3) {',
+    '        try { return api.book(slot) }                         // POST /appointments',
+    c('        catch (e: SocketTimeoutException) { delay(1_000) }   // không biết server đã làm chưa', '        catch (e: SocketTimeoutException) { delay(1_000) }   // did the server do it? unknown'),
+    '    }',
+    c('    error("hết lượt thử")', '    error("out of attempts")'),
+    '}'
+  ]);
+  add('i5.key', [
+    c('val key = draft.idempotencyKey                 // sinh một lần khi bấm "Đặt lịch", lưu trong Room', 'val key = draft.idempotencyKey                 // generated once on "Book", stored in Room'),
+    'repeat(3) { attempt ->',
+    c('    try { return api.book(slot, idempotencyKey = key) }   // header Idempotency-Key', '    try { return api.book(slot, idempotencyKey = key) }   // the Idempotency-Key header'),
+    '    catch (e: SocketTimeoutException) { delay(backoffMillis(attempt)) }',
+    '}',
+    c('// server: key đã thấy → trả lại kết quả cũ, không tạo lịch mới', '// server: key already seen → return the earlier result, create nothing')
+  ]);
+  add('i5.storm', [
+    c('// sai: mọi máy chờ cùng một khoảng cố định', '// wrong: every phone waits the same fixed time'),
+    'delay(2_000)',
+    c('// tốt hơn: exponential backoff', '// better: exponential backoff'),
+    c('val cap = 1_000L shl attempt                  // 1, 2, 4, 8 giây', 'val cap = 1_000L shl attempt                  // 1, 2, 4, 8 seconds'),
+    c('delay(Random.nextLong(0, cap))                // jitter: ngẫu nhiên trong [0, cap)', 'delay(Random.nextLong(0, cap))                // jitter: random in [0, cap)')
+  ]);
   add('i4.poll', [
     c('while (isActive) {                          // kể cả khi app ở nền', 'while (isActive) {                          // even with the app in background'),
     c('    val news = api.messagesSince(lastId)    // phần lớn trả về rỗng', '    val news = api.messagesSince(lastId)    // mostly returns empty'),

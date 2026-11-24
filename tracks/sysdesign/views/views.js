@@ -27,4 +27,8 @@
   V('channel', { layout: 'pipeline', nodes: [N('channel', 'app', 0, 1.5, 'phone', 'ui'), N('channel', 'fcm', 4, 0, 'queue', 'runtime'), N('channel', 'server', 8, 1.5, 'store', 'job')],
     edges: [E('e1', 'app', 'server'), E('e2', 'fcm', 'app'), E('e3', 'server', 'fcm')],
     metrics: [T('channel', 'reqs'), T('channel', 'latency'), T('channel', 'bg')] });
+  /* I5: app → mạng → server; response đi ngược lại */
+  V('retry', { layout: 'pipeline', nodes: [N('retry', 'app', 0, 1, 'phone', 'ui'), N('retry', 'net', 4, 1, 'rail', 'signal'), N('retry', 'server', 8, 1, 'store', 'job')],
+    edges: [E('e1', 'app', 'net'), E('e2', 'net', 'server')],
+    metrics: [T('retry', 'attempts'), T('retry', 'bookings'), T('retry', 'peak')] });
 })();

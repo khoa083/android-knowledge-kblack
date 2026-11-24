@@ -209,4 +209,59 @@
         { name: 'tin của mọi kênh chỉ dùng các bên của kênh đó', run: function () { return CASES.every(function (c) { return MSGS[c].every(function (r) { return r.every(function (x) { return PARTS[c].indexOf(x[0]) >= 0 && PARTS[c].indexOf(x[1]) >= 0; }); }); }); } },
         { name: 'mỗi kênh 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { poll: 5, long: 4, ws: 6, push: 6 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
   })();
+
+  /* ================= I5: mạng không tin cậy — request mất, response mất, Idempotency-Key, bão thử lại =================
+     Theo DDIA bản 2 (ch.9 không phân biệt được; ch.12 idempotence; ch.2 retry storm, backoff), RFC 9110, bản nháp IETF Idempotency-Key 09,
+     WorkManager define-work. Thời hạn chờ, khoảng thử và giá trị jitter là minh họa (jitter cố định để mô phỏng tất định). */
+  (function () {
+    var m = 'retry', CASES = ['reqlost', 'resplost', 'key', 'storm'], KS = ['s1', 's2', 's3', 's4'];
+    var MSGS = {
+      reqlost: [[['app', 'mid', 'book', 1], ['mid', 'mid', 'lostreq', 1]], [['app', 'app', 'timeout', 0]], [['app', 'server', 'retry', 0], ['server', 'server', 'c41', 0], ['server', 'app', 'r41', 0]], [['server', 'server', 'one', 0]]],
+      resplost: [[['app', 'server', 'book', 0], ['server', 'server', 'c41', 0]], [['server', 'mid', 'lost41', 1], ['app', 'app', 'timeout', 0]], [['app', 'server', 'retry', 0], ['server', 'server', 'c42', 1], ['server', 'app', 'r42', 0]], [['server', 'server', 'two', 1]]],
+      key: [[['app', 'app', 'genkey', 0], ['app', 'server', 'bookk', 0], ['server', 'server', 'c41k', 0]], [['server', 'mid', 'lost41', 1], ['app', 'app', 'timeout', 0]], [['app', 'server', 'retryk', 0], ['server', 'server', 'seen', 0], ['server', 'app', 'same', 0]], [['server', 'server', 'one', 0]]],
+      storm: [[], [], [], []]
+    };
+    // lịch trên server sau mỗi bước: [id, key, trùng]
+    var BOOK = {
+      reqlost: [[], [], [['#41', '', 0]], [['#41', '', 0]]],
+      resplost: [[['#41', '', 0]], [['#41', '', 0]], [['#41', '', 0], ['#42', '', 1]], [['#41', '', 0], ['#42', '', 1]]],
+      key: [[['#41', 'k-7f3a', 0]], [['#41', 'k-7f3a', 0]], [['#41', 'k-7f3a', 0]], [['#41', 'k-7f3a', 0]]],
+      storm: [[], [], [], []]
+    };
+    var ATT = { reqlost: [1, 1, 2, 2], resplost: [1, 1, 2, 2], key: [1, 1, 2, 2] };
+    // bão thử lại: thời điểm gửi (giây) của 5 máy theo từng cách; 0 là lần gửi đầu cùng thất bại
+    var EVERY2 = [2, 4, 6, 8, 10, 12, 14, 16], EXP = [1, 3, 7, 15];
+    var JIT = [[0.1, 1.2, 3.9, 9.6], [0.3, 2.1, 4.6, 11.2], [0.55, 1.6, 5.3, 8.4], [0.7, 2.6, 3.1, 10.5], [0.95, 1.9, 5.6, 10.1]];
+    var SCHED = { fail: [[], [], [], [], []], fixed: [EVERY2, EVERY2, EVERY2, EVERY2, EVERY2], exp: [EXP, EXP, EXP, EXP, EXP], jitter: JIT };
+    var STORM_KIND = ['fail', 'fixed', 'exp', 'jitter'];
+    function peak(kind) { var b = {}; SCHED[kind].forEach(function (ph) { ph.forEach(function (t) { var k = Math.floor(t * 2); b[k] = (b[k] || 0) + 1; }); }); var mx = 0; for (var k in b) if (b[k] > mx) mx = b[k]; return kind === 'fail' ? 5 : mx; }
+    function sends(kind) { return 5 + SCHED[kind].reduce(function (a, ph) { return a + ph.length; }, 0); }
+    ADE.sysRetry = { MSGS: MSGS, BOOK: BOOK, SCHED: SCHED, STORM_KIND: STORM_KIND, peak: peak };
+    var LINES = { reqlost: [[3], [4], [2, 3], [3]], resplost: [[3], [4], [3], [2]], key: [[1, 3], [4], [3, 6], [6]], storm: [[1], [1, 2], [3, 4], [5]] };
+    var SNIP = { reqlost: 'i5.nokey', resplost: 'i5.nokey', key: 'i5.key', storm: 'i5.storm' };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var bad = c === 'storm' ? (i >= 1 && peak(STORM_KIND[i]) >= 4) : (MSGS[c][i].some(function (x) { return x[3] === 1; }) || BOOK[c][i].some(function (b) { return b[2] === 1; }));
+        if (c === 'storm' && i === 0) bad = false;
+        var type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism');
+        var nodes = c === 'storm' ? ['app', 'server'] : (i === 1 ? ['app', 'net'] : ['app', 'net', 'server']);
+        var ns = {}; nodes.forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var met = c === 'storm' ? { attempts: sends(STORM_KIND[i]), bookings: 0, peak: peak(STORM_KIND[i]) } : { attempts: ATT[c][i], bookings: BOOK[c][i].length, peak: 1 };
+        var o = S(m, c + '.' + k, { type: type, activeNodes: nodes, nodeStates: ns, metrics: met,
+          codeHighlight: { snippet: SNIP[c], lines: LINES[c][i] },
+          movingSignals: [{ edge: i === 1 && c !== 'storm' ? 'e2' : 'e1', tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : 'run'), subject: nodes[0] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'resplost' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'response mất + thử lại không key: hai lịch; có key: một lịch', run: function () { return BOOK.resplost[3].length === 2 && BOOK.key[3].length === 1 && BOOK.reqlost[3].length === 1; } },
+        { name: 'bão thử lại: cố định và exponential đỉnh 5, có jitter đỉnh 3', run: function () { return peak('fixed') === 5 && peak('exp') === 5 && peak('jitter') === 3; } },
+        { name: 'jitter đầy đủ: mỗi khoảng chờ nằm trong [0, 2^n) giây', run: function () { return JIT.every(function (ph) { var prev = 0; return ph.every(function (t, n) { var d = t - prev; prev = t; return d >= 0 && d < Math.pow(2, n); }); }); } },
+        { name: 'mỗi tình huống 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { reqlost: 7, resplost: 7, key: 6, storm: 5 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
+  })();
 })();
