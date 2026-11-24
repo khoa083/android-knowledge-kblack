@@ -1,0 +1,187 @@
+# Thiết kế hệ thống phía mobile · I2: tiến trình, bộ nhớ và cái chết của process (Phần 1)
+# Nguồn: developer.android.com (Processes and app lifecycle, Activity lifecycle, Memory overview, Save UI states,
+# Get a result from an activity, ComponentCallbacks2, adb), source.android.com (lmkd); OS Concepts bản 10 (3.3.2.1, 9.5.3) là nguồn phụ.
+# Đọc 2026-11-24. Trần: 8 mục, mục cơ chế ≤ 4 khối.
+
+SEC_ORDER = {'i2': ['hook', 'ladder', 'lmk', 'death', 'survive', 'bugs', 'ex', 'honest']}
+
+
+def add(a):
+    def B(ch, sec, n, field, vi, en=None):
+        a('%s.sec.%s.b.%02d.%s' % (ch, sec, n, field), vi, vi if en is None else en)
+
+    a('preset.process', 'Thiết kế hệ thống · process bị giết khi mở camera', 'System design · the process killed while the camera is open')
+    m = lambda k, vi, en=None: a('m.process.' + k, vi, en)
+    m('title', 'Form trong ViewModel, hay form trong saved state', 'The form in a ViewModel, or the form in saved state')
+    m('overview', 'Người dùng điền form đặt lịch trong app Hẹn Khám rồi mở Camera để chụp thẻ bảo hiểm. Camera cần nhiều RAM, nên hệ thống giết process của app đang nằm ở nền. Hai cách giữ form: chỉ trong ViewModel; hoặc ghi id bác sĩ, ghi chú và Uri của ảnh vào SavedStateHandle.',
+      'A user fills in the booking form in ClinicBook, then opens the Camera to photograph an insurance card. The camera needs a lot of RAM, so the system kills the app\'s process while it sits in the background. Two ways to keep the form: only in a ViewModel; or write the doctor id, the note and the photo Uri into SavedStateHandle.')
+    m('wrapup', 'Hệ thống không giết một màn hình, nó giết cả process, và ViewModel nằm trong process đó. Quay lại là một process mới. Thứ còn lại là bản sao saved state mà hệ thống giữ ngoài process, và những gì đã ghi xuống đĩa. Vì vậy: thứ nhỏ người dùng vừa nhập vào saved state, thứ lớn hay cần giữ lâu vào lưu trữ bền, còn ViewModel chỉ để hiện cho nhanh.',
+      'The system does not kill a screen, it kills the whole process, and the ViewModel lives in that process. Coming back means a new process. What remains is the saved-state copy the system keeps outside the process, and whatever was written to disk. So: small things the user just entered go into saved state, large or long-lived things go into durable storage, and the ViewModel is only there to show things fast.')
+    m('simp.1', 'RAM 4 GB và các khối MB là số minh họa. Ai bị giết trước trong nhóm cached là chi tiết cài đặt của nền tảng; mô phỏng chỉ cho thấy app nằm trong nhóm đó.', 'The 4 GB of RAM and the MB blocks are illustrative. Which cached process dies first is a platform implementation detail; the simulation only shows that the app is in that group.')
+    m('simp.2', 'Bậc process theo "Processes and app lifecycle"; lmkd theo source.android.com; ba chỗ giữ trạng thái theo "Save UI states"; chuyện camera theo "Get a result from an activity". Đọc ngày 2026-11-24.', 'Process levels follow "Processes and app lifecycle"; lmkd follows source.android.com; the three places to keep state follow "Save UI states"; the camera case follows "Get a result from an activity". Read on 2026-11-24.')
+    m('ctl.hint', 'Đổi chỗ giữ form rồi đi lại; nhìn chip Hẹn Khám tụt bậc, thanh RAM, và bảng "Còn lại gì" ở bước 4.', 'Switch where the form is kept and walk again; watch the ClinicBook chip drop levels, the RAM bar, and the "What remains" table at step 4.')
+    m('ctl.case', 'Form được giữ ở', 'The form is kept in')
+    for k, vi, en in [('vm', 'chỉ ViewModel', 'a ViewModel only'), ('saved', 'SavedStateHandle', 'SavedStateHandle')]:
+        m('ctl.case.' + k, vi, en)
+    m('diagramTitle', 'App, Camera, lmkd, bản sao saved state', 'App, Camera, lmkd, saved-state copy')
+    m('diagramDesc', 'App mở Camera; Camera làm RAM thiếu; lmkd giết process của app; bản sao saved state nằm ngoài process', 'The app opens the Camera; the Camera makes RAM run low; lmkd kills the app\'s process; the saved-state copy lives outside the process')
+    for k, vi, en in [('app', 'Hẹn Khám', 'ClinicBook'), ('camera', 'App Camera', 'Camera app'), ('lmkd', 'lmkd của hệ thống', 'System lmkd'), ('store', 'Bản sao saved state', 'Saved-state copy')]:
+        m('n.' + k, vi, en)
+    m('met.fields', 'Ô của form còn dữ liệu', 'Form fields still filled'); m('met.free', 'RAM trống (MB, minh họa)', 'Free RAM (MB, illustrative)'); m('met.starts', 'Số lần process khởi động', 'Process starts')
+    a('cap.process', 'App bên trái mở Camera; Camera làm thiếu RAM nên lmkd giết app; bản sao saved state (dưới) nằm ngoài process của app.', 'The app on the left opens the Camera; the Camera makes RAM run low, so lmkd kills the app; the saved-state copy (bottom) lives outside the app\'s process.')
+    S = [
+        ('vm', 's1', 'Điền form: chọn bác sĩ, gõ ghi chú', 'Fill in the form: pick a doctor, type a note',
+         'App ở foreground, Activity đang Resumed. Bác sĩ đã chọn và ghi chú nằm trong ViewModel, tức là trong bộ nhớ của process.', 'The app is in the foreground, the Activity is Resumed. The chosen doctor and the note live in the ViewModel, that is, in the process\'s memory.'),
+        ('vm', 's2', 'Bấm "Chụp thẻ bảo hiểm": Camera mở ra', 'Tap "Photograph insurance card": the Camera opens',
+         'App bị che hẳn, Activity sang Stopped, process tụt xuống nhóm cached. Hệ thống gọi onTrimMemory với mức UI_HIDDEN. Camera vào foreground và chiếm thêm RAM.', 'The app is fully covered, the Activity goes to Stopped, the process drops to the cached group. The system calls onTrimMemory with UI_HIDDEN. The Camera takes the foreground and more RAM.'),
+        ('vm', 's3', 'Camera cần thêm RAM: lmkd giết các process cached, có cả app', 'The Camera needs more RAM: lmkd kills cached processes, the app among them',
+         'Hệ thống không giết riêng một Activity; nó giết cả process. onDestroy() không chắc được gọi. ViewModel, singleton, luồng đang chạy đều mất cùng lúc.', 'The system does not kill a single Activity; it kills the process. onDestroy() is not guaranteed to run. The ViewModel, singletons and running threads all go at once.'),
+        ('vm', 's4', 'Chụp xong, quay lại: form trống, ảnh không được gắn', 'Photo taken, back to the app: the form is empty, the photo is not attached',
+         'Hệ thống tạo process mới và dựng lại Activity. ViewModel mới rỗng: không bác sĩ, không ghi chú, photoUri là null. Tệp ảnh Camera đã ghi vẫn nằm trên đĩa, nhưng app không còn biết nó ở đâu.', 'The system starts a new process and recreates the Activity. The new ViewModel is empty: no doctor, no note, photoUri is null. The photo file the Camera wrote is still on disk, but the app no longer knows where it is.'),
+        ('saved', 's1', 'Điền form; mỗi thay đổi ghi vào SavedStateHandle', 'Fill in the form; every change goes into SavedStateHandle',
+         'Chỉ ghi dữ liệu nhỏ: id bác sĩ, chuỗi ghi chú. Danh sách bác sĩ đầy đủ thì tải lại từ database hay mạng khi cần.', 'Only small data is written: the doctor id and the note string. The full list of doctors is loaded again from the database or network when needed.'),
+        ('saved', 's2', 'Mở Camera; lúc onStop, saved state được sao ra ngoài process', 'Open the Camera; at onStop, saved state is copied out of the process',
+         'Saved state chỉ được lưu khi Activity bị stop. Hệ thống giữ một bản sao đã tuần tự hóa ở vùng nhớ ngoài process của app, gồm cả Uri của tệp ảnh sắp chụp.', 'Saved state is only saved when the Activity stops. The system keeps a serialized copy in memory outside the app\'s process, including the Uri of the photo file about to be taken.'),
+        ('saved', 's3', 'lmkd giết process; bản sao saved state vẫn còn', 'lmkd kills the process; the saved-state copy remains',
+         'ViewModel vẫn mất như cách kia. Nhưng bản sao không nằm trong process của app, nên không mất theo.', 'The ViewModel is lost just as before. But the copy does not live in the app\'s process, so it is not lost with it.'),
+        ('saved', 's4', 'Quay lại: form như lúc đi, ảnh được gắn vào', 'Back to the app: the form is as it was, the photo is attached',
+         'Process mới, Activity mới, ViewModel mới nhận SavedStateHandle đã khôi phục. Callback của registerForActivityResult được đăng ký lại lúc tạo Activity nên nhận được kết quả chụp.', 'A new process, a new Activity, a new ViewModel that receives the restored SavedStateHandle. The registerForActivityResult callback is registered again when the Activity is created, so it receives the photo result.'),
+    ]
+    for case, k, tv, te, xv, xe in S:
+        sid = case + '.' + k
+        m('s.%s.title' % sid, tv, te); m('s.%s.explain' % sid, xv, xe); m('ev.' + sid, tv, te)
+    for k, vi, en in [
+        ('try', 'Đi hết bốn bước của mỗi cách; để ý chip Hẹn Khám ở bảng bậc và bảng "Còn lại gì".', 'Walk all four steps of each approach; watch the ClinicBook chip in the level table and the "What remains" table.'),
+        ('vm.s2', 'Processes and app lifecycle: ở nhóm cached, app nên dừng mọi việc; từ Android 13, process cached có thể không được cấp thời gian chạy. [[src:ax-process-lifecycle]]', 'Processes and app lifecycle: in the cached group an app should stop all work; from Android 13 a cached process may get little or no time to run. [[src:ax-process-lifecycle]]'),
+        ('vm.s3', 'Activity lifecycle: hệ thống không bao giờ giết trực tiếp một Activity để lấy bộ nhớ; nó giết process chứa Activity. [[src:ax-activity-lifecycle]]', 'Activity lifecycle: the system never kills an activity directly to free memory; it kills the process that holds it. [[src:ax-activity-lifecycle]]'),
+        ('vm.s4', 'Save UI states: khác saved state, ViewModel bị hủy khi process bị hệ thống giết. [[src:ax-saving-states]]', 'Save UI states: unlike saved state, a ViewModel is destroyed when the system kills the process. [[src:ax-saving-states]]'),
+        ('saved.s2', 'Save UI states: API saved state chỉ lưu những gì đã ghi vào lúc Activity bị stop; Android giữ bản sao đã tuần tự hóa ngoài process. [[src:ax-saving-states]]', 'Save UI states: the saved-state APIs only save what was written by the time the Activity stops; Android keeps a serialized copy outside the process. [[src:ax-saving-states]]'),
+        ('saved.s3', 'Get a result from an activity: với tác vụ tốn bộ nhớ như camera, việc process và Activity của bạn bị hủy là gần như chắc chắn. [[src:ax-activity-result]]', 'Get a result from an activity: with memory-hungry work such as the camera, your process and activity being destroyed is almost certain. [[src:ax-activity-result]]'),
+        ('saved.s4', 'Get a result from an activity: callback phải được đăng ký vô điều kiện mỗi lần Activity được tạo, kể cả khi việc mở Camera chỉ xảy ra khi người dùng bấm. [[src:ax-activity-result]]', 'Get a result from an activity: the callback must be registered unconditionally every time the activity is created, even if opening the Camera only happens on a tap. [[src:ax-activity-result]]')]:
+        m('co.' + k, vi, en)
+
+    z = lambda k, vi, en=None: a('vz.' + k, vi, en)
+    z('tab.pr', 'Bậc, RAM, còn lại gì', 'Levels, RAM, what remains')
+    z('pr.cap', 'Bậc quan trọng của process, quan trọng nhất ở trên. Khi thiếu RAM, hệ thống giết từ dưới lên.', 'Process importance levels, most important at the top. When RAM runs low, the system kills from the bottom up.')
+    for k, vi, en in [('lv', 'Bậc', 'Level'), ('ex', 'Ví dụ trong tài liệu', 'Examples from the docs'), ('now', 'Đang ở đây', 'Here now')]:
+        z('pr.col.' + k, vi, en)
+    for k, n, e, nv, ne in [
+        ('fg', 'Foreground', 'Foreground', 'Activity đang Resumed; onReceive() đang chạy', 'Resumed activity; onReceive() running'),
+        ('vis', 'Visible', 'Visible', 'Activity bị hộp thoại che; foreground service', 'Activity under a dialog; foreground service'),
+        ('svc', 'Service', 'Service', 'Service khởi động bằng startService()', 'Service started with startService()'),
+        ('cached', 'Cached', 'Cached', 'Activity đã onStop(); app nên dừng mọi việc', 'Activity after onStop(); app should stop all work'),
+        ('gone', 'Đã bị giết', 'Killed', 'Không còn process; chỉ còn những gì nằm ngoài nó', 'No process left; only what lives outside it remains')]:
+        z('pr.lv.' + k, n, e); z('pr.ex.' + k, nv, ne)
+    z('pr.chip.app', 'Hẹn Khám', 'ClinicBook'); z('pr.chip.app2', 'Hẹn Khám (process mới)', 'ClinicBook (new process)'); z('pr.chip.cam', 'Camera', 'Camera')
+    z('pr.mcap', 'RAM của máy (4 GB, số minh họa).', 'The phone\'s RAM (4 GB, illustrative numbers).')
+    z('pr.mem.aria', 'Thanh RAM: hệ thống {sys} MB, Camera {cam} MB, app khác {oth} MB, Hẹn Khám {our} MB, trống {free} MB', 'RAM bar: system {sys} MB, Camera {cam} MB, other apps {oth} MB, ClinicBook {our} MB, free {free} MB')
+    for k, vi, en in [('sys', 'hệ thống', 'system'), ('cam', 'app Camera', 'Camera app'), ('oth', 'app khác ở nền', 'other background apps'), ('our', 'Hẹn Khám', 'ClinicBook'), ('free', 'trống', 'free')]:
+        z('pr.m.' + k, vi + ' {n} MB', en + ' {n} MB')
+    z('pr.scap', 'Còn lại gì: ba chỗ có thể giữ form.', 'What remains: three places that could hold the form.')
+    for k, vi, en in [('where', 'Chỗ giữ', 'Where'), ('holds', 'Đang giữ', 'Holds'), ('st', 'Lúc này', 'Right now')]:
+        z('pr.scol.' + k, vi, en)
+    for k, vi, en in [('vm', 'ViewModel (trong process)', 'ViewModel (inside the process)'), ('saved', 'Bản sao saved state (ngoài process)', 'Saved-state copy (outside the process)'), ('disk', 'Tệp ảnh trên đĩa', 'Photo file on disk')]:
+        z('pr.w.' + k, vi, en)
+    for k, vi, en in [('form', 'bác sĩ, ghi chú, photoUri', 'doctor, note, photoUri'), ('none', 'không gì', 'nothing'), ('ids', 'ba khóa doctorId, note, photoUri', 'three keys: doctorId, note, photoUri'), ('photo', 'ảnh Camera đã chụp', 'the photo the Camera took')]:
+        z('pr.h.' + k, vi, en)
+    for k, vi, en in [('live', 'còn', 'alive'), ('lost', 'mất cùng process', 'lost with the process'), ('empty', 'mới, rỗng', 'new, empty'), ('na', 'không dùng', 'not used'),
+                      ('copied', 'đã sao ra lúc onStop', 'copied at onStop'), ('kept', 'còn nguyên', 'intact'), ('restored', 'đã khôi phục', 'restored'), ('refilled', 'mới, nạp lại từ saved state', 'new, refilled from saved state'),
+                      ('nofile', 'chưa có', 'not yet'), ('writing', 'Camera đang ghi', 'Camera is writing'), ('orphan', 'còn, nhưng không ai biết Uri', 'there, but nobody knows the Uri'), ('attached', 'gắn vào form', 'attached to the form'),
+                      ('pending', 'chờ, sẽ đọc lại', 'waiting, will be read again')]:
+        z('pr.st.' + k, vi, en)
+    z('pr.legend', 'Chip viền cam: app của mình. Ô gạch đỏ: dữ liệu đã mất hay bị bỏ rơi.', 'Orange-outlined chip: our app. Red hatched: data lost or orphaned.')
+
+    C = 'i2'
+    a(C + '.title', 'Tiến trình, bộ nhớ và cái chết của process', 'Processes, memory and process death')
+    a(C + '.essence', 'Android xếp process theo bậc quan trọng: foreground, visible, service, cached. Khi thiếu RAM, điện thoại không swap mà giết process, bắt đầu từ cached; app vừa bị che đã ở nhóm đó.\nHệ thống giết cả process, không giết riêng một màn hình: ViewModel, singleton, luồng đang chạy mất cùng lúc, và onDestroy() không chắc được gọi.\nCái còn lại là bản sao saved state hệ thống giữ ngoài process và những gì đã ghi xuống đĩa. Thứ nhỏ người dùng vừa nhập vào saved state; thứ lớn hay cần giữ lâu vào lưu trữ bền.',
+      'Android ranks processes by importance: foreground, visible, service, cached. When RAM runs low, a phone does not swap; it kills processes, starting with cached ones, and an app that was just covered is already in that group.\nThe system kills the whole process, not a single screen: the ViewModel, singletons and running threads go at once, and onDestroy() is not guaranteed.\nWhat remains is the saved-state copy the system keeps outside the process and whatever is on disk. Small things the user just entered go into saved state; large or long-lived things go into durable storage.')
+    a(C + '.goal.g1', 'Đã thấy process bị giết', 'Saw the process being killed')
+    a(C + '.goal.g2', 'Đã thấy lúc quay lại', 'Saw what happens on return')
+    a(C + '.sim.sysdesign.process', 'form trong ViewModel hay trong saved state', 'the form in a ViewModel or in saved state')
+
+    S_ = 'hook'
+    a(C + '.sec.%s.title' % S_, 'Đoán trước khi đọc', 'Predict before reading')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'predict', 'Người dùng điền form đặt lịch, bấm "Chụp thẻ bảo hiểm". Camera mở, chụp xong, quay lại: form trống trơn. Trên máy của bạn thì chưa bao giờ bị. Chuyện gì đã xảy ra, và vì sao máy bạn không gặp?',
+      'A user fills in the booking form and taps "Photograph insurance card". The Camera opens, the photo is taken, back to the app: the form is blank. It never happens on your phone. What happened, and why not on yours?')
+    B(C, S_, 1, 'ans', 'Trong lúc Camera chạy, hệ thống thiếu RAM và giết process của app, lúc đó đang nằm ở nhóm cached. Quay lại là một process mới với một ViewModel mới, rỗng. Máy dev thường nhiều RAM và ít app chạy nền nên ít khi bị giết. Mô phỏng ngay dưới cho thấy từng bước. [[src:ax-activity-result]]',
+      'While the Camera ran, the system ran low on RAM and killed the app\'s process, which was in the cached group. Coming back is a new process with a new, empty ViewModel. Developer phones usually have plenty of RAM and few background apps, so it rarely happens. The simulation just below shows each step. [[src:ax-activity-result]]')
+
+    S_ = 'ladder'
+    a(C + '.sec.%s.title' % S_, 'Bậc quan trọng của process', 'Process importance levels')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'Android xếp process theo bốn bậc, từ quan trọng nhất. Foreground: có Activity đang Resumed mà người dùng tương tác, hoặc BroadcastReceiver đang chạy onReceive(), hoặc Service đang chạy onCreate(), onStart(), onDestroy(). Visible: Activity thấy được mà không có focus, ví dụ bị hộp thoại che; foreground service; dịch vụ người dùng thấy như hình nền động hay bàn phím. Service: Service khởi động bằng startService(). Cached: không cần ngay lúc này, thường giữ Activity đã onStop(). Khi cần bộ nhớ, hệ thống giết cached trước; foreground chỉ bị giết như phương án cuối cùng. [[src:ax-process-lifecycle]]',
+      'Android ranks processes in four levels, most important first. Foreground: it has a Resumed activity the user is interacting with, or a BroadcastReceiver running onReceive(), or a Service running onCreate(), onStart() or onDestroy(). Visible: an activity that is visible without focus, for example under a dialog; a foreground service; a user-visible service such as a live wallpaper or a keyboard. Service: a Service started with startService(). Cached: not needed right now, often holding activities after onStop(). When memory is needed, the system kills cached processes first; foreground ones only as a last resort. [[src:ax-process-lifecycle]]')
+    B(C, S_, 2, 'p', 'Thêm hai quy tắc. Nếu process A bind vào một Service (với BIND_AUTO_CREATE) hay dùng ContentProvider ở process B, thì B quan trọng ít nhất bằng A. Service chạy lâu (khoảng 30 phút trở lên) có thể bị hạ bậc xuống cached; việc dài nên dùng foreground service hay WorkManager. Thứ tự bên trong danh sách cached là chi tiết cài đặt của nền tảng. [[src:ax-process-lifecycle]]',
+      'Two more rules. If process A binds to a Service (with BIND_AUTO_CREATE) or uses a ContentProvider in process B, then B is at least as important as A. A long-running Service (around 30 minutes or more) may be demoted to cached; long work belongs in a foreground service or WorkManager. The order inside the cached list is a platform implementation detail. [[src:ax-process-lifecycle]]')
+    B(C, S_, 3, 'note', 'OS Concepts (bản 10, mục 3.3.2.1) mô tả cùng ý bằng năm bậc: foreground, visible, service, background, empty. Tài liệu Android hiện tại gộp hai bậc cuối thành cached. Hai nguồn khác cách chia thì site theo tài liệu chính thức. [[src:book-osc]] [[src:ax-process-lifecycle]]',
+      'OS Concepts (10th edition, section 3.3.2.1) describes the same idea with five levels: foreground, visible, service, background, empty. Current Android docs merge the last two into cached. Where the two sources divide things differently, the site follows the official docs. [[src:book-osc]] [[src:ax-process-lifecycle]]')
+    B(C, S_, 3, 'kind', 'source')
+
+    S_ = 'lmk'
+    a(C + '.sec.%s.title' % S_, 'Thiếu RAM: không swap, mà giết process', 'Low on RAM: no swapping, killing instead')
+    a(C + '.sec.%s.badge' % S_, 'version')
+    B(C, S_, 1, 'p', 'OS Concepts (mục 9.5.3) giải thích vì sao hệ điều hành mobile thường không swap trang nhớ ra bộ nhớ flash: flash ít chỗ hơn, chịu được ít lần ghi, và chép qua lại với RAM thì chậm. Thay vào đó, khi thiếu bộ nhớ, Android giết process. Tài liệu Android nói rõ hơn: vùng nhớ app đã sửa luôn nằm trong RAM; chỉ phần không sửa, như mã chương trình, mới được bỏ ra rồi đọc lại khi cần. [[src:book-osc]] [[src:ax-memory-overview]]',
+      'OS Concepts (section 9.5.3) explains why mobile operating systems usually do not swap pages out to flash: flash has less room, tolerates fewer writes, and moving data between it and RAM is slow. Instead, when memory runs low, Android kills processes. The Android docs are more precise: memory an app has modified always stays in RAM; only unmodified parts, such as code, can be dropped and read back later. [[src:book-osc]] [[src:ax-memory-overview]]')
+    B(C, S_, 2, 'p', 'Người ra tay là lmkd (low memory killer daemon), một tiến trình hệ thống theo dõi áp lực bộ nhớ và giết những process ít cần thiết nhất. Driver LMK trong kernel bị gỡ từ kernel 4.12; Android 9 trở lên dùng lmkd ở userspace, Android 10 trở lên đo áp lực bằng PSI (pressure stall information). Mỗi process có một điểm oom_adj; ở mức áp lực vừa, cấu hình mặc định chỉ giết process có điểm từ 800 trở lên, tức là cached và dịch vụ không thiết yếu. [[src:aosp-lmkd]]',
+      'The one who acts is lmkd (the low memory killer daemon), a system process that monitors memory pressure and kills the least essential processes. The in-kernel LMK driver was removed as of kernel 4.12; Android 9 and higher use the userspace lmkd, and Android 10 and higher measure pressure with PSI (pressure stall information). Each process has an oom_adj score; at medium pressure the default configuration only kills processes scoring 800 or more, that is, cached and non-essential services. [[src:aosp-lmkd]]')
+    B(C, S_, 3, 'p', 'App được báo qua onTrimMemory(level). Từ API 34, app chỉ còn nhận hai mức: TRIM_MEMORY_UI_HIDDEN (giao diện vừa bị ẩn, lúc tốt để nhả tài nguyên giao diện) và TRIM_MEMORY_BACKGROUND (process đã vào danh sách cached). Các mức khác và onLowMemory() không còn được gọi, và bị đánh dấu deprecated ở API 35. Trang tham chiếu dặn so sánh bằng >=, đừng so bằng giá trị chính xác. [[src:ax-trim-memory]]',
+      'The app is told through onTrimMemory(level). Since API 34 apps only receive two levels: TRIM_MEMORY_UI_HIDDEN (the UI was just hidden, a good moment to release UI resources) and TRIM_MEMORY_BACKGROUND (the process is now on the cached list). The other levels and onLowMemory() are no longer called, and are deprecated in API 35. The reference says to compare with >=, never against exact values. [[src:ax-trim-memory]]')
+    B(C, S_, 4, 'kt', 'override fun onTrimMemory(level: Int) {\n    super.onTrimMemory(level)\n    if (level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND) {\n        thumbCache.evictAll()                           // đã vào danh sách cached\n    } else if (level >= ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {\n        thumbCache.trimToSize(thumbCache.maxSize() / 2) // giao diện vừa bị ẩn\n    }\n}',
+      'override fun onTrimMemory(level: Int) {\n    super.onTrimMemory(level)\n    if (level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND) {\n        thumbCache.evictAll()                           // now on the cached list\n    } else if (level >= ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {\n        thumbCache.trimToSize(thumbCache.maxSize() / 2) // the UI was just hidden\n    }\n}')
+
+    S_ = 'death'
+    a(C + '.sec.%s.title' % S_, 'Process chết thì mất gì', 'What dies with the process')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'Hệ thống không bao giờ giết riêng một Activity để lấy bộ nhớ; nó giết cả process, kéo theo mọi thứ bên trong: ViewModel, singleton, biến tĩnh, luồng và coroutine đang chạy. onDestroy() không chắc được gọi. Khi người dùng quay lại, hệ thống tạo process mới và dựng lại Activity từ dữ liệu đã lưu, không đi lại từ màn hình đầu tiên. [[src:ax-activity-lifecycle]] [[src:ax-process-lifecycle]]',
+      'The system never kills a single activity to free memory; it kills the whole process and everything in it: the ViewModel, singletons, static fields, running threads and coroutines. onDestroy() is not guaranteed. When the user comes back, the system starts a new process and recreates the activity from saved data, without walking through the first screen again. [[src:ax-activity-lifecycle]] [[src:ax-process-lifecycle]]')
+    B(C, S_, 2, 'p', 'Lỗi kinh điển mà tài liệu nêu: BroadcastReceiver mở một luồng trong onReceive() rồi trả về. Với hệ thống, process không còn gì đang chạy nên có thể bị giết, và luồng chết theo. Cách đúng là giao việc cho JobService hay WorkManager (track Lưu dữ liệu, H7). Từ Android 13, process cached có thể không được cấp thời gian chạy cho tới khi trở lại trạng thái hoạt động. [[src:ax-process-lifecycle]]',
+      'The classic bug the docs describe: a BroadcastReceiver starts a thread in onReceive() and returns. To the system nothing is running in the process any more, so it can be killed, and the thread dies with it. The fix is to hand the work to a JobService or WorkManager (the Saving Data track, H7). Since Android 13, a cached process may get little or no time to run until it becomes active again. [[src:ax-process-lifecycle]]')
+    B(C, S_, 3, 'note', 'Thử trên máy: mở form, bấm Home, rồi chạy adb shell am kill <tên gói>. Lệnh này chỉ giết process an toàn để giết, không ảnh hưởng người dùng, gần với điều hệ thống làm khi thiếu RAM. Mở lại app từ màn Gần đây và xem form còn gì. [[src:ax-adb]]',
+      'Try it on a device: open the form, press Home, then run adb shell am kill <package>. It only kills processes that are safe to kill without hurting the user experience, close to what the system does when RAM runs low. Reopen the app from Recents and see what the form still holds. [[src:ax-adb]]')
+    B(C, S_, 3, 'kind', 'try')
+
+    S_ = 'survive'
+    a(C + '.sec.%s.title' % S_, 'Ba chỗ giữ trạng thái', 'Three places to keep state')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'Tài liệu "Save UI states" so ba lựa chọn. ViewModel: trong bộ nhớ, nhanh, giữ được đối tượng phức tạp; sống qua đổi cấu hình nhưng không qua process bị hệ thống giết. Saved state (SavedStateHandle, rememberSaveable): sống qua cả hai, nhưng chỉ cho kiểu nguyên thủy và đối tượng nhỏ như String, vì phải tuần tự hóa. Lưu trữ bền (database, DataStore): sống qua cả việc người dùng đóng hẳn màn hình, đổi lại đọc ghi chậm. Ba chỗ bổ sung cho nhau, không thay được nhau. [[src:ax-saving-states]]',
+      'The "Save UI states" guide compares three options. ViewModel: in memory, fast, fine for complex objects; it survives configuration changes but not system-initiated process death. Saved state (SavedStateHandle, rememberSaveable): survives both, but only for primitive types and small objects such as String, because it is serialized. Durable storage (a database, DataStore): survives even the user fully closing the screen, at the cost of slow reads and writes. The three complement each other; none replaces another. [[src:ax-saving-states]]')
+    B(C, S_, 2, 'p', 'Chọn theo kỳ vọng của người dùng. Đổi sang app khác hay xoay máy thì họ muốn mọi thứ còn nguyên. Vuốt app khỏi màn Gần đây, buộc dừng trong Cài đặt hay khởi động lại máy thì họ chờ một trạng thái sạch. Saved state chỉ nên giữ thứ tạm thời phụ thuộc vào thao tác: id mục đang chọn, chữ trong ô nhập, vị trí cuộn; đừng nhét bitmap hay cấu trúc lớn. [[src:ax-saving-states]]',
+      'Choose by what the user expects. Switching to another app or rotating the phone, they expect everything to stay. Swiping the app out of Recents, force-stopping it in Settings or rebooting, they expect a clean state. Saved state should only hold transient state that depends on user input: the selected item\'s id, text in a field, the scroll position; no bitmaps or large structures. [[src:ax-saving-states]]')
+    B(C, S_, 3, 'kt', 'class BookingViewModel(private val state: SavedStateHandle) : ViewModel() {\n    val doctorId = state.getStateFlow<Long?>("doctorId", null)   // chỉ một id\n    val note = state.getStateFlow("note", "")\n    fun pickDoctor(id: Long) { state["doctorId"] = id }\n    fun editNote(text: String) { state["note"] = text }\n    fun photoTarget(uri: Uri) { state["photoUri"] = uri }       // Uri, không phải ảnh\n}',
+      'class BookingViewModel(private val state: SavedStateHandle) : ViewModel() {\n    val doctorId = state.getStateFlow<Long?>("doctorId", null)   // just an id\n    val note = state.getStateFlow("note", "")\n    fun pickDoctor(id: Long) { state["doctorId"] = id }\n    fun editNote(text: String) { state["note"] = text }\n    fun photoTarget(uri: Uri) { state["photoUri"] = uri }       // the Uri, not the image\n}')
+    B(C, S_, 4, 'note', 'Với Camera, tài liệu về Activity Result nói thẳng: khi mở tác vụ tốn bộ nhớ như camera, việc process và Activity bị hủy là gần như chắc chắn. Vì vậy registerForActivityResult phải được gọi mỗi lần Activity được tạo, không theo điều kiện, và trạng thái cần để xử lý kết quả (ở đây là photoUri) phải được lưu riêng. [[src:ax-activity-result]]',
+      'For the Camera, the Activity Result guide is blunt: with memory-hungry work such as the camera, the process and activity being destroyed is almost certain. So registerForActivityResult must be called every time the activity is created, unconditionally, and the state needed to handle the result (here, photoUri) must be saved separately. [[src:ax-activity-result]]')
+    B(C, S_, 4, 'kind', 'android')
+
+    S_ = 'bugs'
+    a(C + '.sec.%s.title' % S_, 'Hai lỗi hay gặp', 'Two common bugs')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'bug', 'Thỉnh thoảng người dùng báo form đặt lịch bị xóa sau khi chụp ảnh; QA không tái hiện được.', 'Users sometimes report the booking form being wiped after taking a photo; QA cannot reproduce it.')
+    B(C, S_, 1, 'cause', 'Form chỉ nằm trong ViewModel. Máy QA nhiều RAM nên process hiếm khi bị giết trong lúc Camera chạy.', 'The form only lives in the ViewModel. QA phones have plenty of RAM, so the process is rarely killed while the Camera runs.')
+    B(C, S_, 1, 'fix', 'Ghi id và chữ người dùng nhập vào SavedStateHandle, kèm Uri của ảnh. Kiểm bằng adb shell am kill sau khi bấm Home, rồi mở lại app từ màn Gần đây.', 'Write the ids and text the user entered into SavedStateHandle, plus the photo Uri. Test with adb shell am kill after pressing Home, then reopen the app from Recents.')
+    B(C, S_, 2, 'bug', 'App crash khi quay lại sau một thời gian dài ở nền: NullPointerException ở một singleton giữ người dùng đang đăng nhập.', 'The app crashes on return after a long time in the background: a NullPointerException in a singleton holding the signed-in user.')
+    B(C, S_, 2, 'cause', 'Singleton chỉ được gán ở màn đăng nhập. Process mới không đi qua màn đó: hệ thống dựng thẳng màn hình cuối cùng người dùng thấy.', 'The singleton is only set on the sign-in screen. A new process does not pass through it: the system recreates the last screen the user saw directly.')
+    B(C, S_, 2, 'fix', 'Đọc lại người dùng từ nơi lưu bền (DataStore, track Lưu dữ liệu H3) khi cần; đừng giả định thứ tự các màn hình đã đi qua.', 'Read the user again from durable storage (DataStore, Saving Data track H3) when needed; never assume which screens were visited first.')
+
+    S_ = 'ex'
+    a(C + '.sec.%s.title' % S_, 'Bài tập', 'Exercise')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'ex', 'Màn soạn tin cho phòng khám có: chữ đang gõ, ba ảnh đính kèm đã chọn, danh sách 200 tin cũ, vị trí cuộn, và một bản nháp người dùng muốn giữ cả khi tắt hẳn app. Với mỗi thứ, chọn chỗ giữ (ViewModel, saved state hay lưu trữ bền) và giải thích vì sao.',
+      'The clinic message screen has: the text being typed, three chosen photo attachments, a list of 200 older messages, the scroll position, and a draft the user wants kept even after fully closing the app. For each, choose where to keep it (ViewModel, saved state or durable storage) and explain why.')
+    B(C, S_, 1, 'hint', 'Với mỗi thứ, hỏi hai câu: nó có lớn không, và người dùng có chờ nó còn sau khi đóng hẳn app không.', 'For each, ask two questions: is it large, and does the user expect it to remain after fully closing the app?')
+    B(C, S_, 1, 'sol', 'Chữ đang gõ: saved state (nhỏ, phụ thuộc thao tác). Ba ảnh: chỉ giữ ba Uri trong saved state; nếu bản nháp phải sống lâu, chép ảnh vào bộ nhớ riêng của app (H2). Danh sách 200 tin: ViewModel giữ để hiện nhanh, nguồn thật là database (H4); sau process death thì đọc lại. Vị trí cuộn: saved state (rememberLazyListState tự lưu). Bản nháp phải sống qua lúc đóng hẳn app: lưu trữ bền (Room hay DataStore), ghi khi người dùng ngừng gõ.',
+      'Text being typed: saved state (small, input-driven). Three photos: keep only the three Uris in saved state; if the draft must live long, copy the images into app-specific storage (H2). The 200 messages: the ViewModel holds them for fast display, the source of truth is the database (H4); after process death they are read again. Scroll position: saved state (rememberLazyListState saves it itself). The draft that must survive fully closing the app: durable storage (Room or DataStore), written when the user stops typing.')
+
+    S_ = 'honest'
+    a(C + '.sec.%s.title' % S_, 'Chương này giản lược những gì', 'What this chapter simplifies')
+    a(C + '.sec.%s.badge' % S_, 'simplified')
+    B(C, S_, 1, 'p', 'Bậc process, quy tắc khoảng 30 phút, lỗi BroadcastReceiver và Android 13 theo "Processes and app lifecycle"; lmkd và PSI theo source.android.com; onTrimMemory theo trang tham chiếu ComponentCallbacks2 (API 34–35); ba chỗ giữ trạng thái theo "Save UI states"; chuyện camera theo "Get a result from an activity"; đọc ngày 2026-11-24, diễn đạt lại. OS Concepts bản 10 (mục 3.3.2.1, 9.5.3) là nguồn phụ cho khái niệm. Sách viết rằng Android ghi trạng thái app ra flash trước khi giết; tài liệu Android hiện tại nói bản sao saved state nằm trong bộ nhớ, ngoài process của app; site theo tài liệu. RAM 4 GB, các khối MB và việc app khác bị giết trước là minh họa.',
+      'Process levels, the roughly 30-minute rule, the BroadcastReceiver bug and Android 13 follow "Processes and app lifecycle"; lmkd and PSI follow source.android.com; onTrimMemory follows the ComponentCallbacks2 reference (API 34–35); the three places to keep state follow "Save UI states"; the camera case follows "Get a result from an activity"; read on 2026-11-24, paraphrased. OS Concepts 10th edition (sections 3.3.2.1, 9.5.3) is a secondary source for the concepts. The book says Android writes app state to flash before killing; the current Android docs say the saved-state copy is kept in memory outside the app\'s process; the site follows the docs. The 4 GB of RAM, the MB blocks and other apps dying first are illustrative.')
+
+    for q, qv, qe, av, ae, wv, we in [
+        ('q1', 'Khi thiếu RAM, nhóm process nào bị giết trước?', 'When RAM runs low, which group of processes is killed first?', 'Cached.', 'Cached.', 'Foreground chỉ bị giết như phương án cuối cùng.', 'Foreground processes are only killed as a last resort.'),
+        ('q2', 'ViewModel có sống qua việc hệ thống giết process không?', 'Does a ViewModel survive the system killing the process?', 'Không. Dùng saved state cho phần nhỏ, lưu trữ bền cho phần lớn.', 'No. Use saved state for small things, durable storage for large ones.', 'ViewModel nằm trong bộ nhớ của chính process đó.', 'The ViewModel lives in that very process\'s memory.'),
+        ('q3', 'Vì sao không nên lưu bitmap vào saved state?', 'Why not put a bitmap into saved state?', 'Saved state được tuần tự hóa và chỉ dành cho dữ liệu nhỏ; hãy lưu Uri hay id.', 'Saved state is serialized and meant for small data; store a Uri or an id.', 'Ảnh nằm trên đĩa; saved state chỉ cần biết nó ở đâu.', 'The image lives on disk; saved state only needs to know where.'),
+        ('q4', 'Từ API 34, app còn nhận những mức onTrimMemory nào?', 'Since API 34, which onTrimMemory levels does an app still receive?', 'TRIM_MEMORY_UI_HIDDEN và TRIM_MEMORY_BACKGROUND.', 'TRIM_MEMORY_UI_HIDDEN and TRIM_MEMORY_BACKGROUND.', 'Các mức khác và onLowMemory() không còn được gọi.', 'The other levels and onLowMemory() are no longer called.')]:
+        a(C + '.quiz.%s.q' % q, qv, qe); a(C + '.quiz.%s.a' % q, av, ae); a(C + '.quiz.%s.why' % q, wv, we)

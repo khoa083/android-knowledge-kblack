@@ -27,4 +27,33 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('pl.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)),
       h('p', { class: 'vz-cap', text: T('pl.ecap') }), h('div', { class: 'vz-scroll' }, est), h('div', { class: 'vz-legend', text: T('pl.legend') })));
   }, { labelKey: K + 'tab.pl', icon: 'list' });
+
+  /* ---------- I2: dãy bậc process (chip của app tụt bậc), thanh RAM (SVG), bảng "còn lại gì" ---------- */
+  ADE.registerScreen('sysdesign.process', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.sysProcess, c = ctx.state.case, i = Math.max(0, idx(ctx));
+    var head = h('tr', null, ['lv', 'ex', 'now'].map(function (k) { return h('th', { text: T('pr.col.' + k) }); }));
+    var tb = h('tbody');
+    ['fg', 'vis', 'svc', 'cached', 'gone'].forEach(function (lv) {
+      var chips = [];
+      if (P.LV.app[i] === lv) chips.push(h('span', { class: 'vz-chip ' + (lv === 'gone' ? 'bad' : 'hl'), text: T(i === 3 ? 'pr.chip.app2' : 'pr.chip.app') }));
+      if (P.LV.cam[i] === lv) chips.push(h('span', { class: 'vz-chip', text: T('pr.chip.cam') }));
+      var on = chips.length > 0;
+      tb.appendChild(h('tr', null, h('th', { class: on ? null : 'dim', text: T('pr.lv.' + lv) }), h('td', { class: 'dim', text: T('pr.ex.' + lv) }), h('td', { class: on && lv === 'gone' ? 'bad' : null }, chips)));
+    });
+    var mem = P.MEM[i], W = 600, x = 0, cls = ['sys', 'cam', 'oth', 'our', 'free'], keys = ['sys', 'cam', 'oth', 'our', 'free'];
+    var svg = '<svg class="vz-mem" viewBox="0 0 ' + W + ' 30" role="img" aria-label="' + T('pr.mem.aria', { sys: mem[0], cam: mem[1], oth: mem[2], our: mem[3], free: mem[4] }).replace(/"/g, '') + '">';
+    mem.forEach(function (mb, j) { var w = mb / 4000 * W; if (w > 0) svg += '<rect class="' + cls[j] + '" x="' + x.toFixed(1) + '" y="1" width="' + w.toFixed(1) + '" height="28"/>'; x += w; });
+    svg += '</svg>';
+    var leg = h('div', { class: 'vz-legend' }, keys.map(function (k, j) { return h('span', null, h('i', { class: 'vz-sw ' + cls[j] }), T('pr.m.' + k, { n: mem[j] })); }));
+    var sb = h('tbody');
+    P.SURV[c][i].forEach(function (r) {
+      var bad = P.BAD[r[2]], ok = r[2] === 'restored' || r[2] === 'refilled' || r[2] === 'attached' || r[2] === 'kept' || r[2] === 'copied';
+      sb.appendChild(h('tr', null, h('th', { text: T('pr.w.' + r[0]) }), h('td', { class: r[1] === 'none' ? 'dim' : null, text: T('pr.h.' + r[1]) }),
+        h('td', { class: bad ? 'bad' : (r[2] === 'na' || r[2] === 'nofile' ? 'dim' : (ok ? 'ok' : null)), text: T('pr.st.' + r[2]) })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('pr.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)),
+      h('p', { class: 'vz-cap', text: T('pr.mcap') }), h('div', { html: svg }), leg,
+      h('p', { class: 'vz-cap', text: T('pr.scap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['where', 'holds', 'st'].map(function (k) { return h('th', { text: T('pr.scol.' + k) }); }))), sb)),
+      h('div', { class: 'vz-legend', text: T('pr.legend') })));
+  }, { labelKey: K + 'tab.pr', icon: 'layers' });
 })();

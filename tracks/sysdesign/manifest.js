@@ -7,10 +7,12 @@ ADE.registerTrack({
   level: 'advanced', estMinutes: 400, status: 'draft',
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
-    { id: 'i1', titleKey: 'track.sysdesign.i1.title', sims: ['sysdesign.plan'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
+    { id: 'i1', titleKey: 'track.sysdesign.i1.title', sims: ['sysdesign.plan'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'i2', titleKey: 'track.sysdesign.i2.title', sims: ['sysdesign.process'], simAfter: 'hook', bridges: ['X17'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
-    { id: 'sysdesign-plan', model: 'sysdesign.plan', titleKey: 'track.sysdesign.preset.plan' }
+    { id: 'sysdesign-plan', model: 'sysdesign.plan', titleKey: 'track.sysdesign.preset.plan' },
+    { id: 'sysdesign-process', model: 'sysdesign.process', titleKey: 'track.sysdesign.preset.process' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

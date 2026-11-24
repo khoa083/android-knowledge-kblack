@@ -2,5 +2,9 @@
 ADE.addGlossary('en', 'sysdesign', {
   "secondary-requirement": { term: "secondary requirement", def: "A requirement not visible in the screen design that the app still needs: error, empty and offline states, expired sessions, the language of notifications. Found by asking the designer and the backend before writing code.", chapter: "sysdesign/i1" },
   "back-of-envelope": { term: "back-of-the-envelope estimate", def: "A rough calculation with round numbers to see whether a design meets its requirements, such as photo storage per day. The process and assumptions matter, not precision.", chapter: "sysdesign/i1" },
-  "non-functional-requirement": { term: "non-functional requirement", def: "A requirement about quality rather than features: latency, battery, mobile data, working offline, app size.", chapter: "sysdesign/i1" }
+  "non-functional-requirement": { term: "non-functional requirement", def: "A requirement about quality rather than features: latency, battery, mobile data, working offline, app size.", chapter: "sysdesign/i1" },
+  "process-death": { term: "process death", def: "The system ends the whole app process, usually while the app is in the background and RAM runs low. Everything in the process's memory goes at once, including the ViewModel; when the user returns there is a new process.", chapter: "sysdesign/i2" },
+  "cached-process": { term: "cached process", def: "A process not currently needed, often holding activities after onStop(). It is the first group killed when memory runs low; an app in this group should stop all work.", chapter: "sysdesign/i2" },
+  "lmkd": { term: "lmkd", def: "The low memory killer daemon: a system process that monitors memory pressure and kills the least essential processes, based on each process's oom_adj score.", chapter: "sysdesign/i2" },
+  "saved-state": { term: "saved state", def: "Small data (ids, typed text) an app writes through SavedStateHandle or rememberSaveable. The system keeps a serialized copy outside the process, so it survives both configuration changes and process death.", chapter: "sysdesign/i2" }
 });

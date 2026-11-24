@@ -30,5 +30,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X15.title': 'by viewModels() và DI',
   'shared.bridge.X15.summary': 'by viewModels() là một delegate (ViewModelLazy) lấy ViewModel từ ViewModelStore; với Hilt, ViewModel nhận phụ thuộc qua @Inject constructor. Chương chủ sở hữu giảng delegate.',
   'shared.bridge.X16.title': 'Offline-first: vai trò và cơ chế',
-  'shared.bridge.X16.summary': 'Chương kiến trúc dạy vai trò: repository đọc từ database làm nguồn sự thật và ghi máy trước. Chương chủ sở hữu dạy cơ chế: cột trạng thái chờ gửi trong Room và WorkManager rút hàng chờ khi có mạng, sống qua cả lần tắt app.'
+  'shared.bridge.X16.summary': 'Chương kiến trúc dạy vai trò: repository đọc từ database làm nguồn sự thật và ghi máy trước. Chương chủ sở hữu dạy cơ chế: cột trạng thái chờ gửi trong Room và WorkManager rút hàng chờ khi có mạng, sống qua cả lần tắt app.',
+  'shared.bridge.X17.title': 'Process bị giết và trạng thái còn lại',
+  'shared.bridge.X17.summary': 'Chương Compose dạy công cụ: rememberSaveable và SavedStateHandle, cách lưu kiểu tùy biến, giới hạn của Bundle. Chương chủ sở hữu dạy vì sao cần: hệ thống giết cả process khi thiếu RAM, ViewModel mất theo, chỉ còn bản sao saved state ngoài process và dữ liệu trên đĩa.'
 });

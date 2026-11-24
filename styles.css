@@ -773,6 +773,20 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 /* cây thư mục trong bảng (track H, H9) */
 .vz-tree-p { white-space: pre; }
 .vz-tree-p.dir { font-weight: 700; color: var(--ink-2); }
+/* thanh RAM (track I, I2): khối theo MB, chú thích bên dưới */
+.vz-mem { display: block; width: 100%; height: auto; }
+.vz-mem rect { stroke: var(--line-strong); stroke-width: 1; }
+.vz-mem .sys, .vz-sw.sys { fill: var(--ink-3); background: var(--ink-3); }
+.vz-mem .cam, .vz-sw.cam { fill: var(--tok-thread); background: var(--tok-thread); }
+.vz-mem .oth, .vz-sw.oth { fill: var(--tok-state); background: var(--tok-state); }
+.vz-mem .our, .vz-sw.our { fill: var(--brand); background: var(--brand); }
+.vz-mem .free { fill: none; stroke-dasharray: 4 3; }
+.vz-mem .sys, .vz-mem .oth { fill-opacity: .3; }
+.vz-mem .cam, .vz-mem .our { fill-opacity: .6; }
+.vz-sw { display: inline-block; width: 12px; height: 12px; margin-right: 5px; vertical-align: -2px; border: 1px solid var(--line-strong); }
+.vz-sw.sys, .vz-sw.oth { opacity: .4; }
+.vz-sw.cam, .vz-sw.our { opacity: .7; }
+.vz-sw.free { border-style: dashed; background: none; }
 @media (max-width: 560px) {
   .vz-mig { flex-direction: column; min-width: 0; }
   .vz-mig-e { grid-auto-flow: column; justify-content: start; gap: 8px; min-height: 36px; }

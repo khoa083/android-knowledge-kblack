@@ -15,4 +15,8 @@
   V('plan', { layout: 'pipeline', nodes: [N('plan', 'brief', 0, 1.5, 'source', 'ui'), N('plan', 'designer', 4, 0, 'eye', 'state'), N('plan', 'backend', 4, 3, 'job', 'runtime'), N('plan', 'plan', 8, 1.5, 'list', 'job')],
     edges: [E('e1', 'brief', 'designer'), E('e2', 'brief', 'backend'), E('e3', 'designer', 'plan'), E('e4', 'backend', 'plan')],
     metrics: [T('plan', 'asked'), T('plan', 'late'), T('plan', 'data')] });
+  /* I2: app → Camera; Camera làm thiếu RAM → lmkd; lmkd giết app; app ↔ bản sao saved state */
+  V('process', { layout: 'pipeline', nodes: [N('process', 'app', 0, 1.5, 'phone', 'ui'), N('process', 'camera', 4, 0, 'eye', 'runtime'), N('process', 'lmkd', 8, 1.5, 'cross', 'job'), N('process', 'store', 4, 3, 'store', 'state')],
+    edges: [E('e1', 'app', 'camera'), E('e2', 'camera', 'lmkd'), E('e3', 'lmkd', 'app'), E('e4', 'app', 'store')],
+    metrics: [T('process', 'fields'), T('process', 'free'), T('process', 'starts')] });
 })();

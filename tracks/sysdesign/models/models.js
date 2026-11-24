@@ -62,4 +62,57 @@
         { name: 'ước lượng: thu nhỏ ảnh trước khi gửi làm dữ liệu mỗi tháng giảm hơn 10 lần', run: function () { return mbMonth('mockup') > 10 * mbMonth('asked'); } },
         { name: 'mỗi cách có 4 bước', run: function () { return CASES.every(function (c) { return steps({ case: c }).length === 4; }); } }] });
   })();
+
+  /* ================= I2: tiến trình, bộ nhớ và cái chết của process — form trong ViewModel so với saved state =================
+     Theo developer.android.com: Processes and app lifecycle (bậc foreground, visible, service, cached; giết cached trước),
+     Activity lifecycle (hệ thống giết process, không giết Activity), Save UI states (ViewModel mất khi process bị giết; saved state
+     lưu lúc onStop, bản sao ngoài process), Get a result from an activity (camera: process gần như chắc chắn bị hủy),
+     ComponentCallbacks2 (từ API 34 chỉ còn UI_HIDDEN, BACKGROUND); source.android.com lmkd. Số MB là minh họa (RAM 4 GB). */
+  (function () {
+    var m = 'process', CASES = ['vm', 'saved'], KS = ['s1', 's2', 's3', 's4'];
+    // bậc của app và Camera ở mỗi bước ('' = không có process)
+    var LV = { app: ['fg', 'cached', 'gone', 'fg'], cam: ['', 'fg', 'fg', 'cached'] };
+    // RAM (MB): hệ thống, Camera, app khác ở nền, Hẹn Khám, trống — tổng 4000
+    var MEM = [[1500, 0, 1400, 300, 800], [1500, 900, 1000, 300, 300], [1500, 1500, 600, 0, 400], [1500, 1500, 600, 300, 100]];
+    // còn lại gì: [hàng, đang giữ, trạng thái] theo cách và bước
+    var SURV = {
+      vm: [[['vm', 'form', 'live'], ['saved', 'none', 'na'], ['disk', 'photo', 'nofile']],
+           [['vm', 'form', 'live'], ['saved', 'none', 'na'], ['disk', 'photo', 'writing']],
+           [['vm', 'form', 'lost'], ['saved', 'none', 'na'], ['disk', 'photo', 'kept']],
+           [['vm', 'form', 'empty'], ['saved', 'none', 'na'], ['disk', 'photo', 'orphan']]],
+      saved: [[['vm', 'form', 'live'], ['saved', 'ids', 'live'], ['disk', 'photo', 'nofile']],
+              [['vm', 'form', 'live'], ['saved', 'ids', 'copied'], ['disk', 'photo', 'writing']],
+              [['vm', 'form', 'lost'], ['saved', 'ids', 'kept'], ['disk', 'photo', 'pending']],
+              [['vm', 'form', 'refilled'], ['saved', 'ids', 'restored'], ['disk', 'photo', 'attached']]]
+    };
+    var BAD = { lost: 1, empty: 1, orphan: 1 };
+    function fields(c, i) { if (i === 3) return c === 'vm' ? 0 : 3; return i === 2 ? (c === 'vm' ? 0 : 2) : 2; }
+    ADE.sysProcess = { LV: LV, MEM: MEM, SURV: SURV, BAD: BAD };
+    var LINES = { vm: [[2, 3], [6, 7], [8], [4, 9]], saved: [[2, 3], [4, 6], [7], [8, 9]] };
+    var NODES = [['app'], ['app', 'camera'], ['lmkd', 'app'], ['app', 'store']];
+    var EDGE = ['', 'e1', 'e3', 'e4'];
+    function steps(s) {
+      return KS.map(function (k, i) {
+        var bad = s.case === 'vm' && i === 3, type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism');
+        var ns = { app: K + 'st.' + (i === 2 ? 'broken' : (bad ? 'surprise' : 'done')) };
+        if (i >= 1) ns.camera = K + 'st.done';
+        if (i >= 2) ns.lmkd = K + 'st.done';
+        ns.store = K + 'st.' + (s.case === 'vm' ? 'skipped' : 'done');
+        var o = S(m, s.case + '.' + k, { type: type, activeNodes: NODES[i], nodeStates: ns,
+          metrics: { fields: fields(s.case, i), free: MEM[i][4], starts: i === 3 ? 2 : 1 },
+          codeHighlight: { snippet: 'i2.' + s.case, lines: LINES[s.case][i] },
+          movingSignals: EDGE[i] ? [{ edge: EDGE[i], tok: i === 2 || bad ? 'signal' : 'state' }] : [],
+          logEvents: [{ t: i, kind: i === 2 ? 'exception' : (bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'write' : 'observe'))), subject: NODES[i][0] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'vm' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'RAM mỗi bước cộng lại đúng 4000 MB', run: function () { return MEM.every(function (r) { return r.reduce(function (x, y) { return x + y; }, 0) === 4000; }); } },
+        { name: 'process bị giết ở bước 3: không còn RAM của app, ViewModel mất ở cả hai cách', run: function () { return MEM[2][3] === 0 && LV.app[2] === 'gone' && CASES.every(function (c) { return SURV[c][2][0][2] === 'lost'; }); } },
+        { name: 'quay lại: chỉ ViewModel thì form rỗng và ảnh mồ côi; saved state thì đủ 3 ô', run: function () { return fields('vm', 3) === 0 && SURV.vm[3][2][2] === 'orphan' && fields('saved', 3) === 3 && SURV.saved[3][1][2] === 'restored'; } },
+        { name: 'mỗi cách có 4 bước, dòng mã nằm trong đoạn mã', run: function () { return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (n) { return n >= 1 && n <= (c === 'vm' ? 9 : 10); }); }); }); } }] });
+  })();
 })();
