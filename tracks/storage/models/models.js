@@ -363,4 +363,47 @@
         { name: 'từ Android 10, thêm ảnh của chính app qua MediaStore không cần quyền; Android 9 thì cần', run: function () { return CELL.a9.mediastore === 'perm' && ['a10', 'a11', 'a13'].every(function (r) { return CELL[r].mediastore === 'ok'; }); } },
         { name: 'đường dẫn tệp chỉ hỏng ở Android 10 (scoped storage, chưa có File trên shared storage)', run: function () { return ROWS.filter(function (r) { return BAD[CELL[r].path]; }).join() === 'a10'; } }] });
   })();
+
+  /* ================= H9: đổi sang máy mới — sao lưu mặc định, có quy tắc loại trừ, tắt sao lưu =================
+     Theo Back up user data with Auto Backup (từ Android 6.0; mặc định sao lưu SharedPreferences, filesDir, getDatabasePath, getExternalFilesDir;
+     luôn loại cacheDir, codeCacheDir, noBackupFilesDir; khôi phục sau khi cài APK và trước khi người dùng mở app; Android 12+ dùng
+     dataExtractionRules với cloud-backup và device-transfer, exclude thắng include; file chứa định danh riêng của thiết bị như token FCM
+     thường bị loại vì khôi phục token cũ làm app chạy sai; token đăng nhập nên dùng Block Store thay cho file; allowBackup="false" tắt
+     sao lưu đám mây nhưng trên một số máy Android 12+ không tắt chuyển máy-sang-máy). Cây thư mục và nội dung file là của site. */
+  (function () {
+    var m = 'backup', CASES = ['default', 'rules', 'off'], KS = ['s1', 's2', 's3', 's4'];
+    // cây thư mục: [id, độ sâu, là thư mục]
+    var TREE = [['files', 0, 1], ['draft', 1, 0], ['datastore', 1, 1], ['settings', 2, 0], ['session', 2, 0], ['databases', 0, 1], ['clinicdb', 1, 0],
+      ['noBackup', 0, 1], ['installId', 1, 0], ['cache', 0, 1], ['pdf', 1, 0]];
+    var LEAVES = TREE.filter(function (t) { return !t[2]; }).map(function (t) { return t[0]; });
+    // trạng thái sao lưu của từng file: b (được sao lưu) | x (luôn loại theo mặc định) | r (loại theo quy tắc) | o (sao lưu bị tắt)
+    var ST = {
+      default: { draft: 'b', settings: 'b', session: 'b', clinicdb: 'b', installId: 'x', pdf: 'x' },
+      rules: { draft: 'b', settings: 'b', session: 'r', clinicdb: 'b', installId: 'x', pdf: 'x' },
+      off: { draft: 'o', settings: 'o', session: 'o', clinicdb: 'o', installId: 'o', pdf: 'o' }
+    };
+    var OUT = { default: 'stale', rules: 'fresh', off: 'empty' };
+    ADE.storageBackup = { TREE: TREE, ST: ST, OUT: OUT };
+    var TYPE = { default: ['scenario', 'mechanism', 'mechanism', 'pitfall'], rules: ['scenario', 'mechanism', 'mechanism', 'mechanism'], off: ['scenario', 'pitfall', 'mechanism', 'pitfall'] };
+    var LINES = { default: [[1], [1], [1], [1]], rules: [[1, 2], [4, 5, 6, 7], [5, 6], [6]], off: [[1], [1], [1], [1]] };
+    function steps(s) {
+      var st = ST[s.case], backed = LEAVES.filter(function (l) { return st[l] === 'b'; }).length;
+      return KS.map(function (k, i) {
+        var type = TYPE[s.case][i], bad = type === 'pitfall', nodes = i < 2 ? ['old', 'cloud'] : ['cloud', 'new'];
+        var ns = {}; nodes.forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var o = S(m, s.case + '.' + k, { type: type, activeNodes: nodes, nodeStates: ns,
+          metrics: { backed: i >= 1 ? backed : 0, session: M(m, 'sess.' + (i >= 2 ? (st.session === 'b' ? 'restored' : 'absent') : 'old')), out: M(m, 'out.' + (i === 3 ? OUT[s.case] : 'none')) },
+          codeHighlight: { snippet: 'h9.' + s.case, lines: LINES[s.case][i] }, movingSignals: [{ edge: i < 2 ? 'e1' : 'e2', tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : 'run'), subject: nodes[0] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'default' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'cache và no_backup luôn bị loại khi sao lưu đang bật', run: function () { return ['default', 'rules'].every(function (c) { return ST[c].pdf === 'x' && ST[c].installId === 'x'; }); } },
+        { name: 'mặc định sao lưu cả file phiên đăng nhập; quy tắc loại trừ đúng file đó và giữ phần còn lại', run: function () { return ST.default.session === 'b' && ST.rules.session === 'r' && ['draft', 'settings', 'clinicdb'].every(function (l) { return ST.rules[l] === 'b'; }); } },
+        { name: 'chỉ cấu hình có quy tắc cho kết quả tốt trên máy mới', run: function () { return CASES.every(function (c) { return (OUT[c] === 'fresh') === (c === 'rules'); }); } }] });
+  })();
 })();

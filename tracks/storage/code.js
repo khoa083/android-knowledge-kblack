@@ -2,6 +2,21 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('storage', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('h9.default', [
+    c('<application android:allowBackup="true">   <!-- mặc định; không có quy tắc nào -->', '<application android:allowBackup="true">   <!-- the default; no rules at all -->')
+  ]);
+  add('h9.rules', [
+    '<application android:allowBackup="true"',
+    '    android:dataExtractionRules="@xml/data_extraction_rules">',
+    c('<!-- res/xml/data_extraction_rules.xml (Android 12+) -->', '<!-- res/xml/data_extraction_rules.xml (Android 12+) -->'),
+    '<data-extraction-rules>',
+    '  <cloud-backup><exclude domain="file" path="datastore/session.preferences_pb"/></cloud-backup>',
+    '  <device-transfer><exclude domain="file" path="datastore/session.preferences_pb"/></device-transfer>',
+    c('</data-extraction-rules>   <!-- Android 11 trở xuống: thêm fullBackupContent -->', '</data-extraction-rules>   <!-- Android 11 and lower: add fullBackupContent too -->')
+  ]);
+  add('h9.off', [
+    c('<application android:allowBackup="false">   <!-- tắt sao lưu đám mây -->', '<application android:allowBackup="false">   <!-- turns off cloud backup -->')
+  ]);
   add('h8.path', [
     c('val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)   // cách cũ', 'val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)   // the old way'),
     c('// Android 9: cần WRITE_EXTERNAL_STORAGE xin lúc chạy', '// Android 9: needs WRITE_EXTERNAL_STORAGE requested at runtime'),

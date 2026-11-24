@@ -95,3 +95,13 @@
 | READ_MEDIA_IMAGES/VIDEO bị Play giới hạn, khuyên photo picker; cài lại cần quyền đọc để thấy file cũ | ax-shared-media | stable |
 | Photo picker: androidx.activity 1.7.0+, có sẵn từ 11, backport 4.4–10 qua Play services, fallback ACTION_OPEN_DOCUMENT, takePersistableUriPermission (giới hạn 5.000) | ax-photo-picker | stable |
 | getExternalStoragePublicDirectory deprecated từ API 29 | kiến thức API reference, không gắn nguồn trên site | version |
+
+### H9 · Sao lưu và dữ liệu nhạy cảm
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Từ Android 6.0; 25 MB; Google Drive thư mục riêng; mã hóa đầu cuối từ Android 9; mặc định sao lưu SharedPreferences, filesDir/getDir, database, getExternalFilesDir; luôn loại cache, codeCache, noBackup | ax-autobackup | stable |
+| Chạy khi bật sao lưu, ≥24 giờ, máy rảnh, Wi-Fi; khôi phục sau cài APK, trước lần mở đầu | ax-autobackup | stable |
+| dataExtractionRules (12+) với cloud-backup / device-transfer; fullBackupContent (≤11); domain/path; exclude thắng include; có include thì chỉ include | ax-autobackup | version |
+| Định danh riêng thiết bị (token FCM) thường bị loại; token đăng nhập dùng Block Store; allowBackup=false không chặn D2D trên một số máy 12+ | ax-autobackup | stable |
+| File DataStore trong files/datastore được sao lưu mặc định | ax-datastore | stable |
+| Hậu quả khôi phục token cũ (401, đăng xuất) | site | simplified |

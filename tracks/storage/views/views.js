@@ -43,4 +43,8 @@
   V('media', { layout: 'pipeline', nodes: [N('media', 'app', 0, 0, 'phone', 'ui'), N('media', 'api', 4, 0, 'mechanism', 'runtime'), N('media', 'store', 8, 0, 'store', 'state')],
     edges: [E('e1', 'app', 'api'), E('e2', 'api', 'store')],
     metrics: [T('media', 'ver'), T('media', 'res')] });
+  /* H9: máy cũ → bản sao lưu trên Google Drive → máy mới */
+  V('backup', { layout: 'pipeline', nodes: [N('backup', 'old', 0, 0, 'phone', 'ui'), N('backup', 'cloud', 4, 0, 'store', 'state'), N('backup', 'new', 8, 0, 'phone', 'runtime')],
+    edges: [E('e1', 'old', 'cloud'), E('e2', 'cloud', 'new')],
+    metrics: [T('backup', 'backed'), T('backup', 'session'), T('backup', 'out')] });
 })();

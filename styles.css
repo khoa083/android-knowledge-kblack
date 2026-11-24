@@ -770,6 +770,9 @@ svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live {
 .vz-sq-head.n { fill: var(--ink-2); } .vz-sq-head.c { fill: var(--brand); } .vz-sq-head.b { fill: var(--tok-error); }
 .vz-sq-l { font-size: 11px; fill: var(--ink); }
 .vz-sq-l.bad { fill: var(--tok-error); font-weight: 700; }
+/* cây thư mục trong bảng (track H, H9) */
+.vz-tree-p { white-space: pre; }
+.vz-tree-p.dir { font-weight: 700; color: var(--ink-2); }
 @media (max-width: 560px) {
   .vz-mig { flex-direction: column; min-width: 0; }
   .vz-mig-e { grid-auto-flow: column; justify-content: start; gap: 8px; min-height: 36px; }

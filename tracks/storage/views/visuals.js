@@ -197,4 +197,25 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('md.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)),
       h('div', { class: 'vz-legend', text: T('md.legend') })));
   }, { labelKey: K + 'tab.md', icon: 'grid' });
+
+  /* ---------- H9: CÂY thư mục của app; mỗi file đánh dấu được sao lưu hay bị loại, và có mặt trên máy mới không ---------- */
+  ADE.registerScreen('storage.backup', function (box, ctx) {
+    var h = ADE.ui.h, B = ADE.storageBackup, c = ctx.state.case, i = idx(ctx), st = B.ST[c];
+    var CLS = { b: 'ok', x: 'dim', r: null, o: 'bad' };
+    var head = h('tr', null, ['path', 'backup', 'newdev'].map(function (k) { return h('th', { text: T('bk.col.' + k) }); }));
+    var tb = h('tbody');
+    B.TREE.forEach(function (n) {
+      var id = n[0], dir = n[2], pad = new Array(n[1] * 2 + 1).join('\u00a0') + (n[1] ? '└ ' : '');
+      var name = h('td', { class: 'vz-tree-p' + (dir ? ' dir' : ''), text: pad + T('bk.n.' + id) });
+      if (dir) { tb.appendChild(h('tr', null, name, h('td', { class: 'dim', text: '' }), h('td', { class: 'dim', text: '' }))); return; }
+      var v = st[id], shownB = i >= 1, onNew = i >= 2;
+      var isSess = id === 'session';
+      tb.appendChild(h('tr', null, name,
+        h('td', { class: shownB ? (i === 1 ? 'hl' : CLS[v]) : 'dim', text: shownB ? T('bk.st.' + v) : '·' }),
+        h('td', { class: onNew ? (i === 2 ? 'hl' : (v === 'b' ? (isSess ? 'bad' : 'ok') : (id === 'pdf' || id === 'installId' || isSess ? null : 'bad'))) : 'dim', text: onNew ? T(v === 'b' ? 'bk.new.restored' : (id === 'pdf' || id === 'installId' ? 'bk.new.fresh' : 'bk.new.missing')) : '·' })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('bk.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)),
+      i >= 3 ? h('p', { class: 'vz-cap' }, h('b', { text: T('bk.out') + ' ' }), ADE.t('track.storage.m.backup.out.' + B.OUT[c])) : null,
+      h('div', { class: 'vz-legend', text: T('bk.legend') })));
+  }, { labelKey: K + 'tab.bk', icon: 'list' });
 })();
