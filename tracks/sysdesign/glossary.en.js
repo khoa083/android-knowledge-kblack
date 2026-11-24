@@ -13,5 +13,7 @@ ADE.addGlossary('en', 'sysdesign', {
   "lost-update": { term: "lost update", def: "Two parties read, modify and write back a whole value; the later write lacks the earlier change and clobbers it, with no error.", chapter: "sysdesign/i8" },
   "last-write-wins": { term: "last write wins (LWW)", def: "Keep the write with the greatest timestamp and drop the other concurrent writes. In effect one side is picked and the other silently discarded; with device clocks it also depends on those clocks being right.", chapter: "sysdesign/i8" },
   "conditional-write": { term: "conditional write", def: "Write only if the record has not changed since it was read, such as a PUT with If-Match carrying the ETag read. On mismatch the server returns 412 and writes nothing (optimistic locking).", chapter: "sysdesign/i8" },
-  "write-conflict": { term: "write conflict", def: "Two concurrent writes change the same data in two different ways, neither seeing the other. It needs LWW, automatic merging, or the user to decide.", chapter: "sysdesign/i8" }
+  "write-conflict": { term: "write conflict", def: "Two concurrent writes change the same data in two different ways, neither seeing the other. It needs LWW, automatic merging, or the user to decide.", chapter: "sysdesign/i8" },
+  "push-tickle": { term: "push as a signal", def: "A push only says \"something changed\" with a type and an id; the app fetches the latest content from the server. Push order and duplicates then cannot corrupt the data.", chapter: "sysdesign/i9" },
+  "event-dedupe": { term: "event-ID deduplication", def: "Each notification carries an id; the receiver stores ids it has seen and drops a second copy. Needed because notification delivery is not exactly-once.", chapter: "sysdesign/i9" }
 });

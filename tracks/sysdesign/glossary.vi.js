@@ -13,5 +13,7 @@ ADE.addGlossary('vi', 'sysdesign', {
   "lost-update": { term: "lost update", def: "Hai bên cùng đọc, sửa rồi ghi lại cả giá trị; lần ghi sau không chứa thay đổi của lần trước nên đè mất nó, và không có lỗi nào.", chapter: "sysdesign/i8" },
   "last-write-wins": { term: "ghi sau thắng (LWW)", def: "Giữ lần ghi có giờ lớn nhất, bỏ các lần ghi đồng thời khác. Thực chất là chọn một bên và âm thầm bỏ bên kia; dùng giờ của thiết bị thì còn phụ thuộc đồng hồ có đúng không.", chapter: "sysdesign/i8" },
   "conditional-write": { term: "ghi có điều kiện", def: "Chỉ ghi nếu bản ghi chưa đổi kể từ lúc đọc, ví dụ PUT kèm If-Match với ETag đã đọc. Không khớp thì server trả 412 và không ghi gì (khóa lạc quan).", chapter: "sysdesign/i8" },
-  "write-conflict": { term: "xung đột ghi", def: "Hai lần ghi đồng thời sửa cùng một dữ liệu theo hai cách khác nhau, không bên nào thấy bên kia. Cần LWW, gộp tự động, hay hỏi người dùng.", chapter: "sysdesign/i8" }
+  "write-conflict": { term: "xung đột ghi", def: "Hai lần ghi đồng thời sửa cùng một dữ liệu theo hai cách khác nhau, không bên nào thấy bên kia. Cần LWW, gộp tự động, hay hỏi người dùng.", chapter: "sysdesign/i8" },
+  "push-tickle": { term: "push làm tín hiệu", def: "Push chỉ báo \"có gì đó đổi\" kèm loại và id; app tự tải nội dung mới nhất từ server. Thứ tự, số lần tới của push khi đó không làm dữ liệu sai.", chapter: "sysdesign/i9" },
+  "event-dedupe": { term: "khử trùng theo id sự kiện", def: "Mỗi thông báo mang một id; phía nhận lưu id đã thấy và bỏ bản tới lần hai. Cần vì giao thông báo không bảo đảm đúng một lần.", chapter: "sysdesign/i9" }
 });

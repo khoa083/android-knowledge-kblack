@@ -2,6 +2,25 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('sysdesign', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('i9.payload', [
+    c('// server: gửi cả nội dung trong push', '// server: the whole content goes in the push'),
+    c('push.send(device, mapOf("text" to "Lịch khám đổi sang 10:00"))', 'push.send(device, mapOf("text" to "Your visit moved to 10:00"))'),
+    c('// app: hiện đúng chữ nhận được, theo thứ tự tới', '// app: show exactly the text received, in arrival order'),
+    'notifier.show(msg.data["text"])'
+  ]);
+  add('i9.tickle', [
+    c('// server: push chỉ báo "lịch b42 vừa đổi"; cùng khóa gộp thì cái mới thay cái cũ chưa giao', '// server: the push only says "booking b42 changed"; with one collapse key the newer replaces an undelivered older one'),
+    'push.send(device, mapOf("type" to "booking", "id" to "b42"), collapseKey = "booking-b42")',
+    c('// app: callback chỉ có vài giây, nên giao việc tải cho WorkManager', '// app: the callback only gets a few seconds, so hand the fetch to WorkManager'),
+    'WorkManager.getInstance(ctx).enqueue(syncBooking(msg.data["id"]!!))',
+    c('// SyncWorker: val b = api.booking(id); db.save(b); notifier.show(b)   // luôn là bản mới nhất', '// SyncWorker: val b = api.booking(id); db.save(b); notifier.show(b)   // always the latest version'),
+    c('// mở app cũng đồng bộ: push mất thì màn hình vẫn đúng', '// opening the app also syncs: if a push is lost, the screen is still right')
+  ]);
+  add('i9.dedupe', [
+    'val eventId = msg.data["eventId"] ?: return',
+    c('if (!db.markSeen(eventId)) return          // đã thấy id này: bỏ (lưu trong database, sống qua process chết)', 'if (!db.markSeen(eventId)) return          // id seen before: drop (kept in the database, survives process death)'),
+    'notifier.show(eventId)'
+  ]);
   add('i8.lww', [
     'data class Note(val id: String, val symptom: String, val allergy: String, val memo: String, val editedAt: Long)',
     c('suspend fun save(note: Note) = api.put(note.id, note)                  // cả bản ghi, kể cả trường không sửa', 'suspend fun save(note: Note) = api.put(note.id, note)                  // the whole record, untouched fields too'),

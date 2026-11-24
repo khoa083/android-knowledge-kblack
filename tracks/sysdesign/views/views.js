@@ -43,4 +43,8 @@
   V('conflict', { layout: 'pipeline', nodes: [N('conflict', 'tablet', 0, 0, 'screen', 'ui'), N('conflict', 'phone', 0, 3, 'phone', 'state'), N('conflict', 'server', 6, 1.5, 'store', 'job')],
     edges: [E('e1', 'tablet', 'server'), E('e2', 'phone', 'server')],
     metrics: [T('conflict', 'lost'), T('conflict', 'writes'), T('conflict', 'ask')] });
+  /* I9: server phòng khám → dịch vụ đẩy → app; app tự tải lại từ server */
+  V('push', { layout: 'pipeline', nodes: [N('push', 'srv', 0, 1.5, 'store', 'job'), N('push', 'push', 4, 0, 'queue', 'runtime'), N('push', 'app', 8, 1.5, 'phone', 'ui')],
+    edges: [E('e1', 'srv', 'push'), E('e2', 'push', 'app'), E('e3', 'app', 'srv')],
+    metrics: [T('push', 'right'), T('push', 'shown'), T('push', 'fetch')] });
 })();

@@ -136,3 +136,15 @@ Sách đọc bằng pdftotext ngày 2026-11-24 (Xu tập 1 ch.2 dòng "Tips", ch
 | 428 Precondition Required; là tùy chọn, client không dựa vào được | rfc6585 §3, §7.1 | stable |
 | Bản xử lý trước thắng, bản sau nhận xung đột, hiện cả hai bản cho người dùng | book-xu1 ch.15 | guideline |
 | Làm lại ý định sau 412 (RFC không quy định), ba trường, mốc giờ, giá trị, lời khuyên bắt đầu bằng If-Match | site | simplified |
+
+### I9 · Thông báo đẩy
+Quyết định của người dùng (2026-11-24): FCM và dịch vụ bên thứ ba chỉ làm nhẹ, dạy tư duy, vì tài liệu của chúng đổi liên tục. Đọc ngày 2026-11-24: Xu tập 1 ch.10 từ bản text; FCM manage-tokens và trang quyền thông báo Android qua agent web-fetch (200). Đã đọc nhưng cố ý không đưa vào: trang Receive messages (bảng AndroidConfig v1 theo trạng thái app, AndroidConfigV2, onNotificationReceived), trang client (FID, onRegistered, getToken/onNewToken deprecated), set-message-type; trang concept-options trả 404.
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Thu device token khi cài hay đăng ký; bảng thiết bị; một người nhiều thiết bị; không mất phía server (lưu, thử lại); không đúng một lần, khử trùng theo id sự kiện; opt-out | book-xu1 ch.10 | guideline |
+| Không bảo đảm thứ tự; message gộp; quá nhiều message chờ thì bỏ và app đồng bộ lại | fcm-collapsible | stable |
+| Callback nhận message chỉ có vài giây | fcm-priority | version |
+| Payload tối đa 4096 byte | fcm-overview | stable |
+| ID cũ sau một tháng không kết nối, push khó tới; 270 ngày thì hết hạn (Android) | fcm-tokens | stable |
+| POST_NOTIFICATIONS từ Android 13; mới cài thì tắt; hỏi lúc người dùng tự chọn | ax-notif-perm | stable |
+| Push là tín hiệu, server là nguồn sự thật, đồng bộ khi mở app, mốc giờ, id, lỗi cờ "đã gửi" bị khôi phục | site | simplified |

@@ -459,4 +459,52 @@
         { name: 'gộp theo trường: hai trường khác nhau tự gộp; cùng một trường thì báo xung đột ở ghi chú', run: function () { var f = states('field')[2]; var g = states('same')[2]; return f[1].allergy === 'peni' && f[1].symptom === 'coughfever' && f[4].length === 0 && g[4].join() === 'memo' && states('same')[3][1].memo === 'both'; } },
         { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { lww: 3, ifmatch: 9, field: 5, same: 5 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
   })();
+
+  /* ================= I9: thông báo đẩy như một tín hiệu — gửi nội dung, chỉ báo "có thay đổi", push bị mất, push tới hai lần =================
+     Theo Alex Xu tập 1 ch.10 (trễ, đảo thứ tự nhưng không mất phía server; không đúng một lần, khử trùng theo id sự kiện), FCM (không bảo đảm
+     thứ tự, message gộp, quá nhiều message chờ thì bỏ và app phải đồng bộ lại; callback vài giây) chỉ ở mức ví dụ. Dịch vụ đẩy ở đây là chung;
+     trên Android thường là FCM. Giờ khám, id là minh họa. */
+  (function () {
+    var m = 'push', CASES = ['payload', 'tickle', 'lost', 'dup'], KS = ['s1', 's2', 's3', 's4'];
+    // mỗi bước: các message [từ, tới, nhãn, xấu?] trên sơ đồ tuần tự server | dịch vụ đẩy | app
+    var MSGS = {
+      payload: [[['srv', 'push', 'sendA', 0]], [['srv', 'push', 'sendB', 0], ['push', 'push', 'hold', 0]], [['push', 'app', 'gotB', 0], ['push', 'app', 'gotA', 0]], [['app', 'app', 'showA', 1]]],
+      tickle: [[['srv', 'push', 'tickA', 0]], [['srv', 'push', 'tickB', 0], ['push', 'push', 'collapse', 0]], [['push', 'app', 'gotT', 0], ['app', 'srv', 'fetch', 0]], [['srv', 'app', 'latest', 0]]],
+      lost: [[['srv', 'push', 'tickA', 0]], [['push', 'push', 'drop', 1]], [['app', 'app', 'open', 0], ['app', 'srv', 'fetch', 0]], [['srv', 'app', 'latest', 0]]],
+      dup: [[['srv', 'push', 'sendE', 0]], [['srv', 'srv', 'timeout', 0], ['srv', 'push', 'resend', 0]], [['push', 'app', 'gotE', 0], ['push', 'app', 'gotE2', 0]], [['app', 'app', 'dedupe', 0]]]
+    };
+    var MET = {   // [thông tin hiện đúng (-1: chưa có gì), số thông báo đã hiện, lần app tải từ server]
+      payload: [[-1, 0, 0], [-1, 0, 0], [-1, 0, 0], [0, 2, 0]], tickle: [[-1, 0, 0], [-1, 0, 0], [-1, 0, 1], [1, 1, 1]],
+      lost: [[-1, 0, 0], [-1, 0, 0], [-1, 0, 1], [1, 0, 1]], dup: [[-1, 0, 0], [-1, 0, 0], [-1, 0, 0], [1, 1, 0]]
+    };
+    // dịch vụ đẩy bảo đảm gì; hàng nổi bật theo tình huống
+    var ROWS = ['order', 'once', 'arrive', 'size', 'when'], FOCUS = { payload: 'order', tickle: 'size', lost: 'arrive', dup: 'once' };
+    function bad(c, i) { return MSGS[c][i].some(function (x) { return x[3] === 1; }) ? 1 : 0; }
+    ADE.sysPush = { MSGS: MSGS, ROWS: ROWS, FOCUS: FOCUS, bad: bad, PARTS: ['srv', 'push', 'app'] };
+    var CODE = { payload: ['i9.payload', [[1, 2], [2], [3], [4]]], tickle: ['i9.tickle', [[1, 2], [1, 2], [3, 4], [5]]], lost: ['i9.tickle', [[2], [6], [6], [5]]], dup: ['i9.dedupe', [[1], [1], [1], [2]]] };
+    var EDGE = { 'srv-push': 'e1', 'push-srv': 'e1', 'push-app': 'e2', 'app-push': 'e2', 'app-srv': 'e3', 'srv-app': 'e3' };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var b = bad(c, i) === 1, type = i === 0 ? 'scenario' : (b ? 'pitfall' : 'mechanism'), ns = {}, nodes = [];
+        MSGS[c][i].forEach(function (x) { [x[0], x[1]].forEach(function (n) { if (nodes.indexOf(n) < 0) nodes.push(n); }); });
+        nodes.forEach(function (n) { ns[n] = K + 'st.' + (b ? 'surprise' : 'done'); });
+        var x0 = MSGS[c][i][MSGS[c][i].length - 1], e = EDGE[x0[0] + '-' + x0[1]] || (x0[0] === 'srv' ? 'e1' : 'e2'), mt = MET[c][i];
+        var o = S(m, c + '.' + k, { type: type, activeNodes: nodes, nodeStates: ns,
+          metrics: { right: mt[0] < 0 ? 0 : mt[0], shown: mt[1], fetch: mt[2] },
+          codeHighlight: { snippet: CODE[c][0], lines: CODE[c][1][i] },
+          movingSignals: [{ edge: e, tok: b ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: b ? 'exception' : (x0[0] === x0[1] ? 'observe' : 'run'), subject: nodes[nodes.length - 1] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (b ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'payload' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'gửi nội dung: B tới trước A nên hiện giờ cũ 10:00, hai thông báo', run: function () { return MSGS.payload[2][0][2] === 'gotB' && MET.payload[3][0] === 0 && MET.payload[3][1] === 2 && bad('payload', 3) === 1; } },
+        { name: 'chỉ báo có thay đổi: gộp còn một, app tải bản mới nhất, hiện đúng', run: function () { return MSGS.tickle[1][1][2] === 'collapse' && MET.tickle[3][0] === 1 && MET.tickle[3][1] === 1; } },
+        { name: 'push mất: mở app vẫn đồng bộ và đúng; push hai lần: khử trùng còn một thông báo', run: function () { return MET.lost[3][0] === 1 && MET.lost[3][1] === 0 && MSGS.dup[2].length === 2 && MET.dup[3][1] === 1; } },
+        { name: 'mỗi tình huống 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { 'i9.payload': 4, 'i9.tickle': 6, 'i9.dedupe': 3 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && CODE[c][1].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[CODE[c][0]]; }); }); }); } }] });
+  })();
 })();
