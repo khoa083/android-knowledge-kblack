@@ -655,7 +655,7 @@ ADE.addTrackStrings('kotlin', 'en', {
   "track.kotlin.m.sealed.co.valueOf.next": "The Kotlin docs say: the name passed to valueOf must match exactly; if no constant matches, it throws IllegalArgumentException. [[src:kt-enum]]",
   "track.kotlin.m.sealed.co.valueOf.end": "The docs also suggest entries.getOrNull(index) when you have a numeric position instead of casting an Int to an enum. [[src:kt-enum]]",
   "track.kotlin.k5.title": "Enums, sealed types and when",
-  "track.kotlin.k5.essence": "An enum class is a fixed set of values; each constant has a name and an ordinal, can carry properties and functions, and entries lists them all.\nA sealed class/interface is a fixed set of TYPES: every direct subtype is known at compile time, and each can carry its own data. A good fit for screen state.\nA when expression over a sealed or enum type needs no else; drop the else so the compiler flags every gap when a new subtype is added.",
+  "track.kotlin.k5.essence": "An enum class is a fixed set of values; each constant has a name and an ordinal (its position, starting at 0), can carry properties and functions, and entries lists them all.\nA sealed class/interface is a fixed set of TYPES: every direct subtype is known at compile time, and each can carry its own data. A good fit for screen state.\nA when expression over a sealed or enum type needs no else; drop the else so the compiler flags every gap when a new subtype is added.",
   "track.kotlin.k5.goal.g1": "Saw the compiler check the when",
   "track.kotlin.k5.goal.g2": "Reached the fix",
   "track.kotlin.k5.sim.kotlin.sealed": "sealed and when",
