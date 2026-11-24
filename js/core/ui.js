@@ -594,6 +594,10 @@
           var c = kids[i], t = c.tagName; seen[t] = (seen[t] || 0) + 1;
           var k = key + '/' + t + seen[t], info = { el: c, tag: t };
           if (!c.children.length && !SKIP[t]) info.txt = c.textContent;
+          else if (!SKIP[t]) {   // phần tử có con: nhớ chữ trực tiếp (ví dụ <p><b>Nhãn:</b> chữ</p>) và số con, để thấy cả khi chỉ phần đó đổi
+            var own = ''; for (var j = 0; j < c.childNodes.length; j++) if (c.childNodes[j].nodeType === 3) own += c.childNodes[j].nodeValue;
+            info.own = own; info.nk = c.children.length;
+          }
           info.cls = c.getAttribute('class') || '';
           var dk = c.getAttribute('data-k');
           if (dk && !keyed[dk]) { var rc = c.getBoundingClientRect(); if (rc.width || rc.height) keyed[dk] = { x: rc.left, y: rc.top }; }
@@ -639,6 +643,13 @@
             }
           }
           flash.push(n.el); live.push(n.el);
+        }
+        // đổi hình dạng nội dung (ô từ danh sách chip thành "—", hay ngược lại), chữ trực tiếp của phần tử có con đổi, hoặc phần tử mất con:
+        // con mới đã có hiệu ứng "hiện dần", nhưng mất đi hay đổi chữ ở mức cha thì không, nên nháy chính phần tử đó một lần
+        if (((n.txt != null) !== (o.txt != null)) || (n.own != null && o.own != null && (n.own !== o.own || n.nk < o.nk))) {
+          if (n.el instanceof SVGElement) n.el.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 420, easing: 'ease-out' });
+          else flash.push(n.el);
+          live.push(n.el);
         }
         // chỉ đổi lớp (ô được tô, mũi tên thành "hiện tại"…): nháy một lần và giữ chuyển động liên tục
         if (n.cls !== o.cls && (n.txt == null || n.txt === o.txt)) {

@@ -20,7 +20,7 @@ a('fam.done', 'ổn', 'fine'); a('fam.fail', 'có vấn đề', 'has a problem')
 for k, vi, en in [('observe', 'đọc', 'read'), ('run', 'chạy', 'run'), ('write', 'sửa', 'edit'), ('skip', 'bỏ qua', 'skip'), ('exception', 'lỗi', 'failure'), ('complete', 'hoàn tất', 'complete')]:
     a('kind.' + k, vi, en)
 
-MODULES = ('cleancode_v2_j1', 'cleancode_v2_j2', 'cleancode_v2_j3')   # giữ dấu phẩy cuối
+MODULES = ('cleancode_v2_j1', 'cleancode_v2_j2', 'cleancode_v2_j3', 'cleancode_v2_j4')   # giữ dấu phẩy cuối
 for mod in MODULES:
     assert os.path.exists(os.path.join(HERE, mod + '.py')), 'thiếu module ' + mod
     mm = __import__(mod)
@@ -35,6 +35,7 @@ for mod in MODULES:
         E[first:first] = items
 
 def norm(s): return unicodedata.normalize('NFC', s)
+bad = [k for k, v, e in E if any(ord(ch) < 32 and ch != '\n' for ch in v + e)]; assert not bad, ('ký tự điều khiển (ví dụ \\b viết nhầm thành backspace)', bad)
 keys = [k for k, _, _ in E]; dup = sorted(set(k for k in keys if keys.count(k) > 1)); assert not dup, dup
 for lang, idx in (('vi', 1), ('en', 2)):
     body = ',\n'.join('  %s: %s' % (json.dumps(e[0]), json.dumps(norm(e[idx]), ensure_ascii=False)) for e in E)

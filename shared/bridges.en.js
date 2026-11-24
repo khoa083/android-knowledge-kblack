@@ -38,5 +38,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X19.title': 'HTTP cache and the source of truth',
   'shared.bridge.X19.summary': 'The architecture chapter teaches the database as the source of truth the screen observes. The owner chapter teaches the HTTP cache: a copy with an expiry from max-age, revalidated with ETag and 304, suited to read-only data such as fee lists; neither replaces the other.',
   'shared.bridge.X20.title': 'require in the constructor, parsing at the boundary',
-  'shared.bridge.X20.summary': 'The Kotlin chapter teaches the tools: require throws IllegalArgumentException on bad arguments, check guards state. The owner chapter teaches where to use them: require in a value class init so invalid values cannot be built, and a parse function returning a ? type at the boundary so users get an error at once instead of the app throwing.'
+  'shared.bridge.X20.summary': 'The Kotlin chapter teaches the tools: require throws IllegalArgumentException on bad arguments, check guards state. The owner chapter teaches where to use them: require in a value class init so invalid values cannot be built, and a parse function returning a ? type at the boundary so users get an error at once instead of the app throwing.',
+  'shared.bridge.X21.title': 'The rhythm of writing tests, and tests by layer',
+  'shared.bridge.X21.summary': 'The architecture chapter teaches tests by layer: the ViewModel with a fake repository, the repository with a real in-memory database, the UI with Compose tests. The owner chapter teaches the rhythm: the example list before the code, each test seen failing before it passes, refactoring while all tests are green.'
 });

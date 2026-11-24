@@ -23,8 +23,9 @@
 ## Sách (bản trong thư viện cá nhân; trên site chỉ ghi trang của nhà xuất bản hoặc tác giả)
 | Id nguồn | Sách | Đã đọc thân chương |
 |---|---|---|
-| `book-seemann` (khai báo ở `tracks/sysdesign/sources.js`, tracks gồm cả cleancode) | Mark Seemann, *Code That Fits in Your Head* | 3.2.1, 5.2.3–5.2.4, 5.3, 5.3.1, 7.1.1–7.1.3, 7.2.1, 7.2.5, 7.2.7, 8.1.3–8.1.7, phụ lục A.2, A.7, A.8 (2026-11-24) |
-| `book-cleancode` | Robert C. Martin, *Clean Code* (2008) | ch.2 (mục lục và Pick One Word per Concept); ch.3: Small!, Blocks and Indenting, Do One Thing, One Level of Abstraction, Stepdown Rule, Flag Arguments, Have No Side Effects, Output Arguments, Command Query Separation; ch.4 phần mở đầu (2026-11-24) |
+| `book-seemann` (khai báo ở `tracks/sysdesign/sources.js`, tracks gồm cả cleancode) | Mark Seemann, *Code That Fits in Your Head* | 3.2.1, 5.2.3–5.2.4, 5.3, 5.3.1, 7.1.1–7.1.3, 7.2.1, 7.2.5, 7.2.7, 8.1.3–8.1.7, 5.2.2, 6.2.2, 6.2.5, 11.2, phụ lục A.2, A.7, A.8, A.10, A.17 (2026-11-24) |
+| `book-cleancode` | Robert C. Martin, *Clean Code* (2008) | ch.2 (mục lục và Pick One Word per Concept); ch.3: Small!, Blocks and Indenting, Do One Thing, One Level of Abstraction, Stepdown Rule, Flag Arguments, Have No Side Effects, Output Arguments, Command Query Separation; ch.4 phần mở đầu; ch.6 Data/Object Anti-Symmetry, Law of Demeter (đầu mục); ch.7 Don't Return Null, Don't Pass Null; ch.8 Using Third-Party Code; ch.9 The Three Laws of TDD, F.I.R.S.T. (2026-11-24) |
+| `book-craft` | Robert C. Martin, *Clean Craftsmanship* (2021) | ch.2: The Three Laws of TDD, The Fourth Law (2026-11-24); URL informit.com kiểm HTTP 200 |
 | `book-effective-kotlin` (khai báo ở `tracks/kotlin/sources.js`, tracks gồm cả cleancode) | Marcin Moskała, *Effective Kotlin* | Item 15, Item 17 (2026-11-24) |
 | `kt-conventions` | Kotlin coding conventions (kotlinlang.org) | Choose good names, Function names (curl 2026-11-24) |
 | `kt-inline-classes` | Inline value classes (kotlinlang.org) | Members (init, require), Inline classes vs type aliases (curl 2026-11-24) |
@@ -71,3 +72,14 @@ URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN
 | Lợi ích của object bất biến (6 điểm), sửa phần tử trong Set | Moskała Item 1 |
 | Value class: một property, init + require, khác typealias, biểu diễn lúc chạy | Kotlin docs inline-classes |
 | **Của site:** luật số di động Việt Nam minh họa, ba luật rải rác cố ý khác nhau, ba số điện thoại; hình dòng chảy phẳng thay cho "hộp lồng" của dàn ý (quy tắc không lồng hộp) | — |
+
+### J4 TDD
+| Ý trên site | Nguồn |
+|---|---|
+| Bản chất của TDD; ba luật (tác giả gọi là tùy ý; TCR của Kent Beck đạt cùng mục tiêu); luật thứ tư refactor; "make it work, then make it right" (Kent Beck); refactor liên tục, không lên lịch | Martin, Clean Craftsmanship ch.2 |
+| Ba luật TDD (phát biểu ngắn); F.I.R.S.T. | Martin, Clean Code ch.9 |
+| Red Green Refactor như checklist và như phương pháp khoa học | Seemann 5.2.2, A.17 |
+| Devil's Advocate; trích Martin "test càng cụ thể, mã càng tổng quát"; đủ test chưa là đánh giá rủi ro; lỗi đã ra thật thì viết test tái hiện | Seemann 6.2.2, 6.2.5, A.10 |
+| Đừng tin test chưa từng thấy đỏ; tạm phá mã để thấy test đỏ | Seemann 11.2 |
+| Tên test có khoảng trắng chỉ cho test; Android runtime từ API 30 | Kotlin coding conventions |
+| **Của site:** mức phí, ngày lễ 2/9, các ngày ví dụ (đã kiểm thứ trong lịch 2026), năm phiên bản hàm phí được cài thật trong model; không nêu số liệu nghiên cứu về hiệu quả TDD (chưa đọc nghiên cứu nào) | — |

@@ -10,7 +10,7 @@
   if (!ADE.trackOpen(t)) return tid + ': track đang đóng (trang "sắp có"), bỏ qua';
   const running = el => el ? el.getAnimations({ subtree: true }).filter(a => a.playState === 'running' && !(a.effect && a.effect.pseudoElement)).length : 0;
   // so nội dung thật: bỏ lớp chuyển động tạm (mo-chg, mo-live) mà lần chuyển cảnh trước để lại
-  const html = el => el ? el.innerHTML.replace(/\s?mo-(chg|live)/g, '').replace(/ class=""/g, '') : '';
+  const html = el => el ? el.innerHTML.replace(/\s?mo-(chg|live)\b/g, '').replace(/ class=""/g, '') : '';
   const vis = sel => [...document.querySelectorAll('#main ' + sel)].find(e => !e.hidden && e.offsetParent !== null);
   let sims = 0, changes = 0;
   for (const c of t.chapters) {

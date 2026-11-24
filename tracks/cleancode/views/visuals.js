@@ -4,6 +4,7 @@
   var K = 'track.cleancode.vz.';
   var T = function (k, p) { return ADE.t(K + k, p); };
   var KS = ['s1', 's2', 's3', 's4'];
+  var esc = function (x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   function idx(ctx) {
     if (ctx.step) return KS.indexOf(ctx.step.id.split('.').pop());
     return ctx.pos > ctx.N ? 3 : 0;
@@ -107,4 +108,34 @@
       h('p', { class: 'vz-note' + (nRules > 1 ? ' bad' : (nRules === 1 ? ' ok' : '')), text: T('ps.rules', { n: nRules }) }),
       h('div', { class: 'vz-legend', text: T('ps.legend') })));
   }, { labelKey: K + 'tab.parse', icon: 'rail' });
+
+  /* ---------- J4: vòng ba pha (SVG: đỏ, xanh, refactor; pha cuối của bước sáng, đổi bằng chuyển cảnh lớp) + bảng danh sách test.
+     Không có chuyển động lặp: vòng chỉ đổi khi bước đổi. ---------- */
+  ADE.registerScreen('cleancode.tdd', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.ccTdd, c = ctx.state.case, i = Math.max(0, idx(ctx)), p = D.PLAN[c][i];
+    var PH = ['red', 'green', 'refactor'], last = p.walk[p.walk.length - 1], R = 58, CX = 90, CY = 84;
+    function arc(a0, a1) { var r = function (a) { return (a - 90) * Math.PI / 180; }; var x0 = CX + R * Math.cos(r(a0)), y0 = CY + R * Math.sin(r(a0)), x1 = CX + R * Math.cos(r(a1)), y1 = CY + R * Math.sin(r(a1));
+      return 'M' + x0.toFixed(1) + ' ' + y0.toFixed(1) + ' A' + R + ' ' + R + ' 0 0 1 ' + x1.toFixed(1) + ' ' + y1.toFixed(1); }
+    var svg = '<svg class="vz-ring" viewBox="0 0 180 176" role="img" aria-label="' + esc(T('td.aria', { ph: PH.indexOf(last) >= 0 ? T('td.ph.' + last) : '—' })) + '">';
+    PH.forEach(function (ph, n) {
+      var on = ph === last, walked = p.walk.indexOf(ph) >= 0, a0 = n * 120 + 4, a1 = n * 120 + 116, mid = (n * 120 + 60 - 90) * Math.PI / 180;
+      svg += '<path class="vz-ring-seg ' + ph + (on ? ' on' : (walked ? ' walk' : '')) + '" d="' + arc(a0, a1) + '"/>';
+      svg += '<text class="vz-ring-t' + (on ? ' on' : '') + '" x="' + (CX + (R + 0) * Math.cos(mid)).toFixed(1) + '" y="' + (CY + 4 + (R + 0) * Math.sin(mid)).toFixed(1) + '">' + esc(T('td.ph.' + ph)) + '</text>';
+    });
+    svg += '<text class="vz-ring-c" x="' + CX + '" y="' + (CY + 5) + '">' + esc(c === 'tdd' ? '#' + (i + 1) : '—') + '</text></svg>';
+    var walkTxt = p.walk[0] === 'code' ? T('td.walk.code') : (p.walk[0] === 'prod' ? T('td.walk.prod') : T('td.walk', { path: p.walk.map(function (x) { return T('td.ph.' + x); }).join(' → ') }));
+    var money = function (v) { return T('td.money', { v: (v * 1000).toLocaleString(ADE.lang === 'vi' ? 'de-DE' : 'en-US') }); };
+    var tb = h('tbody');
+    D.rows(c, i).forEach(function (r) {
+      var now = r.prod ? T('td.st.prod', { v: money(r.got) }) : (r.written ? T('td.st.' + (r.pass ? 'pass' : 'fail')) : T('td.st.none'));
+      var cls = r.prod && !r.pass ? 'bad' : (!r.written ? 'dim' : (r.pass ? 'ok' : 'bad'));
+      tb.appendChild(h('tr', { 'data-k': 'td-' + r.k }, h('td', { class: r.fresh ? 'hl' : null, text: T('td.ex.' + r.k) }), h('td', { class: 'c', text: money(r.want) }),
+        h('td', { class: 'c ' + cls, text: now }), h('td', { class: 'c ' + (!r.written ? 'dim' : (r.seen ? 'ok' : 'bad')), text: !r.written ? '—' : T(r.seen ? 'td.yes' : 'td.no') })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('td.cap') }),
+      h('div', { class: 'vz-ringrow' }, h('div', { html: svg }), h('p', { class: 'vz-note' + (p.walk[0] === 'prod' ? ' bad' : ''), text: walkTxt })),
+      h('p', { class: 'vz-cap', text: T('td.tcap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['ex', 'want', 'now', 'seen'].map(function (k) { return h('th', { text: T('td.col.' + k) }); }))), tb)),
+      h('div', { class: 'vz-legend', text: T('td.legend') })));
+  }, { labelKey: K + 'tab.tdd', icon: 'refresh' });
 })();

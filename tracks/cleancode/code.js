@@ -128,4 +128,40 @@
     'class PatientRepo { fun savePhone(id: PatientId, phone: PhoneNumber) { /* ... */ } }',
     'class SmsSender { fun send(phone: PhoneNumber, text: String) = gateway.send(phone.digits, text) }'
   ]);
+
+  /* J4: viết mã trước (j4.after) và bốn phiên bản mã qua bốn vòng TDD (j4.t1–t4) */
+  add('j4.after', [
+    'fun fee(date: LocalDate): Int =',
+    '    if (date.dayOfWeek == SATURDAY || date.dayOfWeek == SUNDAY) 300_000',
+    c('    else 200_000                                 // ngày lễ rơi vào đây', '    else 200_000                                 // holidays land here'),
+    c('// test viết sau: thứ hai 23/11 → 200_000; thứ bảy 28/11 → 300_000 (xanh ngay lần đầu)', '// tests written after: Monday 23 Nov → 200_000; Saturday 28 Nov → 300_000 (green on first run)')
+  ]);
+  add('j4.t1', [
+    'fun fee(date: LocalDate): Int =',
+    c('    200_000                                       // đơn giản nhất để test 1 xanh', '    200_000                                       // the simplest code that passes test 1')
+  ]);
+  add('j4.t2', [
+    'fun fee(date: LocalDate): Int =',
+    c('    if (date.dayOfWeek == SATURDAY) 300_000      // chủ nhật chưa có ví dụ', '    if (date.dayOfWeek == SATURDAY) 300_000      // no Sunday example yet'),
+    '    else 200_000'
+  ]);
+  add('j4.t3', [
+    'fun fee(date: LocalDate): Int =',
+    '    if (date.isWeekend()) 300_000 else 200_000',
+    '',
+    c('private fun LocalDate.isWeekend() =               // refactor khi mọi test xanh', 'private fun LocalDate.isWeekend() =               // refactored while every test is green'),
+    '    dayOfWeek == SATURDAY || dayOfWeek == SUNDAY'
+  ]);
+  add('j4.t4', [
+    'private const val BASE = 200_000',
+    '',
+    'fun fee(date: LocalDate, holidays: Set<LocalDate>): Int = when {',
+    '    date in holidays -> BASE * 2',
+    '    date.isWeekend() -> BASE * 3 / 2',
+    '    else -> BASE',
+    '}',
+    '',
+    'private fun LocalDate.isWeekend() =',
+    '    dayOfWeek == SATURDAY || dayOfWeek == SUNDAY'
+  ]);
 })();

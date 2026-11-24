@@ -214,4 +214,74 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j3.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= J4: viết mã trước so với TDD cho hàm phí khám =================
+     Theo Martin, Clean Craftsmanship ch.2 (ba luật, luật thứ tư refactor), Clean Code ch.9; Seemann 5.2.2 (Red Green Refactor), 6.2.2
+     (Devil's Advocate, tam giác hóa), 11.2 (đừng tin test chưa thấy đỏ). Năm phiên bản hàm phí được CÀI THẬT dưới đây; trạng thái
+     từng test (đỏ, xanh, đã thấy đỏ) tính bằng cách chạy chúng, không gõ tay. Phí tính theo nghìn đồng. */
+  (function () {
+    var m = 'tdd', CASES = ['after', 'tdd'], KS = ['s1', 's2', 's3', 's4'];
+    // ví dụ: [khóa, thứ trong tuần (1 = thứ hai … 7 = chủ nhật), là ngày lễ, phí mong đợi]; ngày đã kiểm thứ trong lịch 2026
+    var EX = [['mon', 1, false, 200], ['sat', 6, false, 300], ['sun', 7, false, 300], ['hol', 3, true, 400]];
+    var weekend = function (d) { return d === 6 || d === 7; };
+    var V = {
+      after: function (d) { return weekend(d) ? 300 : 200; },
+      t1: function () { return 200; },
+      t2: function (d) { return d === 6 ? 300 : 200; },
+      t3: function (d) { return weekend(d) ? 300 : 200; },
+      t4: function (d, hol) { return hol ? 400 : (weekend(d) ? 300 : 200); }
+    };
+    var run = function (ver, ex) { return V[ver](ex[1], ex[2]); };
+    // mỗi bước: phiên bản mã, các test đã viết, pha đã đi trong bước, dòng tô sáng
+    var PLAN = {
+      after: [{ ver: 'after', tests: [], walk: ['code'], hl: [1, 2, 3] }, { ver: 'after', tests: ['mon', 'sat'], walk: ['green'], hl: [4] },
+        { ver: 'after', tests: ['mon', 'sat'], walk: ['green'], hl: [4] }, { ver: 'after', tests: ['mon', 'sat'], walk: ['prod'], hl: [3], prod: 'hol' }],
+      tdd: [{ ver: 't1', prev: null, tests: ['mon'], walk: ['red', 'green'], hl: [2] }, { ver: 't2', prev: 't1', tests: ['mon', 'sat'], walk: ['red', 'green'], hl: [2, 3] },
+        { ver: 't3', prev: 't2', tests: ['mon', 'sat', 'sun'], walk: ['red', 'green', 'refactor'], hl: [2, 4, 5] }, { ver: 't4', prev: 't3', tests: ['mon', 'sat', 'sun', 'hol'], walk: ['red', 'green', 'refactor'], hl: [1, 3, 4, 5, 6] }]
+    };
+    var exOf = function (k) { return EX.filter(function (e) { return e[0] === k; })[0]; };
+    // một test đã từng đỏ? Với TDD: test mới phải đỏ với phiên bản trước (hoặc chưa có hàm) — tính bằng cách chạy
+    function seenRed(c, i, k) {
+      if (c !== 'tdd') return false;
+      for (var j = 0; j <= i; j++) { var p = PLAN.tdd[j]; if (p.tests.indexOf(k) >= 0) { return p.prev === null || run(p.prev, exOf(k)) !== exOf(k)[3]; } }
+      return false;
+    }
+    function rows(c, i) {
+      var p = PLAN[c][i];
+      return EX.map(function (e) {
+        var written = p.tests.indexOf(e[0]) >= 0, got = run(p.ver, e), fresh = c === 'tdd' ? p.tests[p.tests.length - 1] === e[0] : (i === 1 && written) || p.prod === e[0];
+        return { k: e[0], want: e[3], written: written, pass: got === e[3], got: got, seen: written && seenRed(c, i, e[0]), prod: p.prod === e[0], fresh: fresh };
+      });
+    }
+    function wrongDays(c, i) { return PLAN[c][i].prod ? rows(c, i).filter(function (r) { return r.prod && !r.pass; }).length : 0; }
+    ADE.ccTdd = { PLAN: PLAN, rows: rows };
+    var SNIP = function (c, i) { return 'j4.' + PLAN[c][i].ver; };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var r = rows(c, i), bad = wrongDays(c, i) > 0, nodes = c === 'tdd' ? ['list', 'test', 'code'] : [['code'], ['code', 'test'], ['test'], ['code', 'patient']][i];
+        var ns = {}; nodes.forEach(function (n) { ns[n] = K + 'st.done'; }); if (bad) ns.patient = K + 'st.surprise';
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nodes, nodeStates: ns,
+          metrics: { tests: r.filter(function (x) { return x.written; }).length, red: r.filter(function (x) { return x.seen; }).length, wrong: wrongDays(c, i) },
+          codeHighlight: { snippet: SNIP(c, i), lines: PLAN[c][i].hl },
+          movingSignals: [{ edge: bad ? 'e3' : (c === 'tdd' ? 'e2' : 'e1'), tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (PLAN[c][i].walk.indexOf('refactor') >= 0 ? 'write' : 'run'), subject: bad ? 'patient' : nodes[nodes.length - 1] }] });
+        o.callouts = [{ kind: i === 0 && c === 'after' ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 && c === 'after' ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        if (c === 'after' && i === 2) o.callouts[0].kind = 'pitfall';
+        return o;
+      });
+    }
+    var LEN = { 'j4.after': 4, 'j4.t1': 2, 'j4.t2': 3, 'j4.t3': 5, 'j4.t4': 10 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'after' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'TDD: mỗi test mới đỏ với phiên bản trước và xanh với phiên bản sau; cuối cùng 4/4 xanh, 4/4 đã thấy đỏ', run: function () {
+          var ok = PLAN.tdd.every(function (p) { var k = p.tests[p.tests.length - 1], e = exOf(k); return (p.prev === null || run(p.prev, e) !== e[3]) && run(p.ver, e) === e[3]; });
+          var last = rows('tdd', 3); return ok && last.every(function (x) { return x.pass && x.seen; }); } },
+        { name: 'tam giác hóa: bản chỉ kiểm thứ bảy (t2) qua test thứ hai và thứ bảy nhưng sai chủ nhật', run: function () { return run('t2', exOf('mon')) === 200 && run('t2', exOf('sat')) === 300 && run('t2', exOf('sun')) !== 300; } },
+        { name: 'viết mã trước: hai test xanh ngay, không test nào từng đỏ; ngày lễ 2/9 tính 200 thay vì 400', run: function () {
+          var r = rows('after', 3); return r.filter(function (x) { return x.written && x.pass; }).length === 2 && r.every(function (x) { return !x.seen; }) && run('after', exOf('hol')) === 200 && wrongDays('after', 3) === 1; } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && [0, 1, 2, 3].every(function (i) { return PLAN[c][i].hl.every(function (l) { return l >= 1 && l <= LEN[SNIP(c, i)]; }); }); }); } }] });
+  })();
 })();

@@ -23,4 +23,8 @@
   V('parse', { layout: 'pipeline', nodes: [N('parse', 'screen', 0, 1, 'screen', 'ui'), N('parse', 'boundary', 3, 1, 'target', 'state'), N('parse', 'repo', 6, 1, 'store', 'job'), N('parse', 'sms', 9, 1, 'phone', 'runtime')],
     edges: [E('e1', 'screen', 'boundary'), E('e2', 'boundary', 'repo'), E('e3', 'repo', 'sms')],
     metrics: [T('parse', 'checks'), T('parse', 'form'), T('parse', 'late')] });
+  /* J4: danh sách ví dụ → test → mã → bệnh nhân */
+  V('tdd', { layout: 'pipeline', nodes: [N('tdd', 'list', 0, 1, 'list', 'state'), N('tdd', 'test', 3, 1, 'check', 'ui'), N('tdd', 'code', 6, 1, 'source', 'job'), N('tdd', 'patient', 9, 1, 'phone', 'runtime')],
+    edges: [E('e1', 'list', 'test'), E('e2', 'test', 'code'), E('e3', 'code', 'patient')],
+    metrics: [T('tdd', 'tests'), T('tdd', 'red'), T('tdd', 'wrong')] });
 })();

@@ -692,7 +692,8 @@ details.blk > summary::before { display: inline-block; transition: transform var
 @keyframes mo-chg { 0% { background-color: color-mix(in srgb, var(--focus) 32%, transparent); } 100% { background-color: transparent; } }
 .mo-live:not(svg *) { animation: mo-chg 900ms ease-out 1; }
 @keyframes mo-under { 0%, 100% { box-shadow: inset 0 -2px 0 0 transparent; } 50% { box-shadow: inset 0 -2px 0 0 var(--focus); } }
-svg path.mo-live, svg line.mo-live, svg polyline.mo-live { stroke-dasharray: 9 5; animation: dg-march 1.1s linear infinite; }
+/* nét đứt chạy chỉ cho lab ngoài màn hình trực quan; trong .view-screen nó từng làm đường SVG vừa đổi lớp bị đứt nét mãi (animation tắt nhưng dasharray còn) */
+svg path.mo-live:not(.view-screen *), svg line.mo-live:not(.view-screen *), svg polyline.mo-live:not(.view-screen *) { stroke-dasharray: 9 5; animation: dg-march 1.1s linear infinite; }
 svg rect.mo-live, svg circle.mo-live, svg ellipse.mo-live, svg polygon.mo-live { animation: mo-svg-breathe 1.8s ease-in-out infinite; }
 /* trong màn hình trực quan theo bước: SVG vừa đổi chỉ chuyển cảnh một lần (nội suy, vẽ dần), không lặp mãi */
 .view-screen svg .mo-live { animation: none; }
@@ -882,6 +883,17 @@ pre.code { position: relative; }
 .vz-slot small { font-size: 10px; color: var(--ink-3); }
 .vz-slot.bad { background: repeating-linear-gradient(45deg, transparent 0 5px, rgba(196, 43, 50, .10) 5px 10px); }
 .vz-limit { align-self: stretch; display: inline-flex; align-items: center; padding: 0 4px 0 6px; border-left: 2px dashed var(--tok-error); color: var(--tok-error); font: 11px/1.2 var(--mono); }
+.vz-ringrow { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+.vz-ring { width: 180px; height: auto; display: block; }
+.vz-ring-seg { fill: none; stroke-width: 16; stroke-linecap: butt; opacity: .18; transition: opacity var(--mo-base, .3s) ease; }
+.vz-ring-seg.red { stroke: var(--tok-error); }
+.vz-ring-seg.green { stroke: var(--brand); }
+.vz-ring-seg.refactor { stroke: var(--tok-state); }
+.vz-ring-seg.walk { opacity: .45; }
+.vz-ring-seg.on { opacity: 1; }
+.vz-ring-t { font: 700 11px/1 var(--mono); fill: var(--ink-2); text-anchor: middle; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
+.vz-ring-t.on { fill: var(--ink); }
+.vz-ring-c { font: 700 18px/1 var(--mono); fill: var(--ink); text-anchor: middle; }
 .vz-sub { display: block; font-size: 11px; color: var(--ink-3); font-weight: 400; }
 .vz-note { margin: 0; font: 12px/1.45 var(--mono); color: var(--ink-2); }
 .vz-note.bad { color: var(--tok-error); font-weight: 700; }

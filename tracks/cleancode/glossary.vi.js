@@ -9,5 +9,8 @@ ADE.addGlossary('vi', 'cleancode', {
   "parse-dont-validate": { term: "parse, don't validate", def: "Thay vì kiểm hợp lệ rồi trả Boolean, chuyển dữ liệu thô thành kiểu của miền (hoặc từ chối) ngay ở ranh giới. Kiểu mang theo bảo đảm, nên bên trong không phải kiểm lại. Cách gọi của Alexis King, Seemann trích.", chapter: "cleancode/j3" },
   "class-invariant": { term: "bất biến của lớp", def: "Điều kiện luôn đúng với mọi object của lớp, ví dụ số điện thoại luôn đúng định dạng. Với object bất biến, chỉ cần kiểm ở constructor.", chapter: "cleancode/j3" },
   "postels-law": { term: "luật Postel", def: "Thận trọng với những gì gửi đi, dễ dãi với những gì nhận vào. Seemann dùng cho thiết kế API: nhận đầu vào chừng nào còn làm việc được với nó, không được thì từ chối ngay.", chapter: "cleancode/j3" },
+  "red-green-refactor": { term: "đỏ, xanh, refactor", def: "Vòng của TDD: viết một test đỏ; thay đổi tối thiểu để mọi test xanh; cải thiện mã mà không đổi hành vi; lặp lại.", chapter: "cleancode/j4" },
+  "triangulation": { term: "tam giác hóa", def: "Thêm ví dụ cho tới khi cài đặt đơn giản sai không còn qua được test, buộc mã phải tổng quát. Test càng cụ thể, mã càng tổng quát.", chapter: "cleancode/j4" },
+  "devils-advocate": { term: "Devil's Advocate", def: "Kỹ thuật của Seemann: cố tình viết cài đặt sai rõ ràng mà vẫn qua mọi test. Làm được thì danh sách test còn thiếu.", chapter: "cleancode/j4" },
   "code-rot": { term: "mã mục dần", def: "Mã phức tạp dần qua từng thay đổi nhỏ mà không ai để ý, tới lúc không còn ai dám sửa. Seemann đề xuất đặt ngưỡng cho một chỉ số để chặn nó.", chapter: "cleancode/j1" }
 });

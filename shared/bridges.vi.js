@@ -38,5 +38,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X19.title': 'Cache HTTP và nguồn sự thật',
   'shared.bridge.X19.summary': 'Chương kiến trúc dạy database là nguồn sự thật mà màn hình quan sát. Chương chủ sở hữu dạy cache HTTP: bản sao có hạn dùng theo max-age, hỏi lại bằng ETag và 304, hợp với dữ liệu chỉ đọc như bảng giá; hai thứ không thay nhau.',
   'shared.bridge.X20.title': 'require trong constructor và parse ở ranh giới',
-  'shared.bridge.X20.summary': 'Chương Kotlin dạy công cụ: require ném IllegalArgumentException khi đối số sai, check cho trạng thái. Chương chủ sở hữu dạy dùng nó ở đâu: require trong init của value class để không tạo được giá trị sai, và một hàm parse trả kiểu có dấu ? ở ranh giới để người dùng được báo lỗi ngay thay vì app ném ngoại lệ.'
+  'shared.bridge.X20.summary': 'Chương Kotlin dạy công cụ: require ném IllegalArgumentException khi đối số sai, check cho trạng thái. Chương chủ sở hữu dạy dùng nó ở đâu: require trong init của value class để không tạo được giá trị sai, và một hàm parse trả kiểu có dấu ? ở ranh giới để người dùng được báo lỗi ngay thay vì app ném ngoại lệ.',
+  'shared.bridge.X21.title': 'Nhịp viết test và test theo tầng',
+  'shared.bridge.X21.summary': 'Chương kiến trúc dạy test theo tầng: ViewModel với repository giả, repository với database thật trong bộ nhớ, giao diện bằng Compose test. Chương chủ sở hữu dạy nhịp viết: danh sách ví dụ trước mã, mỗi test thấy đỏ rồi mới xanh, refactor khi mọi test xanh.'
 });
