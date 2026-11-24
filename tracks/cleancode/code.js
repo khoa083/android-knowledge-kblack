@@ -273,4 +273,20 @@
     '}',
     c('// :core:analytics cài AnalyticsTracker: implementation(project(":core:model"))   (DIP)', '// :core:analytics implements AnalyticsTracker: implementation(project(":core:model"))   (DIP)')
   ]);
+
+  /* J10: git log --oneline của hai cách làm (dòng 1–4: PR lớn; j10.small: sáu PR) */
+  add('j10.big', [
+    'a91c0e2 update booking + phone + reminder + fee + momo + format',
+    'f03d7b1 wip',
+    '7c2e9a4 fix 2',
+    '5b18d63 fix'
+  ]);
+  add('j10.small', [
+    '3e7f0a1 Charge MoMo payments through PaymentGateway',
+    '9d2c4b8 Split FeePolicy out of AppointmentManager',
+    '61a8e03 Schedule reminders in the clinic time zone',
+    'c4f19d2 Parse phone numbers at the booking boundary',
+    '0b7e5a6 Add PhoneNumber value class',
+    '8a3d2f9 Reformat booking module (no behaviour change)'
+  ]);
 })();

@@ -15,7 +15,8 @@ ADE.registerTrack({
     { id: 'j6', titleKey: 'track.cleancode.j6.title', sims: ['cleancode.refactor'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'j7', titleKey: 'track.cleancode.j7.title', sims: ['cleancode.bisect'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'j8', titleKey: 'track.cleancode.j8.title', sims: ['cleancode.solid'], simAfter: 'hook', bridges: ['X22'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'j9', titleKey: 'track.cleancode.j9.title', sims: ['cleancode.components'], simAfter: 'hook', bridges: ['X23'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
+    { id: 'j9', titleKey: 'track.cleancode.j9.title', sims: ['cleancode.components'], simAfter: 'hook', bridges: ['X23'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'j10', titleKey: 'track.cleancode.j10.title', sims: ['cleancode.review'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'cleancode-fits', model: 'cleancode.fits', titleKey: 'track.cleancode.preset.fits' },
@@ -26,7 +27,8 @@ ADE.registerTrack({
     { id: 'cleancode-refactor', model: 'cleancode.refactor', titleKey: 'track.cleancode.preset.refactor' },
     { id: 'cleancode-bisect', model: 'cleancode.bisect', titleKey: 'track.cleancode.preset.bisect' },
     { id: 'cleancode-solid', model: 'cleancode.solid', titleKey: 'track.cleancode.preset.solid' },
-    { id: 'cleancode-components', model: 'cleancode.components', titleKey: 'track.cleancode.preset.components' }
+    { id: 'cleancode-components', model: 'cleancode.components', titleKey: 'track.cleancode.preset.components' },
+    { id: 'cleancode-review', model: 'cleancode.review', titleKey: 'track.cleancode.preset.review' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

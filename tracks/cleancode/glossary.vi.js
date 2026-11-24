@@ -25,5 +25,7 @@ ADE.addGlossary('vi', 'cleancode', {
   "component-instability": { term: "độ bất ổn định I", def: "I = Ce / (Ca + Ce), với Ca là số phụ thuộc đi vào, Ce là số đi ra. 0 là ổn định tối đa (khó dời đi), 1 là bất ổn tối đa (dễ đổi).", chapter: "cleancode/j9" },
   "stable-dependencies": { term: "phụ thuộc theo hướng ổn định (SDP)", def: "Một thành phần chỉ nên phụ thuộc thành phần ổn định hơn nó: I giảm dần theo chiều mũi tên phụ thuộc.", chapter: "cleancode/j9" },
   "common-closure": { term: "CCP", def: "Gom vào một thành phần những lớp đổi cùng lý do, cùng lúc; tách những lớp đổi vì lý do khác. SRP nói lại cho thành phần.", chapter: "cleancode/j9" },
+  "rule-50-72": { term: "quy tắc 50/72", def: "Chuẩn thực tế cho commit message: tiêu đề mệnh lệnh không quá 50 ký tự, dòng thứ hai để trống, phần thân xuống dòng ở 72 ký tự và nói vì sao.", chapter: "cleancode/j10" },
+  "rubber-stamp-review": { term: "review con dấu", def: "Review duyệt cho qua mà không đọc thật, thường với PR quá lớn. Review chỉ có giá trị khi từ chối là một lựa chọn thật.", chapter: "cleancode/j10" },
   "code-rot": { term: "mã mục dần", def: "Mã phức tạp dần qua từng thay đổi nhỏ mà không ai để ý, tới lúc không còn ai dám sửa. Seemann đề xuất đặt ngưỡng cho một chỉ số để chặn nó.", chapter: "cleancode/j1" }
 });

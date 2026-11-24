@@ -304,4 +304,38 @@
     out.push(h('div', { class: 'vz-legend', text: T('cp.legend') }));
     box.appendChild(h('div', { class: 'vz' }, out));
   }, { labelKey: K + 'tab.components', icon: 'layers' });
+
+  /* ---------- J10: ba bảng phẳng mở dần: danh sách PR (bước 1), checklist review (bước 2), git log --oneline với độ dài tiêu đề (bước 3),
+     và dòng kết quả chia đôi (bước 4). ---------- */
+  ADE.registerScreen('cleancode.review', function (box, ctx) {
+    var h = ADE.ui.h, R = ADE.ccReview, c = ctx.state.case, i = Math.max(0, idx(ctx));
+    var num = function (n) { return n.toLocaleString(ADE.lang === 'vi' ? 'de-DE' : 'en-US'); };
+    var pb = h('tbody');
+    R.PRS[c].forEach(function (p) {
+      var tooBig = p[3] < 10 && p[1] > 1000;
+      pb.appendChild(h('tr', { 'data-k': 'pr-' + p[0] }, h('td', { text: p[0] }), h('td', { class: 'c' + (p[1] > 1000 ? ' bad' : ''), text: num(p[1]) }), h('td', { class: 'c', text: String(p[2]) }),
+        h('td', { class: 'c' + (i < 1 ? ' dim' : (tooBig ? ' bad' : ' ok')), text: i < 1 ? '?' : String(p[3]) }), h('td', { class: 'c' + (i < 1 ? ' dim' : (p[4] ? ' ok' : '')), text: i < 1 ? '?' : String(p[4]) })));
+    });
+    var out = [h('p', { class: 'vz-cap', text: T('rv.pcap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['pr', 'lines', 'files', 'min', 'found'].map(function (k, n) { return h('th', { class: n >= 3 && i === 1 ? 'hl' : null, text: T('rv.col.' + k) }); }))), pb))];
+    if (i >= 1) {
+      var cb = h('tbody');
+      R.CHECK.forEach(function (q, n) {
+        var a = R.ANSWERS[c][n];
+        cb.appendChild(h('tr', { 'data-k': 'ck-' + q }, h('td', { text: T('rv.q.' + q) }), h('td', { class: a === 'skip' ? 'bad' : 'ok', text: T('rv.a.' + a) })));
+      });
+      out.push(h('p', { class: 'vz-cap', text: T('rv.ccap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['q', 'ans'].map(function (k) { return h('th', { text: T('rv.col.' + k) }); }))), cb)));
+    }
+    if (i >= 2) {
+      var lb = h('tbody');
+      R.SUMMARIES[c].forEach(function (s) {
+        var bad = R.badSummary(s);
+        lb.appendChild(h('tr', { 'data-k': 'lg-' + s.slice(0, 12) }, h('td', { class: bad ? 'bad' : null }, h('code', { text: s })), h('td', { class: 'c' + (s.length > R.LIMIT ? ' bad' : ''), text: String(s.length) })));
+      });
+      out.push(h('p', { class: 'vz-cap', text: T('rv.lcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, lb)));
+    }
+    if (i === 3) out.push(h('p', { class: 'vz-note ' + (c === 'big' ? 'bad' : 'ok'), text: T('rv.bug', { c: R.BUG[c][0], n: num(R.BUG[c][1]) }) }));
+    out.push(h('div', { class: 'vz-legend', text: T('rv.legend') }));
+    box.appendChild(h('div', { class: 'vz' }, out));
+  }, { labelKey: K + 'tab.review', icon: 'list' });
 })();

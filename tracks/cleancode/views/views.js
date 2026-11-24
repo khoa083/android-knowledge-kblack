@@ -47,4 +47,8 @@
   V('components', { layout: 'pipeline', nodes: [N('components', 'graph', 0, 1, 'layers', 'ui'), N('components', 'count', 3, 1, 'list', 'state'), N('components', 'metric', 6, 1, 'target', 'job'), N('components', 'cost', 9, 1, 'clock', 'runtime')],
     edges: [E('e1', 'graph', 'count'), E('e2', 'count', 'metric'), E('e3', 'metric', 'cost')],
     metrics: [T('components', 'violations'), T('components', 'hot'), T('components', 'rebuilds')] });
+  /* J10: công việc → PR → review → lịch sử git */
+  V('review', { layout: 'pipeline', nodes: [N('review', 'work', 0, 1, 'job', 'ui'), N('review', 'pr', 3, 1, 'list', 'state'), N('review', 'review', 6, 1, 'eye', 'job'), N('review', 'log', 9, 1, 'store', 'runtime')],
+    edges: [E('e1', 'work', 'pr'), E('e2', 'pr', 'review'), E('e3', 'review', 'log')],
+    metrics: [T('review', 'biggest'), T('review', 'caught'), T('review', 'read')] });
 })();

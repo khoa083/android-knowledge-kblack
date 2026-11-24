@@ -25,5 +25,7 @@ ADE.addGlossary('en', 'cleancode', {
   "component-instability": { term: "instability I", def: "I = Ce / (Ca + Ce), where Ca counts incoming dependencies and Ce outgoing. 0 is maximally stable (hard to move), 1 maximally unstable (easy to change).", chapter: "cleancode/j9" },
   "stable-dependencies": { term: "stable dependencies principle (SDP)", def: "A component should only depend on components more stable than itself: I decreases along the dependency arrows.", chapter: "cleancode/j9" },
   "common-closure": { term: "CCP", def: "Gather into a component the classes that change for the same reasons at the same times; separate those that change for different reasons. SRP restated for components.", chapter: "cleancode/j9" },
+  "rule-50-72": { term: "the 50/72 rule", def: "A de facto convention for commit messages: an imperative summary of at most 50 characters, a blank second line, a body wrapped at 72 characters saying why.", chapter: "cleancode/j10" },
+  "rubber-stamp-review": { term: "rubber-stamp review", def: "A review that approves without really reading, typically for an oversized PR. Review is worth something only when rejection is a real option.", chapter: "cleancode/j10" },
   "code-rot": { term: "code rot", def: "Code growing more complex with each small change nobody notices, until nobody dares to touch it. Seemann proposes a threshold on a metric to curb it.", chapter: "cleancode/j1" }
 });

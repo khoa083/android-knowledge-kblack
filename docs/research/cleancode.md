@@ -143,3 +143,15 @@ URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN
 | SDP: I giảm theo chiều phụ thuộc; mũi tên chỉ lên là vi phạm; sửa bằng DIP với thành phần chỉ có giao diện; không phải thành phần nào cũng nên ổn định | Clean Architecture ch.14 |
 | SAP; SDP + SAP = DIP cho thành phần | Clean Architecture ch.14 |
 | **Của site:** đếm theo module thay cho lớp; chín module, tần suất đổi, công thức số lần build lại (cận trên, bỏ qua build tăng dần theo ABI của Gradle); nhận xét vòng phụ thuộc giữa module Gradle làm build thất bại; không trình bày độ trừu tượng A và main sequence | — |
+
+### J10 Làm việc nhóm với mã
+| Ý trên site | Nguồn |
+|---|---|
+| Commit message là thông điệp gửi tương lai; quy tắc 50/72 (chuẩn thực tế), câu mệnh lệnh, viết đúng chính tả | Seemann 9.1.1, A.1 |
+| Commit nhỏ, khả năng xoay xở với git | Seemann 9.1.3 |
+| Review là một trong số ít thực hành có tác dụng được ghi nhận; độ trễ review; review thành nhịp hằng ngày | Seemann 9.2.3, A.20 |
+| Từ chối PR lớn; chi phí chìm; nửa ngày công mỗi thay đổi; review quá một giờ kém hiệu quả (Seemann trích nghiên cứu) | Seemann 9.2.4 |
+| Câu hỏi gốc "mình có bảo trì nổi không"; người review tự đọc; không bắt bẻ định dạng trừ API công khai; checklist của Cory House | Seemann 9.2.5 |
+| Quy tắc cho pull request | Seemann 9.2.6 |
+| Lập trình cộng tác là một trong năm kỷ luật, ít kỹ thuật nhất nhưng có thể quan trọng nhất | Martin, Clean Craftsmanship ch.1 |
+| **Của site:** hai tuần công việc, sáu PR, số dòng, phút review, ba lỗi bị bắt, các commit message | — |

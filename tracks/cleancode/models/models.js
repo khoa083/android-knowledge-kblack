@@ -552,4 +552,54 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j9.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= J10: một PR lớn so với sáu PR nhỏ =================
+     Theo Seemann ch.9 (9.1.1 quy tắc 50/72; 9.1.3 commit nhỏ; 9.2.3–9.2.6 review, từ chối PR lớn, checklist của Cory House, quy tắc PR), A.1, A.20.
+     Độ dài tiêu đề commit được ĐẾM từ chính chuỗi (đúng như trong code.js); số dòng, phút review, lỗi bắt được là minh họa. */
+  (function () {
+    var m = 'review', CASES = ['big', 'small'], KS = ['s1', 's2', 's3', 's4'], LIMIT = 50, REVIEW_MAX = 60;
+    var PRS = {   // [tên, dòng, file, phút review, lỗi bắt được]
+      big: [['booking-everything', 3000, 48, 2, 0]],
+      small: [['reformat', 420, 9, 20, 0], ['phone-type', 510, 6, 30, 0], ['phone-parse', 480, 8, 30, 1], ['reminder-zone', 470, 7, 25, 1], ['fee-policy', 530, 9, 40, 0], ['momo', 590, 11, 40, 1]]
+    };
+    var SUMMARIES = {
+      big: ['update booking + phone + reminder + fee + momo + format', 'wip', 'fix 2', 'fix'],
+      small: ['Charge MoMo payments through PaymentGateway', 'Split FeePolicy out of AppointmentManager', 'Schedule reminders in the clinic time zone', 'Parse phone numbers at the booking boundary', 'Add PhoneNumber value class', 'Reformat booking module (no behaviour change)']
+    };
+    var VAGUE = ['wip', 'fix', 'fix 2', 'update'];
+    var CHECK = ['maintain', 'works', 'intent', 'dup', 'exist', 'simpler', 'tests'];
+    var ANSWERS = { big: CHECK.map(function () { return 'skip'; }), small: ['yes', 'works', 'yes', 'yes', 'yes', 'simpler', 'tests'] };
+    var BUG = { big: ['5b18d63', 3000], small: ['9d2c4b8', 530] };   // chia đôi dẫn tới commit nào, phải đọc bao nhiêu dòng
+    function badSummary(s) { return s.length > LIMIT || VAGUE.indexOf(s) >= 0; }
+    function caught(c) { return PRS[c].reduce(function (n, p) { return n + p[4]; }, 0); }
+    function biggest(c) { return Math.max.apply(null, PRS[c].map(function (p) { return p[1]; })); }
+    ADE.ccReview = { PRS: PRS, SUMMARIES: SUMMARIES, CHECK: CHECK, ANSWERS: ANSWERS, BUG: BUG, LIMIT: LIMIT, REVIEW_MAX: REVIEW_MAX, badSummary: badSummary };
+    var HL = { big: [[1], [1], [1, 2, 3, 4], [4]], small: [[6], [3, 4], [1, 2, 3, 4, 5, 6], [2]] };
+    function steps(s) {
+      var c = s.case, bad = c === 'big';
+      return KS.map(function (k, i) {
+        var node = ['pr', 'review', 'log', 'log'][i], warn = bad && i >= 1;
+        var ns = { work: K + 'st.done' }; ns[node] = K + 'st.' + (warn ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (warn ? 'pitfall' : 'mechanism'), activeNodes: i === 0 ? ['work', 'pr'] : [['pr', 'review'], ['review', 'log'], ['log']][i - 1], nodeStates: ns,
+          metrics: { biggest: biggest(c), caught: i >= 1 ? caught(c) : 0, read: i >= 3 ? BUG[c][1] : 0 },
+          codeHighlight: { snippet: 'j10.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: 'e' + Math.min(3, i + 1), tok: warn ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: warn ? 'exception' : (i === 3 ? 'complete' : 'run'), subject: node }] });
+        o.callouts = [{ kind: i === 0 && bad ? 'try' : (warn ? 'pitfall' : 'source'), textKey: i === 0 && bad ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'j10.big': 4, 'j10.small': 6 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'big' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'cùng khối lượng: một PR 3.000 dòng so với sáu PR cộng lại 3.000 dòng, mỗi PR một việc và review dưới 60 phút', run: function () {
+          var sum = PRS.small.reduce(function (n, p) { return n + p[1]; }, 0); return biggest('big') === 3000 && sum === 3000 && PRS.small.length === 6 && PRS.small.every(function (p) { return p[3] < REVIEW_MAX; }); } },
+        { name: 'review: PR lớn bắt 0 lỗi sau 2 phút, sáu PR nhỏ bắt 3 lỗi; checklist PR lớn không câu nào được kiểm', run: function () {
+          return caught('big') === 0 && caught('small') === 3 && ANSWERS.big.every(function (a) { return a === 'skip'; }) && ANSWERS.small.indexOf('skip') < 0; } },
+        { name: 'quy tắc 50/72: mọi tiêu đề của cách PR nhỏ ≤ 50 ký tự và không mơ hồ; cách PR lớn có tiêu đề 55 ký tự và ba tiêu đề vô nghĩa', run: function () {
+          return SUMMARIES.small.every(function (s) { return !badSummary(s); }) && SUMMARIES.big[0].length === 55 && SUMMARIES.big.filter(badSummary).length === 4; } },
+        { name: 'chia đôi: phải đọc 3.000 dòng so với 530; mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã', run: function () {
+          return BUG.big[1] === 3000 && BUG.small[1] === 530 && CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['j10.' + c]; }); }); }); } }] });
+  })();
 })();
