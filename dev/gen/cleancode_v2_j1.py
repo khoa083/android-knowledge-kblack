@@ -92,10 +92,10 @@ def add(a):
     S_ = 'hook'
     a(C + '.sec.%s.title' % S_, 'Đoán trước khi đọc', 'Predict before reading')
     a(C + '.sec.%s.badge' % S_, 'guideline')
-    B(C, S_, 1, 'predict', 'Hàm bookAppointment dài 120 dòng: kiểm tra đầu vào, tính phí, lưu lịch hẹn, hẹn giờ gửi nhắc. Một đồng nghiệp sửa phần tính phí, test phần phí đều xanh. Tuần sau, phòng khám báo nhiều bệnh nhân không nhận được tin nhắc. Chuyện gì có thể đã xảy ra, và vì sao lúc review không ai thấy?',
-      'The bookAppointment function is 120 lines: input checks, the fee, saving the booking, scheduling the reminder. A colleague edits the fee part and the fee tests are green. The next week the clinic reports that many patients got no reminder. What could have happened, and why did nobody see it in review?')
-    B(C, S_, 1, 'ans', 'Rất hay gặp: phần phí được thêm một nhánh "return sớm", và nhánh đó vô tình bỏ qua phần hẹn nhắc ở cuối hàm. Người sửa và người review chỉ giữ phần phí trong đầu; phần hẹn nhắc nằm ngoài tầm nhìn. Mô phỏng ngay dưới giúp bạn đếm xem hàm đó bắt người đọc nhớ bao nhiêu thứ cùng lúc.',
-      'A very common story: the fee part gets an "early return" branch, and that branch accidentally skips the reminder at the end. The editor and the reviewer held only the fee part in their heads; the reminder was out of view. The simulation just below lets you count how many things that function makes the reader hold at once.')
+    B(C, S_, 1, 'predict', 'Hàm bookAppointment dài 120 dòng: kiểm tra đầu vào, tính phí, lưu lịch hẹn, hẹn giờ gửi nhắc. Một đồng nghiệp sửa phần tính phí, test phần phí đều xanh. Tuần sau, phòng khám báo nhiều bệnh nhân không nhận được tin nhắc. Chuyện gì có thể đã xảy ra, và vì sao lúc review (người khác đọc và góp ý trước khi gộp mã) không ai thấy?',
+      'The bookAppointment function is 120 lines: input checks, the fee, saving the booking, scheduling the reminder. A colleague edits the fee part and the fee tests are green. The next week the clinic reports that many patients got no reminder. What could have happened, and why did nobody see it in review (others reading and commenting before the code is merged)?')
+    B(C, S_, 1, 'ans', 'Rất hay gặp: phần phí được thêm một nhánh rẽ "return sớm", và nhánh đó vô tình bỏ qua phần hẹn nhắc ở cuối hàm. Người sửa và người review chỉ giữ phần phí trong đầu; phần hẹn nhắc nằm ngoài tầm nhìn. Mô phỏng ngay dưới giúp bạn đếm xem hàm đó bắt người đọc nhớ bao nhiêu thứ cùng lúc.',
+      'A very common story: the fee part gets an "early return" path, and that branch accidentally skips the reminder at the end. The editor and the reviewer held only the fee part in their heads; the reminder was out of view. The simulation just below lets you count how many things that function makes the reader hold at once.')
 
     S_ = 'seven'
     a(C + '.sec.%s.title' % S_, 'Trí nhớ ngắn hạn và con số 7', 'Short-term memory and the number 7')
