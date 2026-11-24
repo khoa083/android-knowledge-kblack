@@ -52,4 +52,33 @@
       h('div', { class: 'vz-legend', text: T('fits.legend') }));
     box.appendChild(h('div', { class: 'vz' }, out));
   }, { labelKey: K + 'tab.fits', icon: 'grid' });
+
+  /* ---------- J2: bảng đối chiếu (chữ ký che tên → đoán → tên → việc thật → đọc hay ghi), cột mở dần theo bước;
+     bước 4 thêm bảng hai lần gọi khi mất mạng. Hàng có data-k; cột mới mở hiện dần một lần. ---------- */
+  ADE.registerScreen('cleancode.names', function (box, ctx) {
+    var h = ADE.ui.h, J = ADE.ccNames, c = ctx.state.case, i = Math.max(0, idx(ctx));
+    var cols = ['sig', 'guess', 'name', 'does', 'kind'], open = [1, 1, i >= 1, i >= 2, i >= 2], fresh = [i === 0, i === 0, i === 1, i === 2, i === 2];
+    var head = h('tr', null, cols.map(function (k, n) { return h('th', { class: fresh[n] && i > 0 ? 'hl' : null, text: T('nm.col.' + k) }); }));
+    var tb = h('tbody');
+    J.ROWS[c].forEach(function (r) {
+      var ok = J.right(r), kindKey = r[5];
+      var cell = function (n, text, extra) { return h('td', { class: !open[n] ? 'dim c' : (extra || (fresh[n] && i > 0 ? 'hl' : null)), text: open[n] ? text : '?' }); };
+      tb.appendChild(h('tr', { 'data-k': 'nm-' + r[0] },
+        h('td', null, h('code', { text: r[1] })),
+        cell(1, T('nm.g.' + r[2]), i >= 2 && !ok ? 'bad' : null),
+        cell(2, r[3], null),
+        cell(3, T('nm.d.' + r[4]), i >= 2 && !ok ? 'bad' : null),
+        cell(4, T('nm.k.' + kindKey), i >= 2 ? (ok ? 'ok' : 'bad') : null)));
+    });
+    var out = [h('p', { class: 'vz-cap', text: T('nm.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb))];
+    if (i === 3) {
+      var cb = h('tbody');
+      J.CALLS[c].forEach(function (x, n) {
+        cb.appendChild(h('tr', { 'data-k': 'call' + n }, h('td', { text: T('nm.call.' + (n + 1)) }), h('td', { class: 'c ' + (x[0] === 0 ? 'bad' : 'ok'), text: T('nm.ret', { n: x[0] }) }), h('td', { class: 'c' + (x[1] === 0 ? ' bad' : ''), text: T('nm.cacheN', { n: x[1] }) })));
+      });
+      out.push(h('p', { class: 'vz-cap', text: T('nm.tcap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['call', 'ret', 'cache'].map(function (k) { return h('th', { text: T('nm.tcol.' + k) }); }))), cb)));
+    }
+    out.push(h('div', { class: 'vz-legend', text: T('nm.legend') }));
+    box.appendChild(h('div', { class: 'vz' }, out));
+  }, { labelKey: K + 'tab.names', icon: 'list' });
 })();

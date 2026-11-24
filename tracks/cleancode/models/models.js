@@ -104,4 +104,62 @@
           var ok = Object.keys(FN).every(function (f) { var fn = FN[f], n = SNIP_LEN[fn.snip]; return fn.to <= n && fn.br.every(function (b) { return b[0] >= fn.from && b[0] <= fn.to; }) && fn.vars.every(function (v) { return v[2] >= fn.from && v[2] <= fn.to; }); });
           return ok && CASES.every(function (c) { return steps({ case: c }).length === 4 && STEPS[c].every(function (st) { var n = SNIP_LEN[FN[st.f].snip]; return st.hl.every(function (l) { return l >= 1 && l <= n; }); }); }); } }] });
   })();
+
+  /* ================= J2: che tên, đoán đọc hay ghi — bản trộn so với bản tách command và query =================
+     Theo Seemann 8.1.5 (X out names: đoán từ kiểu), 8.1.6 (CQS: command không trả dữ liệu, query không có side effect), 8.1.7;
+     Martin, Clean Code ch.2–3 (tên lộ ý định, side effect là lời nói dối, set trả Boolean, tham số cờ); Moskała, Effective Kotlin
+     Item 15 (property là trạng thái, không phải hành vi). Bảng ROWS là nguồn sự thật; số "đoán đúng" tính từ đó. */
+  (function () {
+    var m = 'names', CASES = ['mixed', 'cqs'], KS = ['s1', 's2', 's3', 's4'];
+    var READ_GUESS = ['query', 'ask', 'state', 'lookup'];   // đoán là chỉ đọc; còn lại (command, unknown) là đoán có ghi
+    // [khóa, chữ ký với tên che, đoán, tên thật, việc thật, loại thật r|w|rw|slow, dòng chữ ký, dòng cài đặt]
+    var ROWS = {
+      mixed: [['getAll', 'fun xxx(): List<Appointment>', 'query', 'getAppointments()', 'getAll', 'rw', 2, [3, 4, 5]],
+        ['save', 'fun xxx(Appointment): Boolean', 'ask', 'save(a)', 'save', 'rw', 7, [8]],
+        ['process', 'fun xxx(String, Boolean)', 'unknown', 'process(data2, flag)', 'process', 'w', 9, [10]],
+        ['nextFree', 'val xxx: Slot', 'state', 'nextFree', 'nextFree', 'slow', 12, [13]]],
+      cqs: [['appointments', 'fun xxx(): List<Appointment>', 'query', 'appointments()', 'appointments', 'r', 2, [2]],
+        ['clear', 'fun xxx()', 'unknown', 'clearExpiredCache()', 'clear', 'w', 3, [3]],
+        ['add', 'fun xxx(Appointment)', 'command', 'add(a)', 'add', 'w', 4, [4]],
+        ['cancel', 'fun xxx(AppointmentId)', 'command', 'cancel(id)', 'cancel', 'w', 5, [5]],
+        ['reschedule', 'fun xxx(AppointmentId, Slot)', 'command', 'reschedule(id, to)', 'reschedule', 'w', 6, [6]],
+        ['find', 'suspend fun xxx(DoctorId): Slot?', 'lookup', 'findNextFreeSlot(doctor)', 'find', 'r', 7, [7]]]
+    };
+    function right(r) { var rd = READ_GUESS.indexOf(r[2]) >= 0; return rd ? r[5] === 'r' : r[5] === 'w'; }
+    // màn hình gọi hai lần khi mất mạng: [trả về, cache sau đó] cho mỗi lần gọi; cache ban đầu 3 lịch hẹn
+    var CALLS = { mixed: [[3, 0], [0, 0]], cqs: [[3, 3], [3, 3]] };
+    var SNIP = { mixed: 'j2.mixed', cqs: 'j2.cqs' };
+    function hlLines(c, i) {
+      if (i === 3) return c === 'mixed' ? [3, 4, 5] : [2];
+      return ROWS[c].reduce(function (acc, r) { return acc.concat(i < 2 ? [r[6]] : r[7]); }, []);
+    }
+    ADE.ccNames = { ROWS: ROWS, CALLS: CALLS, right: right };
+    function steps(s) {
+      var c = s.case, rows = ROWS[c];
+      var nRight = rows.filter(right).length, nBoth = rows.filter(function (r) { return r[5] === 'rw'; }).length;
+      return KS.map(function (k, i) {
+        var bad = (i === 2 && nRight < rows.length) || (i === 3 && CALLS[c][1][0] === 0);
+        var node = ['sig', 'name', 'impl', 'screen'][i];
+        var ns = {}; ns[node] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: i === 0 ? ['sig'] : [['sig', 'name'], ['name', 'impl'], ['impl', 'screen']][i - 1], nodeStates: ns,
+          metrics: { right: i >= 2 ? nRight : 0, both: i >= 2 ? nBoth : 0, second: i === 3 ? CALLS[c][1][0] : 0 },
+          codeHighlight: { snippet: SNIP[c], lines: hlLines(c, i) },
+          movingSignals: i === 0 ? [] : [{ edge: 'e' + i, tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'run' : 'observe'), subject: node }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'j2.mixed': 14, 'j2.cqs': 8 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'mixed' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'bản trộn: đoán đúng 1/4, hai hàm vừa đọc vừa ghi; bản CQS: đoán đúng 6/6, không hàm nào vừa đọc vừa ghi', run: function () {
+          return ROWS.mixed.filter(right).length === 1 && ROWS.mixed.filter(function (r) { return r[5] === 'rw'; }).length === 2 && ROWS.cqs.filter(right).length === 6 && ROWS.cqs.every(function (r) { return r[5] !== 'rw'; }); } },
+        { name: 'bản CQS: chữ ký có kiểu trả về thì là query (chỉ đọc), không có thì là command (ghi)', run: function () {
+          return ROWS.cqs.every(function (r) { var ret = /\)\s*:/.test(r[1]); return ret ? r[5] === 'r' : r[5] === 'w'; }); } },
+        { name: 'gọi hai lần khi mất mạng: bản trộn lần hai trả 0, bản CQS trả 3 cả hai lần', run: function () { return CALLS.mixed[1][0] === 0 && CALLS.cqs[0][0] === 3 && CALLS.cqs[1][0] === 3; } },
+        { name: 'mỗi bản 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && [0, 1, 2, 3].every(function (i) { return hlLines(c, i).every(function (l) { return l >= 1 && l <= LEN[SNIP[c]]; }); }); }); } }] });
+  })();
 })();

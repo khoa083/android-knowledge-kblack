@@ -24,7 +24,9 @@
 | Id nguồn | Sách | Đã đọc thân chương |
 |---|---|---|
 | `book-seemann` (khai báo ở `tracks/sysdesign/sources.js`, tracks gồm cả cleancode) | Mark Seemann, *Code That Fits in Your Head* | 3.2.1, 7.1.1–7.1.3, 7.2.1, 7.2.7, phụ lục A.2, A.7, A.8 (2026-11-24) |
-| `book-cleancode` | Robert C. Martin, *Clean Code* (2008) | ch.3: Small!, Blocks and Indenting, Do One Thing, One Level of Abstraction, Stepdown Rule (2026-11-24) |
+| `book-cleancode` | Robert C. Martin, *Clean Code* (2008) | ch.2 (mục lục và Pick One Word per Concept); ch.3: Small!, Blocks and Indenting, Do One Thing, One Level of Abstraction, Stepdown Rule, Flag Arguments, Have No Side Effects, Output Arguments, Command Query Separation; ch.4 phần mở đầu (2026-11-24) |
+| `book-effective-kotlin` (khai báo ở `tracks/kotlin/sources.js`, tracks gồm cả cleancode) | Marcin Moskała, *Effective Kotlin* | Item 15, Item 17 (2026-11-24) |
+| `kt-conventions` | Kotlin coding conventions (kotlinlang.org) | Choose good names, Function names (curl 2026-11-24) |
 
 URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN 9780132350884), blog.ploeh.dk/code-that-fits-in-your-head/.
 
@@ -40,3 +42,17 @@ URL kiểm HTTP 200 bằng curl ngày 2026-11-24: informit.com (Clean Code, ISBN
 | Đếm biến: cục bộ, tham số, field; gom tham số thành object | Seemann 7.2.7, A.7 |
 | Hàm nhỏ, hiếm khi tới 20 dòng (không có nghiên cứu chứng minh); làm một việc; một mức trừu tượng; stepdown rule | Martin, Clean Code ch.3 |
 | **Của site:** quy ước đếm cho Kotlin (if, for, while, do-while, mỗi nhánh when trừ else; ?:, &&, \|\| không dùng trong ví dụ vì công cụ đếm khác nhau); hàm 19 dòng và mọi con số; nhận xét "tách quá vụn cũng có giá", "when nhiều nhánh ngang hàng vẫn dễ đọc"; chú ý nghiên cứu trí nhớ không đo việc đọc mã | — |
+
+### J2 Đặt tên, command và query
+| Ý trên site | Nguồn |
+|---|---|
+| Viết cho người đọc; tên hàm tốt hơn comment; X out names (đoán từ kiểu; hàm không trả gì thì chỉ tên nói được; API nhiều String/Int thì kiểu không giúp) | Seemann 8.1.3–8.1.5 |
+| CQS (Bertrand Meyer); biến cục bộ không tính là side effect; ưu tiên query; không nhầm với CQRS | Seemann 8.1.6, A.6; Martin ch.3 |
+| Thứ bậc giao tiếp: kiểu, tên, comment, test, commit message, tài liệu | Seemann 8.1.7 |
+| Tên lộ ý định, tránh thông tin sai, phân biệt có nghĩa, mỗi khái niệm một từ, tên theo miền | Martin ch.2 |
+| Side effect là lời nói dối (checkPassword khởi tạo session); set trả Boolean; tham số cờ | Martin ch.3 |
+| Comment bù cho việc chưa diễn đạt được bằng mã | Martin ch.4 |
+| Property là trạng thái không phải hành vi, khi nào dùng hàm; phép thử get/set | Moskała Item 15 |
+| Gọi tham số bằng tên, kiểu riêng mạnh hơn | Moskała Item 17 |
+| Lớp danh từ, hàm động từ, sort/sorted, tránh Manager/Wrapper | Kotlin coding conventions |
+| **Của site:** lớp AppointmentRepo hai phiên bản, "đoán đọc hay ghi" như một phép đếm, lỗi huy hiệu 0 khi mất mạng, lỗi property gọi mạng | — |

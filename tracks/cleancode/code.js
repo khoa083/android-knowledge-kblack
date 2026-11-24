@@ -65,4 +65,32 @@
   };
   add('j1.split', SPLIT(c('    return fee - vouchers.totalFor(req.voucherCodes)   // vòng lặp voucher ở đây', '    return fee - vouchers.totalFor(req.voucherCodes)   // the voucher loop lives here')));
   add('j1.splitFree', SPLIT(c('    return (fee - vouchers.totalFor(req.voucherCodes)).coerceAtLeast(0)   // mới: không âm', '    return (fee - vouchers.totalFor(req.voucherCodes)).coerceAtLeast(0)   // new: never negative')));
+
+  /* J2: bản trộn đọc và ghi (thành viên ở dòng 2, 7, 9, 12) và bản tách command, query (dòng 2–7) */
+  add('j2.mixed', [
+    'class AppointmentRepo(private val api: Api, private val cache: Cache) {',
+    '    fun getAppointments(): List<Appointment> {',
+    '        val tmp = cache.all()',
+    c('        cache.clear()                                  // để lần sau tải bản mới', '        cache.clear()                                  // so the next call loads fresh data'),
+    '        return tmp.ifEmpty { api.fetchAllOrEmpty() }',
+    '    }',
+    '    fun save(a: Appointment): Boolean =',
+    c('        cache.put(a.id, a) != null                     // true: đã có từ trước', '        cache.put(a.id, a) != null                     // true: it already existed'),
+    '    fun process(data2: String, flag: Boolean) {',
+    '        if (flag) api.cancel(data2) else api.reschedule(data2, nextFree)',
+    '    }',
+    '    val nextFree: Slot',
+    c('        get() = api.findNextFreeSlotBlocking()         // gọi mạng trong getter', '        get() = api.findNextFreeSlotBlocking()         // a network call in the getter'),
+    '}'
+  ]);
+  add('j2.cqs', [
+    'class AppointmentRepo(private val api: Api, private val cache: Cache) {',
+    c('    fun appointments(): List<Appointment> = cache.all()            // query: chỉ đọc', '    fun appointments(): List<Appointment> = cache.all()            // query: read only'),
+    c('    fun clearExpiredCache() { cache.removeBefore(today()) }        // command, có tên riêng', '    fun clearExpiredCache() { cache.removeBefore(today()) }        // a named command'),
+    '    fun add(a: Appointment) { cache.put(a.id, a) }',
+    '    fun cancel(id: AppointmentId) { api.cancel(id) }',
+    '    fun reschedule(id: AppointmentId, to: Slot) { api.reschedule(id, to) }',
+    '    suspend fun findNextFreeSlot(doctor: DoctorId): Slot? = api.nextFreeSlot(doctor)',
+    '}'
+  ]);
 })();

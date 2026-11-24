@@ -15,4 +15,8 @@
   V('fits', { layout: 'pipeline', nodes: [N('fits', 'code', 0, 1.5, 'list', 'job'), N('fits', 'head', 4, 0, 'chip', 'state'), N('fits', 'change', 0, 3.5, 'source', 'ui'), N('fits', 'remind', 8, 1.5, 'clock', 'runtime')],
     edges: [E('e1', 'code', 'head'), E('e2', 'change', 'code'), E('e3', 'code', 'remind')],
     metrics: [T('fits', 'paths'), T('fits', 'vars'), T('fits', 'skipped')] });
+  /* J2: chữ ký → tên → cài đặt → màn hình gọi */
+  V('names', { layout: 'pipeline', nodes: [N('names', 'sig', 0, 1, 'eye', 'ui'), N('names', 'name', 3, 1, 'source', 'state'), N('names', 'impl', 6, 1, 'list', 'job'), N('names', 'screen', 9, 1, 'screen', 'runtime')],
+    edges: [E('e1', 'sig', 'name'), E('e2', 'name', 'impl'), E('e3', 'impl', 'screen')],
+    metrics: [T('names', 'right'), T('names', 'both'), T('names', 'second')] });
 })();
