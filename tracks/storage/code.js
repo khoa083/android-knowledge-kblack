@@ -2,6 +2,31 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('storage', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('h8.path', [
+    c('val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)   // cách cũ', 'val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)   // the old way'),
+    c('// Android 9: cần WRITE_EXTERNAL_STORAGE xin lúc chạy', '// Android 9: needs WRITE_EXTERNAL_STORAGE requested at runtime'),
+    c('FileOutputStream(File(dir, "avatar.jpg")).use { bitmap.compress(JPEG, 90, it) }', 'FileOutputStream(File(dir, "avatar.jpg")).use { bitmap.compress(JPEG, 90, it) }')
+  ]);
+  add('h8.mediastore', [
+    'val values = contentValuesOf(',
+    '    MediaStore.Images.Media.DISPLAY_NAME to "avatar.jpg",',
+    '    MediaStore.Images.Media.MIME_TYPE to "image/jpeg",',
+    c('    MediaStore.Images.Media.RELATIVE_PATH to "Pictures/HenKham",   // Android 10+', '    MediaStore.Images.Media.RELATIVE_PATH to "Pictures/ClinicBook",   // Android 10+'),
+    c('    MediaStore.Images.Media.IS_PENDING to 1,                       // ẩn khi đang ghi', '    MediaStore.Images.Media.IS_PENDING to 1,                       // hidden while writing'),
+    ')',
+    'val uri = resolver.insert(MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), values)!!',
+    'resolver.openOutputStream(uri)!!.use { bitmap.compress(JPEG, 90, it) }',
+    c('resolver.update(uri, contentValuesOf(MediaStore.Images.Media.IS_PENDING to 0), null, null)   // hiện ra', 'resolver.update(uri, contentValuesOf(MediaStore.Images.Media.IS_PENDING to 0), null, null)   // now visible')
+  ]);
+  add('h8.read', [
+    c('// đọc mọi ảnh trong máy, kể cả của app khác', '// reads every photo on the device, including other apps\''),
+    c('resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, …)   // cần quyền đọc media', 'resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, …)   // needs a media read permission')
+  ]);
+  add('h8.picker', [
+    'val pick = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->',
+    c('    if (uri != null) viewModel.setAvatar(uri)                    // chỉ ảnh người dùng chọn', '    if (uri != null) viewModel.setAvatar(uri)                    // only the photo the user picked'),
+    c('}; pick.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))   // không cần quyền', '}; pick.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))   // no permission needed')
+  ]);
   add('h7.online', [
     c('fun book(slot: Slot) = viewModelScope.launch {', 'fun book(slot: Slot) = viewModelScope.launch {'),
     c('    try { api.book(slot) }                         // mất mạng: ném IOException', '    try { api.book(slot) }                         // offline: throws IOException'),

@@ -85,3 +85,13 @@
 | Hàng chờ có thể giữ trong Room, rút bằng WorkManager; ví dụ enqueueUniqueWork KEEP, NetworkType.CONNECTED, Result.retry → backoff lũy thừa | ax-offline-first-data | stable |
 | WorkManager sống qua tắt app và khởi động lại; lưu trong SQLite nội bộ; coroutine dừng khi app đóng; ràng buộc, công việc duy nhất, backoff | ax-persistent-work | stable |
 | Cột PENDING/SYNCED, id do máy sinh chống gửi trùng, bài tập Hủy lịch | site | simplified |
+
+### H8 · Shared storage và MediaStore
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Bộ sưu tập Images/Video/Audio/Downloads (Downloads từ 10); insert + ContentValues; DISPLAY_NAME, RELATIVE_PATH thay cột DATA; IS_PENDING từ 10 | ax-shared-media | stable |
+| Từ 10 không cần quyền cho media của chính app; ≤9 cần READ/WRITE_EXTERNAL_STORAGE (WRITE maxSdkVersion 29); requestLegacyExternalStorage ở 10; File/fopen từ 11, ngẫu nhiên chậm tới gấp đôi | ax-shared-media | version |
+| WRITE_EXTERNAL_STORAGE vô hiệu khi target ≥ 30 | ax-storage-overview | version |
+| READ_MEDIA_IMAGES/VIDEO bị Play giới hạn, khuyên photo picker; cài lại cần quyền đọc để thấy file cũ | ax-shared-media | stable |
+| Photo picker: androidx.activity 1.7.0+, có sẵn từ 11, backport 4.4–10 qua Play services, fallback ACTION_OPEN_DOCUMENT, takePersistableUriPermission (giới hạn 5.000) | ax-photo-picker | stable |
+| getExternalStoragePublicDirectory deprecated từ API 29 | kiến thức API reference, không gắn nguồn trên site | version |

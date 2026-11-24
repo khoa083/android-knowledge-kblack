@@ -39,4 +39,8 @@
   V('sync', { layout: 'pipeline', nodes: [N('sync', 'app', 0, 0, 'phone', 'ui'), N('sync', 'db', 3, 0, 'store', 'state'), N('sync', 'wm', 6, 0, 'job', 'runtime'), N('sync', 'server', 9, 0, 'source', 'job')],
     edges: [E('e1', 'app', 'db'), E('e2', 'db', 'wm'), E('e3', 'wm', 'server')],
     metrics: [T('sync', 'inDb'), T('sync', 'state'), T('sync', 'server')] });
+  /* H8: app → API lưu (đường dẫn tệp, MediaStore, picker) → bộ nhớ chung */
+  V('media', { layout: 'pipeline', nodes: [N('media', 'app', 0, 0, 'phone', 'ui'), N('media', 'api', 4, 0, 'mechanism', 'runtime'), N('media', 'store', 8, 0, 'store', 'state')],
+    edges: [E('e1', 'app', 'api'), E('e2', 'api', 'store')],
+    metrics: [T('media', 'ver'), T('media', 'res')] });
 })();

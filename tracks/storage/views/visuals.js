@@ -180,4 +180,21 @@
     box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('sq.cap') }), holder, h('p', { class: 'vz-cap', text: T('sq.qcap') }), h('div', { class: 'vz-scroll' }, qt),
       h('div', { class: 'vz-legend', text: T('sq.legend') })));
   }, { labelKey: K + 'tab.sq', icon: 'list' });
+
+  /* ---------- H8: ma trận phiên bản Android × cách làm; cột đang chọn mở dần theo bước, ô đang xét có viền ---------- */
+  ADE.registerScreen('storage.media', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.storageMedia, c = ctx.state.case, i = idx(ctx), MM = 'track.storage.m.media.';
+    var CLS = { ok: 'ok', perm: null, legacy: 'bad', slow: null, restricted: 'bad' };
+    var head = h('tr', null, h('th', { text: T('md.ver') }), D.COLS.map(function (col) { return h('th', { class: col === c ? 'hl' : null, text: T('md.col.' + col) }); }));
+    var tb = h('tbody');
+    D.ROWS.forEach(function (r, k) {
+      tb.appendChild(h('tr', null, h('th', { class: k === i ? 'hl' : null, text: ADE.t(MM + 'row.' + r) }), D.COLS.map(function (col) {
+        var v = D.CELL[r][col], mine = col === c;
+        if (mine && k > i) return h('td', { class: 'dim', text: '?' });
+        return h('td', { class: mine && k === i ? 'hl' : (mine ? CLS[v] : 'dim'), text: ADE.t(MM + 'cell.' + v) });
+      })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('md.cap') }), h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, head), tb)),
+      h('div', { class: 'vz-legend', text: T('md.legend') })));
+  }, { labelKey: K + 'tab.md', icon: 'grid' });
 })();

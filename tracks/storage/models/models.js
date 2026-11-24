@@ -325,4 +325,42 @@
         { name: 'ghi online lúc mất mạng không lưu gì xuống máy; ghi local thì có lịch trong DB từ bước 1', run: function () { return Q.online.every(function (r) { return r[0] === 'no'; }) && Q.coroutine[0][0] === 'yes' && Q.lazy[0][0] === 'yes'; } },
         { name: 'mọi tin nhắn đi giữa bốn bên đã khai báo', run: function () { return CASES.every(function (c) { return MSG[c].every(function (ms) { return ms.every(function (x) { return PARTS.indexOf(x[0]) >= 0 && PARTS.indexOf(x[1]) >= 0; }); }); }); } }] });
   })();
+
+  /* ================= H8: ảnh hồ sơ qua bốn đời Android — đường dẫn tệp, MediaStore, đọc ảnh app khác, photo picker =================
+     Theo Access media files from shared storage (từ Android 10 không cần quyền để thêm và sửa media của chính app; Android 9 trở xuống
+     cần READ/WRITE_EXTERNAL_STORAGE, WRITE khai maxSdkVersion 29; Android 10 tạm thoát scoped storage bằng requestLegacyExternalStorage;
+     từ Android 11 dùng được File và fopen trên shared storage, đọc ghi ngẫu nhiên có thể chậm gấp đôi; READ_MEDIA_IMAGES bị giới hạn bởi
+     chính sách Google Play, trang khuyên photo picker; IS_PENDING và RELATIVE_PATH từ Android 10), Photo picker (backport qua Google Play
+     services tới Android 4.4; ACTION_OPEN_DOCUMENT khi không có). App giả định target SDK mới nhất. */
+  (function () {
+    var m = 'media', CASES = ['path', 'mediastore', 'read', 'picker'], KS = ['s1', 's2', 's3', 's4'];
+    var ROWS = ['a9', 'a10', 'a11', 'a13'];
+    // ô ma trận [phiên bản][cách]: ok | perm (cần quyền) | legacy (chỉ khi tạm thoát scoped storage) | slow (được, chậm hơn) | restricted (cần quyền bị Play giới hạn)
+    var CELL = {
+      a9: { path: 'perm', mediastore: 'perm', read: 'perm', picker: 'ok' },
+      a10: { path: 'legacy', mediastore: 'ok', read: 'perm', picker: 'ok' },
+      a11: { path: 'slow', mediastore: 'ok', read: 'perm', picker: 'ok' },
+      a13: { path: 'slow', mediastore: 'ok', read: 'restricted', picker: 'ok' }
+    };
+    var BAD = { legacy: 1 }, WARN = { perm: 1, restricted: 1, slow: 1 };
+    ADE.storageMedia = { ROWS: ROWS, COLS: CASES, CELL: CELL };
+    var LINES = { path: [[1, 2], [2, 3], [3], [3]], mediastore: [[1, 2, 3, 4, 5, 6], [7, 8], [9], [9]], read: [[1, 2], [1, 2], [1, 2], [1, 2]], picker: [[1, 2], [3], [3], [3]] };
+    function steps(s) {
+      return ROWS.map(function (r, i) {
+        var v = CELL[r][s.case], bad = !!BAD[v], warn = !!WARN[v];
+        var ns = { app: K + 'st.done', api: K + 'st.' + (bad ? 'broken' : (warn ? 'surprise' : 'done')), store: K + 'st.' + (bad ? 'skipped' : 'done') };
+        var o = S(m, s.case + '.' + KS[i], { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: ['app', 'api', 'store'], nodeStates: ns,
+          metrics: { ver: M(m, 'row.' + r), res: M(m, 'cell.' + v) }, codeHighlight: { snippet: 'h8.' + s.case, lines: LINES[s.case][i] },
+          movingSignals: [{ edge: 'e1', tok: bad ? 'signal' : 'state' }, { edge: 'e2', tok: bad ? 'signal' : 'state' }], logEvents: [{ t: i, kind: bad ? 'exception' : 'run', subject: 'api' }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'path' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'photo picker không cần quyền ở mọi phiên bản', run: function () { return ROWS.every(function (r) { return CELL[r].picker === 'ok'; }); } },
+        { name: 'từ Android 10, thêm ảnh của chính app qua MediaStore không cần quyền; Android 9 thì cần', run: function () { return CELL.a9.mediastore === 'perm' && ['a10', 'a11', 'a13'].every(function (r) { return CELL[r].mediastore === 'ok'; }); } },
+        { name: 'đường dẫn tệp chỉ hỏng ở Android 10 (scoped storage, chưa có File trên shared storage)', run: function () { return ROWS.filter(function (r) { return BAD[CELL[r].path]; }).join() === 'a10'; } }] });
+  })();
 })();
