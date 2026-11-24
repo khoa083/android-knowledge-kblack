@@ -12,6 +12,8 @@ PATS = [
     r'\bch\.\s*[0-9]+',
     r'(\bIn|\bỞ),?\s+(he|she|his|ông|bà)\b',
     r'The Clean Coder|Clean Agile|Software Craftsman',
+    r'System Design Interview|Mobile System Design|early release',
+    r'\b(tập|vol\.)\s*[0-9]',
     r'Clean Craftsmanship|Clean Coder|xUnit Test Patterns|Effective Kotlin|Clean Architecture',
     r'\b(Rule|Quy tắc)\s*[0-9]+(?![0-9/])',
     r'\(\s*[0-9]+\.[0-9]+(\.[0-9]+)?\s*\)',
@@ -22,7 +24,7 @@ PATS = [
     r'theo của',
     r'(Exercise|Bài tập)\s*[0-9]+\.[0-9]',
     r'\b(DDIA|AAT)\b',
-    r'(Martin|Moskała|Seemann|Kleppmann|Carli|Vermeulen):\s',
+    r'(Martin|Moskała|Seemann|Kleppmann|Carli|Vermeulen|Tjeerd|Xu):\s',
 ]
 rx = [re.compile(p, re.I) for p in PATS]
 tot = collections.Counter()
