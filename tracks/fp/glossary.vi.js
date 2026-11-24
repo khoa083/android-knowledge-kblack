@@ -8,5 +8,8 @@ ADE.addGlossary('vi', 'fp', {
   "tail-position": { term: "vị trí đuôi (tail position)", def: "Một lời gọi ở vị trí đuôi khi nơi gọi không làm gì khác ngoài trả kết quả của nó. Hàm đệ quy có mọi lời gọi ở vị trí đuôi và gắn tailrec thì được Kotlin đổi thành vòng lặp.", chapter: "fp/p2" },
   "function-composition": { term: "ghép hàm (function composition)", def: "Từ hai hàm f: A → B và g: B → C tạo hàm A → C chạy f rồi g. Chỉ hợp lệ khi đầu ra của f khớp đầu vào của g. Thư viện chuẩn Kotlin không có sẵn; viết một dòng infix fun.", chapter: "fp/p3" },
   "currying": { term: "currying", def: "Biến hàm nhiều tham số (A, B) -> C thành chuỗi hàm một tham số (A) -> (B) -> C. Tên theo nhà toán học Haskell Curry.", chapter: "fp/p3" },
-  "partial-application": { term: "partial application", def: "Cố định trước một số tham số của hàm, nhận về hàm cần phần còn lại; các giá trị đã cố định nằm trong closure. Gần với dependency injection.", chapter: "fp/p3" }
+  "partial-application": { term: "partial application", def: "Cố định trước một số tham số của hàm, nhận về hàm cần phần còn lại; các giá trị đã cố định nằm trong closure. Gần với dependency injection.", chapter: "fp/p3" },
+  "algebraic-data-type": { term: "kiểu dữ liệu đại số (ADT)", def: "Kiểu ghép từ kiểu khác bằng hai phép: product (và: mọi trường cùng có, số giá trị nhân với nhau, như data class) và sum (hoặc: đúng một trong các lựa chọn, số giá trị cộng với nhau, như sealed interface).", chapter: "fp/p4" },
+  "product-type": { term: "product type", def: "Kiểu gồm nhiều trường cùng có mặt; số giá trị bằng tích số giá trị của từng trường. Pair và data class là product type.", chapter: "fp/p4" },
+  "sum-type": { term: "sum type", def: "Kiểu là đúng một trong vài lựa chọn; số giá trị bằng tổng số giá trị của các lựa chọn. Either và sealed interface với các kiểu con là sum type.", chapter: "fp/p4" }
 });

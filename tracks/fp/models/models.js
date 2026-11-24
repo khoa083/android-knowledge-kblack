@@ -253,4 +253,74 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p3.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= K4: kiểu dữ liệu đại số: UiState ba trường độc lập (product) so với sealed interface (sum) =================
+     Theo Carli ch.10 (Pair là tích Descartes: số giá trị nhân nhau; Either là tổng; Unit là 1, Nothing là 0; Optional là A + 1;
+     callback (Data, Result?, Error?) không an toàn kiểu, viết lại thành Result * (Info + Error)); tài liệu Kotlin Sealed classes (when phủ đủ).
+     CÀI THẬT: liệt kê mọi tổ hợp của ba trường, luật "có nghĩa" theo thiết kế màn hình đã nói rõ (bản 1: tải, lỗi, danh sách; bản 2 thêm
+     tải lại giữ dữ liệu cũ), chạy chuỗi if của màn hình trên từng tổ hợp, mô phỏng khối catch quên tắt isLoading. Đếm theo dạng:
+     mỗi trường nullable tính "có" hoặc "không" (A + 1 với A tính là 1 dạng). Ba màn dùng state là của site. */
+  (function () {
+    var m = 'adt', CASES = ['product', 'sum'], KS = ['s1', 's2', 's3', 's4'], SCREENS = ['slots', 'home', 'summary'];
+    var FIELDS = [['isLoading', [true, false]], ['error', ['msg', null]], ['slots', ['list', null]]];
+    function combos() {   // tích Descartes của ba trường: 2 × 2 × 2
+      var out = [[]];
+      FIELDS.forEach(function (f) { var nx = []; out.forEach(function (c) { f[1].forEach(function (v) { nx.push(c.concat([v])); }); }); out = nx; });
+      return out.map(function (c) { return { l: c[0], e: c[1], d: c[2] }; });
+    }
+    var VARIANTS = function (v2) { return v2 ? ['Loading', 'Error', 'Success', 'Refreshing'] : ['Loading', 'Error', 'Success']; };
+    // thiết kế màn: bản 1 có ba trạng thái; bản 2 (bước 4) thêm tải lại giữ dữ liệu cũ
+    function meaning(x, v2) {
+      if (x.l && !x.e && !x.d) return 'loading';
+      if (!x.l && x.e && !x.d) return 'error';
+      if (!x.l && !x.e && x.d) return 'success';
+      if (v2 && x.l && !x.e && x.d) return 'refresh';
+      return null;
+    }
+    var WANT = { loading: 'spinner', error: 'error', success: 'list', refresh: 'listRefreshing' };
+    // chuỗi if của màn hình (dòng 7 của p4.product)
+    function productUi(x) { if (x.l) return 'spinner'; if (x.e) return 'error'; return x.d ? 'list' : 'crash'; }
+    function sumUi(v) { return { Loading: 'spinner', Error: 'error', Success: 'list', Refreshing: 'listRefreshing' }[v]; }
+    // khối catch: từ Loading, đặt lỗi; product quên tắt isLoading
+    function afterCatch(c) { if (c === 'product') { var s = { l: true, e: null, d: null }; s.e = 'msg'; return s; } return 'Error'; }
+    function view(c, i) {
+      var v2 = i === 3;
+      if (c === 'product') {
+        var rows = combos().map(function (x) { var mn = meaning(x, v2), ui = productUi(x); return { x: x, meaning: mn, ui: ui, wrong: mn ? ui !== WANT[mn] : true }; });
+        var invalid = rows.filter(function (r) { return !r.meaning; }).length, silent = v2 ? rows.filter(function (r) { return r.meaning && r.wrong; }).length * SCREENS.length : 0;
+        return { rows: rows, combos: rows.length, invalid: invalid, silent: silent, flagged: 0, bug: i >= 2 ? afterCatch(c) : null };
+      }
+      var vs = VARIANTS(v2).map(function (v) { return { v: v, ui: sumUi(v), meaning: v.toLowerCase() === 'refreshing' ? 'refresh' : v.toLowerCase() }; });
+      return { rows: vs, combos: vs.length, invalid: 0, silent: 0, flagged: v2 ? SCREENS.length : 0, bug: i >= 2 ? afterCatch(c) : null };
+    }
+    ADE.fpAdt = { FIELDS: FIELDS, SCREENS: SCREENS, combos: combos, meaning: meaning, productUi: productUi, view: view, WANT: WANT };
+    var HL = { product: [[1, 2, 3, 4, 5], [7], [6], [7]], sum: [[1, 2, 3, 4, 6], [8], [7], [5, 8]] };
+    var NODES = [[['type', 'states'], 'states', 'e1'], [['states', 'screen'], 'screen', 'e2'], [['catch', 'states'], 'states', 'e3'], [['states', 'screen'], 'screen', 'e2']];
+    function steps(s) {
+      var c = s.case, bad = c === 'product';
+      return KS.map(function (k, i) {
+        var v = view(c, i), nd = NODES[i], ns = {}; ns[nd[1]] = K + 'st.' + (bad && i > 0 ? (i === 2 ? 'broken' : 'surprise') : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { combos: v.combos, invalid: i >= 1 ? v.invalid : 0, silent: v.silent, flagged: v.flagged },
+          codeHighlight: { snippet: 'p4.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad && i > 0 ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad && i >= 2 ? 'exception' : (i === 3 ? 'complete' : (i === 2 ? 'run' : 'observe')), subject: nd[1] }] });
+        o.callouts = [{ kind: i === 0 && bad ? 'try' : (bad && i > 0 ? 'pitfall' : 'source'), textKey: i === 0 && bad ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'p4.product': 7, 'p4.sum': 8 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'product' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'product: 2 × 2 × 2 = 8 tổ hợp, đúng 3 có nghĩa ở bản 1 (5 vô nghĩa), 4 ở bản 2; sum: 3 rồi 4 kiểu con, không tổ hợp vô nghĩa', run: function () {
+          var a = view('product', 0), b = view('product', 3), s1 = view('sum', 0), s4 = view('sum', 3);
+          return a.combos === 8 && a.invalid === 5 && b.invalid === 4 && s1.combos === 3 && s4.combos === 4 && s1.invalid === 0; } },
+        { name: 'chuỗi if: (false, null, null) làm slots!! crash; khối catch quên tắt isLoading tạo (true, lỗi, null), màn chỉ hiện spinner', run: function () {
+          var bug = afterCatch('product'); return productUi({ l: false, e: null, d: null }) === 'crash' && bug.l && bug.e && !meaning(bug, false) && productUi(bug) === 'spinner' && afterCatch('sum') === 'Error'; } },
+        { name: 'bước 4: tải lại giữ dữ liệu cũ bị chuỗi if hiện thành spinner ở 3 màn mà không ai báo; sealed: 3 chỗ when bị trình biên dịch chỉ ra, 0 sai im lặng', run: function () {
+          var b = view('product', 3), s4 = view('sum', 3); return productUi({ l: true, e: null, d: 'list' }) === 'spinner' && b.silent === 3 && s4.flagged === 3 && s4.silent === 0; } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p4.' + c]; }); }); }); } }] });
+  })();
 })();

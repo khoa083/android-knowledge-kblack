@@ -51,3 +51,10 @@
 | partial1, curry, uncurry, compose như câu đố kiểu (chỉ một thân hàm hợp kiểu); closure giữ a (Exercise 2.3–2.5) | Vermeulen và cộng sự ch.2 |
 | Đếm tham số như thứ phải giữ trong đầu | Seemann 7.2.7 (đã dùng ở J1) |
 | **Của site:** bốn hàm parse, assign, price, format; hàm 6 tham số gọi ở bốn màn; lỗi UTC chép từ test; formatFor; let như pipe của thư viện chuẩn; hai múi giờ trong mô phỏng | — |
+
+### K4 Kiểu dữ liệu đại số
+| Ý trên site | Nguồn |
+|---|---|
+| Pair là tích Descartes, số giá trị nhân; Triage 3 giá trị; Struct = Boolean × Triage × Byte = 1.536; Unit là 1, Nothing là 0; Either là tổng; callback (Data, Result?, Error?) không an toàn kiểu, viết lại thành Result × (Info + Error), "điều không làm được quan trọng hơn điều làm được"; Optional là A + 1; Exercise 10.1, 10.3 | Carli ch.10 |
+| Kiểu con trực tiếp của sealed biết lúc biên dịch, when phủ đủ không cần else | Kotlin docs, Sealed classes (nguồn kt-sealed của track Kotlin, mở rộng cho fp) |
+| **Của site:** màn "Lịch trống" và thiết kế của nó (vào là tải; bản 2 thêm tải lại giữ dữ liệu cũ), đếm theo dạng (nullable tính có hoặc không), ba màn dùng chung state, khối catch quên tắt isLoading, crash slots!!; cầu nối X24 tới Kotlin K5 và Kiến trúc G7 | — |

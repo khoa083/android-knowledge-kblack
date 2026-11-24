@@ -44,5 +44,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X22.title': 'DIP at class level and dependency direction across layers',
   'shared.bridge.X22.summary': 'The architecture chapter teaches the whole app\'s dependency direction: UI and data depend on the business layer, never the reverse. The owner chapter teaches the principle at class level: the policy defines an interface (PaymentGateway), the detail (payment provider, SDK) implements it, so the source arrow runs from detail into policy.',
   'shared.bridge.X23.title': 'Splitting modules and measuring stability',
-  'shared.bridge.X23.summary': 'The architecture chapter teaches splitting Android modules by layer and by feature. The owner chapter gives the measuring tools: count incoming and outgoing dependencies, compute I = Ce/(Ca+Ce), make dependencies point toward stability, and find stable yet volatile modules such as a grab-bag :core:common.'
+  'shared.bridge.X23.summary': 'The architecture chapter teaches splitting Android modules by layer and by feature. The owner chapter gives the measuring tools: count incoming and outgoing dependencies, compute I = Ce/(Ca+Ce), make dependencies point toward stability, and find stable yet volatile modules such as a grab-bag :core:common.',
+  'shared.bridge.X24.title': 'Counting states: why UiState should be sealed',
+  'shared.bridge.X24.summary': 'The Kotlin chapter teaches sealed syntax and exhaustive when; the architecture chapter uses one UiState for MVI. The owner chapter gives the counting: a data class multiplies its fields\' shapes, a sealed type adds its subtypes\'; a three-field UiState has 8 shapes where the screen usually needs 3.'
 });

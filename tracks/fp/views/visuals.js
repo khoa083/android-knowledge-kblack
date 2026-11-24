@@ -115,4 +115,42 @@
       h('p', { class: 'vz-sub', 'data-k': 'cp-edits', text: sub }),
       h('div', { class: 'vz-legend', text: T('compose.legend') })));
   }, { labelKey: K + 'tab.compose', icon: 'list' });
+
+  /* ---------- K4: (1) bảng tính số dạng: nhân (product) hay cộng (sum); (2) ma trận mọi tổ hợp hay mọi kiểu con, nghĩa theo thiết kế màn
+     và màn hình hiện gì (chạy chuỗi if hay when thật). Hàng của lỗi ở bước 3 và trạng thái mới ở bước 4 được viền; không lặp. ---------- */
+  ADE.registerScreen('fp.adt', function (box, ctx) {
+    var h = ADE.ui.h, A = ADE.fpAdt, c = ctx.state.case, i = Math.max(0, idx(ctx)), v = A.view(c, i), prod = c === 'product';
+    var t1 = h('tbody'), parts;
+    if (prod) parts = A.FIELDS.map(function (f) { return [f[0], f[0] === 'isLoading' ? 'Boolean' : (f[0] === 'error' ? 'String?' : 'List<Slot>?'), 2]; });
+    else parts = v.rows.map(function (r) { return [r.v, r.v === 'Loading' ? 'data object' : 'data class', 1]; });
+    parts.forEach(function (p) {
+      var fresh = !prod && p[0] === 'Refreshing';
+      t1.appendChild(h('tr', { 'data-k': 'adt-p-' + p[0] }, h('td', { class: fresh ? 'hl' : null, translate: 'no', text: p[0] }), h('td', { translate: 'no', text: p[1] }), h('td', { class: 'c', text: String(p[2]) })));
+    });
+    var expr = parts.map(function (p) { return p[2]; }).join(prod ? ' × ' : ' + ') + ' = ' + v.combos;
+    t1.appendChild(h('tr', { 'data-k': 'adt-total' }, h('td', { class: prod ? 'bad' : 'ok', text: T('adt.total', { expr: expr }) }), h('td', null), h('td', { class: 'c ' + (prod ? 'bad' : 'ok'), text: String(v.combos) })));
+    var t2 = h('tbody'), show = i >= 1;
+    var same = function (a, b) { return a && b && a.l === b.l && a.e === b.e && a.d === b.d; };
+    v.rows.forEach(function (r, n) {
+      var label, mark, hit;
+      if (prod) {
+        label = [String(r.x.l), r.x.e ? '"…"' : 'null', r.x.d ? '[…]' : 'null'].map(function (t, k) { return h('span', { class: 'vz-chip' + (t === 'null' || t === 'false' ? ' dim' : ''), 'data-k': 'adt-v-' + n + '-' + k, translate: 'no', text: t }); });
+        hit = (i === 2 && same(r.x, v.bug)) || (i === 3 && r.meaning === 'refresh');
+      } else { label = [h('span', { class: 'vz-chip', translate: 'no', text: r.v })]; hit = (i === 2 && r.v === v.bug) || (i === 3 && r.v === 'Refreshing'); }
+      var okMean = !!r.meaning, wrongUi = prod && r.meaning ? r.ui !== A.WANT[r.meaning] : false;
+      mark = !show ? '?' : (okMean ? T('adt.mean.' + r.meaning) : T('adt.mean.none'));
+      t2.appendChild(h('tr', { 'data-k': 'adt-r-' + (prod ? n : r.v) },
+        h('td', { class: hit ? 'hl' : null }, label),
+        h('td', { class: !show ? 'dim' : (okMean ? 'ok' : 'bad'), text: mark }),
+        h('td', { class: !show ? 'dim' : ((!okMean && prod) || wrongUi || r.ui === 'crash' ? 'bad' : ''), text: !show ? '?' : T('adt.ui.' + r.ui) })));
+    });
+    var sub = i < 2 ? T('adt.sub.none') : (i === 2 ? T('adt.sub.bug.' + c) : T('adt.sub.v2.' + c, { n: A.SCREENS.length }));
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-cap', text: T('adt.ccap.' + c) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['part', 'type', 'count'].map(function (k) { return h('th', { text: T('adt.col.' + k) }); }))), t1)),
+      h('p', { class: 'vz-cap', text: T('adt.mcap.' + c) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, [prod ? 'combo' : 'variant', 'mean', 'ui'].map(function (k) { return h('th', { text: T('adt.col.' + k) }); }))), t2)),
+      h('p', { class: 'vz-sub', 'data-k': 'adt-sub', text: sub }),
+      h('div', { class: 'vz-legend', text: T('adt.legend') })));
+  }, { labelKey: K + 'tab.adt', icon: 'grid' });
 })();

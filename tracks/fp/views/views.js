@@ -23,4 +23,8 @@
   V('compose', { layout: 'pipeline', nodes: [N('compose', 'raw', 0, 0, 'source', 'ui'), N('compose', 'pipe', 3, 0, 'mechanism', 'job'), N('compose', 'screens', 6, 1, 'screen', 'state'), N('compose', 'config', 3, 2, 'list', 'runtime')],
     edges: [E('e1', 'raw', 'pipe'), E('e2', 'pipe', 'screens'), E('e3', 'config', 'screens')],
     metrics: [T('compose', 'args'), T('compose', 'repeated'), T('compose', 'wrong'), T('compose', 'edits')] });
+  /* K4: kiểu → các trạng thái biểu diễn được → màn hình; khối catch ghi vào state */
+  V('adt', { layout: 'pipeline', nodes: [N('adt', 'type', 0, 0, 'layers', 'ui'), N('adt', 'states', 3, 0, 'grid', 'state'), N('adt', 'screen', 6, 0, 'screen', 'job'), N('adt', 'catch', 3, 2, 'mechanism', 'runtime')],
+    edges: [E('e1', 'type', 'states'), E('e2', 'states', 'screen'), E('e3', 'catch', 'states')],
+    metrics: [T('adt', 'combos'), T('adt', 'invalid'), T('adt', 'silent'), T('adt', 'flagged')] });
 })();

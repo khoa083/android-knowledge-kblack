@@ -81,4 +81,26 @@
     c('show(toPriced(raw), false)                                    // nhắc lịch', 'show(toPriced(raw), false)                                    // reminder'),
     c('show(toPriced(raw), false)                                    // biên lai', 'show(toPriced(raw), false)                                    // receipt')
   ]);
+
+  /* K4: product type: ba trường độc lập, 2 × 2 × 2 = 8 dạng; dòng 6 quên tắt isLoading; dòng 7 là chuỗi if của màn hình */
+  add('p4.product', [
+    'data class SlotsUiState(',
+    '    val isLoading: Boolean = false,',
+    '    val error: String? = null,',
+    '    val slots: List<Slot>? = null',
+    c(')                                                   // 2 × 2 × 2 = 8 dạng', ')                                                   // 2 × 2 × 2 = 8 shapes'),
+    c('catch (e: IOException) { _state.update { it.copy(error = e.message) } }   // quên isLoading = false', 'catch (e: IOException) { _state.update { it.copy(error = e.message) } }   // forgets isLoading = false'),
+    'if (s.isLoading) Spinner() else if (s.error != null) ErrorText(s.error) else SlotList(s.slots!!)'
+  ]);
+  /* K4: sum type: mỗi trạng thái một kiểu con; when phủ đủ, không else; Refreshing thêm ở bước 4 */
+  add('p4.sum', [
+    'sealed interface SlotsUiState {',
+    '    data object Loading : SlotsUiState',
+    '    data class Error(val message: String) : SlotsUiState',
+    '    data class Success(val slots: List<Slot>) : SlotsUiState',
+    c('    data class Refreshing(val slots: List<Slot>) : SlotsUiState   // thêm ở bước 4', '    data class Refreshing(val slots: List<Slot>) : SlotsUiState   // added in step 4'),
+    c('}                                                   // 1 + 1 + 1 (+ 1) dạng', '}                                                   // 1 + 1 + 1 (+ 1) shapes'),
+    'catch (e: IOException) { _state.value = SlotsUiState.Error(e.message ?: "") }',
+    'when (s) { Loading -> Spinner(); is Error -> ErrorText(s.message); is Success -> SlotList(s.slots); is Refreshing -> SlotList(s.slots, refreshing = true) }'
+  ]);
 })();

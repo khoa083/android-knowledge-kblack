@@ -44,5 +44,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X22.title': 'DIP ở mức lớp và hướng phụ thuộc giữa các tầng',
   'shared.bridge.X22.summary': 'Chương kiến trúc dạy hướng phụ thuộc của cả app: giao diện và dữ liệu phụ thuộc vào tầng nghiệp vụ, không ngược lại. Chương chủ sở hữu dạy nguyên lý ở mức lớp: nghiệp vụ định nghĩa giao diện (PaymentGateway), chi tiết (cổng thanh toán, SDK) cài giao diện đó, nên mũi tên mã nguồn đi từ chi tiết vào chính sách.',
   'shared.bridge.X23.title': 'Chia module và đo độ ổn định',
-  'shared.bridge.X23.summary': 'Chương kiến trúc dạy cách chia module Android theo tầng và theo tính năng. Chương chủ sở hữu cho công cụ đo: đếm phụ thuộc vào và ra, tính I = Ce/(Ca+Ce), phụ thuộc phải đi về phía ổn định, và tìm module ổn định mà hay đổi như một :core:common thập cẩm.'
+  'shared.bridge.X23.summary': 'Chương kiến trúc dạy cách chia module Android theo tầng và theo tính năng. Chương chủ sở hữu cho công cụ đo: đếm phụ thuộc vào và ra, tính I = Ce/(Ca+Ce), phụ thuộc phải đi về phía ổn định, và tìm module ổn định mà hay đổi như một :core:common thập cẩm.',
+  'shared.bridge.X24.title': 'Đếm trạng thái: vì sao UiState nên là sealed',
+  'shared.bridge.X24.summary': 'Chương Kotlin dạy cú pháp sealed và when phủ đủ; chương kiến trúc dùng một UiState cho MVI. Chương chủ sở hữu cho cách đếm: data class nhân số dạng các trường, sealed cộng số dạng các kiểu con; UiState ba trường có 8 dạng mà màn thường chỉ cần 3.'
 });
