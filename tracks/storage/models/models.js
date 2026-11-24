@@ -240,4 +240,45 @@
         { name: 'chỉ vòng lặp không giao dịch mới đếm trùng lịch #7 khi đồng bộ chen giữa', run: function () { return dupCount(P.loop[3].res) === 1 && dupCount(P.relation[3].res) === 0 && dupCount(P.multimap[3].res) === 0; } },
         { name: 'kết quả nhất quán khớp đúng dữ liệu trước lần ghi', run: function () { var r = P.relation[3].res; return Object.keys(BEFORE).every(function (id) { return r[BEFORE[id]].indexOf(+id) >= 0; }); } }] });
   })();
+
+  /* ================= H6: nâng app từ database v1 lên v3 — thiếu đường, xóa sạch, đủ đường =================
+     Theo Migrating Room databases (Migration(start, end) và addMigrations; AutoMigration cần schema đã xuất; spec cho đổi tên hay xóa;
+     thiếu đường migration thì IllegalStateException; fallbackToDestructiveMigration xóa vĩnh viễn mọi dữ liệu trong bảng; có cả
+     migration tay và tự động cho cùng phiên bản thì Room dùng bản tay; Room kiểm schema sau khi chạy hết migration; MigrationTestHelper).
+     Người dùng ở v1 với 12 lịch hẹn là tình huống của site. v2 thêm cột note; v3 thêm cột statusCode và điền từ cột status. */
+  (function () {
+    var m = 'mig', CASES = ['missing', 'destructive', 'complete'], KS = ['s1', 's2', 's3', 's4'];
+    // hai mũi tên v1→v2, v2→v3: loại (auto | manual | missing)
+    var EDGES = { missing: ['missing', 'manual'], destructive: ['missing', 'manual'], complete: ['auto', 'manual'] };
+    // mỗi bước: {at: phiên bản DB đang có, edge: mũi tên đang xét (-1 không có), rows: số lịch còn, st: trạng thái}
+    var P = {
+      missing: [{ at: 1, edge: -1, rows: 12, st: 'old' }, { at: 1, edge: 0, rows: 12, st: 'search' }, { at: 1, edge: 0, rows: 12, st: 'crash' }, { at: 1, edge: 0, rows: 12, st: 'loop' }],
+      destructive: [{ at: 1, edge: -1, rows: 12, st: 'old' }, { at: 1, edge: 0, rows: 12, st: 'search' }, { at: 3, edge: -1, rows: 0, st: 'wiped' }, { at: 3, edge: -1, rows: 0, st: 'empty' }],
+      complete: [{ at: 1, edge: -1, rows: 12, st: 'old' }, { at: 2, edge: 0, rows: 12, st: 'step' }, { at: 3, edge: 1, rows: 12, st: 'step' }, { at: 3, edge: -1, rows: 12, st: 'valid' }]
+    };
+    // loại bước, dòng mã, loại log, chủ thể, node sáng
+    var META = {
+      missing: [['scenario', [1], 'run', 'app', ['app', 'db']], ['mechanism', [2, 3], 'observe', 'room', ['room', 'db']], ['pitfall', [2], 'exception', 'room', ['room']], ['pitfall', [1], 'exception', 'app', ['app', 'room']]],
+      destructive: [['scenario', [1], 'run', 'app', ['app', 'db']], ['mechanism', [2, 3, 4], 'observe', 'room', ['room', 'db']], ['pitfall', [4], 'write', 'db', ['room', 'db']], ['pitfall', [1], 'observe', 'app', ['app', 'db']]],
+      complete: [['scenario', [1], 'run', 'app', ['app', 'db']], ['mechanism', [2], 'write', 'db', ['room', 'db']], ['mechanism', [5, 7, 8], 'write', 'db', ['room', 'db']], ['mechanism', [9], 'complete', 'app', ['room', 'app']]]
+    };
+    ADE.storageMig = { EDGES: EDGES, at: function (c, k) { return P[c][k]; } };
+    function steps(s) {
+      return P[s.case].map(function (p, i) {
+        var mt = META[s.case][i], bad = mt[0] === 'pitfall';
+        var ns = {}; mt[4].forEach(function (n) { ns[n] = K + 'st.' + (bad ? (n === 'db' && p.rows === 0 ? 'broken' : 'surprise') : 'done'); });
+        var o = S(m, s.case + '.' + KS[i], { type: mt[0], activeNodes: mt[4], nodeStates: ns, metrics: { ver: M(m, 'ver.' + p.at), rows: p.rows, st: M(m, 'st.' + p.st) },
+          codeHighlight: { snippet: 'h6.' + s.case, lines: mt[1] }, movingSignals: [{ edge: mt[4][0] === 'app' ? 'e1' : 'e2', tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: mt[2], subject: mt[3] }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + s.case + '.' + KS[i]) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'missing' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'thiếu mũi tên v1→v2: không cấu hình gì thì crash, có fallback thì mất hết dữ liệu', run: function () { return EDGES.missing[0] === 'missing' && P.missing[2].st === 'crash' && P.destructive[3].rows === 0; } },
+        { name: 'đủ đường: đi qua từng phiên bản theo thứ tự và giữ nguyên 12 lịch', run: function () { var c = P.complete; return c[1].at === 2 && c[2].at === 3 && c.every(function (x) { return x.rows === 12; }) && EDGES.complete.indexOf('missing') < 0; } },
+        { name: 'mỗi cách có 4 bước', run: function () { return CASES.every(function (c) { return steps({ case: c }).length === 4; }); } }] });
+  })();
 })();

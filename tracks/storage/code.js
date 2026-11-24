@@ -2,6 +2,31 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('storage', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('h6.missing', [
+    c('@Database(entities = [Appointment::class], version = 3)   // app mới khai báo v3', '@Database(entities = [Appointment::class], version = 3)   // the new app declares v3'),
+    c('Room.databaseBuilder<AppDatabase>(ctx, "clinic.db")', 'Room.databaseBuilder<AppDatabase>(ctx, "clinic.db")'),
+    c('    .addMigrations(MIGRATION_2_3)                       // không có đường 1 → 2', '    .addMigrations(MIGRATION_2_3)                       // no path from 1 to 2'),
+    '    .build()'
+  ]);
+  add('h6.destructive', [
+    '@Database(entities = [Appointment::class], version = 3)',
+    'Room.databaseBuilder<AppDatabase>(ctx, "clinic.db")',
+    '    .addMigrations(MIGRATION_2_3)',
+    c('    .fallbackToDestructiveMigration()                   // thiếu đường: xóa sạch bảng, tạo lại', '    .fallbackToDestructiveMigration()                   // missing path: drop every table, recreate'),
+    '    .build()'
+  ]);
+  add('h6.complete', [
+    c('@Database(entities = [Appointment::class], version = 3,', '@Database(entities = [Appointment::class], version = 3,'),
+    c('    autoMigrations = [AutoMigration(from = 1, to = 2)])   // thêm cột note: Room tự sinh', '    autoMigrations = [AutoMigration(from = 1, to = 2)])   // adds the note column: Room generates it'),
+    c('abstract class AppDatabase : RoomDatabase()', 'abstract class AppDatabase : RoomDatabase()'),
+    '',
+    c('val MIGRATION_2_3 = object : Migration(2, 3) {           // đổi dữ liệu: phải viết tay', 'val MIGRATION_2_3 = object : Migration(2, 3) {           // transforms data: written by hand'),
+    '    override suspend fun migrate(connection: SQLiteConnection) {',
+    '        connection.execSQL("ALTER TABLE appointment ADD COLUMN statusCode INTEGER NOT NULL DEFAULT 0")',
+    '        connection.execSQL("UPDATE appointment SET statusCode = 2 WHERE status = \'done\'")',
+    c('    }                                                     // xong: Room kiểm schema khớp v3', '    }                                                     // then Room checks the schema matches v3'),
+    '}'
+  ]);
   add('h5.loop', [
     c('val doctors = dao.doctors()                         // truy vấn 1', 'val doctors = dao.doctors()                         // query 1'),
     c('val result = doctors.associateWith { d ->', 'val result = doctors.associateWith { d ->'),

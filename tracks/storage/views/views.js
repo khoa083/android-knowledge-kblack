@@ -31,4 +31,8 @@
   V('rel', { layout: 'pipeline', nodes: [N('rel', 'doctors', 0, 0, 'store', 'state'), N('rel', 'appts', 3, 0, 'store', 'state'), N('rel', 'result', 6, 0, 'screen', 'ui'), N('rel', 'sync', 3, 3, 'job', 'runtime')],
     edges: [E('e1', 'doctors', 'appts'), E('e2', 'appts', 'result'), E('e3', 'sync', 'appts')],
     metrics: [T('rel', 'q'), T('rel', 'dup')] });
+  /* H6: app mới → Room mở database → file database của người dùng */
+  V('mig', { layout: 'pipeline', nodes: [N('mig', 'app', 0, 0, 'phone', 'ui'), N('mig', 'room', 4, 0, 'mechanism', 'runtime'), N('mig', 'db', 8, 0, 'store', 'state')],
+    edges: [E('e1', 'app', 'room'), E('e2', 'room', 'db')],
+    metrics: [T('mig', 'ver'), T('mig', 'rows'), T('mig', 'st')] });
 })();

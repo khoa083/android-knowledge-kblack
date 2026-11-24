@@ -121,4 +121,22 @@
       h('div', { class: 'vz-pair' }, h('div', null, h('p', { class: 'vz-cap', text: T('rl.t1') }), t1), h('div', null, h('p', { class: 'vz-cap', text: T('rl.t2') }), t2)),
       count, h('div', { class: 'vz-legend', text: T('rl.legend') })));
   }, { labelKey: K + 'tab.rl', icon: 'grid' });
+
+  /* ---------- H6: dãy ô phiên bản schema v1 → v2 → v3; mỗi mũi tên là một migration có hay thiếu ---------- */
+  ADE.registerScreen('storage.mig', function (box, ctx) {
+    var h = ADE.ui.h, G = ADE.storageMig, c = ctx.state.case, i = idx(ctx), d = G.at(c, Math.max(0, i)), E = G.EDGES[c];
+    var wiped = d.rows === 0;
+    var row = h('div', { class: 'vz-mig' });
+    [1, 2, 3].forEach(function (v, k) {
+      var on = d.at === v, cls = 'vz-box vz-mig-v' + (on ? (wiped ? ' bad' : ' hl') : '');
+      row.appendChild(h('div', { class: cls }, h('div', { class: 'vz-h', text: 'v' + v }), h('div', { text: T('mg.v' + v) }),
+        h('div', { class: on ? null : 'dim', text: on ? T('mg.here', { n: d.rows }) : (v === 3 ? T('mg.target') : '·') })));
+      if (k < 2) {
+        var e = E[k], cur = d.edge === k;
+        row.appendChild(h('div', { class: 'vz-mig-e ' + (e === 'missing' ? 'bad' : 'ok') + (cur ? ' cur' : '') }, h('span', { text: '→' }), h('span', { text: T('mg.e.' + e, { a: k + 1, b: k + 2 }) })));
+      }
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('mg.cap') }), h('div', { class: 'vz-scroll' }, row),
+      h('p', { class: 'vz-cap' }, h('b', { text: T('mg.status') + ' ' }), ADE.t('track.storage.m.mig.st.' + d.st)), h('div', { class: 'vz-legend', text: T('mg.legend') })));
+  }, { labelKey: K + 'tab.mg', icon: 'grid' });
 })();

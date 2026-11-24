@@ -67,3 +67,13 @@
 | @Relation cần hai truy vấn → thêm @Transaction để nguyên tử; nhiều–nhiều: bảng nối + Junction; cú pháp Room 3.0 parentColumns/entityColumns | ax-room-relations | stable / version |
 | @Transaction: SELECT nhất quán, @Relation truy vấn riêng; hàm không trừu tượng chạy trong một giao dịch; @Insert/@Update/@Delete vốn có giao dịch; tối đa một giao dịch mỗi lúc, xếp hàng | ax-room-transaction | stable |
 | 1 + N truy vấn, đồng bộ chen giữa làm kết quả lệch | site (minh họa) | simplified |
+
+### H6 · Migration
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Migration(start, end), addMigrations; câu truy vấn đầy đủ thay vì hằng; tay thắng tự động cùng phiên bản | ax-room-migrations | stable |
+| Thiếu đường → IllegalStateException (trang không nêu nguyên văn thông báo) | ax-room-migrations | stable |
+| fallbackToDestructiveMigration xóa vĩnh viễn; biến thể From và OnDowngrade | ax-room-migrations | stable |
+| AutoMigration cần schema đã xuất; spec @RenameColumn/@DeleteColumn/@RenameTable/@DeleteTable cho thay đổi mơ hồ | ax-room-migrations | stable |
+| Kiểm schema sau khi chạy hết migration; MigrationTestHelper createDatabase / runMigrationsAndValidate; không dùng DAO trong test vì schema mới nhất | ax-room-migrations | stable |
+| Room 3.0: migrate(connection: SQLiteConnection) suspend, plugin androidx.room3 schemaDirectory; Room 2.x: SupportSQLiteDatabase | ax-room-migrations / bản cũ | version |
