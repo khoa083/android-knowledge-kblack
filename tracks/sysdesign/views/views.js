@@ -39,4 +39,8 @@
   V('paging', { layout: 'pipeline', nodes: [N('paging', 'ui', 0, 1, 'screen', 'ui'), N('paging', 'pager', 3, 1, 'list', 'state'), N('paging', 'server', 6, 1, 'store', 'job'), N('paging', 'editor', 9, 1, 'source', 'runtime')],
     edges: [E('e1', 'ui', 'pager'), E('e2', 'pager', 'server'), E('e3', 'editor', 'server')],
     metrics: [T('paging', 'dup'), T('paging', 'miss'), T('paging', 'gone')] });
+  /* I8: máy tính bảng và điện thoại cùng ghi lên một server */
+  V('conflict', { layout: 'pipeline', nodes: [N('conflict', 'tablet', 0, 0, 'screen', 'ui'), N('conflict', 'phone', 0, 3, 'phone', 'state'), N('conflict', 'server', 6, 1.5, 'store', 'job')],
+    edges: [E('e1', 'tablet', 'server'), E('e2', 'phone', 'server')],
+    metrics: [T('conflict', 'lost'), T('conflict', 'writes'), T('conflict', 'ask')] });
 })();

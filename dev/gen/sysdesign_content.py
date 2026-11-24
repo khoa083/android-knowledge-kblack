@@ -20,7 +20,7 @@ a('fam.done', 'chạy đúng', 'working'); a('fam.fail', 'có vấn đề', 'has
 for k, vi, en in [('observe', 'quan sát', 'observe'), ('run', 'chạy', 'run'), ('write', 'ghi', 'write'), ('skip', 'bỏ qua', 'skip'), ('exception', 'ném ngoại lệ', 'exception thrown'), ('complete', 'hoàn tất', 'complete')]:
     a('kind.' + k, vi, en)
 
-MODULES = ('sysdesign_v2_i1', 'sysdesign_v2_i2', 'sysdesign_v2_i3', 'sysdesign_v2_i4', 'sysdesign_v2_i5', 'sysdesign_v2_i6', 'sysdesign_v2_i7')   # giữ dấu phẩy cuối
+MODULES = ('sysdesign_v2_i1', 'sysdesign_v2_i2', 'sysdesign_v2_i3', 'sysdesign_v2_i4', 'sysdesign_v2_i5', 'sysdesign_v2_i6', 'sysdesign_v2_i7', 'sysdesign_v2_i8')   # giữ dấu phẩy cuối
 for mod in MODULES:
     assert os.path.exists(os.path.join(HERE, mod + '.py')), 'thiếu module ' + mod
     mm = __import__(mod)

@@ -9,5 +9,9 @@ ADE.addGlossary('vi', 'sysdesign', {
   "saved-state": { term: "saved state", def: "Dữ liệu nhỏ (id, chữ nhập) app ghi qua SavedStateHandle hay rememberSaveable. Hệ thống giữ bản sao đã tuần tự hóa ngoài process, nên nó sống qua cả đổi cấu hình lẫn process bị giết.", chapter: "sysdesign/i2" },
   "offset-pagination": { term: "phân trang offset", def: "Xin trang bằng vị trí: bỏ qua N mục, lấy M mục (offset/limit, hay page/size). Danh sách đổi giữa hai trang thì vị trí trôi, gây mục lặp hoặc bị bỏ sót.", chapter: "sysdesign/i7" },
   "cursor-pagination": { term: "phân trang cursor", def: "Xin trang bằng nội dung: \"các mục sau mục này\" theo một khóa sắp xếp có thứ tự toàn phần, như (giờ đăng, id). Thay đổi phía trên không làm lệch trang sau.", chapter: "sysdesign/i7" },
-  "page-token": { term: "page token", def: "Chuỗi mờ server trả trong next_page_token để app gửi lại khi xin trang kế. App không đọc hay tự tạo token; token rỗng nghĩa là hết danh sách.", chapter: "sysdesign/i7" }
+  "page-token": { term: "page token", def: "Chuỗi mờ server trả trong next_page_token để app gửi lại khi xin trang kế. App không đọc hay tự tạo token; token rỗng nghĩa là hết danh sách.", chapter: "sysdesign/i7" },
+  "lost-update": { term: "lost update", def: "Hai bên cùng đọc, sửa rồi ghi lại cả giá trị; lần ghi sau không chứa thay đổi của lần trước nên đè mất nó, và không có lỗi nào.", chapter: "sysdesign/i8" },
+  "last-write-wins": { term: "ghi sau thắng (LWW)", def: "Giữ lần ghi có giờ lớn nhất, bỏ các lần ghi đồng thời khác. Thực chất là chọn một bên và âm thầm bỏ bên kia; dùng giờ của thiết bị thì còn phụ thuộc đồng hồ có đúng không.", chapter: "sysdesign/i8" },
+  "conditional-write": { term: "ghi có điều kiện", def: "Chỉ ghi nếu bản ghi chưa đổi kể từ lúc đọc, ví dụ PUT kèm If-Match với ETag đã đọc. Không khớp thì server trả 412 và không ghi gì (khóa lạc quan).", chapter: "sysdesign/i8" },
+  "write-conflict": { term: "xung đột ghi", def: "Hai lần ghi đồng thời sửa cùng một dữ liệu theo hai cách khác nhau, không bên nào thấy bên kia. Cần LWW, gộp tự động, hay hỏi người dùng.", chapter: "sysdesign/i8" }
 });

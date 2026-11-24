@@ -385,4 +385,78 @@
         { name: 'cursor: trang 2 là 16..13, không lặp không sót; làm mới thì có bài 21 và mất bài 18', run: function () { var k = marks('cursor', 2), r = marks('cursor', 3); return pages('cursor', 2)[1][2].join() === '16,15,14,13' && count(k.appMk, 'dup') + count(k.srvMk, 'miss') === 0 && r.app[0] === 21 && r.app.indexOf(18) < 0 && count(r.appMk, 'gone') === 0; } },
         { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { offset: 10, offsetdel: 10, cursor: 9 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
   })();
+
+  /* ================= I8: nhiều thiết bị — ghi sau thắng (LWW), ghi có điều kiện (If-Match), gộp theo trường, cùng một trường =================
+     Theo DDIA bản 2 ch.6 (mỗi thiết bị là một leader; LWW bỏ âm thầm ghi khác; gộp khóa-giá trị theo từng khóa), ch.8 (lost update, ghi có
+     điều kiện, khóa lạc quan), ch.9 (LWW theo giờ client); RFC 9110 13.1.1 (If-Match, 412); Alex Xu tập 1 ch.15 (hiện cả hai bản cho người dùng).
+     Máy tính bảng sửa lúc 10:02 và lưu; điện thoại mất mạng, sửa lúc 10:05 trên bản v1, có mạng lại lúc 10:20. Giờ, giá trị là minh họa. */
+  (function () {
+    var m = 'conflict', CASES = ['lww', 'ifmatch', 'field', 'same'], KS = ['s1', 's2', 's3', 's4'], F = ['symptom', 'allergy', 'memo'];
+    var BASE = { symptom: 'cough', allergy: 'none', memo: 'empty' };
+    function w(o, f, v) { var n = {}; F.forEach(function (k) { n[k] = o[k]; }); if (f) n[f] = v; return n; }
+    var EDIT = { tab: { def: ['allergy', 'peni'], same: ['memo', 'late'] }, phn: { def: ['symptom', 'coughfever'], same: ['memo', 'pm'] } };
+    function ed(c, who) { return EDIT[who][c === 'same' ? 'same' : 'def']; }
+    // gộp theo trường so với bản gốc: chỉ một bên đổi → lấy bên đó; hai bên đổi khác nhau → xung đột
+    function merge3(base, srv, mine) {
+      var out = {}, cf = [];
+      F.forEach(function (f) {
+        if (mine[f] === base[f]) out[f] = srv[f]; else if (srv[f] === base[f] || srv[f] === mine[f]) out[f] = mine[f]; else { out[f] = srv[f]; cf.push(f); }
+      });
+      return { v: out, conflicts: cf };
+    }
+    // trạng thái sau mỗi bước: [máy tính bảng, server, điện thoại, phiên bản server, trường xung đột]
+    function states(c) {
+      var te = ed(c, 'tab'), pe = ed(c, 'phn'), A = w(BASE, te[0], te[1]), P = w(BASE, pe[0], pe[1]), out = [[BASE, BASE, BASE, 1, []], [A, A, P, 2, []]];
+      if (c === 'lww') { out.push([A, P, P, 3, []]); out.push([P, P, P, 3, []]); }
+      else if (c === 'ifmatch') { var R = w(A, pe[0], pe[1]); out.push([A, A, P, 2, []]); out.push([R, R, R, 3, []]); }
+      else { var g = merge3(BASE, A, P);
+        if (!g.conflicts.length) { out.push([A, g.v, P, 3, []]); out.push([g.v, g.v, g.v, 3, []]); }
+        else { var U = w(A, g.conflicts[0], 'both'); out.push([A, A, P, 2, g.conflicts]); out.push([U, U, U, 3, []]); } }
+      return out;
+    }
+    // thay đổi của người dùng bị mất (không còn trên server và không ai biết)
+    function lost(c, i) {
+      var st = states(c)[i], n = 0;
+      if (i < 2) return 0;
+      [ed(c, 'tab'), ed(c, 'phn')].forEach(function (e) { var v = st[1][e[0]]; if (v !== e[1] && v !== 'both' && st[4].indexOf(e[0]) < 0 && !(c === 'ifmatch' && i === 2)) n++; });
+      return n;
+    }
+    var WRITES = { lww: [0, 1, 2, 2], ifmatch: [0, 1, 2, 3], field: [0, 1, 2, 2], same: [0, 1, 2, 3] };
+    function ask(c, i) { return c === 'same' && i >= 2 ? 1 : 0; }
+    // hành động trên làn thời gian: [máy tính bảng, server, điện thoại]
+    var ACT = {
+      lww: [['load', 'v1', 'load'], ['editA', 'v2', 'offS'], ['idle', 'lwwTake', 'putFull'], ['pullLost', 'keep3', 'show3']],
+      ifmatch: [['load', 'v1', 'load'], ['editA', 'v2', 'offS'], ['idle', 'r412', 'putIf1'], ['pull3', 'ok3', 'retry']],
+      field: [['load', 'v1', 'load'], ['editA', 'v2', 'offS'], ['idle', 'merge3', 'patchS'], ['pull3', 'keep3', 'pull3']],
+      same: [['load', 'v1', 'load'], ['editM', 'v2', 'offM'], ['idle', 'conflict', 'patchM'], ['pull3', 'resolved', 'askUser']]
+    };
+    ADE.sysConflict = { F: F, BASE: BASE, states: states, lost: lost, ACT: ACT, ed: ed };
+    var SNIP = { lww: 'i8.lww', ifmatch: 'i8.ifmatch', field: 'i8.field', same: 'i8.field' };
+    var LINES = { lww: [[1], [2], [2, 3], [3]], ifmatch: [[2], [2], [4, 5], [4, 6]], field: [[1], [1, 3], [3, 4], [4]], same: [[1], [1, 3], [4, 5], [5]] };
+    var NODES = { lww: [['tablet', 'server', 'phone'], ['tablet', 'server'], ['phone', 'server'], ['tablet', 'server']],
+      ifmatch: [['tablet', 'server', 'phone'], ['tablet', 'server'], ['phone', 'server'], ['phone', 'server']],
+      field: [['tablet', 'server', 'phone'], ['tablet', 'server'], ['phone', 'server'], ['tablet', 'server', 'phone']],
+      same: [['tablet', 'server', 'phone'], ['tablet', 'server'], ['phone', 'server'], ['phone', 'server']] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var lo = lost(c, i), bad = lo > 0, type = i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), nodes = NODES[c][i], ns = {};
+        nodes.forEach(function (n) { ns[n] = K + 'st.' + (bad ? 'surprise' : 'done'); });
+        var o = S(m, c + '.' + k, { type: type, activeNodes: nodes, nodeStates: ns,
+          metrics: { lost: lo, writes: WRITES[c][i], ask: ask(c, i) },
+          codeHighlight: { snippet: SNIP[c], lines: LINES[c][i] },
+          movingSignals: [{ edge: nodes.indexOf('phone') >= 0 && i >= 2 ? 'e2' : 'e1', tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 0 ? 'observe' : 'write'), subject: 'server' }] });
+        o.callouts = [{ kind: i === 0 ? 'try' : (bad ? 'pitfall' : 'source'), textKey: i === 0 ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'lww' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'LWW: bản của điện thoại (giờ 10:05) đè cả bản ghi, dị ứng penicillin mất', run: function () { var f = states('lww')[3][1]; return f.allergy === 'none' && f.symptom === 'coughfever' && lost('lww', 3) === 1; } },
+        { name: 'If-Match: lần đầu 412, server vẫn v2; làm lại trên v2 thì giữ cả hai thay đổi', run: function () { var s = states('ifmatch'); return s[2][3] === 2 && s[3][1].allergy === 'peni' && s[3][1].symptom === 'coughfever' && lost('ifmatch', 2) === 0; } },
+        { name: 'gộp theo trường: hai trường khác nhau tự gộp; cùng một trường thì báo xung đột ở ghi chú', run: function () { var f = states('field')[2]; var g = states('same')[2]; return f[1].allergy === 'peni' && f[1].symptom === 'coughfever' && f[4].length === 0 && g[4].join() === 'memo' && states('same')[3][1].memo === 'both'; } },
+        { name: 'mỗi cách 4 bước; dòng mã nằm trong đoạn mã', run: function () { var n = { lww: 3, ifmatch: 9, field: 5, same: 5 }; return CASES.every(function (c) { return steps({ case: c }).length === 4 && LINES[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= n[c]; }); }); }); } }] });
+  })();
 })();

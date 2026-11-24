@@ -226,4 +226,33 @@
     kids.push(h('div', { class: 'vz-legend', text: T('pg.legend') }));
     box.appendChild(h('div', { class: 'vz' }, kids));
   }, { labelKey: K + 'tab.pg', icon: 'list' });
+
+  /* ---------- I8: làn thời gian ba cột (máy tính bảng | server | điện thoại) theo từng mốc; bảng gộp từng trường của bản ghi ---------- */
+  ADE.registerScreen('sysdesign.conflict', function (box, ctx) {
+    var h = ADE.ui.h, Y = ADE.sysConflict, c = ctx.state.case, i = Math.max(0, idx(ctx)), st = Y.states(c), cur = st[i];
+    var tl = h('tbody');
+    Y.ACT[c].forEach(function (row, r) {
+      var on = r === i, future = r > i, lostRow = Y.lost(c, r) > 0;
+      tl.appendChild(h('tr', null, h('th', { class: on ? 'hl' : (future ? 'dim' : null), text: T('cf.t.' + r) }),
+        row.map(function (a, j) {
+          var bad = !future && ((lostRow && ((j === 1 && a === 'lwwTake') || a === 'pullLost')) || a === 'conflict');
+          return h('td', { class: future ? 'dim' : (bad ? 'bad' : (on && a !== 'idle' ? 'hl' : null)), text: future ? '' : T('cf.a.' + a) + (j === 1 && !future ? ' (v' + st[r][3] + ')' : '') });
+        })));
+    });
+    var te = Y.ed(c, 'tab'), pe = Y.ed(c, 'phn'), fb = h('tbody');
+    Y.F.forEach(function (f) {
+      var val = function (v) { return T('cf.v.' + v); };
+      var tch = cur[0][f] !== Y.BASE[f], pch = cur[2][f] !== Y.BASE[f], conf = cur[4].indexOf(f) >= 0;
+      var want = [te, pe].filter(function (e) { return e[0] === f; }).map(function (e) { return e[1]; });
+      var srvBad = i >= 2 && want.length && want.indexOf(cur[1][f]) < 0 && cur[1][f] !== 'both' && !(c === 'ifmatch' && i === 2);
+      fb.appendChild(h('tr', null, h('th', { text: T('cf.f.' + f) }), h('td', { class: 'dim', text: val(Y.BASE[f]) }),
+        h('td', { class: tch ? 'hl' : null, text: val(cur[0][f]) }), h('td', { class: pch ? 'hl' : null, text: val(cur[2][f]) }),
+        h('td', { class: conf || srvBad ? 'bad' : (cur[1][f] !== Y.BASE[f] ? 'ok' : null), text: conf ? val(cur[0][f]) + ' | ' + val(cur[2][f]) + ' · ' + T('cf.mk.conflict') : val(cur[1][f]) + (srvBad ? ' · ' + T('cf.mk.lost') : '') })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('cf.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['time', 'tab', 'srv', 'phn'].map(function (k) { return h('th', { text: T('cf.col.' + k) }); }))), tl)),
+      h('p', { class: 'vz-cap', text: T('cf.fcap', { v: cur[3] }) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['field', 'base', 'tab', 'phn', 'srv'].map(function (k) { return h('th', { text: T('cf.fcol.' + k) }); }))), fb)),
+      h('div', { class: 'vz-legend', text: T('cf.legend') })));
+  }, { labelKey: K + 'tab.cf', icon: 'list' });
 })();

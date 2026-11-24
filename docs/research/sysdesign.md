@@ -122,3 +122,17 @@ Sách đọc bằng pdftotext ngày 2026-11-24 (Xu tập 1 ch.2 dòng "Tips", ch
 | Key trùng trong lazy list → Key "…" was already used (subcompose, requirePrecondition) | ax-subcompose-src (commit 3fa4054, 2026-10-15) | impl |
 | Key ổn định và duy nhất cho mỗi mục | cp-lists | stable |
 | Phép đếm lặp/sót, SQL theo (published_at, id), số bài, cỡ trang 4, token "tk1", nhận xét khi nào offset còn dùng được | site | simplified |
+
+### I8 · Nhiều thiết bị và xung đột
+Đọc ngày 2026-11-24: DDIA bản 2 ch.6 (Sync Engines and Local-First Software; Dealing with Conflicting Writes), ch.8 (Preventing Lost Updates; Conditional writes), ch.9 (LWW và đồng hồ lệch) và Xu tập 1 ch.15 (Sync conflicts) từ bản text trong scratchpad; RFC 9110 và RFC 6585 qua agent web-fetch (200, đọc nguyên văn các mục 13.1.1, 13.1.2, 15.5.13; RFC 6585 §3, §7.1).
+| Khẳng định | Nguồn | Loại |
+|---|---|---|
+| Mỗi thiết bị ghi được khi mất mạng là một leader; sync là sao chép nhiều leader bất đồng bộ; đồng thời = không bên nào biết bên kia | book-ddia2 ch.6 | guideline |
+| LWW: chọn một bên thắng, âm thầm bỏ bên khác; ổn khi chỉ thêm với khóa duy nhất | book-ddia2 ch.6 | guideline |
+| Gộp tay (siblings) tốn công; gộp tự động; map khóa-giá trị gộp theo từng khóa; giỏ hàng hợp tập hợp làm món đã xóa hiện lại; CRDT, OT | book-ddia2 ch.6 | guideline |
+| Lost update (đọc, sửa, ghi); ghi có điều kiện, khóa lạc quan theo số phiên bản | book-ddia2 ch.8 | guideline |
+| LWW theo giờ client làm mất ghi khi đồng hồ lệch, không báo lỗi | book-ddia2 ch.9 | guideline |
+| If-Match chống lost update, so sánh mạnh; sai thì không thực hiện, trả 412 (hay 2xx nếu thay đổi đã được áp dụng); If-None-Match: * khi tạo; 412 | rfc9110 13.1.1, 13.1.2, 15.5.13 | stable |
+| 428 Precondition Required; là tùy chọn, client không dựa vào được | rfc6585 §3, §7.1 | stable |
+| Bản xử lý trước thắng, bản sau nhận xung đột, hiện cả hai bản cho người dùng | book-xu1 ch.15 | guideline |
+| Làm lại ý định sau 412 (RFC không quy định), ba trường, mốc giờ, giá trị, lời khuyên bắt đầu bằng If-Match | site | simplified |

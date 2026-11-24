@@ -1,0 +1,186 @@
+# Thiết kế hệ thống phía mobile · I8: nhiều thiết bị và xung đột (Phần 2)
+# Nguồn: DDIA bản 2 ch.6 (sync engine, mỗi thiết bị là leader; xung đột; LWW; gộp tay, siblings; gộp tự động, map gộp theo khóa; CRDT, OT),
+# ch.8 (lost update, ghi có điều kiện, khóa lạc quan), ch.9 (LWW theo giờ client); RFC 9110 13.1.1, 13.1.2, 15.5.13; RFC 6585 §3, §7.1;
+# Alex Xu tập 1 ch.15 (xung đột đồng bộ: bản xử lý trước thắng, hiện cả hai bản). Đọc 2026-11-24.
+
+SEC_ORDER = {'i8': ['hook', 'concurrent', 'lww', 'conditional', 'merge', 'bugs', 'ex', 'honest']}
+
+
+def add(a):
+    def B(ch, sec, n, field, vi, en=None):
+        a('%s.sec.%s.b.%02d.%s' % (ch, sec, n, field), vi, vi if en is None else en)
+
+    a('preset.conflict', 'Thiết kế hệ thống · hai thiết bị sửa cùng hồ sơ', 'System design · two devices edit one form')
+    m = lambda k, vi, en=None: a('m.conflict.' + k, vi, en)
+    m('title', 'Ghi sau thắng, ghi có điều kiện, hay gộp theo trường', 'Last write wins, conditional writes, or per-field merging')
+    m('overview', 'Hồ sơ trước khám có ba trường: triệu chứng, dị ứng, ghi chú cho phòng khám. Cả máy tính bảng và điện thoại đều tải bản v1 lúc 10:00. Lúc 10:02, trên máy tính bảng, người dùng ghi thêm dị ứng penicillin và lưu được ngay. Điện thoại đang mất mạng; lúc 10:05 người dùng sửa triệu chứng trên bản v1 cũ, và 10:20 điện thoại có mạng lại. Bốn cách: ghi sau thắng theo giờ; PUT kèm If-Match; gửi chỉ trường đã sửa để server gộp; và gộp theo trường khi hai máy sửa cùng một trường.',
+      'The pre-visit form has three fields: symptoms, allergies, a note to the clinic. The tablet and the phone both load version v1 at 10:00. At 10:02, on the tablet, the user adds a penicillin allergy and it saves at once. The phone is offline; at 10:05 the user edits the symptoms on the old v1, and at 10:20 the phone is back online. Four ways: last write wins by time; PUT with If-Match; send only the edited fields for the server to merge; and per-field merging when both devices edit the same field.')
+    m('wrapup', 'Hai thiết bị sửa cùng một bản ghi mà không thấy thay đổi của nhau là hai lần ghi đồng thời, dù cách nhau mười phút. Ghi sau thắng chọn một bên và âm thầm bỏ bên kia: ở đây là thông tin dị ứng. If-Match biến việc ghi đè thành lỗi 412 để app tải bản mới và làm lại thay đổi. Gửi chỉ các trường đã sửa cho phép server tự gộp khi hai bên sửa hai trường khác nhau; chỉ khi cùng một trường bị sửa khác nhau mới cần hỏi người dùng.',
+      'Two devices editing one record without seeing each other\'s change are two concurrent writes, even ten minutes apart. Last write wins picks one side and silently drops the other: here, the allergy. If-Match turns the overwrite into a 412 so the app fetches the new version and redoes its change. Sending only the edited fields lets the server merge on its own when the two sides edited different fields; only when the same field was changed differently does the user need to decide.')
+    m('simp.1', 'Ba trường, các mốc giờ, giá trị và việc điện thoại thử lại đúng một lần là minh họa. Server thật cần thêm xác thực, và một bản ghi phức tạp hơn (danh sách, văn bản dài) cần thuật toán gộp riêng.', 'The three fields, the times, the values and the phone retrying exactly once are illustrative. A real server also needs authentication, and more complex records (lists, long text) need their own merge algorithms.')
+    m('simp.2', 'Ghi đồng thời, LWW, gộp theo khóa theo DDIA bản 2 ch.6; lost update và ghi có điều kiện theo ch.8; LWW theo giờ client theo ch.9; If-Match và 412 theo RFC 9110; hiện cả hai bản cho người dùng theo Alex Xu tập 1 ch.15. Đọc ngày 2026-11-24.', 'Concurrent writes, LWW and per-key merging follow DDIA 2nd ed. ch.6; lost updates and conditional writes follow ch.8; LWW on client clocks follows ch.9; If-Match and 412 follow RFC 9110; showing both versions to the user follows Alex Xu vol. 1 ch.15. Read on 2026-11-24.')
+    m('ctl.hint', 'Đổi cách xử lý rồi đi lại; nhìn cột server ở bảng dưới tại bước 3 và 4.', 'Switch the approach and walk again; watch the server column of the lower table at steps 3 and 4.')
+    m('ctl.case', 'Cách xử lý', 'Approach')
+    for k, vi, en in [('lww', 'ghi sau thắng (theo giờ)', 'last write wins (by time)'), ('ifmatch', 'PUT kèm If-Match', 'PUT with If-Match'), ('field', 'gộp theo trường', 'per-field merge'), ('same', 'gộp theo trường, cùng một trường', 'per-field merge, same field')]:
+        m('ctl.case.' + k, vi, en)
+    m('diagramTitle', 'Máy tính bảng, điện thoại, server', 'Tablet, phone, server')
+    m('diagramDesc', 'Hai thiết bị cùng ghi một bản ghi lên server, không thấy thay đổi của nhau', 'Two devices write the same record to the server without seeing each other\'s change')
+    for k, vi, en in [('tablet', 'Máy tính bảng', 'Tablet'), ('phone', 'Điện thoại (mất mạng)', 'Phone (offline)'), ('server', 'Server hồ sơ', 'Form server')]:
+        m('n.' + k, vi, en)
+    m('met.lost', 'Thay đổi bị mất', 'Changes lost'); m('met.writes', 'Lần ghi (cộng dồn)', 'Writes (running total)'); m('met.ask', 'Cần người dùng chọn', 'User decisions needed')
+    a('cap.conflict', 'Máy tính bảng ở trên và điện thoại ở dưới cùng ghi vào server bên phải.', 'The tablet on top and the phone below both write to the server on the right.')
+    S = [
+        ('lww', 's1', '10:00: cả hai máy tải hồ sơ v1', '10:00: both devices load form v1', 'Triệu chứng "ho", dị ứng "không", ghi chú trống.', 'Symptoms "cough", allergies "none", note empty.'),
+        ('lww', 's2', '10:02: máy tính bảng lưu dị ứng penicillin (v2); 10:05: điện thoại mất mạng sửa triệu chứng', '10:02: the tablet saves a penicillin allergy (v2); 10:05: the offline phone edits the symptoms', 'Điện thoại sửa trên bản v1, không biết đã có v2.', 'The phone edits v1, unaware that v2 exists.'),
+        ('lww', 's3', '10:20: điện thoại PUT cả bản ghi, giờ sửa 10:05 > 10:02: server lấy bản điện thoại', '10:20: the phone PUTs the whole record, edited at 10:05 > 10:02: the server takes the phone\'s copy', 'Bản của điện thoại mang dị ứng "không" từ v1. Server ghi đè, không báo gì.', 'The phone\'s copy carries allergies "none" from v1. The server overwrites without a word.'),
+        ('lww', 's4', '10:21: máy tính bảng đồng bộ, dị ứng trở về "không"', '10:21: the tablet syncs, allergies back to "none"', 'Thông tin dị ứng mất trên mọi máy và không có lỗi nào. Cả hai lần ghi đều "thành công".', 'The allergy is gone on every device, with no error. Both writes "succeeded".'),
+        ('ifmatch', 's1', '10:00: cả hai máy tải hồ sơ v1, kèm ETag "v1"', '10:00: both devices load form v1, with ETag "v1"', 'App giữ ETag để lần ghi sau nói "tôi sửa dựa trên v1".', 'The app keeps the ETag so the next write can say "my edit is based on v1".'),
+        ('ifmatch', 's2', '10:02: máy tính bảng lưu (v2); 10:05: điện thoại mất mạng sửa triệu chứng', '10:02: the tablet saves (v2); 10:05: the offline phone edits the symptoms', 'Giống cách trên.', 'Same as before.'),
+        ('ifmatch', 's3', '10:20: điện thoại PUT kèm If-Match "v1"; server đang ở v2: 412', '10:20: the phone PUTs with If-Match "v1"; the server is at v2: 412', 'Điều kiện sai nên server không ghi gì. Không mất dữ liệu, và app biết có người sửa trước.', 'The condition is false, so the server writes nothing. No data is lost, and the app knows someone edited first.'),
+        ('ifmatch', 's4', 'Điện thoại tải v2, làm lại thay đổi triệu chứng, PUT If-Match "v2": 200, v3', 'The phone fetches v2, redoes the symptom change, PUTs If-Match "v2": 200, v3', 'v3 có cả triệu chứng mới lẫn dị ứng penicillin. Cái giá: thêm một lần tải và một lần ghi.', 'v3 has both the new symptoms and the penicillin allergy. The price: one more fetch and one more write.'),
+        ('field', 's1', '10:00: cả hai máy tải hồ sơ v1', '10:00: both devices load v1 of the form', 'App nhớ bản gốc v1 để biết sau này mình đã sửa trường nào.', 'The app remembers the v1 base to know later which fields it edited.'),
+        ('field', 's2', '10:02: máy tính bảng gửi {dị ứng} (v2); 10:05: điện thoại mất mạng sửa triệu chứng', '10:02: the tablet sends {allergies} (v2); 10:05: the offline phone edits the symptoms', 'Mỗi máy chỉ gửi các trường mình đã đổi so với bản gốc.', 'Each device sends only the fields it changed from its base.'),
+        ('field', 's3', '10:20: điện thoại PATCH {triệu chứng}, gốc v1; server gộp từng trường: v3', '10:20: the phone PATCHes {symptoms}, base v1; the server merges per field: v3', 'Triệu chứng chỉ điện thoại sửa, dị ứng chỉ máy tính bảng sửa: lấy mỗi trường từ bên đã sửa nó.', 'Only the phone edited symptoms, only the tablet edited allergies: each field comes from the side that edited it.'),
+        ('field', 's4', '10:21: cả hai máy đồng bộ v3', '10:21: both devices sync v3', 'Không ai phải làm gì thêm.', 'Nobody has to do anything more.'),
+        ('same', 's1', '10:00: cả hai máy tải hồ sơ v1, ghi chú trống', '10:00: both devices load form v1, empty note', 'Lần này cả hai máy sẽ sửa cùng trường ghi chú.', 'This time both devices will edit the same note field.'),
+        ('same', 's2', '10:02: máy tính bảng ghi "đến muộn 10 phút" (v2); 10:05: điện thoại ghi "xin đổi sang buổi chiều"', '10:02: the tablet writes "arriving 10 min late" (v2); 10:05: the phone writes "please move me to the afternoon"', 'Hai giá trị khác nhau cho cùng một trường, không bên nào thấy bên kia.', 'Two different values for one field, neither side seeing the other.'),
+        ('same', 's3', '10:20: điện thoại PATCH {ghi chú}, gốc v1; server phát hiện xung đột', '10:20: the phone PATCHes {note}, base v1; the server detects a conflict', 'Ghi chú đã đổi từ v1 ở cả hai phía. Server không tự chọn; nó giữ v2 và trả về cả hai giá trị.', 'The note changed from v1 on both sides. The server does not pick; it keeps v2 and returns both values.'),
+        ('same', 's4', 'Điện thoại hiện cả hai ghi chú; người dùng giữ cả hai: v3', 'The phone shows both notes; the user keeps both: v3', 'Chỉ trường thật sự xung đột mới cần hỏi người dùng; hai trường kia vẫn gộp tự động.', 'Only the truly conflicting field needs the user; the other two still merge automatically.'),
+    ]
+    for case, k, tv, te, xv, xe in S:
+        sid = case + '.' + k
+        m('s.%s.title' % sid, tv, te); m('s.%s.explain' % sid, xv, xe); m('ev.' + sid, tv, te)
+    for k, vi, en in [
+        ('try', 'Đi hết bốn bước của mỗi cách; ở bước 3 và 4, nhìn cột server của bảng các trường.', 'Walk all four steps of each approach; at steps 3 and 4, watch the server column of the field table.'),
+        ('lww.s2', 'DDIA (ch.6): hai lần ghi là đồng thời khi không bên nào "biết" bên kia lúc ghi; ghi lúc mất mạng thì có thể cách nhau khá lâu mà vẫn đồng thời. [[src:book-ddia2]]', 'DDIA (ch.6): two writes are concurrent when neither was aware of the other when made; writes made offline can be far apart and still concurrent. [[src:book-ddia2]]'),
+        ('lww.s3', 'DDIA (ch.6): LWW thật ra là chọn một lần ghi làm bên thắng và âm thầm bỏ các lần ghi khác, dù chúng đã được xử lý thành công. [[src:book-ddia2]]', 'DDIA (ch.6): LWW really means one write is picked as the winner and the others are silently discarded, even though they were processed successfully. [[src:book-ddia2]]'),
+        ('lww.s4', 'DDIA (ch.8) gọi đây là lost update: đọc, sửa, ghi lại cả giá trị; lần ghi sau không chứa thay đổi của lần trước nên đè mất nó. [[src:book-ddia2]]', 'DDIA (ch.8) calls this a lost update: read, modify, write back the whole value; the later write lacks the earlier change and clobbers it. [[src:book-ddia2]]'),
+        ('ifmatch.s2', 'ETag dùng cho cache ở chương I6 cũng là nhãn phiên bản để ghi có điều kiện.', 'The ETag used for caching in chapter I6 also serves as a version label for conditional writes.'),
+        ('ifmatch.s3', 'RFC 9110 (13.1.1): If-Match thường dùng với PUT, POST, DELETE để tránh ghi đè khi nhiều client cùng sửa (vấn đề lost update); điều kiện sai thì server không thực hiện và có thể trả 412. [[src:rfc9110]]', 'RFC 9110 (13.1.1): If-Match is mostly used with PUT, POST, DELETE to prevent accidental overwrites when several clients edit in parallel (the lost update problem); if the condition is false the server does not perform the method and may answer 412. [[src:rfc9110]]'),
+        ('ifmatch.s4', 'DDIA (ch.8): ghi có điều kiện theo số phiên bản, còn gọi là khóa lạc quan; điều kiện không khớp thì phải làm lại chu trình đọc, sửa, ghi. App phải làm lại thay đổi, không gửi lại bản cũ. [[src:book-ddia2]]', 'DDIA (ch.8): a conditional write on a version number, also called optimistic locking; if it does not match, the read-modify-write cycle is retried. The app must redo its change, not resend the old copy. [[src:book-ddia2]]'),
+        ('field.s2', 'Gửi phần đã sửa thay vì cả bản ghi là điều làm việc gộp khả thi: server biết mỗi bên định đổi gì.', 'Sending the edit instead of the whole record is what makes merging possible: the server knows what each side meant to change.'),
+        ('field.s3', 'DDIA (ch.6): với dữ liệu dạng map khóa-giá trị, cập nhật vào các khóa khác nhau được xử lý độc lập với nhau. [[src:book-ddia2]]', 'DDIA (ch.6): for key-value mapping data, updates to different keys can be handled independently of each other. [[src:book-ddia2]]'),
+        ('field.s4', 'Gộp tự động cho mọi bản sao về cùng một trạng thái, không làm phiền người dùng; DDIA nói với nhiều app đây là cách tốt nhất. [[src:book-ddia2]]', 'Automatic merging brings every copy to the same state without bothering the user; DDIA says that for many apps this is the best way. [[src:book-ddia2]]'),
+        ('same.s2', 'Cùng một trường bị sửa khác nhau là xung đột thật: không có quy tắc nào chắc chắn chọn đúng ý người dùng.', 'One field edited two ways is a real conflict: no rule can be sure to pick what the user meant.'),
+        ('same.s3', 'Alex Xu (tập 1 ch.15), với Google Drive: bản được xử lý trước thắng, bản sau nhận xung đột. [[src:book-xu1]]', 'Alex Xu (vol. 1 ch.15), for Google Drive: the version processed first wins, the later one gets a conflict. [[src:book-xu1]]'),
+        ('same.s4', 'Alex Xu (tập 1 ch.15): hiện cả bản trên máy lẫn bản mới nhất từ server để người dùng gộp hay chọn một. DDIA (ch.6) nhắc rằng bắt người dùng gộp tốn công cả người viết app lẫn người dùng. [[src:book-xu1]] [[src:book-ddia2]]', 'Alex Xu (vol. 1 ch.15): show both the local copy and the latest server version so the user merges or picks. DDIA (ch.6) notes that asking users to merge costs effort for both the developer and the user. [[src:book-xu1]] [[src:book-ddia2]]')]:
+        m('co.' + k, vi, en)
+
+    z = lambda k, vi, en=None: a('vz.' + k, vi, en)
+    z('tab.cf', 'Làn thời gian và các trường', 'Timeline and fields')
+    z('cf.cap', 'Mỗi hàng là một mốc giờ; mỗi cột là một bên. Hàng có viền là bước hiện tại; hàng chưa tới để trống.', 'Each row is a moment; each column is one party. The outlined row is the current step; rows not reached yet are empty.')
+    for k, vi, en in [('time', 'Lúc', 'When'), ('tab', 'Máy tính bảng', 'Tablet'), ('srv', 'Phía server', 'Server'), ('phn', 'Điện thoại', 'Phone')]:
+        z('cf.col.' + k, vi, en)
+    for k, vi, en in [('0', '10:00 mở app', '10:00 open the app'), ('1', '10:02 và 10:05 (sửa)', '10:02 and 10:05 (edits)'), ('2', '10:20 điện thoại có mạng', '10:20 phone back online'), ('3', '10:21 đồng bộ', '10:21 sync')]:
+        z('cf.t.' + k, vi, en)
+    for k, vi, en in [
+        ('load', 'tải v1', 'load v1'), ('v1', 'giữ', 'holds'), ('v2', 'lưu', 'stores'), ('idle', 'chờ', 'idle'),
+        ('editA', 'thêm dị ứng penicillin, lưu ngay', 'adds a penicillin allergy, saved at once'), ('editM', 'ghi chú "đến muộn 10 phút", lưu ngay', 'note "arriving 10 min late", saved at once'),
+        ('offS', 'mất mạng; sửa triệu chứng trên v1', 'offline; edits symptoms on v1'), ('offM', 'mất mạng; ghi chú "xin đổi sang buổi chiều" trên v1', 'offline; note "move me to the afternoon" on v1'),
+        ('putFull', 'PUT cả bản ghi, giờ sửa 10:05', 'PUT the whole record, edited at 10:05'), ('lwwTake', '10:05 > 10:02: lấy bản điện thoại', '10:05 > 10:02: takes the phone\'s copy'),
+        ('pullLost', 'đồng bộ: dị ứng thành "không"', 'syncs: allergies become "none"'), ('keep3', 'giữ', 'holds'), ('show3', 'hiện bản mới', 'shows the new copy'),
+        ('putIf1', 'PUT kèm If-Match "v1"', 'PUT with If-Match "v1"'), ('r412', '412: v1 ≠ v2, không ghi', '412: v1 ≠ v2, nothing written'),
+        ('retry', 'GET v2, làm lại thay đổi, PUT If-Match "v2"', 'GET v2, redo the change, PUT If-Match "v2"'), ('ok3', '200: lưu', '200: stored'), ('pull3', 'đồng bộ bản mới', 'syncs the new copy'),
+        ('patchS', 'PATCH {triệu chứng}, gốc v1', 'PATCH {symptoms}, base v1'), ('merge3', 'gộp từng trường, lưu', 'merges per field, stores'),
+        ('patchM', 'PATCH {ghi chú}, gốc v1', 'PATCH {note}, base v1'), ('conflict', 'ghi chú đổi ở cả hai phía: xung đột, giữ', 'note changed on both sides: conflict, keeps'),
+        ('askUser', 'hiện cả hai ghi chú; người dùng giữ cả hai', 'shows both notes; the user keeps both'), ('resolved', 'nhận bản người dùng chọn, lưu', 'receives the user\'s choice, stores')]:
+        z('cf.a.' + k, vi, en)
+    z('cf.fcap', 'Từng trường của hồ sơ sau bước này (server đang ở v{v}). Ô có viền: máy đó đã sửa trường này.', 'Each field of the form after this step (the server is at v{v}). Outlined: that device edited this field.')
+    for k, vi, en in [('field', 'Trường', 'Field'), ('base', 'Gốc v1', 'Base v1'), ('tab', 'Máy tính bảng', 'Tablet'), ('phn', 'Điện thoại', 'Phone'), ('srv', 'Phía server', 'Server')]:
+        z('cf.fcol.' + k, vi, en)
+    for k, vi, en in [('symptom', 'Triệu chứng', 'Symptoms'), ('allergy', 'Dị ứng', 'Allergies'), ('memo', 'Ghi chú cho phòng khám', 'Note to the clinic')]:
+        z('cf.f.' + k, vi, en)
+    for k, vi, en in [('cough', 'ho', 'cough'), ('coughfever', 'ho, sốt', 'cough, fever'), ('none', 'không', 'none'), ('peni', 'penicillin (nặng)', 'penicillin (severe)'),
+                      ('empty', '(trống)', '(empty)'), ('late', 'đến muộn 10 phút', 'arriving 10 min late'), ('pm', 'xin đổi sang buổi chiều', 'please move me to the afternoon'),
+                      ('both', 'đến muộn 10 phút; xin đổi sang buổi chiều', 'arriving 10 min late; please move me to the afternoon')]:
+        z('cf.v.' + k, vi, en)
+    z('cf.mk.lost', 'thay đổi bị mất', 'change lost'); z('cf.mk.conflict', 'xung đột', 'conflict')
+    z('cf.legend', 'Viền cam: bước hiện tại, hay trường máy đó đã sửa. Gạch đỏ: thay đổi bị mất, hay xung đột đang chờ người dùng.', 'Orange outline: the current step, or a field that device edited. Red hatched: a lost change, or a conflict waiting for the user.')
+
+    C = 'i8'
+    a(C + '.title', 'Nhiều thiết bị và xung đột', 'Multiple devices and conflicts')
+    a(C + '.essence', 'Mỗi thiết bị ghi được lúc mất mạng là một bản sao nhận ghi. Hai thiết bị sửa cùng bản ghi mà không thấy nhau là ghi đồng thời, dù cách nhau mười phút.\nGhi sau thắng chọn một bên và âm thầm bỏ bên kia; dùng giờ của máy thì còn tệ hơn khi đồng hồ lệch. Ghi có điều kiện (If-Match, số phiên bản) biến ghi đè thành lỗi 412 để app làm lại thay đổi trên bản mới.\nGửi chỉ phần đã sửa cho phép gộp theo trường; chỉ khi cùng một trường bị sửa khác nhau mới cần người dùng chọn.',
+      'Every device that can write while offline is a copy that accepts writes. Two devices editing one record without seeing each other are concurrent writes, even ten minutes apart.\nLast write wins picks one side and silently drops the other; using device clocks is worse when clocks drift. A conditional write (If-Match, a version number) turns the overwrite into a 412 so the app redoes its change on the new version.\nSending only the edit allows per-field merging; only the same field edited two ways needs the user to choose.')
+    a(C + '.goal.g1', 'Đã thấy lần ghi của điện thoại tới server', 'Saw the phone\'s write reach the server')
+    a(C + '.goal.g2', 'Đã thấy bản ghi cuối cùng', 'Saw the final record')
+    a(C + '.sim.sysdesign.conflict', 'ghi sau thắng, If-Match, gộp theo trường, cùng một trường', 'last write wins, If-Match, per-field merge, same field')
+
+    S_ = 'hook'
+    a(C + '.sec.%s.title' % S_, 'Đoán trước khi đọc', 'Predict before reading')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'predict', 'App lưu hồ sơ bằng PUT cả bản ghi; server giữ bản có giờ sửa mới nhất. Người dùng thêm dị ứng trên máy tính bảng lúc 10:02, rồi sửa triệu chứng trên điện thoại đang mất mạng lúc 10:05. Điện thoại có mạng lại lúc 10:20. Hồ sơ cuối cùng có dị ứng không?',
+      'The app saves the form by PUTting the whole record; the server keeps the copy with the latest edit time. The user adds an allergy on the tablet at 10:02, then edits the symptoms on the offline phone at 10:05. The phone is back online at 10:20. Does the final form still have the allergy?')
+    B(C, S_, 1, 'ans', 'Không. Điện thoại sửa trên bản v1 chưa có dị ứng và gửi cả bản ghi; giờ 10:05 lớn hơn nên server lấy bản đó. Dị ứng mất trên mọi máy mà không có lỗi nào. [[src:book-ddia2]]',
+      'No. The phone edited v1, which had no allergy, and sent the whole record; 10:05 is later, so the server took it. The allergy is gone everywhere with no error. [[src:book-ddia2]]')
+
+    S_ = 'concurrent'
+    a(C + '.sec.%s.title' % S_, 'Mỗi thiết bị là một bản sao nhận ghi', 'Every device is a copy that accepts writes')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'DDIA (bản 2, ch.6) lấy ví dụ lịch trên điện thoại và laptop: phải xem và thêm cuộc hẹn được bất kỳ lúc nào, kể cả khi mất mạng. Khi đó mỗi thiết bị có một bản sao database nhận ghi (một leader), và đồng bộ giữa chúng là sao chép nhiều leader, bất đồng bộ, có thể trễ hàng giờ hay hàng ngày. Mỗi thiết bị giống một "vùng", còn mạng giữa chúng thì rất không tin cậy. [[src:book-ddia2]]',
+      'DDIA (2nd ed., ch.6) uses calendars on a phone and a laptop: you must see and add meetings at any time, even offline. Then each device holds a database copy that accepts writes (a leader), and syncing between them is asynchronous multi-leader replication, lagging hours or days. Each device is like a "region", with an extremely unreliable network in between. [[src:book-ddia2]]')
+    B(C, S_, 2, 'p', 'Cùng chương: hai lần ghi là đồng thời khi không bên nào biết bên kia lúc ghi; không cần xảy ra cùng một lúc. Vì vậy chuyện này không chỉ của app offline-first như ở track Lưu dữ liệu (H7): một tab mở lâu trên máy tính bảng, gửi lại bản đã tải từ sáng, cũng là ghi đồng thời. [[src:book-ddia2]]',
+      'Same chapter: two writes are concurrent when neither was aware of the other when made; they need not happen at the same moment. So this is not only about offline-first apps as in the Saving Data track (H7): a tab left open on a tablet, sending back a copy loaded that morning, is also a concurrent write. [[src:book-ddia2]]')
+
+    S_ = 'lww'
+    a(C + '.sec.%s.title' % S_, 'Ghi sau thắng: một bên âm thầm mất', 'Last write wins: one side silently lost')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'Cách đơn giản nhất là gắn giờ vào mỗi lần ghi và giữ bản có giờ lớn nhất. DDIA nói tên gọi gây hiểu lầm: với hai lần ghi đồng thời, "sau" không xác định, nên thứ tự theo giờ gần như ngẫu nhiên. Ý nghĩa thật là chọn một bên thắng và âm thầm bỏ các bên khác, dù chúng đã được xử lý thành công. Chấp nhận được khi chỉ thêm bản ghi mới với khóa duy nhất và không bao giờ sửa. [[src:book-ddia2]]',
+      'The simplest way is to timestamp every write and keep the one with the greatest time. DDIA says the name misleads: for concurrent writes "last" is undefined, so their time order is essentially random. What it really means is one side wins and the others are silently discarded, even though they were processed successfully. It is fine when you only insert records with unique keys and never update. [[src:book-ddia2]]')
+    B(C, S_, 2, 'p', 'Trên mobile còn thêm chuyện giờ do máy đặt. DDIA (ch.9): nếu LWW dùng giờ của client, máy có đồng hồ chạy nhanh sẽ thắng cả những lần ghi thật sự xảy ra sau, và dữ liệu bị bỏ mà không có lỗi. Người dùng chỉnh giờ điện thoại, hay pin hết làm giờ sai, là đủ. [[src:book-ddia2]]',
+      'Mobile adds device-set clocks. DDIA (ch.9): if LWW uses client timestamps, a device whose clock runs ahead beats even writes that truly happened later, and data is dropped without any error. A user changing the phone\'s clock, or a dead battery resetting it, is enough. [[src:book-ddia2]]')
+    B(C, S_, 3, 'note', 'Gửi cả bản ghi khi chỉ sửa một trường là cách mời lost update vào: lần ghi mang theo giá trị cũ của mọi trường khác. DDIA (ch.8) gọi đây là chu trình đọc, sửa, ghi. [[src:book-ddia2]]',
+      'Sending the whole record when only one field changed invites lost updates: the write carries old values for every other field. DDIA (ch.8) calls this the read-modify-write cycle. [[src:book-ddia2]]')
+    B(C, S_, 3, 'kind', 'pitfall')
+
+    S_ = 'conditional'
+    a(C + '.sec.%s.title' % S_, 'Ghi có điều kiện: If-Match và 412', 'Conditional writes: If-Match and 412')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'RFC 9110 (13.1.1): If-Match làm cho request có điều kiện: chỉ thực hiện nếu ETag hiện tại khớp, so sánh mạnh. Nó dùng nhiều nhất với PUT, POST, DELETE để tránh ghi đè khi nhiều client cùng sửa, tức vấn đề lost update. Điều kiện sai thì server không được thực hiện; thường trả 412 Precondition Failed (15.5.13). Nếu server thấy thay đổi đó thật ra đã được áp dụng, RFC cho phép trả 2xx. [[src:rfc9110]]',
+      'RFC 9110 (13.1.1): If-Match makes the request conditional: perform it only if the current ETag matches, with strong comparison. It is mostly used with PUT, POST, DELETE to prevent overwrites when several clients edit in parallel, the lost update problem. If the condition is false the server must not perform the method; it usually answers 412 Precondition Failed (15.5.13). If the server can tell the change was in fact already applied, the RFC allows a 2xx. [[src:rfc9110]]')
+    B(C, S_, 2, 'p', 'DDIA (ch.8) gọi đây là ghi có điều kiện, hay khóa lạc quan khi so số phiên bản: không khớp thì lần ghi không có tác dụng, và chu trình đọc, sửa, ghi phải chạy lại. RFC không nói client làm gì sau 412; cách hợp lý là tải bản mới rồi áp lại ý định của người dùng ("đổi triệu chứng thành ho, sốt"), không gửi lại bản đã sửa trên v1. Server có thể đòi mọi lần ghi phải có điều kiện bằng 428 Precondition Required, nhưng RFC 6585 nói mã này là tùy chọn. [[src:book-ddia2]] [[src:rfc6585]]',
+      'DDIA (ch.8) calls this a conditional write, or optimistic locking when comparing version numbers: if it does not match the write has no effect and the read-modify-write cycle runs again. The RFC does not say what the client does after a 412; the sensible move is to fetch the new version and reapply the user\'s intent ("set symptoms to cough, fever"), not resend the copy edited on v1. A server can demand that every write be conditional with 428 Precondition Required, but RFC 6585 says that code is optional. [[src:book-ddia2]] [[src:rfc6585]]')
+    B(C, S_, 3, 'kt', 'PUT /forms/42\nIf-Match: "v1"\n← 412 Precondition Failed          (server đang ở "v2", không ghi gì)\n\nGET /forms/42\n← 200, ETag: "v2"\nPUT /forms/42                        (làm lại thay đổi trên v2)\nIf-Match: "v2"\n← 200, ETag: "v3"',
+      'PUT /forms/42\nIf-Match: "v1"\n← 412 Precondition Failed          (the server is at "v2", nothing written)\n\nGET /forms/42\n← 200, ETag: "v2"\nPUT /forms/42                        (redo the change on v2)\nIf-Match: "v2"\n← 200, ETag: "v3"')
+
+    S_ = 'merge'
+    a(C + '.sec.%s.title' % S_, 'Gộp theo trường, và khi nào phải hỏi người dùng', 'Per-field merging, and when to ask the user')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'p', 'DDIA (ch.6) nêu ba hướng khi xung đột không tránh được: LWW; giữ mọi giá trị đồng thời (siblings) để ứng dụng hay người dùng tự gộp; và gộp tự động bằng thuật toán hợp với loại dữ liệu. Với map khóa-giá trị, cập nhật vào các khóa khác nhau được xử lý độc lập. Hồ sơ là một map như vậy: gửi bản gốc cùng các trường đã đổi thì server gộp được từng trường. [[src:book-ddia2]]',
+      'DDIA (ch.6) gives three directions when conflicts cannot be avoided: LWW; keeping every concurrent value (siblings) for the application or the user to merge; and automatic merging with an algorithm suited to the data type. For a key-value map, updates to different keys are handled independently. The form is such a map: send the base version with the changed fields, and the server can merge field by field. [[src:book-ddia2]]')
+    B(C, S_, 2, 'p', 'Khi cùng một trường bị sửa khác nhau, Alex Xu (tập 1 ch.15) mô tả cách của dịch vụ lưu tệp: bản tới trước thắng, bản tới sau nhận xung đột, và app hiện cả bản trên máy lẫn bản mới nhất để người dùng gộp hay chọn. DDIA cảnh báo hai điều: bắt người dùng gộp tốn công cho cả người viết app lẫn người dùng, và gộp tự động bất cẩn gây bất ngờ, như giỏ hàng gộp kiểu hợp tập hợp làm món đã xóa hiện lại. [[src:book-xu1]] [[src:book-ddia2]]',
+      'When the same field is changed two ways, Alex Xu (vol. 1 ch.15) describes a file service: the version that arrives first wins, the later one gets a conflict, and the app shows both the local copy and the latest one for the user to merge or pick. DDIA warns of two things: making users merge costs effort for both developers and users, and careless automatic merging surprises people, like a shopping cart merged by set union bringing removed items back. [[src:book-xu1]] [[src:book-ddia2]]')
+    B(C, S_, 3, 'note', 'Danh sách và văn bản dài (ghi chú nhiều đoạn, danh sách thuốc) không gộp được bằng quy tắc theo trường. DDIA giới thiệu CRDT và OT cho các loại này; chương không đi sâu. Gợi ý của site: bắt đầu bằng If-Match cho mọi lần ghi, rồi gộp theo trường cho những màn có nhiều trường độc lập.',
+      'Lists and long text (multi-paragraph notes, medication lists) cannot be merged by per-field rules. DDIA introduces CRDTs and OT for those; this chapter does not go deeper. The site\'s suggestion: start with If-Match on every write, then per-field merging for screens with many independent fields.')
+    B(C, S_, 3, 'kind', 'android')
+
+    S_ = 'bugs'
+    a(C + '.sec.%s.title' % S_, 'Hai lỗi hay gặp', 'Two common bugs')
+    a(C + '.sec.%s.badge' % S_, 'stable')
+    B(C, S_, 1, 'bug', 'Sau khi thêm If-Match, app rơi vào vòng 412 liên tục và người dùng không lưu được.', 'After adding If-Match, the app loops on 412 and the user cannot save.')
+    B(C, S_, 1, 'cause', 'Sau 412, app tải bản mới nhưng gửi lại bản đã sửa trên v1 với ETag mới; hoặc gửi lại ETag cũ mà không tải lại.', 'After a 412 the app fetches the new version but resends the copy edited on v1 with the new ETag; or resends the old ETag without fetching.')
+    B(C, S_, 1, 'fix', 'Lưu ý định (các trường đã đổi), áp lại lên bản mới rồi gửi với ETag mới; giới hạn số lần thử và hỏi người dùng nếu vẫn xung đột.', 'Keep the intent (the changed fields), reapply it to the new version and send with the new ETag; cap the retries and ask the user if it still conflicts.')
+    B(C, S_, 2, 'bug', 'Người dùng đổi giờ điện thoại về hôm qua; mọi thay đổi trên điện thoại sau đó đều "biến mất".', 'A user sets the phone\'s clock back a day; every edit on the phone afterwards "disappears".')
+    B(C, S_, 2, 'cause', 'Server chọn bản theo editedAt do điện thoại đặt (LWW theo giờ client); bản của điện thoại luôn có giờ nhỏ hơn bản đang lưu.', 'The server picks by the phone-set editedAt (LWW on client clocks); the phone\'s copies always look older than the stored one.')
+    B(C, S_, 2, 'fix', 'Không dùng giờ client để phân xử; dùng số phiên bản do server cấp (ETag) và ghi có điều kiện. [[src:book-ddia2]]', 'Never arbitrate with client clocks; use server-issued versions (ETags) and conditional writes. [[src:book-ddia2]]')
+
+    S_ = 'ex'
+    a(C + '.sec.%s.title' % S_, 'Bài tập', 'Exercise')
+    a(C + '.sec.%s.badge' % S_, 'guideline')
+    B(C, S_, 1, 'ex', 'Hồ sơ có thêm trường "thuốc đang dùng" là một danh sách. Máy tính bảng xóa "aspirin", điện thoại (mất mạng, gốc v1) thêm "vitamin D". (a) Gộp theo trường coi cả danh sách là một giá trị thì chuyện gì xảy ra? (b) Gộp bằng hợp tập hợp thì sao? (c) Cách nào cho kết quả đúng?',
+      'The form gains a "current medications" field that is a list. The tablet removes "aspirin"; the phone (offline, base v1) adds "vitamin D". (a) What happens if per-field merging treats the whole list as one value? (b) What about merging by set union? (c) What gives the right result?')
+    B(C, S_, 1, 'hint', 'Xem lại ví dụ giỏ hàng trong DDIA ch.6.', 'Revisit the shopping cart example in DDIA ch.6.')
+    B(C, S_, 1, 'sol', '(a) Cả hai bên đều đổi trường đó nên thành xung đột, phải hỏi người dùng. (b) Hợp tập hợp cho {aspirin, vitamin D}: aspirin đã xóa hiện lại, đúng như lỗi giỏ hàng DDIA kể. (c) Gửi thao tác thay vì cả danh sách: "xóa aspirin", "thêm vitamin D"; server áp cả hai và ghi nhớ việc xóa, cho {vitamin D}. Đó là ý tưởng của CRDT cho tập hợp. [[src:book-ddia2]]',
+      '(a) Both sides changed the field, so it is a conflict and the user must decide. (b) Set union gives {aspirin, vitamin D}: the removed aspirin comes back, exactly the cart bug DDIA describes. (c) Send operations instead of the whole list: "remove aspirin", "add vitamin D"; the server applies both and remembers the removal, giving {vitamin D}. That is the idea behind set CRDTs. [[src:book-ddia2]]')
+
+    S_ = 'honest'
+    a(C + '.sec.%s.title' % S_, 'Chương này giản lược những gì', 'What this chapter simplifies')
+    a(C + '.sec.%s.badge' % S_, 'simplified')
+    B(C, S_, 1, 'p', 'Ghi đồng thời, sync engine, LWW, siblings, gộp tự động và gộp theo khóa theo DDIA bản 2 ch.6; lost update, ghi có điều kiện và khóa lạc quan theo ch.8; LWW theo giờ client theo ch.9; If-Match, If-None-Match, 412 theo RFC 9110 (13.1.1, 13.1.2, 15.5.13); 428 theo RFC 6585; cách xử lý xung đột của dịch vụ lưu tệp theo Alex Xu tập 1 ch.15; đọc ngày 2026-11-24, diễn đạt lại. Ba trường, mốc giờ, giá trị, việc làm lại thay đổi sau 412 và lời khuyên bắt đầu bằng If-Match là của site. Chương không bàn vector clock, CRDT và OT chi tiết, hay đồng bộ thời gian thực nhiều người cùng gõ.',
+      'Concurrent writes, sync engines, LWW, siblings, automatic and per-key merging follow DDIA 2nd ed. ch.6; lost updates, conditional writes and optimistic locking follow ch.8; LWW on client clocks follows ch.9; If-Match, If-None-Match and 412 follow RFC 9110 (13.1.1, 13.1.2, 15.5.13); 428 follows RFC 6585; the file service\'s conflict handling follows Alex Xu vol. 1 ch.15; read on 2026-11-24, paraphrased. The three fields, times, values, redoing the change after a 412 and the advice to start with If-Match are the site\'s. The chapter does not cover vector clocks, CRDTs and OT in detail, or real-time multi-user typing.')
+
+    for q, qv, qe, av, ae, wv, we in [
+        ('q1', 'Hai lần ghi cách nhau 15 phút có thể là "đồng thời" không?', 'Can two writes 15 minutes apart be "concurrent"?', 'Có, nếu không bên nào biết bên kia lúc ghi, ví dụ một máy đang mất mạng.', 'Yes, if neither knew of the other when written, for example one device was offline.', 'Đồng thời là về hiểu biết, không phải về giờ.', 'Concurrency is about awareness, not the clock.'),
+        ('q2', 'Server trả 412 cho PUT kèm If-Match. Dữ liệu trên server đã đổi chưa?', 'The server answers 412 to a PUT with If-Match. Did the server data change?', 'Chưa. Điều kiện sai thì server không thực hiện request.', 'No. With a false condition the server does not perform the request.', 'App cần tải bản mới và làm lại thay đổi.', 'The app needs to fetch the new version and redo its change.'),
+        ('q3', 'Vì sao gửi chỉ các trường đã sửa giúp tránh mất dữ liệu?', 'Why does sending only the edited fields help avoid data loss?', 'Lần ghi không mang theo giá trị cũ của các trường khác, nên không đè lên thay đổi của máy khác; server còn gộp được từng trường.', 'The write carries no old values for other fields, so it cannot clobber another device\'s change; and the server can merge per field.', 'Gửi cả bản ghi là chu trình đọc, sửa, ghi dễ gây lost update.', 'Sending the whole record is a read-modify-write cycle prone to lost updates.'),
+        ('q4', 'Vì sao không nên dùng giờ của điện thoại để quyết định bản nào thắng?', 'Why should the phone\'s clock not decide which copy wins?', 'Đồng hồ thiết bị có thể sai hay bị chỉnh; máy có giờ chạy nhanh sẽ thắng cả những lần ghi xảy ra sau, và dữ liệu mất không báo lỗi.', 'Device clocks can be wrong or changed; a device running ahead beats even later writes, and data is lost without an error.', 'Dùng phiên bản do server cấp.', 'Use server-issued versions.')]:
+        a(C + '.quiz.%s.q' % q, qv, qe); a(C + '.quiz.%s.a' % q, av, ae); a(C + '.quiz.%s.why' % q, wv, we)

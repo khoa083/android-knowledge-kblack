@@ -2,6 +2,29 @@
 (function () {
   var add = function (id, lines) { ADE.addCode('sysdesign', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
+  add('i8.lww', [
+    'data class Note(val id: String, val symptom: String, val allergy: String, val memo: String, val editedAt: Long)',
+    c('suspend fun save(note: Note) = api.put(note.id, note)                  // cả bản ghi, kể cả trường không sửa', 'suspend fun save(note: Note) = api.put(note.id, note)                  // the whole record, untouched fields too'),
+    c('// server: if (incoming.editedAt > stored.editedAt) stored = incoming   // so giờ do máy client đặt', '// server: if (incoming.editedAt > stored.editedAt) stored = incoming   // compares times set by client clocks')
+  ]);
+  add('i8.ifmatch', [
+    'suspend fun save(id: String, edit: (Note) -> Note): Boolean {',
+    c('    var cur = api.get(id)                                         // nội dung + ETag "v1"', '    var cur = api.get(id)                                         // body + ETag "v1"'),
+    '    repeat(3) {',
+    '        val res = api.put(id, edit(cur.body), ifMatch = cur.etag)',
+    c('        if (res.code != 412) return res.isSuccessful               // 2xx: đã lưu', '        if (res.code != 412) return res.isSuccessful               // 2xx: saved'),
+    c('        cur = api.get(id)                                         // 412: có người sửa trước; tải bản mới, làm lại thay đổi', '        cur = api.get(id)                                         // 412: someone edited first; fetch the new one, redo the change'),
+    '    }',
+    c('    return false                                                  // vẫn xung đột: hỏi người dùng', '    return false                                                  // still conflicting: ask the user'),
+    '}'
+  ]);
+  add('i8.field', [
+    c('data class NotePatch(val baseVersion: Int, val changes: Map<String, String>)   // chỉ các trường đã sửa', 'data class NotePatch(val baseVersion: Int, val changes: Map<String, String>)   // only the edited fields'),
+    'suspend fun save(id: String, base: Note, mine: Note): SaveResult =',
+    c('    api.patch(id, NotePatch(base.version, diff(base, mine)))     // {"symptom": "ho, sốt"}', '    api.patch(id, NotePatch(base.version, diff(base, mine)))     // {"symptom": "cough, fever"}'),
+    c('// server, từng trường: chỉ một bên sửa → lấy bên đó; hai bên sửa khác nhau → xung đột', '// server, per field: edited on one side only → take it; edited differently on both → conflict'),
+    'sealed interface SaveResult { data class Saved(val note: Note) : SaveResult; data class Conflict(val field: String, val theirs: String, val mine: String) : SaveResult }'
+  ]);
   add('i7.offset', [
     'class NewsSource(private val api: NewsApi) : PagingSource<Int, Post>() {',
     '    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Post> {',
