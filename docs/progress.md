@@ -870,4 +870,6 @@ Trạng thái: `chưa / đang / xong`.
   - Khung track: `tracks/debugging/*`, `dev/gen/debugging_content.py`; `app.js` đọc trường tùy chọn `num` của chương để số hiển thị khớp id (l1 hiện "1" dù chưa có l0).
   - l1 Quy trình gỡ lỗi, adb và bug report: XONG (sim `debugging.loop`, 8 kịch bản, cầu nối X28 với Mã sạch J7).
   - Tham chiếu tới trước: l1 nhắc chương "Đọc stack trace" (l4); khi viết l4 phải đặt đúng tên này.
-  - Tiếp theo: l2 Debugger (breakpoint, watch, evaluate; gỡ lỗi coroutine), rồi l3…l12, l0 cuối; xong l0 thì đổi status sang stable.
+  - XONG (2026-11-25): l2 Debugger (X: không), l3 Logcat, l4 Đọc stack trace (cầu nối X29 với Kotlin K6), l5 R8 và stack trace bị làm rối, l6 Layout Inspector: xem cây giao diện (cầu nối X30 với Runtime PF). Các tham chiếu tới trước đã khớp tên.
+  - Tiếp theo: l7 Dữ liệu và việc nền (Database Inspector, Background Task Inspector), l8 bộ nhớ, l9 trace và khung hình giật, l10 ANR và StrictMode, l11 mạng và pin, l12 đo hiệu năng, l0 bản đồ cuối; xong l0 thì đổi status sang stable.
+  - Ghi chú kỹ thuật: engine đếm số trong chữ khi số đổi tại cùng chỗ; nếu motion-check báo "hình đổi mà không có chuyển cảnh" ở bước kế tiếp, thêm một dòng ghi chú có data-k riêng cho từng bước.
