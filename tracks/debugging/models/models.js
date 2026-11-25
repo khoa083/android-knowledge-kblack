@@ -596,4 +596,58 @@
           return state('strict', 0).viol.length === 0 && state('strict', 1).viol.length === 2 && state('strict', 3).viol.length === 0 &&
             CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 12; }); }); }); } }] });
   })();
+
+  /* ================= l11: mạng và pin: ba nơi tự gọi cùng một API, hay một nguồn chung chỉ tải trang đầu =================
+     Theo developer.android.com studio/debug/network-profiler và training/efficient-downloads/efficient-network-access (mô hình radio 3G điển hình: toàn công suất khi
+     truyền và 5 giây đuôi, rồi 12 giây công suất thấp). CÀI THẬT: thời gian radio ở từng mức tính từ thời điểm và độ dài các request, lấy mẫu mỗi 0,5 giây.
+     Thời điểm, người gọi và kích thước là của site. */
+  (function () {
+    var m = 'net', CASES = ['dup', 'shared'], KS = ['s1', 's2', 's3', 's4'];
+    var TAIL = 5, LOW = 12, SPAN = 30;
+    var REQ = { dup: [[0, 1, 'BookingsViewModel.init', 1200], [2, 1, 'BadgeWidget.onAttach', 1200], [7, 1, 'BookingsFragment.onResume', 1200]],
+      shared: [[0, 1, 'BookingRepository.refresh', 1200]] };
+    function reqs(c, i) { return REQ[c].map(function (r) { return c === 'shared' && i === 3 ? [r[0], r[1], r[2], 120] : r.slice(); }); }
+    function radio(rs, span) {
+      var hi = 0, lo = 0, strip = [];
+      for (var t = 0; t < (span || SPAN); t += 0.5) {
+        var h = rs.some(function (r) { return t >= r[0] && t < r[0] + r[1] + TAIL; });
+        var l = !h && rs.some(function (r) { return t >= r[0] + r[1] + TAIL && t < r[0] + r[1] + TAIL + LOW; });
+        if (h) hi += 0.5; else if (l) lo += 0.5;
+        strip.push(h ? 'h' : (l ? 'l' : 's'));
+      }
+      return { high: hi, low: lo, strip: strip };
+    }
+    var kb = function (rs) { return rs.reduce(function (s, r) { return s + r[3]; }, 0); };
+    ADE.dbgNet = { reqs: reqs, radio: radio, kb: kb, SPAN: SPAN };
+    var NODES = { dup: [[['ni', 'http'], 'ni', 'e4'], [['ui', 'http'], 'ui', 'e1'], [['http', 'radio'], 'radio', 'e3'], [['http', 'ui'], 'http', 'e1']],
+      shared: [[['ui', 'repo'], 'repo', 'e1'], [['repo', 'http'], 'repo', 'e2'], [['http', 'radio'], 'radio', 'e3'], [['repo', 'http'], 'http', 'e2']] };
+    var HL = { dup: [[1, 2, 3], [1, 2, 3], [1, 2, 3], [4]], shared: [[6], [7], [7], [8]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var rs = reqs(c, i), r = radio(rs), bad = c === 'dup' && i >= 1, nd = NODES[c][i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { req: rs.length, kb: kb(rs), high: r.high, low: r.low },
+          codeHighlight: { snippet: 'l11.code', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'dup';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'dup' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'ba request ở giây 0, 2, 7: radio toàn công suất 13 giây, công suất thấp 12 giây; 3.600 KB', run: function () {
+          var rs = reqs('dup', 0), r = radio(rs); return r.high === 13 && r.low === 12 && kb(rs) === 3600; } },
+        { name: 'một request chung: toàn công suất 6 giây, công suất thấp 12 giây; trang đầu 120 KB', run: function () {
+          var r = radio(reqs('shared', 3)); return r.high === 6 && r.low === 12 && kb(reqs('shared', 3)) === 120; } },
+        { name: 'bài tập: ba request 1 giây ở 0, 20, 40 cho 18 giây toàn công suất và 36 công suất thấp; một request 3 giây cho 8 và 12', run: function () {
+          var a = radio([[0, 1], [20, 1], [40, 1]].map(function (x) { return x.concat(['', 0]); }), 60), b = radio([[0, 3, '', 0]], 60);
+          return a.high === 18 && a.low === 36 && b.high === 8 && b.low === 12; } },
+        { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 8 dòng', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); }); } }] });
+  })();
 })();

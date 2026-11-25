@@ -18,5 +18,6 @@ ADE.addGlossary('vi', 'debugging', {
   "retained-size": { term: "retained size", def: "Lượng bộ nhớ sẽ được giải phóng nếu một đối tượng bị thu, gồm mọi thứ chỉ nó giữ; khác shallow size là bộ nhớ của riêng đối tượng.", chapter: "debugging/l8" },
   "jank": { term: "jank (khung hình giật)", def: "Khi một khung hình không xong trước hạn (16 ms ở 60 Hz, 8 ms ở 120 Hz), nó bị bỏ cả khung và màn hình giữ hình cũ, người dùng thấy khựng.", chapter: "debugging/l9" },
   "system-trace": { term: "system trace", def: "Bản ghi hoạt động của thiết bị trong một khoảng ngắn: luồng nào chạy khi nào, khung hình nào trễ, CPU bận ra sao; xem bằng Perfetto hay Android Studio.", chapter: "debugging/l9" },
-  "strictmode": { term: "StrictMode", def: "Công cụ cho nhà phát triển báo mỗi lần luồng main đọc ghi đĩa hay gọi mạng (và vài lỗi khác); bật trong bản debug để bắt sớm việc có thể gây ANR.", chapter: "debugging/l10" }
+  "strictmode": { term: "StrictMode", def: "Công cụ cho nhà phát triển báo mỗi lần luồng main đọc ghi đĩa hay gọi mạng (và vài lỗi khác); bật trong bản debug để bắt sớm việc có thể gây ANR.", chapter: "debugging/l10" },
+  "radio-tail": { term: "thời gian đuôi của radio (tail time)", def: "Khoảng radio di động còn ở mức toàn công suất sau khi truyền xong (5 giây trong mô hình 3G của tài liệu), trước khi hạ xuống mức thấp; vì nó, nhiều request rải rác tốn pin hơn một lần truyền gom lại.", chapter: "debugging/l11" }
 });

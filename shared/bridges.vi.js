@@ -64,5 +64,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X32.title': 'Thứ gì đang giữ Activity đã đóng',
   'shared.bridge.X32.summary': 'Chương Kotlin giảng lambda giữ những gì nó dùng, kể cả this; chương kiến trúc giảng singleton và phạm vi của dependency. Chương chủ sở hữu cho thấy hậu quả khi một thứ sống lâu giữ thứ sống ngắn: Activity rò, bộ nhớ tăng dần tới OutOfMemoryError, và cách tìm mắt xích bằng heap dump.',
   'shared.bridge.X33.title': 'Đọc trace của ANR khi luồng main chờ khóa',
-  'shared.bridge.X33.summary': 'Chương Thiết kế hệ thống giảng luồng, khóa, deadlock và vì sao ANR xảy ra. Chương chủ sở hữu dạy đọc bằng chứng trên máy người dùng: trạng thái Blocked, dòng "waiting to lock … held by", tìm luồng giữ khóa, và bật StrictMode để bắt sớm trên máy dev.'
+  'shared.bridge.X33.summary': 'Chương Thiết kế hệ thống giảng luồng, khóa, deadlock và vì sao ANR xảy ra. Chương chủ sở hữu dạy đọc bằng chứng trên máy người dùng: trạng thái Blocked, dòng "waiting to lock … held by", tìm luồng giữ khóa, và bật StrictMode để bắt sớm trên máy dev.',
+  'shared.bridge.X34.title': 'Request trùng, radio và pin',
+  'shared.bridge.X34.summary': 'Các chương Thiết kế hệ thống giảng chọn kênh giao tiếp và cache. Chương chủ sở hữu dạy đo trên app thật: tìm request trùng và phản hồi quá lớn bằng Network Inspector, và tính vì sao request rải rác giữ radio ở toàn công suất lâu hơn.'
 });

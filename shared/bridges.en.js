@@ -64,5 +64,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X32.title': 'What is keeping a closed Activity alive',
   'shared.bridge.X32.summary': 'The Kotlin chapter teaches that a lambda holds what it uses, this included; the architecture chapter teaches singletons and dependency scopes. The owner chapter shows what happens when something long-lived holds something short-lived: a leaked Activity, memory creeping up to an OutOfMemoryError, and how to find the link with a heap dump.',
   'shared.bridge.X33.title': 'Reading an ANR trace when the main thread waits for a lock',
-  'shared.bridge.X33.summary': 'The Mobile System Design chapter teaches threads, locks, deadlock and why ANRs happen. The owner chapter teaches reading the evidence from users\' phones: the Blocked state, the "waiting to lock … held by" line, finding the holder thread, and turning on StrictMode to catch it early on the dev device.'
+  'shared.bridge.X33.summary': 'The Mobile System Design chapter teaches threads, locks, deadlock and why ANRs happen. The owner chapter teaches reading the evidence from users\' phones: the Blocked state, the "waiting to lock … held by" line, finding the holder thread, and turning on StrictMode to catch it early on the dev device.',
+  'shared.bridge.X34.title': 'Duplicate requests, the radio and the battery',
+  'shared.bridge.X34.summary': 'The Mobile System Design chapters teach choosing a channel and caching. The owner chapter teaches measuring the real app: finding duplicate requests and oversized responses with Network Inspector, and working out why scattered requests keep the radio at full power longer.'
 });

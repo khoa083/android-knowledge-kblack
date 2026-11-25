@@ -60,4 +60,9 @@
     N('anr', 'sync', 9, 1, 'thread', 'job'), N('anr', 'strict', 3, 3, 'eye', 'runtime')],
     edges: [E('e1', 'tap', 'main'), E('e2', 'main', 'lock'), E('e3', 'sync', 'lock'), E('e4', 'strict', 'main')],
     metrics: [T('anr', 'net'), T('anr', 'wait'), T('anr', 'anr'), T('anr', 'viol')] });
+  /* l11: màn hình → nguồn dữ liệu → OkHttp → radio; Network Inspector đọc các request */
+  V('net', { layout: 'pipeline', nodes: [N('net', 'ui', 0, 1, 'screen', 'ui'), N('net', 'repo', 3, 1, 'store', 'state'), N('net', 'http', 6, 1, 'mechanism', 'job'),
+    N('net', 'radio', 9, 1, 'bolt', 'signal'), N('net', 'ni', 6, 3, 'search', 'runtime')],
+    edges: [E('e1', 'ui', 'repo'), E('e2', 'repo', 'http'), E('e3', 'http', 'radio'), E('e4', 'ni', 'http')],
+    metrics: [T('net', 'req'), T('net', 'kb'), T('net', 'high'), T('net', 'low')] });
 })();

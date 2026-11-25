@@ -18,5 +18,6 @@ ADE.addGlossary('en', 'debugging', {
   "retained-size": { term: "retained size", def: "The memory freed if an object were collected, including everything only it holds; unlike shallow size, which is the object's own memory.", chapter: "debugging/l8" },
   "jank": { term: "jank", def: "When a frame does not finish before its deadline (16 ms at 60 Hz, 8 ms at 120 Hz), the whole frame is dropped and the screen keeps the old image, so the user sees a hitch.", chapter: "debugging/l9" },
   "system-trace": { term: "system trace", def: "A recording of device activity over a short period: which thread ran when, which frames were late, how busy the CPU was; viewed in Perfetto or Android Studio.", chapter: "debugging/l9" },
-  "strictmode": { term: "StrictMode", def: "A developer tool reporting every disk or network access on the main thread (and some other mistakes); enabled in debug builds to catch early what could become an ANR.", chapter: "debugging/l10" }
+  "strictmode": { term: "StrictMode", def: "A developer tool reporting every disk or network access on the main thread (and some other mistakes); enabled in debug builds to catch early what could become an ANR.", chapter: "debugging/l10" },
+  "radio-tail": { term: "radio tail time", def: "The time the mobile radio stays at full power after a transfer ends (5 seconds in the documentation's 3G model) before stepping down; because of it, many scattered requests cost more battery than one batched transfer.", chapter: "debugging/l11" }
 });

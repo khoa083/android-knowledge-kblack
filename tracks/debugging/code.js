@@ -155,4 +155,16 @@
     c('// Application.onCreate, chỉ bản debug:', '// Application.onCreate, debug builds only:'),
     'if (BuildConfig.DEBUG) StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build())'
   ]);
+
+  /* l11: ba nơi tự gọi API (dòng 1–3), phản hồi toàn bộ lịch sử (dòng 4); bản sửa: một nguồn chung (dòng 6–8) */
+  add('l11.code', [
+    c('class BookingsViewModel { init { viewModelScope.launch { list = api.allBookings() } } }        // gọi 1', 'class BookingsViewModel { init { viewModelScope.launch { list = api.allBookings() } } }        // call 1'),
+    c('class BadgeWidget { override fun onAttach() { scope.launch { count = api.allBookings().size } } }   // gọi 2', 'class BadgeWidget { override fun onAttach() { scope.launch { count = api.allBookings().size } } }   // call 2'),
+    c('class BookingsFragment { override fun onResume() { vm.reload() } }                              // gọi 3', 'class BookingsFragment { override fun onResume() { vm.reload() } }                              // call 3'),
+    c('@GET("bookings") suspend fun allBookings(): List<Booking>                                       // cả lịch sử: 1,2 MB', '@GET("bookings") suspend fun allBookings(): List<Booking>                                       // the whole history: 1.2 MB'),
+    c('// sửa:', '// fix:'),
+    c('val bookings: StateFlow<List<Booking>>                       // BookingRepository: mọi nơi đọc ở đây', 'val bookings: StateFlow<List<Booking>>                       // BookingRepository: everyone reads here'),
+    c('suspend fun refresh(now: Long) { if (now - lastLoad < 5 * 60_000) return; /* … */ }   // chỉ một nơi gọi mạng', 'suspend fun refresh(now: Long) { if (now - lastLoad < 5 * 60_000) return; /* … */ }   // only one place calls the network'),
+    c('@GET("bookings/upcoming") suspend fun upcoming(@Query("page") page: Int, @Query("size") size: Int): List<Booking>   // 120 KB', '@GET("bookings/upcoming") suspend fun upcoming(@Query("page") page: Int, @Query("size") size: Int): List<Booking>   // 120 KB')
+  ]);
 })();

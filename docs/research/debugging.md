@@ -116,3 +116,13 @@
 | StrictMode: công cụ cho nhà phát triển; ThreadPolicy, VmPolicy, detectAll, penaltyLog; không phải bảo mật, không bắt mọi truy cập | developer.android.com/reference/android/os/StrictMode (penaltyDeath không có trên trang chính; site chỉ nhắc như lỗi dùng sai) |
 | **Của site:** khóa 0x0a1b, SyncWorker tid 24, sync lấy khóa 1 giây trước khi bấm, mạng 0,3 s / 9 s, chờ 8 s; StrictMode bắt đọc/ghi đĩa trong save | — |
 - Trang vitals không ghi ngưỡng tỉ lệ ANR (0,47 %); site không dùng con số đó.
+
+### l11 Mạng và pin (đọc 2026-11-25)
+| Ý trên site | Nguồn |
+|---|---|
+| Network Inspector: dòng thời gian, kích thước, loại, trạng thái, thời gian; header, body, call stack; Thread View; chỉ HttpsURLConnection và OkHttp; Rules | developer.android.com/studio/debug/network-profiler (trang không ghi API tối thiểu) |
+| Radio 3G điển hình: toàn công suất, thấp (khoảng −50 %), chờ; 5 s đuôi, 12 s thấp, mỗi phiên ≥ khoảng 18 s; gom request; tải trước 2–5 phút, 1–5 MB; WorkManager khi sạc và Wi-Fi; connection pooling | developer.android.com/training/efficient-downloads/efficient-network-access |
+| Tải dữ liệu lớn khi có Wi-Fi | developer.android.com/develop/connectivity/network-ops/managing |
+| Wake lock quá mức: tổng ≥ 2 giờ/24 giờ ở nền; miễn âm thanh, vị trí, job người dùng; > 5 % phiên trong 28 ngày ảnh hưởng hiển thị trên Play | developer.android.com/topic/performance/vitals/wakelock |
+| **Của site:** 3 request GET /bookings ở giây 0, 2, 7, mỗi cái 1 s và 1,2 MB; radio 13 s / 12 s so với 6 s / 12 s; trang đầu 120 KB | — |
+- Chưa đọc được trang tổng quan về pin (topic/performance/power trả về trang Connectivity); chưa có nguồn cho cache HTTP ở chương này, nên chỉ trỏ sang chương Cache của track Thiết kế hệ thống.

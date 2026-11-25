@@ -352,4 +352,42 @@
     kids.push(h('div', { class: 'vz-legend', text: T('an.legend') }));
     box.appendChild(h('div', { class: 'vz' }, kids));
   }, { labelKey: K + 'tab.anr', icon: 'thread' });
+
+  /* ---------- l11: dòng thời gian 30 giây (SVG phẳng): hàng request (rộng theo thời lượng truyền), dải trạng thái radio (đỏ toàn công suất, vàng công suất thấp,
+     hiện từ bước 3); bảng request với người gọi (từ bước 2) và kích thước (đỏ khi quá lớn, từ bước 4). Tính từ ADE.dbgNet. ---------- */
+  ADE.registerScreen('debugging.net', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.dbgNet, c = ctx.state.case, i = Math.max(0, idx(ctx)), rs = D.reqs(c, i), r = D.radio(rs), showRadio = i >= 2;
+    var X0 = 120, W = 480, sc = W / D.SPAN;
+    var svg = '<svg class="vz-dg vz-lanes" viewBox="0 0 ' + (X0 + W + 8) + ' 96" role="img" aria-label="' + esc(T('nt.aria', { n: rs.length, h: r.high, l: r.low })) + '">';
+    svg += '<text class="vz-dg-s" x="4" y="26">' + esc(T('nt.lane.req')) + '</text><text class="vz-dg-s" x="4" y="62">' + esc(T('nt.lane.radio')) + '</text>';
+    svg += '<line class="vz-dg-e" x1="' + X0 + '" y1="22" x2="' + (X0 + W) + '" y2="22"/>';
+    rs.forEach(function (q, n) {
+      svg += '<g class="vz-dg-n' + (c === 'dup' && i >= 1 && n > 0 ? ' bad' : ' ok') + '" data-k="nt-r-' + c + '-' + n + '"><rect x="' + (X0 + q[0] * sc).toFixed(1) + '" y="12" width="' + Math.max(4, q[1] * sc).toFixed(1) + '" height="20" rx="2"/></g>';
+    });
+    if (showRadio) {
+      var run = null, start = 0;
+      r.strip.concat(['end']).forEach(function (s, n) {
+        if (s !== run) {
+          if (run === 'h' || run === 'l') svg += '<rect class="vz-radio ' + run + '" data-k="nt-rad-' + c + '-' + start + '-' + run + '" x="' + (X0 + start * 0.5 * sc).toFixed(1) + '" y="50" width="' + ((n - start) * 0.5 * sc).toFixed(1) + '" height="18" rx="2"/>';
+          run = s; start = n;
+        }
+      });
+    }
+    for (var t = 0; t <= D.SPAN; t += 5) svg += '<text class="vz-dg-s" x="' + (X0 + t * sc - 4).toFixed(1) + '" y="88">' + t + '</text>';
+    svg += '</svg>';
+    var wrap = h('div', { class: 'vz-scroll' }); wrap.innerHTML = svg;
+    var tb = h('tbody');
+    rs.forEach(function (q, n) {
+      var dupRow = c === 'dup' && i >= 1 && n > 0, big = i >= 3 && q[3] > 500;
+      tb.appendChild(h('tr', { 'data-k': 'nt-t-' + c + '-' + n + '-' + i },
+        h('td', { class: 'c', text: String(q[0]) }), h('td', { class: dupRow ? 'bad' : null, text: 'GET /bookings' }),
+        h('td', { class: dupRow ? 'bad' : (i >= 1 ? null : 'dim'), text: i >= 1 ? q[2] : T('nt.hidden') }),
+        h('td', { class: big ? 'bad' : (i >= 3 ? 'ok' : null), text: q[3] + ' KB' })));
+    });
+    box.appendChild(h('div', { class: 'vz' },
+      wrap,
+      h('p', { class: 'vz-sub' + (c === 'dup' && i >= 2 ? ' bad' : ''), 'data-k': 'nt-sub-' + c + i, text: T('nt.sub', { n: rs.length, kb: D.kb(rs), h: showRadio ? r.high : '?', l: showRadio ? r.low : '?' }) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['t', 'req', 'caller', 'size'].map(function (k) { return h('th', { text: T('nt.col.' + k) }); }))), tb)),
+      h('div', { class: 'vz-legend', text: T('nt.legend') })));
+  }, { labelKey: K + 'tab.net', icon: 'bolt' });
 })();

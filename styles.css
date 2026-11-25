@@ -1052,3 +1052,5 @@ pre.code { position: relative; }
 .vz-dg.vz-phone { width: 130px; min-width: 0; }
 .vz-vsync { stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 2 3; }
 .vz-sec { fill: var(--tok-state); opacity: .55; }
+.vz-radio.h { fill: var(--tok-error); opacity: .6; }
+.vz-radio.l { fill: var(--tok-state); opacity: .5; }
