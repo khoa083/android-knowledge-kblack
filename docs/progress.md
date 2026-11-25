@@ -906,7 +906,7 @@ Trạng thái: `chưa / đang / xong`.
        - Công cụ: dev/tools/rewrite_helper.py (lớp RW) có hàm block(sec, n, field, vi, en) để thay trọn một đoạn.
      - **coroutines:** U2 xong lượt viết lại (thêm hình ảnh, quy tắc dễ nhớ, giải thích thuật ngữ; phần lời giảng v2 vốn đã dạng giảng dạy). Dùng block2(sec, n, field, vi, en) cho module dạng `S = ...` / `B(C, S, ...)`. Chương A0, A1, U1 nằm trong dev/gen/coroutines_base.json và coroutines_v2_part1.py, sửa trực tiếp ở đó.
      - **coroutines đã xong (2026-11-26):** U2, U3, U4, A2, A3, A4. Ở U4 và A8 đã bỏ tên sách và tên chương sách, bỏ đường dẫn menu IDE. Dùng dev/tools/list_paras.py để liệt kê đoạn giảng trước khi viết lại.
-     - **TIẾP THEO:** coroutines A4d, A5, A6, SF, CH, FL, FB, FP, A7, A8, A9 (a9, a9f, a9t), PR; rồi A0, A1, U1 (trong coroutines_base.json và coroutines_v2_part1.py); sau đó runtime (còn 38 chỗ nhắc tên sách) và animation (16 chỗ)., rồi runtime (19), rồi animation (13), viết lại thật như storage. Sau đó rà nội dung P1–P4, K1–K6.
+     - **TIẾP THEO:** coroutines A4d, A5, A6, SF, CH, FL, FB, FP, A7, A8, A9 (a9, a9f, a9t), PR; rồi A0, A1, U1 (trong coroutines_base.json và coroutines_v2_part1.py); sau đó runtime (19 chương, còn 38 chỗ nhắc tên sách) và animation (13 chương, 16 chỗ), viết lại thật như storage. Sau đó rà nội dung P1–P4, K1–K6. Prompt để tiếp tục: docs/next-prompt.md (2026-11-26).
      - **coroutines, runtime, animation:** hiện mới qua lượt nhẹ (commit b156bfe, f987cd7, a2a1bcf), chưa đạt quy tắc viết.
        - Callout mở bằng "Tài liệu Android nói" thay cho tên trang.
        - "the book"/"sách"/"AAT" đổi thành tên tác giả khi là quan điểm riêng; với ví dụ chỉ có trong sách thì viết trung tính.
