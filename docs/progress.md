@@ -903,7 +903,7 @@ Trạng thái: `chưa / đang / xong`.
      - **storage:** XONG viết lại thật H1–H9, H0 (commit 5836005 … 126df60).
        - Mỗi đoạn lời giảng được viết lại nguyên câu, gồm overview, wrapup, essence, các đoạn p/note, đáp án hook, simp.2.
        - Thêm hình ảnh đời thường và một câu "quy tắc dễ nhớ"; giải thích thuật ngữ ngay chỗ dùng.
-       - Công cụ: rw.py trong scratchpad có hàm block(sec, n, field, vi, en) để thay trọn một đoạn.
+       - Công cụ: dev/tools/rewrite_helper.py (lớp RW) có hàm block(sec, n, field, vi, en) để thay trọn một đoạn.
      - **TIẾP THEO:** coroutines (20 chương), rồi runtime (19), rồi animation (13), viết lại thật như storage. Sau đó rà nội dung P1–P4, K1–K6.
      - **coroutines, runtime, animation:** hiện mới qua lượt nhẹ (commit b156bfe, f987cd7, a2a1bcf), chưa đạt quy tắc viết.
        - Callout mở bằng "Tài liệu Android nói" thay cho tên trang.
