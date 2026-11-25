@@ -593,4 +593,82 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p7.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= K8: state thuần: một biến bị nhiều chỗ sửa, hay nhật ký event cùng hàm reduce thuần =================
+     Theo Barbini ch.5–6 (lưu sự thay đổi chứ không lưu state; event sourcing dựng lại state ở thời điểm bất kỳ; gộp event bằng fold;
+     command mang sẵn id được tạo từ bên ngoài; command là API công khai, event nằm trong domain), Carli ch.15 (state là giá trị đổi được,
+     chỉ nhắc). CÀI THẬT: cách 1 chạy các hàm sửa biến (màn đặt lịch và bước đồng bộ cùng trừ); cách 2 chạy reduce trên nhật ký event bằng
+     fold và runningFold; bước 4 phát lại nhật ký bằng một reducer tự sinh id (không thuần). Gói 5 lượt, mã lịch 41 và 42 là của site. */
+  (function () {
+    var m = 'reducer', CASES = ['mutable', 'events'], KS = ['s1', 's2', 's3', 's4'];
+    var EVENTS = [['PackageBought', 5], ['VisitBooked', 41], ['VisitBooked', 42], ['VisitCancelled', 41]];
+    var SHOWN = [2, 4, 4, 4];   // số event hiện ở từng bước
+    // cách 2: reduce thuần; id lịch nằm trong event
+    function reduce(s, e) {
+      if (e[0] === 'PackageBought') return { remaining: e[1], active: [] };
+      if (e[0] === 'VisitBooked') return { remaining: s.remaining - 1, active: s.active.concat([e[1]]) };
+      return s.active.indexOf(e[1]) >= 0 ? { remaining: s.remaining + 1, active: s.active.filter(function (x) { return x !== e[1]; }) } : s;
+    }
+    // reducer KHÔNG thuần: tự sinh id cho lịch khi áp event (như gọi UUID.randomUUID()); lần chạy khác cho id khác
+    function impureReduce(run) {
+      var n = 0;
+      return function (s, e) {
+        if (e[0] === 'VisitBooked') { n++; return { remaining: s.remaining - 1, active: s.active.concat([run === 0 ? e[1] : 9000 + n]) }; }
+        return reduce(s, e);
+      };
+    }
+    var runningFold = function (es, init, f) { var out = [init]; es.forEach(function (e) { out.push(f(out[out.length - 1], e)); }); return out; };
+    var INIT = { remaining: 0, active: [] };
+    // cách 1: một biến, các hàm sửa nó; đặt lịch bị trừ ở màn hình VÀ ở bước đồng bộ
+    function mutableRun(es) {
+      var remaining = 0, out = [], writes = 0;
+      es.forEach(function (e) {
+        if (e[0] === 'PackageBought') { remaining = e[1]; writes++; }
+        else if (e[0] === 'VisitBooked') { remaining--; remaining--; writes += 2; }
+        else { remaining++; writes++; }
+        out.push(remaining);
+      });
+      return { values: out, writes: writes };
+    }
+    function view(c, i) {
+      var es = EVENTS.slice(0, SHOWN[i]), truth = runningFold(es, INIT, reduce).slice(1).map(function (s) { return s.remaining; });
+      var shown = c === 'mutable' ? mutableRun(es).values : truth.slice();
+      var replay = null, replayAt = null;
+      if (c === 'events' && i === 2) replayAt = 2;                                    // dựng lại state sau event 2
+      if (c === 'events' && i === 3) replay = runningFold(es, INIT, impureReduce(1)).slice(1).map(function (s) { return s.remaining; });
+      var last = shown[shown.length - 1], want = truth[truth.length - 1];
+      return { events: es, truth: truth, shown: shown, replay: replay, replayAt: replayAt, app: replay ? replay[replay.length - 1] : last, want: want,
+        writers: c === 'mutable' ? 3 : 1, count: c === 'events' ? es.length : 0 };
+    }
+    ADE.fpReducer = { EVENTS: EVENTS, view: view, reduce: reduce, runningFold: runningFold, mutableRun: mutableRun };
+    var HL = { mutable: [[3, 4], [3, 4, 5], [1], [1]], events: [[4, 5, 6], [7, 9], [9, 10], [6]] };
+    var NODES = [[['ui', 'state'], 'state', 'e1'], [['ui', 'sync', 'state'], 'state', 'e2'], [['log', 'reduce', 'state'], 'state', 'e3'], [['log', 'reduce', 'state'], 'state', 'e3']];
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var v = view(c, i), nd = NODES[i], bad = v.app !== v.want || (c === 'mutable' && i >= 2), ns = {}; ns[nd[1]] = K + 'st.' + (bad ? (i === 3 ? 'broken' : 'surprise') : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { app: v.app, want: v.want, writers: v.writers, count: v.count },
+          codeHighlight: { snippet: 'p8.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'write')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'mutable';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'p8.mutable': 5, 'p8.events': 10 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'mutable' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'đúng phải là 5, 4, 3, 4; biến bị hai chỗ trừ cho 5, 3, 1, 2', run: function () {
+          return view('events', 1).truth.join() === '5,4,3,4' && mutableRun(EVENTS).values.join() === '5,3,1,2'; } },
+        { name: 'reduce thuần: fold cho state cuối 4; runningFold cho state sau từng event; dựng lại sau event 2 được 4', run: function () {
+          var h = runningFold(EVENTS, INIT, reduce); return h.length === 5 && h[4].remaining === 4 && h[2].remaining === 4 && EVENTS.reduce(reduce, INIT).remaining === 4; } },
+        { name: 'phát lại bằng reducer tự sinh id: hủy lịch 41 không khớp lịch nào nên ra 3 thay vì 4; phát lại bằng reduce thuần hai lần cho cùng kết quả', run: function () {
+          var a = runningFold(EVENTS, INIT, impureReduce(1)), b = runningFold(EVENTS, INIT, reduce), b2 = runningFold(EVENTS, INIT, reduce);
+          return a[4].remaining === 3 && b[4].remaining === 4 && JSON.stringify(b) === JSON.stringify(b2) && runningFold(EVENTS, INIT, impureReduce(0))[4].remaining === 4; } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p8.' + c]; }); }); }); } }] });
+  })();
 })();

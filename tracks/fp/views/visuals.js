@@ -265,4 +265,31 @@
       h('p', { class: 'vz-sub', 'data-k': 'vd-total', text: c === 'fast' ? T('validate.total.fast', { n: v.total }) : T('validate.total.acc', { n: v.total }) }),
       h('div', { class: 'vz-legend', text: T('validate.legend') })));
   }, { labelKey: K + 'tab.validate', icon: 'list' });
+
+  /* ---------- K8: nhật ký event (bảng phẳng): mỗi hàng một việc đã xảy ra với gói khám, số lượt đúng phải là, và số app đang giữ.
+     Cách biến: cột "app giữ" lệch dần (hai chỗ cùng trừ). Cách event: bước 3 viền hàng được dựng lại; bước 4 thêm cột phát lại bằng
+     reducer không thuần. Ô có data-k nên số mới chạy và hàng mới hiện dần khi đổi bước; không lặp. ---------- */
+  ADE.registerScreen('fp.reducer', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.fpReducer, c = ctx.state.case, i = Math.max(0, idx(ctx)), v = P.view(c, i);
+    var cols = ['n', 'event', 'want', c === 'mutable' ? 'var' : 'state'];
+    if (v.replay) cols.push('replay');
+    var tb = h('tbody');
+    v.events.forEach(function (e, n) {
+      var hit = v.replayAt === n + 1, off = v.shown[n] !== v.truth[n];
+      var row = h('tr', { 'data-k': 'rd-' + n },
+        h('td', { class: 'c' + (hit ? ' hl' : ''), text: String(n + 1) }),
+        h('td', { translate: 'no', class: hit ? 'hl' : null, text: e[0] + '(' + e[1] + ')' }),
+        h('td', { class: 'c', 'data-k': 'rd-w-' + n, text: String(v.truth[n]) }),
+        h('td', { class: 'c ' + (off ? 'bad' : 'ok'), 'data-k': 'rd-a-' + n, text: String(v.shown[n]) }));
+      if (v.replay) row.appendChild(h('td', { class: 'c ' + (v.replay[n] !== v.truth[n] ? 'bad' : 'ok'), 'data-k': 'rd-r-' + n, text: String(v.replay[n]) }));
+      tb.appendChild(row);
+    });
+    var note = c === 'mutable' ? T('reducer.note.mutable.' + Math.min(i, 2)) : (i === 2 ? T('reducer.note.replay') : (i === 3 ? T('reducer.note.impure') : T('reducer.note.events')));
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-cap', text: T('reducer.cap.' + c) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, cols.map(function (k) { return h('th', { text: T('reducer.col.' + k) }); }))), tb)),
+      h('p', { class: 'vz-sub' + (v.app !== v.want ? ' bad' : ''), 'data-k': 'rd-now', text: T('reducer.now', { a: v.app, w: v.want }) }),
+      h('p', { class: 'vz-sub', 'data-k': 'rd-note', text: note }),
+      h('div', { class: 'vz-legend', text: T('reducer.legend') })));
+  }, { labelKey: K + 'tab.reducer', icon: 'list' });
 })();

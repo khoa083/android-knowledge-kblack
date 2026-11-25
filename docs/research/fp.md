@@ -88,3 +88,12 @@
 | Monoid, semigroup (monoid là semigroup có phần tử đơn vị); hai chiến lược fail fast và gom lỗi; ap, appl; Semigroup ValidationExceptionComposite gộp lỗi, kết quả "Invalid email, Invalid name" | Carli ch.12 (Key points), ch.14 |
 | short-circuit so với gom lỗi; zipOrAccumulate, mapOrAccumulate, accumulate, NonEmptyList; trang không ghi phiên bản | arrow-kt.io validation, working with typed errors (đọc 2026-11-25) |
 | **Của site:** form đăng ký bốn ô (tên, số, ngày 31/02/1990, mã BHYT), người dùng sửa đúng lỗi được báo, 5 lần nộp so với 2, errorOrNull, smart cast sau is Ok, bước phụ thuộc ensurePhoneFree nối bằng flatMap, bài tập form đổi thông tin | — |
+
+### K8 State thuần: reducer và event
+| Ý trên site | Nguồn |
+|---|---|
+| Lưu state mới mỗi lần đổi thì mất "khi nào và vì sao"; event sourcing lưu thay đổi kèm lý do nghiệp vụ; bốn lợi ích (lý do, kiểm toán, dựng lại quá khứ, nhiều cách nhìn) và cái giá (phức tạp, phải học, ít đáng khi ít logic) | Barbini ch.5 (Event Sourcing) |
+| Gộp event bằng fold; máy trạng thái (cửa mở, đóng, khóa) bằng sealed class, mỗi trạng thái chỉ nhận một số event | Barbini ch.5 (Folding Events, Implement a Finite State Machine) |
+| Giao diện hướng command; command là data class, CreateToDoList tạo id ngẫu nhiên sẵn trong command; nhiều event, ít command; command là API công khai, event nằm trong domain; lập trình hàm đẩy thay đổi state ra rìa | Barbini ch.6 (Using Commands to Change the State; Understanding Commands and Events Better; Mutable and Immutable State) |
+| State là giá trị đổi được; kiểu State<S, T> mô tả việc chuyển trạng thái (chỉ nhắc, không dạy) | Carli ch.15 (Key points) |
+| **Của site:** gói 5 lượt, lịch 41 và 42, màn đặt lịch và bước đồng bộ cùng trừ (5, 3, 1, 2 so với 5, 4, 3, 4), Quota với tập active, runningFold, reducer tự sinh id khi phát lại ra 3, StateFlow.update và Flow.scan, bài tập PackageExtended và VisitCompleted | — |

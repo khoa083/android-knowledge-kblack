@@ -39,4 +39,8 @@
   V('validate', { layout: 'pipeline', nodes: [N('validate', 'form', 0, 0, 'screen', 'ui'), N('validate', 'checks', 3, 0, 'check', 'job'), N('validate', 'screen', 6, 0, 'list', 'state'), N('validate', 'merge', 3, 2, 'layers', 'runtime'), N('validate', 'dep', 6, 2, 'mechanism', 'job')],
     edges: [E('e1', 'form', 'checks'), E('e2', 'checks', 'screen'), E('e3', 'merge', 'screen'), E('e4', 'dep', 'screen')],
     metrics: [T('validate', 'submits'), T('validate', 'shown'), T('validate', 'checked'), T('validate', 'unknown')] });
+  /* K8: màn hình và bước đồng bộ cùng sửa một biến; hay nhật ký event → reduce → state */
+  V('reducer', { layout: 'pipeline', nodes: [N('reducer', 'ui', 0, 0, 'screen', 'ui'), N('reducer', 'sync', 0, 2, 'refresh', 'job'), N('reducer', 'state', 6, 1, 'store', 'state'), N('reducer', 'log', 3, 3, 'list', 'runtime'), N('reducer', 'reduce', 3, 1, 'mechanism', 'job')],
+    edges: [E('e1', 'ui', 'state'), E('e2', 'sync', 'state'), E('e3', 'reduce', 'state'), E('e4', 'log', 'reduce')],
+    metrics: [T('reducer', 'app'), T('reducer', 'want'), T('reducer', 'writers'), T('reducer', 'count')] });
 })();

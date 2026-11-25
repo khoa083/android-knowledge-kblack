@@ -215,4 +215,26 @@
     '}',
     c('fun registerNew(f: Form) = register(f).flatMap { p -> ensurePhoneFree(p.phone).map { p } }   // bước phụ thuộc', 'fun registerNew(f: Form) = register(f).flatMap { p -> ensurePhoneFree(p.phone).map { p } }   // a dependent step')
   ]);
+
+  /* K8: một biến, nhiều chỗ sửa: màn đặt lịch và bước đồng bộ cùng trừ */
+  add('p8.mutable', [
+    c('var remaining = 0                                       // một biến, nhiều chỗ sửa', 'var remaining = 0                                       // one variable, many writers'),
+    'fun onPackageBought(visits: Int) { remaining = visits }',
+    c('fun onBookTapped(id: Long) { remaining--; api.book(id) }   // màn đặt lịch trừ', 'fun onBookTapped(id: Long) { remaining--; api.book(id) }   // the booking screen subtracts'),
+    c('fun onBookingSynced(id: Long) { remaining-- }              // bước đồng bộ cũng trừ', 'fun onBookingSynced(id: Long) { remaining-- }              // the sync step subtracts too'),
+    'fun onCancelled(id: Long) { remaining++ }'
+  ]);
+  /* K8: nhật ký event và một hàm reduce thuần; id lịch nằm trong event */
+  add('p8.events', [
+    'sealed interface Event { data class PackageBought(val visits: Int) : Event',
+    '    data class VisitBooked(val bookingId: Long) : Event; data class VisitCancelled(val bookingId: Long) : Event }',
+    'data class Quota(val remaining: Int = 0, val active: Set<Long> = emptySet())',
+    'fun reduce(s: Quota, e: Event): Quota = when (e) {',
+    '    is Event.PackageBought -> s.copy(remaining = e.visits)',
+    '    is Event.VisitBooked -> s.copy(remaining = s.remaining - 1, active = s.active + e.bookingId)',
+    '    is Event.VisitCancelled -> if (e.bookingId in s.active) s.copy(remaining = s.remaining + 1, active = s.active - e.bookingId) else s',
+    '}',
+    c('val history = events.runningFold(Quota(), ::reduce)     // state sau từng event', 'val history = events.runningFold(Quota(), ::reduce)     // the state after each event'),
+    c('val current = events.fold(Quota(), ::reduce)            // state hiện tại', 'val current = events.fold(Quota(), ::reduce)            // the current state')
+  ]);
 })();
