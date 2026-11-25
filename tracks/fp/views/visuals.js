@@ -254,7 +254,7 @@
         h('td', { class: 'c ' + stCls, text: T('validate.st.' + r.st) }),
         h('td', { class: r.err ? 'bad' : 'dim', text: r.err ? T('validate.e.' + r.err) : '—' })));
     });
-    if (c === 'acc' && i === 3) tb.appendChild(h('tr', { 'data-k': 'vd-dep' }, h('td', { text: T('validate.f.dep') }), h('td', { translate: 'no', text: 'ensurePhoneFree' }),
+    if (c === 'acc' && i === 3) tb.appendChild(h('tr', { 'data-k': 'vd-dep' }, h('td', { text: T('validate.f.dep') }), h('td', { translate: 'no', text: v.rows[1].v }),
       h('td', { class: 'c ' + (v.extra ? 'bad' : 'ok'), text: T('validate.st.' + (v.extra ? 'err' : 'ok')) }), h('td', { class: v.extra ? 'bad' : 'dim', text: v.extra ? T('validate.e.' + v.extra) : '—' })));
     var res = v.result === 'ok' ? T('validate.res.ok') : (v.result === 'taken' ? T('validate.res.taken') : T('validate.res.err', { n: v.errs.length }));
     box.appendChild(h('div', { class: 'vz' },

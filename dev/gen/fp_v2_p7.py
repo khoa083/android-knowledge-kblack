@@ -102,8 +102,8 @@ def add(a):
     z('validate.cap.acc', '''Kiểm hết rồi gom lỗi · lần nộp thứ {n}''', '''Check everything, then collect · submission {n}''')
     z('validate.total.fast', '''Với cách này, người dùng phải nộp {n} lần mới qua form.''', '''With this approach, the user must submit {n} times to get through the form.''')
     z('validate.total.acc', '''Với cách này, người dùng nộp {n} lần là qua form.''', '''With this approach, the user gets through the form in {n} submissions.''')
-    z('validate.legend', '''Đỏ: ô sai. Xanh: ô hợp lệ. Mờ: ô chưa được kiểm ở lần nộp này, nên lỗi của nó (nếu có) còn bị giấu.''',
-      '''Red: a wrong field. Green: a valid field. Faded: a field not checked on this submission, so its error (if any) is still hidden.''')
+    z('validate.legend', '''Đỏ: ô sai. Đậm: ô hợp lệ. Mờ: ô chưa được kiểm ở lần nộp này, nên lỗi của nó (nếu có) còn bị giấu.''',
+      '''Red: a wrong field. Bold: a valid field. Faded: a field not checked on this submission, so its error (if any) is still hidden.''')
 
     C = 'p7'
     a(C + '.title', '''Validate gom lỗi: applicative và monoid''', '''Validation that collects errors: applicatives and monoids''')
@@ -126,8 +126,8 @@ def add(a):
     a(C + '.sec.%s.badge' % S_, 'guideline')
     B(C, S_, 1, 'p', '''Ở chương "Lỗi là giá trị", quy trình đặt lịch dừng ở lỗi đầu tiên (fail fast), và ở chương "map và flatMap: functor và monad qua ví dụ" ta nối nó bằng flatMap. Cách đó đúng cho đặt lịch, vì bước sau cần kết quả bước trước: chưa có số điện thoại hợp lệ thì không kiểm được lượt. Dừng sớm là chuyện tự nhiên của flatMap: hàm ở bước sau nhận giá trị của bước trước, và khi bước trước hỏng thì không có giá trị nào để đưa vào. [[src:book-fp-tut]]''',
       '''In the chapter "Errors as values", the booking flow stopped at the first error (fail fast), and in the chapter "map and flatMap: functors and monads by example" we chained it with flatMap. That is right for booking, because a later step needs an earlier result: without a valid phone number, the quota cannot be checked. Stopping early is natural for flatMap: the next step\'s function receives the previous step\'s value, and when the previous step fails there is no value to pass in. [[src:book-fp-tut]]''')
-    B(C, S_, 2, 'p', '''Các ô của form thì khác: kiểm tên không cần biết ngày sinh, kiểm ngày sinh không cần biết số điện thoại. Các bước độc lập nên chạy hết rồi gộp lỗi lại. Marco Vermeulen và cộng sự mô tả đúng khác biệt này: với applicative (kiểu biết gộp các kết quả độc lập, như map2 gộp hai giá trị), cấu trúc tính toán cố định từ trước; với monad, kết quả bước trước quyết định bước sau. Mọi monad đều là applicative, nhưng flatMap của nó luôn dừng sớm, nên muốn gom lỗi phải dùng một cách gộp khác. [[src:book-fp-manning]]''',
-      '''Form fields are different: checking the name does not need the birth date, checking the birth date does not need the phone number. Independent steps should all run, and then their errors are combined. Marco Vermeulen and co-authors describe exactly this difference: with an applicative (a type that knows how to combine independent results, as map2 combines two values), the structure of the computation is fixed in advance; with a monad, the previous result decides the next step. Every monad is an applicative, but its flatMap always stops early, so collecting errors needs a different way of combining. [[src:book-fp-manning]]''')
+    B(C, S_, 2, 'p', '''Các ô của form thì khác: kiểm tên không cần biết ngày sinh, kiểm ngày sinh không cần biết số điện thoại. Các bước độc lập nên chạy hết rồi gộp lỗi lại. Marco Vermeulen và cộng sự mô tả đúng khác biệt này: với applicative (kiểu biết gộp các kết quả độc lập, như map2 gộp hai giá trị), cấu trúc tính toán cố định từ trước; với monad, kết quả bước trước quyết định bước sau. Nhưng bước độc lập thôi chưa đủ: Either hay Outcome chỉ giữ được một lỗi, nên ngay cả khi gộp các bước độc lập, kết quả vẫn chỉ còn một lỗi. Gom lỗi cần đủ hai điều: các bước độc lập, và phía lỗi gộp được với nhau (như một list lỗi). [[src:book-fp-manning]]''',
+      '''Form fields are different: checking the name does not need the birth date, checking the birth date does not need the phone number. Independent steps should all run, and then their errors are combined. Marco Vermeulen and co-authors describe exactly this difference: with an applicative (a type that knows how to combine independent results, as map2 combines two values), the structure of the computation is fixed in advance; with a monad, the previous result decides the next step. But independent steps alone are not enough: Either or Outcome can hold only one error, so even combining independent steps leaves just one error. Collecting errors needs both: independent steps, and an error side that can be combined (such as a list of errors). [[src:book-fp-manning]]''')
     B(C, S_, 3, 'note', '''Quy tắc dễ nhớ: bước sau cần giá trị của bước trước thì nối bằng flatMap và chấp nhận dừng sớm; các bước không cần nhau thì kiểm hết rồi gộp lỗi.''',
       '''An easy rule: if a step needs the previous step\'s value, chain it with flatMap and accept stopping early; if the steps do not need each other, check them all and combine the errors.''')
     B(C, S_, 3, 'kind', 'mechanism')
@@ -141,8 +141,31 @@ def add(a):
     is Err -> error
     is Ok -> null
 }''')
-    B(C, S_, 3, 'p', '''Hàm register trong đoạn mã của mô phỏng (cách "kiểm hết rồi gom lỗi") làm đúng như vậy; kiểu trả về là Outcome<List<FormError>, Patient>, tức phía lỗi là cả một list. Nhờ smart cast (tự coi là kiểu hẹp hơn) sau `name is Ok && …`, dòng tạo Patient đọc được name.value mà không cần `!!`. Luật phụ thuộc (số đã đăng ký) nối sau bằng flatMap, ở dòng cuối của đoạn mã đó.''',
-      '''The register function in the simulation\'s code (the "check everything, then collect" way) does exactly this; its return type is Outcome<List<FormError>, Patient>, so the error side is a whole list. Thanks to the smart cast (treating a value as the narrower type) after `name is Ok && …`, the line that builds the Patient can read name.value without `!!`. The dependent rule (is the number registered) is chained afterwards with flatMap, on the last line of that code.''')
+    B(C, S_, 3, 'kt', '''fun register(f: Form): Outcome<List<FormError>, Patient> {
+    val name = validName(f.name)                    // mỗi ô kiểm độc lập
+    val phone = validPhone(f.phone)
+    val dob = validDob(f.dob)
+    val card = validCard(f.card)
+    val errors = listOf(name, phone, dob, card).mapNotNull { it.errorOrNull() }   // gộp mọi lỗi
+    return if (name is Ok && phone is Ok && dob is Ok && card is Ok)
+        Ok(Patient(name.value, phone.value, dob.value, card.value))
+    else Err(errors)
+}
+// bước phụ thuộc, nối sau; ensurePhoneFree bọc lỗi của nó trong listOf(...) để cùng kiểu List<FormError>
+fun registerNew(f: Form) = register(f).flatMap { p -> ensurePhoneFree(p.phone).map { p } }''', '''fun register(f: Form): Outcome<List<FormError>, Patient> {
+    val name = validName(f.name)                    // each field is checked on its own
+    val phone = validPhone(f.phone)
+    val dob = validDob(f.dob)
+    val card = validCard(f.card)
+    val errors = listOf(name, phone, dob, card).mapNotNull { it.errorOrNull() }   // collect every error
+    return if (name is Ok && phone is Ok && dob is Ok && card is Ok)
+        Ok(Patient(name.value, phone.value, dob.value, card.value))
+    else Err(errors)
+}
+// a dependent step, chained afterwards; ensurePhoneFree wraps its error in listOf(...) to share the List<FormError> type
+fun registerNew(f: Form) = register(f).flatMap { p -> ensurePhoneFree(p.phone).map { p } }''')
+    B(C, S_, 4, 'p', '''Kiểu trả về là Outcome<List<FormError>, Patient>, tức phía lỗi là cả một list. Nhờ smart cast (tự coi là kiểu hẹp hơn) sau `name is Ok && …`, dòng tạo Patient đọc được name.value mà không cần `!!`. Lưu ý ở registerNew: flatMap cần hai bên cùng kiểu lỗi, nên ensurePhoneFree phải trả Outcome<List<FormError>, Unit>. Nếu nó trả Outcome<FormError, Unit>, mã vẫn biên dịch (kiểu lỗi bị nới thành Any) và bạn mất kiểu của lỗi mà không hay.''',
+      '''The return type is Outcome<List<FormError>, Patient>, so the error side is a whole list. Thanks to the smart cast (treating a value as the narrower type) after `name is Ok && …`, the line building the Patient can read name.value without `!!`. Note in registerNew: flatMap needs the same error type on both sides, so ensurePhoneFree must return Outcome<List<FormError>, Unit>. If it returned Outcome<FormError, Unit>, the code would still compile (the error type widens to Any) and you would silently lose the error\'s type.''')
 
     S_ = 'monoid'
     a(C + '.sec.%s.title' % S_, '''Gộp lỗi: monoid''', '''Combining errors: monoids''')
