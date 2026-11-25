@@ -11,14 +11,16 @@ ADE.registerTrack({
     { id: 'p2', titleKey: 'track.fp.p2.title', sims: ['fp.persist'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'p3', titleKey: 'track.fp.p3.title', sims: ['fp.compose'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'p4', titleKey: 'track.fp.p4.title', sims: ['fp.adt'], simAfter: 'hook', bridges: ['X24'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'p5', titleKey: 'track.fp.p5.title', sims: ['fp.errors'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'p5', titleKey: 'track.fp.p5.title', sims: ['fp.errors'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'p6', titleKey: 'track.fp.p6.title', sims: ['fp.monad'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'fp-pure', model: 'fp.pure', titleKey: 'track.fp.preset.pure' },
     { id: 'fp-persist', model: 'fp.persist', titleKey: 'track.fp.preset.persist' },
     { id: 'fp-compose', model: 'fp.compose', titleKey: 'track.fp.preset.compose' },
     { id: 'fp-adt', model: 'fp.adt', titleKey: 'track.fp.preset.adt' },
-    { id: 'fp-errors', model: 'fp.errors', titleKey: 'track.fp.preset.errors' }
+    { id: 'fp-errors', model: 'fp.errors', titleKey: 'track.fp.preset.errors' },
+    { id: 'fp-monad', model: 'fp.monad', titleKey: 'track.fp.preset.monad' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

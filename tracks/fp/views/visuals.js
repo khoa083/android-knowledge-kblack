@@ -205,4 +205,38 @@
       h('p', { class: 'vz-sub' + (bad ? ' bad' : ''), 'data-k': 'er-screen', text: T('errors.screen', { s: T('errors.out.' + r.screen) }) }),
       h('div', { class: 'vz-legend', text: T('errors.legend') })));
   }, { labelKey: K + 'tab.errors', icon: 'rail' });
+
+  /* ---------- K6: hộp và giá trị (SVG phẳng): hộp ban đầu bên trái, ba nhánh map(f), map(g), flatMap(g) bên phải.
+     Mỗi tầng hộp là một khung; hộp trong hộp vẽ hai khung lồng (chính là khái niệm cần thấy). Nhánh mở dần theo bước;
+     bước 4 thêm dòng chuỗi nhiều bước. Khung đổi lớp thì nháy; số tầng ở dòng dưới chạy số. ---------- */
+  ADE.registerScreen('fp.monad', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.fpMonad, c = ctx.state.case, i = Math.max(0, idx(ctx)), v = P.view(c, i), cells = v.cells;
+    var BX = 14, BY = 88, BW = 170, BH = 66, RX = 330, RW = 296, RH = 58, RY = [14, 96, 178], OPS = ['map(f)', 'map(g)', 'flatMap(g)'];
+    function boxes(x, y, w, hh, cell, k) {
+      var s = '', d = Math.max(1, cell.depth), cls = !cell.open ? ' skip' : (d > 1 ? ' bad' : (k === i + 1 ? ' on' : ''));
+      s += '<g class="vz-mn' + cls + '" data-k="mn-b-' + k + '">';
+      for (var n = 0; n < d; n++) s += '<rect x="' + (x + n * 6) + '" y="' + (y + n * 6) + '" width="' + (w - n * 12) + '" height="' + (hh - n * 12) + '" rx="5"/>';
+      var tx = x + 8 + (d - 1) * 6, tw = w - 16 - (d - 1) * 12;
+      s += '<text class="vz-dg-s" x="' + tx + '" y="' + (y + 17 + (d - 1) * 6) + '"' + fit(cell.type, tw) + '>' + esc(cell.open ? cell.type : '') + '</text>';
+      s += '<text class="vz-dg-t" x="' + tx + '" y="' + (y + hh - 13 - (d - 1) * 6) + '"' + fit(cell.open ? cell.val : '?', tw) + '>' + esc(cell.open ? cell.val : '?') + '</text>';
+      return s + '</g>';
+    }
+    var svg = '<svg class="vz-dg vz-mnsvg" viewBox="0 0 640 252" role="img" aria-label="' + esc(T('monad.aria', { n: v.nest })) + '">';
+    svg += boxes(BX, BY, BW, BH, cells[0], 0);
+    RY.forEach(function (y, n) {
+      var open = cells[n + 1].open, x1 = BX + BW, y1 = BY + BH / 2, x2 = RX, y2 = y + RH / 2;
+      svg += '<line class="vz-dg-e' + (open ? ' up' : '') + '" data-k="mn-e-' + n + '" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>';
+      svg += '<text class="vz-mn-op' + (open ? '' : ' off') + '" x="' + (x2 - 6) + '" y="' + (y2 - 8) + '" text-anchor="end">' + OPS[n] + '</text>';
+      svg += boxes(RX, y, RW, RH, cells[n + 1], n + 1);
+    });
+    svg += '</svg>';
+    var wrap = h('div', { class: 'vz-scroll' }); wrap.innerHTML = svg;
+    var ch = cells[4];
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-cap', text: T('monad.fg.' + c) }),
+      wrap,
+      h('p', { class: 'vz-sub' + (v.nest > 1 ? ' bad' : ''), 'data-k': 'mn-nest', text: T('monad.nest', { n: v.nest }) }),
+      h('p', { class: 'vz-sub', 'data-k': 'mn-chain', text: ch.open ? T('monad.chain.' + c) + ' → ' + ch.val + ' : ' + ch.type : T('monad.chain.none') }),
+      h('div', { class: 'vz-legend', text: T('monad.legend') })));
+  }, { labelKey: K + 'tab.monad', icon: 'layers' });
 })();

@@ -399,4 +399,113 @@
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p5.' + c]; }); }); }); } }] });
   })();
 
+  /* ================= K6: map và flatMap trên ba loại "hộp": List, kiểu nullable, Outcome =================
+     Theo Carli ch.11 (functor giữ nguyên cấu trúc: luật đơn vị và luật ghép), ch.13 (hàm (A) -> M<B>, flatten có kiểu M<M<A>> -> M<A>,
+     flatMap ghép từ map và flatten), ch.14 (Result có map nhưng không có flatMap); Vermeulen và cộng sự ch.11 (functor tổng quát hóa map,
+     monad là flatMap cùng unit, luật kết hợp và luật đơn vị). CÀI THẬT: ba hộp viết bằng JS (mảng, null, {ok}/{err}); map, flatMap, flatten
+     chạy thật trên dữ liệu; số tầng hộp đếm từ kết quả. Bác sĩ, giờ, thẻ bảo hiểm, mức chi trả là của site. */
+  (function () {
+    var m = 'monad', CASES = ['list', 'nullable', 'outcome'], KS = ['s1', 's2', 's3', 's4'];
+    var NAME = { an: 'BS An', binh: 'BS Bình' };
+    var SLOTS = { an: { sat: ['S12', 'S13'], sun: [] }, binh: { sat: ['S20'], sun: ['S31'] } };
+    var PATIENTS = { '0901234567': { name: 'Lan', card: 'BHYT-4471' }, '0912000111': { name: 'Minh', card: null } };
+    var COVER = { 'BHYT-4471': 80 };
+    // ba hộp: map, flatMap, flatten viết thật
+    var L = { map: function (xs, f) { return xs.map(f); }, flatten: function (xss) { return [].concat.apply([], xss); } };
+    L.flatMap = function (xs, f) { return L.flatten(L.map(xs, f)); };
+    var N = { map: function (x, f) { return x === null ? null : f(x); } };   // ?.let: kết quả null hay không đều là "một tầng"
+    N.flatMap = N.map;
+    var Ok = function (v) { return { ok: v }; }, Err = function (e) { return { err: e }; };
+    var O = { map: function (o, f) { return 'ok' in o ? Ok(f(o.ok)) : o; }, flatMap: function (o, f) { return 'ok' in o ? f(o.ok) : o; },
+      flatten: function (oo) { return 'ok' in oo ? oo.ok : oo; } };
+    var QUOTA = { '0901234567': 2 };
+    var parsePhone = function (raw) { return /^0\d{9}$/.test(raw) ? Ok(raw) : Err('InvalidPhone'); };
+    var ensureQuota = function (p) { return (QUOTA[p] || 0) > 0 ? Ok('Unit') : Err('QuotaExceeded'); };
+    var findFreeSlot = function (id) { return id === 'S07' ? Err('SlotTaken("S07")') : Ok(id); };
+    var save = function () { return 'Booking(41)'; };
+    // độ sâu hộp của một giá trị
+    function depth(c, v) {
+      if (c === 'list') { var d = 0; while (Array.isArray(v)) { d++; v = v[0]; } return d; }
+      if (c === 'nullable') return 1;
+      var e = 0; while (v && typeof v === 'object' && ('ok' in v || 'err' in v)) { e++; v = v.ok; } return e;
+    }
+    var show = function (c, v) {
+      if (c === 'list') return JSON.stringify(v).replace(/"/g, '').replace(/,/g, ', ');
+      if (c === 'nullable') return v === null ? 'null' : (typeof v === 'object' ? 'Patient("' + v.name + '")' : (typeof v === 'number' ? String(v) : '"' + v + '"'));
+      var w = function (o) { return 'ok' in o ? 'Ok(' + (o.ok && typeof o.ok === 'object' ? w(o.ok) : (o.ok === 'Unit' ? 'Unit' : '"' + o.ok + '"')) + ')' : 'Err(' + o.err + ')'; };
+      return w(v);
+    };
+    var size = function (c, v) { return c === 'list' ? (Array.isArray(v) ? v.length : 0) : (c === 'nullable' ? (v === null ? 0 : 1) : ('ok' in v ? 1 : 0)); };
+    // bốn cột của mỗi hộp: giá trị đầu, map(f), map(g), flatMap(g); và chuỗi ở bước 4. calls: số lần hàm truyền vào chạy
+    function table(c) {
+      var n = 0, cnt = function (f) { return function (x) { n++; return f(x); }; }, start, a, b, d, chain, calls = [];
+      if (c === 'list') {
+        start = ['an', 'binh'];
+        n = 0; a = L.map(start, cnt(function (x) { return NAME[x]; })); calls.push(n);
+        n = 0; b = L.map(start, cnt(function (x) { return SLOTS[x].sat; })); calls.push(n);
+        n = 0; d = L.flatMap(start, cnt(function (x) { return SLOTS[x].sat; })); calls.push(n);
+        n = 0; chain = L.flatMap(start, function (doc) { return L.flatMap(['sat', 'sun'], cnt(function (day) { return SLOTS[doc][day]; })); }); calls.push(n);
+      } else if (c === 'nullable') {
+        start = PATIENTS['0901234567'];
+        n = 0; a = N.map(start, cnt(function (p) { return p.name; })); calls.push(n);
+        n = 0; b = N.map(start, cnt(function (p) { return p.card; })); calls.push(n);
+        n = 0; d = N.flatMap(start, cnt(function (p) { return p.card; })); calls.push(n);
+        n = 0; chain = N.flatMap(start, cnt(function (p) { return N.flatMap(p.card, cnt(function (k) { return COVER[k]; })); })); calls.push(n);
+      } else {
+        start = parsePhone('0901234567');
+        n = 0; a = O.map(start, cnt(function (p) { return p.slice(0, 3) + '•••' + p.slice(6); })); calls.push(n);
+        n = 0; b = O.map(start, cnt(function (p) { return ensureQuota(p); })); calls.push(n);
+        n = 0; d = O.flatMap(start, cnt(function (p) { return ensureQuota(p); })); calls.push(n);
+        n = 0; chain = O.flatMap(parsePhone('0901234567'), cnt(function (p) { return O.flatMap(findFreeSlot('S07'), cnt(function (s) { return O.map(ensureQuota(p), cnt(function () { return save(p, s); })); })); })); calls.push(n);
+      }
+      return { start: start, cols: [a, b, d, chain], calls: calls };
+    }
+    var TYPES = {
+      list: ['List<String>', 'List<String>', 'List<List<Slot>>', 'List<Slot>', 'List<Slot>'],
+      nullable: ['Patient?', 'String?', 'String?', 'String?', 'Int?'],
+      outcome: ['Outcome<E, Phone>', 'Outcome<E, String>', 'Outcome<E, Outcome<E, Unit>>', 'Outcome<E, Unit>', 'Outcome<E, Booking>'] };
+    function view(c, i) {
+      var t = table(c), shown = i + 1;   // bước 1: map(f); bước 2: + map(g); bước 3: + flatMap(g); bước 4: + chuỗi
+      var cells = [t.start].concat(t.cols).map(function (v, k) { return { k: k, open: k <= shown, val: show(c, v), type: TYPES[c][k], depth: depth(c, v), size: size(c, v) }; });
+      var last = cells[shown];
+      return { cells: cells, nest: last.depth, size: last.size, calls: t.calls[i] };
+    }
+    ADE.fpMonad = { CASES: CASES, view: view, show: show, table: table, L: L, O: O };
+    var HL = { list: [[1, 2], [3], [4, 5], [7]], nullable: [[1, 2], [3], [3, 4], [6]], outcome: [[1, 2], [3], [4], [5, 6, 7]] };
+    var NODES = [[['box', 'fn', 'out'], 'out', 'e2'], [['fn', 'out'], 'out', 'e2'], [['fn', 'flat', 'out'], 'out', 'e3'], [['out', 'chain'], 'chain', 'e4']];
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var v = view(c, i), nd = NODES[i], bad = i === 1 && v.nest > 1, ns = {}; ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { nest: v.nest, size: v.size, calls: v.calls },
+          codeHighlight: { snippet: 'p6.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'list';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'p6.list': 7, 'p6.nullable': 6, 'p6.outcome': 9 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'list' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'List: map(f) giữ 2 phần tử; map(g) thành list lồng 2 tầng; flatMap(g) = map rồi flatten = [S12, S13, S20]; chuỗi hai ngày = 4 giờ, gọi slotsOf 4 lần', run: function () {
+          var t = table('list'); return t.cols[0].join() === 'BS An,BS Bình' && depth('list', t.cols[1]) === 2 && t.cols[2].join() === 'S12,S13,S20' &&
+            L.flatten(L.map(['an', 'binh'], function (x) { return SLOTS[x].sat; })).join() === t.cols[2].join() && t.cols[3].join() === 'S12,S13,S20,S31' && t.calls[3] === 4; } },
+        { name: 'nullable: ?.let không lồng (một tầng), map và flatMap cho cùng kết quả; bệnh nhân không có thẻ cho null; chuỗi ra mức chi trả 80', run: function () {
+          var t = table('nullable'); return t.cols[0] === 'Lan' && t.cols[1] === 'BHYT-4471' && view('nullable', 1).nest === 1 && t.cols[2] === 'BHYT-4471' && t.cols[3] === 80 && N.flatMap(PATIENTS['0912000111'], function (p) { return p.card; }) === null; } },
+        { name: 'Outcome: map với hàm trả Outcome cho Ok(Ok(Unit)) hai tầng; flatMap cùng hàm cho Ok(Unit) một tầng; chuỗi với giờ S07 dừng ở Err(SlotTaken), hai bước sau không chạy', run: function () {
+          var t = table('outcome'); return show('outcome', t.cols[1]) === 'Ok(Ok(Unit))' && depth('outcome', t.cols[1]) === 2 && show('outcome', t.cols[2]) === 'Ok(Unit)' &&
+            show('outcome', t.cols[3]) === 'Err(SlotTaken("S07"))' && t.calls[3] === 1 && show('outcome', O.flatten(t.cols[1])) === 'Ok(Unit)'; } },
+        { name: 'luật: map với hàm đồng nhất không đổi gì; map(f).map(g) bằng map(g sau f); flatMap với Ok là hàm đơn vị', run: function () {
+          var xs = ['an', 'binh'], f = function (x) { return NAME[x]; }, g = function (s) { return s.length; };
+          var o = Ok('0901234567'), h = function (p) { return ensureQuota(p); };
+          return L.map(xs, function (x) { return x; }).join() === xs.join() && L.map(L.map(xs, f), g).join() === L.map(xs, function (x) { return g(f(x)); }).join() &&
+            show('outcome', O.flatMap(o, Ok)) === show('outcome', o) && show('outcome', O.flatMap(Ok('0901234567'), h)) === show('outcome', h('0901234567')); } },
+        { name: 'mỗi hộp 4 bước; chỉ bước 2 của List và Outcome lồng hai tầng; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p6.' + c]; }); }); }) &&
+            view('list', 1).nest === 2 && view('outcome', 1).nest === 2 && view('nullable', 1).nest === 1 && view('list', 2).nest === 1; } }] });
+  })();
 })();

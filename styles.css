@@ -1027,3 +1027,10 @@ pre.code { position: relative; }
 .vz-rl-tok { fill: var(--brand); stroke: var(--paper); stroke-width: 2; }
 .vz-rl-tok.err { fill: var(--tok-state); }
 .vz-rl-tok.crash { fill: var(--tok-error); }
+.vz-mn rect { fill: var(--paper); stroke: var(--ink); stroke-width: 1.6; }
+.vz-mn rect + rect { fill: var(--paper-2); }
+.vz-mn.on rect { stroke: var(--brand); stroke-width: 2.4; }
+.vz-mn.bad rect { stroke: var(--tok-error); stroke-width: 2.2; }
+.vz-mn.skip rect { fill: none; stroke: var(--line-strong); stroke-dasharray: 4 4; }
+.vz-mn-op { font-size: 12px; font-weight: 700; fill: var(--brand); }
+.vz-mn-op.off { fill: var(--ink-3); font-weight: 400; }

@@ -31,4 +31,8 @@
   V('errors', { layout: 'pipeline', nodes: [N('errors', 'input', 0, 0, 'source', 'ui'), N('errors', 'chain', 3, 0, 'mechanism', 'job'), N('errors', 'screen', 6, 0, 'screen', 'state'), N('errors', 'rail', 3, 2, 'layers', 'runtime')],
     edges: [E('e1', 'input', 'chain'), E('e2', 'chain', 'screen'), E('e3', 'chain', 'rail'), E('e4', 'rail', 'screen')],
     metrics: [T('errors', 'ran'), T('errors', 'reason'), T('errors', 'hidden'), T('errors', 'flagged')] });
+  /* K6: hộp ban đầu → hàm truyền vào → kết quả; flatten gộp hộp lồng; chuỗi nhiều bước */
+  V('monad', { layout: 'pipeline', nodes: [N('monad', 'box', 0, 0, 'store', 'ui'), N('monad', 'fn', 3, 0, 'mechanism', 'job'), N('monad', 'out', 6, 0, 'layers', 'state'), N('monad', 'flat', 3, 2, 'grid', 'runtime'), N('monad', 'chain', 9, 0, 'list', 'state')],
+    edges: [E('e1', 'box', 'fn'), E('e2', 'fn', 'out'), E('e3', 'flat', 'out'), E('e4', 'out', 'chain')],
+    metrics: [T('monad', 'nest'), T('monad', 'size'), T('monad', 'calls')] });
 })();

@@ -161,4 +161,34 @@
     '    }',
     '}'
   ]);
+
+  /* K6: cùng map và flatMap trên List, kiểu nullable (qua ?.let) và Outcome */
+  add('p6.list', [
+    'val doctors = listOf("an", "binh")',
+    c('val names = doctors.map { displayName(it) }              // [BS An, BS Bình]', 'val names = doctors.map { displayName(it) }              // [Dr An, Dr Binh]'),
+    'val nested = doctors.map { slotsToday(it) }             // [[S12, S13], [S20]]',
+    'val all = doctors.flatMap { slotsToday(it) }            // [S12, S13, S20]',
+    c('val same = doctors.map { slotsToday(it) }.flatten()    // flatMap = map rồi flatten', 'val same = doctors.map { slotsToday(it) }.flatten()    // flatMap = map, then flatten'),
+    c('// chuỗi: mọi bác sĩ, cả thứ Bảy và Chủ nhật', '// a chain: every doctor, both Saturday and Sunday'),
+    'val weekend = doctors.flatMap { d -> listOf(SAT, SUN).flatMap { day -> slotsOn(d, day) } }'
+  ]);
+  add('p6.nullable', [
+    'val lan: Patient? = findPatient("0901234567")',
+    'val name = lan?.let { it.name }                          // "Lan"',
+    c('val card = lan?.let { it.insuranceCard }                // String?: không có kiểu String?? riêng', 'val card = lan?.let { it.insuranceCard }                // String?: there is no separate String?? type'),
+    c('val noCard = findPatient("0912000111")?.let { it.insuranceCard }   // null: Minh không có thẻ', 'val noCard = findPatient("0912000111")?.let { it.insuranceCard }   // null: Minh has no card'),
+    c('// chuỗi: bệnh nhân → thẻ → mức chi trả', '// a chain: patient → card → coverage'),
+    'val cover = findPatient(phone)?.let { p -> p.insuranceCard?.let { coverageOf(it) } }   // 80'
+  ]);
+  add('p6.outcome', [
+    'val phone = parsePhone("0901234567")                     // Outcome<BookingError, Phone>',
+    'val masked = phone.map { it.masked() }                   // Ok("090•••4567")',
+    c('val nested = phone.map { ensureQuota(it) }               // Ok(Ok(Unit)): hộp trong hộp', 'val nested = phone.map { ensureQuota(it) }               // Ok(Ok(Unit)): a box in a box'),
+    c('val quota = phone.flatMap { ensureQuota(it) }           // Ok(Unit): một tầng', 'val quota = phone.flatMap { ensureQuota(it) }           // Ok(Unit): one level'),
+    'fun book(raw: String, slotId: String) = parsePhone(raw).flatMap { p ->',
+    '    findFreeSlot(slotId).flatMap { s ->',
+    '        ensureQuota(p).map { save(p, s) }',
+    '    }',
+    '}'
+  ]);
 })();

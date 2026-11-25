@@ -68,3 +68,12 @@
 | Result gói giá trị T hoặc Throwable; danh sách hàm (map, mapCatching, recover, fold, getOrElse…), không có flatMap; runCatching bắt mọi Throwable | API kotlin.Result, runCatching (bản 2.4, đọc 2026-11-25) |
 | Either và Raise; either { }, bind, raise, ensure, ensureNotNull, fold, getOrElse, recover; catch tự bỏ qua OutOfMemoryError và CancellationException; bản 2.3.0 | arrow-kt.io typed errors, setup (đọc 2026-11-25) |
 | **Của site:** luồng đặt lịch bốn bước (parsePhone, findFreeSlot, checkQuota, save), bốn cách viết, bốn tình huống (suôn sẻ, giờ S07 đã đặt, bug quotas[phone]!! với số mới, lỗi mới ClinicClosed), kiểu Outcome ba dòng, hệ quả "runCatching gói cả CancellationException" suy từ "bắt mọi Throwable", bài tập hủy lịch | — |
+
+### K6 map và flatMap: functor và monad qua ví dụ
+| Ý trên site | Nguồn |
+|---|---|
+| Functor ánh xạ giữ cấu trúc; giữ cấu trúc nghĩa là giữ đơn vị và phép ghép (luật functor) | Carli ch.11 (Key points) |
+| Hàm dạng (A) -> M<B> (Kleisli) cần cách ghép riêng; flatten có kiểu M<M<A>> -> M<A>; flatMap dựng từ map và flatten (hoặc fish, bind); monad là cách ghép các hàm đưa side effect vào kiểu trả về | Carli ch.13 (Key points) |
+| Result của Kotlin có map nhưng không có flatMap; tự viết flatten, bind, flatMap cho Result | Carli ch.14 |
+| map của Option, Gen, Parser chỉ khác tên kiểu, tổng quát hóa thành Functor; monad thường cũng là functor; monad = flatMap cùng unit; luật kết hợp và luật đơn vị trái, phải | Vermeulen và cộng sự 11.1, 11.2, 11.4 |
+| **Của site:** ba hộp (List bác sĩ, Patient?, Outcome), f và g của từng hộp, ?.let không lồng (không có kiểu T?? riêng), Result.flatMap viết bằng fold, ensureQuota trả Outcome, chuỗi book bằng flatMap dừng ở S07, bài tập cancel viết thẳng hàng | — |
