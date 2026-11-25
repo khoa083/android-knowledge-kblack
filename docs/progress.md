@@ -899,7 +899,13 @@ Trạng thái: `chưa / đang / xong`.
        - Gọi tác giả bằng tên đầy đủ.
        - Giải thích thuật ngữ ngay chỗ dùng; mỗi phần có một câu "quy tắc dễ nhớ".
        - G0 có cầu nối X24–X27.
-     - **storage, coroutines, runtime, animation:** chỉ làm lượt nhẹ, chưa viết lại từng đoạn (commit 942b783, b156bfe, f987cd7, a2a1bcf).
+     - **Người dùng phản đối (2026-11-26):** lượt nhẹ không phải viết lại. Phải viết lại THẬT theo văn phong giảng dạy (docs/chapter-template-v2.md, "Quy tắc viết"), từng chương. Người dùng bảo không cần quan tâm hạn mức. Đã đặt hẹn giờ 4:52 để tiếp tục.
+     - **storage:** XONG viết lại thật H1–H9, H0 (commit 5836005 … 126df60).
+       - Mỗi đoạn lời giảng được viết lại nguyên câu, gồm overview, wrapup, essence, các đoạn p/note, đáp án hook, simp.2.
+       - Thêm hình ảnh đời thường và một câu "quy tắc dễ nhớ"; giải thích thuật ngữ ngay chỗ dùng.
+       - Công cụ: rw.py trong scratchpad có hàm block(sec, n, field, vi, en) để thay trọn một đoạn.
+     - **TIẾP THEO:** coroutines (20 chương), rồi runtime (19), rồi animation (13), viết lại thật như storage. Sau đó rà nội dung P1–P4, K1–K6.
+     - **coroutines, runtime, animation:** hiện mới qua lượt nhẹ (commit b156bfe, f987cd7, a2a1bcf), chưa đạt quy tắc viết.
        - Callout mở bằng "Tài liệu Android nói" thay cho tên trang.
        - "the book"/"sách"/"AAT" đổi thành tên tác giả khi là quan điểm riêng; với ví dụ chỉ có trong sách thì viết trung tính.
        - "chương FP" của coroutines nay dùng tên chương.
