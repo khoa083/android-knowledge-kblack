@@ -5,7 +5,9 @@ const { execFileSync } = require('child_process');
 const path = require('path');
 const args = process.argv.slice(2);
 const out = args.shift();
-const extra = []; const routes = [];
+// Luôn chụp với giảm chuyển động: từ 2026-11-24 các khối .rv chỉ hiện khi cuộn tới, nên chụp phần tử dưới màn hình mà không tắt
+// chuyển động sẽ ra ảnh trống (khối còn opacity 0).
+const extra = ['--reduce']; const routes = [];
 let el = '.canvas';
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--dark' || args[i] === '--reduce' || args[i] === '--mobile') extra.push(args[i]);

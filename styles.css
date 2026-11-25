@@ -1007,3 +1007,23 @@ pre.code { position: relative; }
 .vz-dg-lg i.bad { border-top: 2.2px dashed var(--tok-error); }
 .vz-dg-lg i.data { border-top: 1.8px dotted var(--tok-state); }
 .vz-dg-lg i.m { width: 14px; height: 10px; border: 1px dashed var(--line-strong); background: var(--paper-2); }
+/* sơ đồ đường ray (track Lập trình hàm, chương "Lỗi là giá trị") */
+.vz-rl-track { stroke: var(--line-strong); stroke-width: 7; stroke-linecap: round; opacity: .45; }
+.vz-rl-track.err { stroke: var(--tok-error); opacity: .22; }
+.vz-rl-tl { font-size: 11px; font-weight: 700; fill: var(--ink-2); }
+.vz-rl-tl.err { fill: var(--tok-error); }
+.vz-rl-path { fill: none; stroke: var(--brand); stroke-width: 3.4; stroke-linejoin: round; stroke-linecap: round; }
+.vz-rl-path.err { stroke: var(--tok-state); }
+.vz-rl-path.crash { stroke: var(--tok-error); }
+.vz-rl-st { fill: var(--paper); stroke: var(--ink); stroke-width: 2; }
+.vz-rl-g.ok .vz-rl-st { fill: var(--brand); stroke: var(--brand); }
+.vz-rl-g.fail .vz-rl-st { stroke: var(--tok-state); stroke-width: 3; }
+.vz-rl-g.crash .vz-rl-st { fill: var(--tok-error); stroke: var(--tok-error); }
+.vz-rl-g.skip .vz-rl-st { stroke: var(--line-strong); stroke-dasharray: 3 3; }
+.vz-rl-g.skip .vz-dg-t, .vz-rl-skip { fill: var(--ink-3); font-weight: 400; }
+.vz-rl-errv { font-size: 11px; font-weight: 700; fill: var(--tok-state); }
+.vz-rl-scr rect { fill: var(--paper-2); stroke: var(--ink); stroke-width: 1.5; }
+.vz-rl-scr.bad rect { stroke: var(--tok-error); stroke-width: 2.4; }
+.vz-rl-tok { fill: var(--brand); stroke: var(--paper); stroke-width: 2; }
+.vz-rl-tok.err { fill: var(--tok-state); }
+.vz-rl-tok.crash { fill: var(--tok-error); }

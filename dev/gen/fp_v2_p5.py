@@ -128,7 +128,7 @@ def add(a):
 
     z = lambda k, vi, en=None: a('vz.' + k, vi, en)
     z('tab.errors', '''Đường ray thành công và lỗi''', '''The success and error tracks''')
-    for k, vi, en in [('n', '#', '#'), ('fn', 'Hàm', 'Function'), ('ok', 'Đường thành công', 'Success track'), ('err', 'Đường lỗi', 'Error track')]:
+    for k, vi, en in [('ok', 'Đường thành công', 'Success track'), ('err', 'Đường lỗi', 'Error track')]:
         z('errors.col.' + k, vi, en)
     z('errors.skip', '''bỏ qua''', '''skipped''')
     z('errors.crash', '''{v}: không ai bắt, app crash''', '''{v}: nobody catches it, the app crashes''')
@@ -141,8 +141,10 @@ def add(a):
                       ('taken', '"Giờ này đã có người đặt"', '"This slot is already taken"'), ('crash', 'app crash khi test; stack trace chỉ đúng dòng bug', 'the app crashes in testing; the stack trace points at the buggy line'),
                       ('compile', 'chưa biên dịch được: when trên BookingError thiếu nhánh ClinicClosed (1 chỗ); viết xong nhánh đó thì màn hình hiện "Phòng khám nghỉ ngày này"', 'does not compile yet: the when on BookingError is missing the ClinicClosed branch (1 place); once that branch is written the screen shows "The clinic is closed that day"')]:
         z('errors.out.' + k, vi, en)
-    z('errors.legend', '''Xanh: giá trị trên đường thành công. Viền: lỗi đã rẽ sang đường lỗi (thành giá trị, hoặc là ngoại lệ sẽ bị catch bắt). Đỏ: lỗi không ai bắt. Mờ: bước bị bỏ qua sau lỗi.''',
-      '''Green: a value on the success track. Outlined: an error that turned onto the error track (as a value, or as an exception a catch will grab). Red: an error nobody catches. Faded: a step skipped after the error.''')
+    z('errors.scr', '''Màn hình''', '''Screen''')
+    z('errors.aria', '''Sơ đồ đường ray: {n} bước đã chạy; màn hình hiện {s}''', '''Railway diagram: {n} steps ran; the screen shows {s}''')
+    z('errors.legend', '''Mỗi ga là một bước. Vệt màu là đường giá trị đã đi: xanh khi mọi bước suôn sẻ; vàng khi rẽ xuống đường lỗi ở ga hỏng rồi chạy thẳng tới màn hình, bỏ qua các ga sau (vòng nét đứt); đỏ và dừng ở một ga khi lỗi không ai bắt (app crash). Khung màn hình đỏ: màn hình nói sai hoặc không đủ.''',
+      '''Each station is a step. The coloured trail is the path the value took: green when every step succeeds; yellow when it switches down to the error track at the failing station and runs straight to the screen, skipping the later stations (dashed circles); red, stopping at a station, when nobody catches the error (the app crashes). A red screen box: the screen says something wrong or too vague.''')
 
     C = 'p5'
     a(C + '.title', '''Lỗi là giá trị''', '''Errors as values''')

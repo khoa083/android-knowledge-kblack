@@ -154,27 +154,53 @@
       h('div', { class: 'vz-legend', text: T('adt.legend') })));
   }, { labelKey: K + 'tab.adt', icon: 'grid' });
 
-  /* ---------- K5: đường ray: mỗi hàng là một bước của luồng đặt lịch, hai cột là đường thành công và đường lỗi.
-     Bước hỏng đặt giá trị lỗi sang cột lỗi; các bước sau mờ "bỏ qua"; lỗi không ai bắt tô đỏ "crash".
-     Dưới bảng: chữ ký hàm của cách viết đang chọn và điều màn hình hiện. Ô giữ data-k để trượt và nháy khi đổi bước; không lặp. ---------- */
+  /* ---------- K5: sơ đồ đường ray (SVG phẳng): đường thành công ở trên, đường lỗi ở dưới, bốn ga là bốn bước, màn hình ở cuối.
+     Vệt màu là đường giá trị đã đi: chạy trên đường thành công, tới ga hỏng thì rẽ xuống đường lỗi và chạy thẳng tới màn hình;
+     lỗi không ai bắt thì vệt dừng ở ga đó (crash). Vệt luôn có 6 điểm nên khi đổi bước nó uốn từ hình cũ sang hình mới; ga đổi lớp thì nháy. ---------- */
+  var esc = function (x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+  var fit = function (str, w) { return String(str).length * 6.4 > w ? ' textLength="' + w + '" lengthAdjust="spacingAndGlyphs"' : ''; };
   ADE.registerScreen('fp.errors', function (box, ctx) {
     var h = ADE.ui.h, P = ADE.fpErrors, c = ctx.state.case, i = Math.max(0, idx(ctx)), scen = P.SCEN[i], r = P.run(c, scen);
-    var tb = h('tbody');
+    var YT = 62, YE = 162, X = [118, 236, 354, 472], X0 = 22, XS = 560;
+    var fn = function (st) { return st === 'parse' ? 'parsePhone' : (st === 'slot' ? 'findFreeSlot' : (st === 'quota' ? (c === 'throw' || c === 'result' ? 'checkQuota' : 'quotaLeft') : 'save')); };
+    var failAt = -1, crash = false;
+    r.rows.forEach(function (x, n) { if (x.rail === 'err' || x.rail === 'crash') { failAt = n; crash = x.rail === 'crash'; } });
+    // 6 điểm của vệt: điểm đầu, bốn ga, điểm vào màn hình
+    var pts = [[X0, YT]].concat(X.map(function (x, n) {
+      if (failAt < 0 || n <= failAt) return [x, YT];
+      return crash ? [X[failAt], YT] : [x, YE];
+    }));
+    pts.push(failAt < 0 ? [XS, YT] : (crash ? [X[failAt], YT] : [XS, YE]));
+    var tok = pts[pts.length - 1], kind = failAt < 0 ? 'ok' : (crash ? 'crash' : 'err');
+    var svg = '<svg class="vz-dg vz-rl" viewBox="0 0 640 212" role="img" aria-label="' + esc(T('errors.aria', { n: r.ran, s: T('errors.out.' + r.screen) })) + '">';
+    svg += '<line class="vz-rl-track" x1="' + X0 + '" y1="' + YT + '" x2="' + XS + '" y2="' + YT + '"/>';
+    svg += '<line class="vz-rl-track err" x1="' + X0 + '" y1="' + YE + '" x2="' + XS + '" y2="' + YE + '"/>';
+    svg += '<text class="vz-rl-tl" x="' + X0 + '" y="' + (YT - 42) + '">' + esc(T('errors.col.ok')) + '</text>';
+    svg += '<text class="vz-rl-tl err" x="' + X0 + '" y="' + (YE + 34) + '">' + esc(T('errors.col.err')) + '</text>';
+    svg += '<polyline class="vz-rl-path ' + kind + '" data-k="er-path" points="' + pts.map(function (q) { return q[0] + ',' + q[1]; }).join(' ') + '"/>';
     r.rows.forEach(function (x, n) {
-      var okCell, errCell;
-      if (x.rail === 'ok') { okCell = h('span', { class: 'vz-chip ok', 'data-k': 'er-v-' + x.step, translate: 'no', text: x.val }); errCell = null; }
-      else if (x.rail === 'skip') { okCell = h('span', { class: 'vz-chip dim', 'data-k': 'er-v-' + x.step, text: T('errors.skip') }); errCell = h('span', { class: 'vz-chip dim', text: T('errors.skip') }); }
-      else { okCell = null; errCell = h('span', { class: 'vz-chip ' + (x.rail === 'crash' ? 'bad' : 'hl'), 'data-k': 'er-v-' + x.step, translate: 'no', text: x.rail === 'crash' ? T('errors.crash', { v: x.val }) : x.val }); }
-      tb.appendChild(h('tr', { 'data-k': 'er-row-' + x.step },
-        h('td', { class: 'c', text: String(n + 1) }),
-        h('td', { translate: 'no', text: x.step === 'parse' ? 'parsePhone' : (x.step === 'slot' ? 'findFreeSlot' : (x.step === 'quota' ? (c === 'throw' || c === 'result' ? 'checkQuota' : 'quotaLeft') : 'save')) }),
-        h('td', { class: x.rail === 'ok' ? 'ok' : (x.rail === 'skip' ? 'dim' : '') }, okCell),
-        h('td', { class: x.rail === 'crash' ? 'bad' : (x.rail === 'skip' ? 'dim' : '') }, errCell)));
+      var st = x.rail === 'ok' ? 'ok' : (x.rail === 'skip' ? 'skip' : (x.rail === 'crash' ? 'crash' : 'fail'));
+      svg += '<g class="vz-rl-g ' + st + '" data-k="er-st-' + x.step + '">';
+      svg += '<text class="vz-dg-t" x="' + X[n] + '" y="' + (YT - 16) + '" text-anchor="middle">' + esc(fn(x.step)) + '</text>';
+      svg += '<circle class="vz-rl-st" cx="' + X[n] + '" cy="' + YT + '" r="9"/>';
+      if (x.rail === 'ok') svg += '<text class="vz-dg-s" x="' + X[n] + '" y="' + (YT + 26) + '" text-anchor="middle"' + fit(x.val, 112) + '>' + esc(x.val) + '</text>';
+      else if (x.rail === 'skip') svg += '<text class="vz-dg-s vz-rl-skip" x="' + X[n] + '" y="' + (YT + 26) + '" text-anchor="middle">' + esc(T('errors.skip')) + '</text>';
+      else if (x.rail === 'crash') svg += '<text class="vz-dg-badt" x="' + X[n] + '" y="' + (YT + 50) + '" text-anchor="middle"' + fit(T('errors.crash', { v: x.val }), 210) + '>' + esc(T('errors.crash', { v: x.val })) + '</text>';
+      svg += '</g>';
     });
-    var bad = r.screen === 'failed' || r.screen === 'crash';
+    if (failAt >= 0 && !crash) {
+      var ex = X[failAt] + 14, ev = r.rows[failAt].val;
+      svg += '<text class="vz-rl-errv" data-k="er-errv" x="' + ex + '" y="' + (YE + 18) + '"' + fit(ev, XS - ex - 8) + '>' + esc(ev) + '</text>';
+    }
+    svg += '<g class="vz-rl-scr' + (r.screen === 'failed' || r.screen === 'crash' ? ' bad' : '') + '"><rect x="' + XS + '" y="' + (YT - 26) + '" width="70" height="' + (YE - YT + 52) + '" rx="6"/>' +
+      '<text class="vz-dg-t" x="' + (XS + 35) + '" y="' + ((YT + YE) / 2 + 4) + '" text-anchor="middle">' + esc(T('errors.scr')) + '</text></g>';
+    svg += '<circle class="vz-rl-tok ' + kind + '" data-k="er-tok" cx="' + tok[0] + '" cy="' + tok[1] + '" r="7"/>';
+    svg += '</svg>';
+    var bad = r.screen === 'failed' || r.screen === 'crash', wrap = h('div', { class: 'vz-scroll' });
+    wrap.innerHTML = svg;
     box.appendChild(h('div', { class: 'vz' },
       h('p', { class: 'vz-cap', 'data-k': 'er-in', text: T('errors.in.' + scen) }),
-      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['n', 'fn', 'ok', 'err'].map(function (k) { return h('th', { text: T('errors.col.' + k) }); }))), tb)),
+      wrap,
       h('p', { class: 'vz-sub', 'data-k': 'er-sig', translate: 'no', text: 'fun book(raw: String, slotId: String): ' + P.SIG[c] }),
       h('p', { class: 'vz-sub' + (bad ? ' bad' : ''), 'data-k': 'er-screen', text: T('errors.screen', { s: T('errors.out.' + r.screen) }) }),
       h('div', { class: 'vz-legend', text: T('errors.legend') })));

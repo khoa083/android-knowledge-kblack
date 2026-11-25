@@ -335,7 +335,7 @@
     var SCEN = ['ok', 'taken', 'bug', 'closed'], STEPS = ['parse', 'slot', 'quota', 'save'];
     // bước hỏng và loại lỗi của từng tình huống: lỗi nghiệp vụ (biz) hay lỗi lập trình (bug: quotas[phone]!! với số mới)
     var FAIL = { ok: null, taken: { at: 'slot', kind: 'biz' }, bug: { at: 'quota', kind: 'bug' }, closed: { at: 'slot', kind: 'biz' } };
-    var OK_VAL = { parse: 'Phone("0901234567")', slot: 'Slot("S12", 2026-11-28T09:00)', quota: 'quotaLeft = 2', save: 'Booking(41)' };
+    var OK_VAL = { parse: 'Phone("0901234567")', slot: 'Slot("S12")', quota: 'quotaLeft = 2', save: 'Booking(41)' };
     var ERR_VAL = {
       throw: { taken: 'SlotTakenException("S07")', bug: 'NullPointerException', closed: 'ClinicClosedException' },
       nullable: { taken: 'null', bug: 'NullPointerException', closed: 'null' },
@@ -398,4 +398,5 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p5.' + c]; }); }); }); } }] });
   })();
+
 })();
