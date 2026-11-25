@@ -18,7 +18,7 @@ ADE.addTrackStrings('fp', 'vi', {
   "track.fp.kind.complete": "hoàn tất",
   "track.fp.m.map.title": "Gặp triệu chứng này thì đọc chương nào",
   "track.fp.m.map.overview": "Chọn một vấn đề hay gặp trên app Hẹn Khám. Bốn bước: triệu chứng, lúc nó lộ ra (khi chạy test, khi người dùng dùng app, hay khi viết và sửa mã), nguyên nhân, và chương giải thích.",
-  "track.fp.m.map.wrapup": "Mọi triệu chứng trong bảng đều biên dịch được, và phần lớn chỉ lộ ra khi người dùng đang dùng app. Nhiều cách chữa của track đẩy việc phát hiện lên sớm hơn: kiểu sealed để trình biên dịch chỉ ra chỗ thiếu, lỗi nằm trong kiểu trả về để nơi gọi không quên được, hàm thuần để test bằng giá trị thay cho đồ giả.",
+  "track.fp.m.map.wrapup": "Mọi triệu chứng trong bảng đều biên dịch được, và phần lớn chỉ lộ ra khi người dùng đang dùng app. Nhiều cách chữa của track đẩy việc phát hiện lên sớm hơn: kiểu sealed (chỉ có một danh sách kiểu con cố định) để trình biên dịch chỉ ra chỗ thiếu, lỗi nằm trong kiểu trả về để nơi gọi không quên được, hàm thuần để test bằng giá trị thay cho đồ giả.",
   "track.fp.m.map.simp.1": "Mỗi triệu chứng chỉ trỏ tới một chương chính; vấn đề thật thường có nhiều nguyên nhân cùng lúc.",
   "track.fp.m.map.ctl.hint": "Chọn triệu chứng rồi đi bốn bước; tab \"Bảng tra\" liệt kê tất cả.",
   "track.fp.m.map.ctl.symptom": "Triệu chứng",

@@ -860,12 +860,8 @@ Trạng thái: `chưa / đang / xong`.
   - Ghi chú cho người dùng: chương cơ chế khó (coroutines, runtime, một số chương sysdesign và storage) có thể đáng chuyển sang Opus medium; phiên không tự đổi model hay effort của chính nó được.
   - Sau lượt 2: K5 (lỗi là giá trị), rồi K6…K10, K0 cuối; sau K là L. D (UX) và E (UI) đang tạm dừng.
 - **Việc còn lại, ghi ngày 2026-11-25 (dừng ở 91% hạn mức 5 giờ, sau commit 564b8a7; đã push theo yêu cầu người dùng):**
-  1. **FP P0 "Bản đồ track: triệu chứng và chương"** (model `fp.map`, bảng tra triệu chứng → chương P1–P10, theo khuôn `cleancode_v2_j0.py`). Đặt P0 ĐẦU mảng `chapters` trong `tracks/fp/manifest.js` để thanh bên đánh số khớp P1–P10; xong thì đổi `status` của track sang `stable`.
-  2. **Review track FP (P1–P10):**
-     - nhãn "(K1)…(K10)" trong `tracks/fp/sources.js` (phần supports) đổi thành tên chương, tránh lẫn với chương K của track Kotlin;
-     - thêm ghi chú K9 (Functional core, A.12, 13.1.3, log) vào nguồn `book-seemann` ở `tracks/sysdesign/sources.js`;
-     - thêm cầu nối P5 "Lỗi là giá trị" với Kotlin K6 và Kiến trúc G8 (`shared/bridges*.js`), cân nhắc cầu nối P8 với G7 và P9 với J3, G10;
-     - đọc lại cả track bằng `text-lint.py fp` và `text-terms.py`, rồi hỏi advisor rà một lượt.
+  1. ~~FP P0~~ XONG 2026-11-25: `fp_v2_p0.py`, model `fp.map` (14 triệu chứng: 9 khi người dùng dùng app, 2 khi chạy test, 3 khi viết hay sửa mã), tab "Bảng tra"; P0 đứng đầu danh sách chương; track `stable`.
+  2. ~~Review track FP~~ XONG 2026-11-25: nhãn (K1)…(K10) trong `tracks/fp/sources.js` thành tên chương; `book-seemann` có ghi chú P9 và tên track đúng; cầu nối X25 (P5 ↔ Kotlin K6, Kiến trúc G8), X26 (P8 ↔ G7), X27 (P9 ↔ Mã sạch J3, G10). Kèm sửa ngoài FP: Mã sạch J0 bỏ "(chương Jn)" ở cách chữa, J0 thứ tự đọc và cầu nối ghi tên chương, J3/J9/J10 thêm tên chương sau "chương Jn", J3 "khóa (key)"; Kiến trúc (en) và nguồn Kotlin, Seemann ghi đúng tên track "Clean Code and Craft", "Functional Programming in Kotlin". text-lint còn báo "Clean Code" ở tên track Mã sạch (báo nhầm, đó là tên track).
   3. **Track Kotlin:** viết lại K7–K13, rồi K0 cuối (K1–K6 xong).
   4. **Viết lại theo giọng dạy học:** arch, storage, coroutines, runtime, animation (bỏ UX, UI). Khi viết lại coroutines, thay chữ "chương FP" (chương id `fp` của coroutines) bằng tên chương "Xử lý flow: map, filter, scan, merge/zip/combine, flatMap, retry, distinct".
   5. **Sau đó:** track L và các mục trong `docs/roadmap-v2.md` (chủ đề mới cần danh sách IN/OUT và người dùng duyệt trước).

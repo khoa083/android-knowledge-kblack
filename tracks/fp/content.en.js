@@ -18,7 +18,7 @@ ADE.addTrackStrings('fp', 'en', {
   "track.fp.kind.complete": "complete",
   "track.fp.m.map.title": "Seen this symptom? Read this chapter",
   "track.fp.m.map.overview": "Pick a common problem on the ClinicBook app. Four steps: the symptom, when it shows up (when tests run, when people use the app, or when writing and changing code), the cause, and the chapter that explains it.",
-  "track.fp.m.map.wrapup": "Every symptom in the table compiles, and most of them show up only while people are using the app. Many of the track's fixes move detection earlier: sealed types so the compiler points to what is missing, errors in the return type so callers cannot forget them, pure functions so tests use values instead of fakes.",
+  "track.fp.m.map.wrapup": "Every symptom in the table compiles, and most of them show up only while people are using the app. Many of the track's fixes move detection earlier: sealed types (a fixed list of subtypes) so the compiler points to what is missing, errors in the return type so callers cannot forget them, pure functions so tests use values instead of fakes.",
   "track.fp.m.map.simp.1": "Each symptom points to one main chapter; real problems often have several causes at once.",
   "track.fp.m.map.ctl.hint": "Pick a symptom and walk the four steps; the \"Lookup table\" tab lists them all.",
   "track.fp.m.map.ctl.symptom": "Symptom",

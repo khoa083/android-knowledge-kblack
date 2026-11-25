@@ -119,7 +119,7 @@ def add(a):
     a(C + '.sec.%s.title' % S_, 'Cầu nối sang track khác', 'Bridges to other tracks')
     a(C + '.sec.%s.badge' % S_, 'guideline')
     B(C, S_, 1, 'p', 'G3 ↔ Coroutines A8 và Runtime SH (sự kiện một lần, thu thập theo vòng đời, state hoisting). G6 ↔ Kotlin K11 (by viewModels() là một delegate). G8 ↔ Kotlin K6 (ngoại lệ, catch quá rộng). G10 ↔ Coroutines A9 và Runtime B9 (runTest, kiểm thử giao diện). Track Lưu dữ liệu đi sâu Room, DataStore và WorkManager mà G4 chỉ dùng; track Mã sạch đi sâu SOLID và nguyên lý thành phần mà G2, G9 chỉ nhắc.',
-      'G3 ↔ Coroutines A8 and Runtime SH (one-off events, lifecycle-aware collection, state hoisting). G6 ↔ Kotlin K11 (by viewModels() is a delegate). G8 ↔ Kotlin K6 (exceptions, over-broad catch). G10 ↔ Coroutines A9 and Runtime B9 (runTest, UI testing). The Saving Data track goes deep into Room, DataStore and WorkManager, which G4 only uses; the Clean Code track goes deep into SOLID and component principles, which G2 and G9 only mention.')
+      'G3 ↔ Coroutines A8 and Runtime SH (one-off events, lifecycle-aware collection, state hoisting). G6 ↔ Kotlin K11 (by viewModels() is a delegate). G8 ↔ Kotlin K6 (exceptions, over-broad catch). G10 ↔ Coroutines A9 and Runtime B9 (runTest, UI testing). The Saving Data track goes deep into Room, DataStore and WorkManager, which G4 only uses; the Clean Code and Craft track goes deep into SOLID and component principles, which G2 and G9 only mention.')
 
     S_ = 'recall'
     a(C + '.sec.%s.title' % S_, 'Tự trả lời', 'Answer it yourself')
