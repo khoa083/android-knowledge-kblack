@@ -12,11 +12,11 @@ ADE.registerTrack({
     { id: 'p2', titleKey: 'track.fp.p2.title', sims: ['fp.persist'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'p3', titleKey: 'track.fp.p3.title', sims: ['fp.compose'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'p4', titleKey: 'track.fp.p4.title', sims: ['fp.adt'], simAfter: 'hook', bridges: ['X24'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'p5', titleKey: 'track.fp.p5.title', sims: ['fp.errors'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'p5', titleKey: 'track.fp.p5.title', sims: ['fp.errors'], simAfter: 'hook', bridges: ['X25'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'p6', titleKey: 'track.fp.p6.title', sims: ['fp.monad'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'p7', titleKey: 'track.fp.p7.title', sims: ['fp.validate'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'p8', titleKey: 'track.fp.p8.title', sims: ['fp.reducer'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'p9', titleKey: 'track.fp.p9.title', sims: ['fp.core'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'p8', titleKey: 'track.fp.p8.title', sims: ['fp.reducer'], simAfter: 'hook', bridges: ['X26'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'p9', titleKey: 'track.fp.p9.title', sims: ['fp.core'], simAfter: 'hook', bridges: ['X27'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'p10', titleKey: 'track.fp.p10.title', sims: ['fp.optics'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [

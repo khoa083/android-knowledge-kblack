@@ -14,10 +14,10 @@ ADE.registerTrack({
     { id: 'g4', titleKey: 'track.arch.g4.title', sims: ['arch.offline'], simAfter: 'hook', bridges: ['X16', 'X19'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'g5', titleKey: 'track.arch.g5.title', sims: ['arch.usecase'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'g6', titleKey: 'track.arch.g6.title', sims: ['arch.di'], simAfter: 'hook', bridges: ['X15'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'g7', titleKey: 'track.arch.g7.title', sims: ['arch.mvi'], simAfter: 'hook', bridges: ['X24'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'g8', titleKey: 'track.arch.g8.title', sims: ['arch.failure'], simAfter: 'hook', bridges: ['X14'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'g7', titleKey: 'track.arch.g7.title', sims: ['arch.mvi'], simAfter: 'hook', bridges: ['X24', 'X26'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'g8', titleKey: 'track.arch.g8.title', sims: ['arch.failure'], simAfter: 'hook', bridges: ['X14', 'X25'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'g9', titleKey: 'track.arch.g9.title', sims: ['arch.modules'], simAfter: 'hook', bridges: ['X23'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'g10', titleKey: 'track.arch.g10.title', sims: ['arch.testing'], simAfter: 'hook', bridges: ['X13', 'X21'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'g10', titleKey: 'track.arch.g10.title', sims: ['arch.testing'], simAfter: 'hook', bridges: ['X13', 'X21', 'X27'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'g11', titleKey: 'track.arch.g11.title', sims: ['arch.feature'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [

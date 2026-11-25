@@ -46,5 +46,11 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X23.title': 'Chia module và đo độ ổn định',
   'shared.bridge.X23.summary': 'Chương kiến trúc dạy cách chia module Android theo tầng và theo tính năng. Chương chủ sở hữu cho công cụ đo: đếm phụ thuộc vào và ra, tính I = Ce/(Ca+Ce), phụ thuộc phải đi về phía ổn định, và tìm module ổn định mà hay đổi như một :core:common thập cẩm.',
   'shared.bridge.X24.title': 'Đếm trạng thái: vì sao UiState nên là sealed',
-  'shared.bridge.X24.summary': 'Chương Kotlin dạy cú pháp sealed và when phủ đủ; chương kiến trúc dùng một UiState cho MVI. Chương chủ sở hữu cho cách đếm: data class nhân số dạng các trường, sealed cộng số dạng các kiểu con; UiState ba trường có 8 dạng mà màn thường chỉ cần 3.'
+  'shared.bridge.X24.summary': 'Chương Kotlin dạy cú pháp sealed và when phủ đủ; chương kiến trúc dùng một UiState cho MVI. Chương chủ sở hữu cho cách đếm: data class nhân số dạng các trường, sealed cộng số dạng các kiểu con; UiState ba trường có 8 dạng mà màn thường chỉ cần 3.',
+  'shared.bridge.X25.title': 'Lỗi nghiệp vụ là giá trị: kiểu lỗi riêng thay cho ngoại lệ',
+  'shared.bridge.X25.summary': 'Chương Kotlin giảng cơ chế ngoại lệ; chương kiến trúc đổi lỗi dự đoán được thành failure có tên ở repository. Chương chủ sở hữu thêm cách nhìn của lập trình hàm: đưa lỗi vào kiểu trả về bằng một sealed interface (hoặc Either của Arrow), để when không có else buộc nơi gọi xử lý mọi lỗi, kể cả lỗi mới thêm; ngoại lệ chỉ giữ cho bug và lỗi không cứu được.',
+  'shared.bridge.X26.title': 'Reducer: chỗ duy nhất đổi state',
+  'shared.bridge.X26.summary': 'Chương kiến trúc dùng MVI, trong đó mọi thay đổi đi qua một reducer thuần. Chương chủ sở hữu giảng chính reducer: mỗi việc xảy ra là một event, reduce(state, event) là hàm thuần, state hiện tại là events.fold(initial, ::reduce), và nhật ký event dựng lại được state ở mọi thời điểm.',
+  'shared.bridge.X27.title': 'Lõi thuần nhận giá trị đã parse, test không cần đồ giả',
+  'shared.bridge.X27.summary': 'Chương Mã sạch parse dữ liệu một lần ở ranh giới; chương kiến trúc test từng tầng với repository giả. Chương chủ sở hữu tách hàm thành lõi thuần (nhận giá trị, trả một quyết định) và vỏ mỏng (đọc trước, ghi sau): lõi test bằng giá trị mà không cần đồ giả, vỏ chỉ còn một nhánh nên một bài test tích hợp là đủ.'
 });
