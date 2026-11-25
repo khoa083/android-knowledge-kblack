@@ -87,4 +87,16 @@
     '-keep class vn.henkham.pay.** implements vn.henkham.pay.PaymentMethod { <init>(); }',
     c('// hoặc bỏ reflection: val makers = mapOf("MomoPayment" to ::MomoPayment, "CardPayment" to ::CardPayment)', '// or drop reflection: val makers = mapOf("MomoPayment" to ::MomoPayment, "CardPayment" to ::CardPayment)')
   ]);
+
+  /* l6: màn đặt lịch; dòng 5 là nút, dòng 7 lớp phủ luôn có trong cây (alpha 0 vẫn nhận chạm), dòng 8 là bản sửa */
+  add('l6.screen', [
+    '@Composable fun BookScreen(state: BookState, onBook: () -> Unit) {',
+    c('    Box(Modifier.fillMaxSize()) {                       // con khai báo sau được vẽ sau, nằm trên', '    Box(Modifier.fillMaxSize()) {                       // a child declared later is drawn later, on top'),
+    '        Column(Modifier.padding(16.dp)) {',
+    '            Text(stringResource(R.string.pick_time)); SlotGrid(state.slots)',
+    '            Button(onClick = onBook) { Text(stringResource(R.string.book)) }',
+    '        }',
+    c('        LoadingOverlay(Modifier.alpha(if (state.loading) 1f else 0f))   // luôn trong cây, có clickable', '        LoadingOverlay(Modifier.alpha(if (state.loading) 1f else 0f))   // always in the tree, clickable'),
+    c('        // sửa: if (state.loading) LoadingOverlay()        // chỉ có trong cây khi đang tải', '        // fix: if (state.loading) LoadingOverlay()        // in the tree only while loading')
+  ]);
 })();

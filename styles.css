@@ -1044,3 +1044,9 @@ pre.code { position: relative; }
 .vz-lanes .vz-dg-n.bad rect { fill: rgba(196, 43, 50, .18); }
 .vz-table tr.fade td { opacity: .32; }
 .vz-trace td { white-space: nowrap; font-size: 12px; }
+.vz-tap { fill: var(--tok-error); }
+.vz-phone-wrap { flex: 0 0 auto; width: 130px; }
+.vz-row { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.vz-phone-wrap .vz-phone { width: 130px; height: auto; display: block; }
+.vz-phone .vz-dg-n.bad rect { fill: rgba(196, 43, 50, .10); }
+.vz-dg.vz-phone { width: 130px; min-width: 0; }

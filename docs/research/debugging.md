@@ -68,3 +68,12 @@
 | Play lấy mapping từ AAB với AGP 4.1+; APK phải tự tải; chỉ crash sau khi tải mới được dịch | support.google.com/googleplay/android-developer/answer/9848633 |
 | **Của site:** bản 1.6.0, mapping a.b → PaymentFactory (bản mới: BookingRepo); 2 frame sai mà hợp lý; Class.forName("vn.henkham.pay.MomoPayment"); keep rule theo interface PaymentMethod; bài tập dòng 5 → 22 | — |
 - Chưa có nguồn chính thức cho định dạng dòng mapping (khoảng dòng "1:12:… :18:29 -> c"); site dùng dạng của R8 như ví dụ minh họa.
+
+### l6 Layout Inspector: xem cây giao diện (đọc 2026-11-25, trang không ghi phiên bản Android Studio)
+| Ý trên site | Nguồn |
+|---|---|
+| Component Tree thời gian thực, Attributes, có thể cần khởi động lại Activity; Deep Inspect: chọn vùng để thấy mọi thành phần; Show Only Subtree/Parents; cập nhật trực tiếp; đếm recomposition và skip; snapshot; chế độ nhúng | developer.android.com/studio/debug/layout-inspector |
+| Hit test từ gốc xuống theo bounds; giữa anh em chỉ cái z cao nhất được hit (hai Button chồng trong Box); chuỗi hit giữ cho cả cử chỉ; clickable, Button tự tiêu thụ | developer.android.com/develop/ui/compose/touch-input/pointer-input/understand-gestures |
+| onInterceptTouchEvent, cha thấy trước con, ACTION_CANCEL, requestDisallowInterceptTouchEvent, TouchDelegate | developer.android.com/develop/ui/views/touch-and-input/gestures/viewgroup (trang không nêu luật thứ tự z cho View) |
+| **Của site:** màn đặt lịch 360 × 800, lớp phủ LoadingOverlay alpha 0 clickable, điểm chạm (180, 624), nút 48 → 64 dp; sửa bằng if (state.loading) | — |
+- Alpha không ảnh hưởng hit test: suy ra từ việc hit test dựa trên bounds (trang Compose); trang không nói thẳng về alpha.

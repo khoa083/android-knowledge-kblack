@@ -336,4 +336,59 @@
         { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 9 dòng', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 9; }); }); }); } }] });
   })();
+
+  /* ================= l6: Layout Inspector: nút bị một lớp phủ trong suốt che =================
+     Theo developer.android.com studio/debug/layout-inspector và compose understand-gestures (hit test theo bounds; giữa anh em chồng nhau, chỉ cái vẽ trên
+     cùng được hit; clickable tự tiêu thụ). CÀI THẬT: cây 7 thành phần theo thứ tự vẽ; thành phần nhận cú chạm là thành phần xử lý chạm vẽ sau cùng có bounds
+     chứa điểm chạm; alpha không tham gia. Bố cục, kích thước và điểm chạm là của site. */
+  (function () {
+    var m = 'layout', CASES = ['guess', 'inspect'], KS = ['s1', 's2', 's3', 's4'];
+    var TAP = [180, 624];
+    // [id, tên, [x, y, w, h], alpha, xử lý chạm, độ sâu]; thứ tự = thứ tự vẽ
+    var BASE = [['root', 'Box', [0, 0, 360, 800], 1, false, 0], ['col', 'Column', [0, 56, 360, 744], 1, false, 1], ['title', 'Text "Chọn giờ khám"', [16, 72, 328, 32], 1, false, 2],
+      ['grid', 'SlotGrid', [16, 120, 328, 400], 1, true, 2], ['button', 'Button "Đặt lịch"', [16, 600, 328, 48], 1, true, 2],
+      ['overlay', 'LoadingOverlay', [0, 0, 360, 800], 0, true, 1], ['spinner', 'CircularProgressIndicator', [156, 376, 48, 48], 0, false, 2]];
+    // biến thể theo bước: nút cao 64 dp (cách đoán), hay lớp phủ bị gỡ khỏi cây (bản sửa)
+    var VAR = { guess: ['base', 'base', 'tall', 'tall'], inspect: ['base', 'base', 'base', 'fixed'] };
+    function tree(v) {
+      return BASE.map(function (n) {
+        var b = n[2].slice(); if (v === 'tall' && n[0] === 'button') b[3] = 64;
+        return { id: n[0], name: n[1], b: b, alpha: n[3], click: n[4], depth: n[5], present: !(v === 'fixed' && (n[0] === 'overlay' || n[0] === 'spinner')) };
+      });
+    }
+    var inside = function (b, p) { return p[0] >= b[0] && p[0] <= b[0] + b[2] && p[1] >= b[1] && p[1] <= b[1] + b[3]; };
+    function hit(v) {
+      var t = tree(v), under = t.filter(function (n) { return n.present && n.click && inside(n.b, TAP); });
+      return { tree: t, under: under, hit: under.length ? under[under.length - 1].id : null };
+    }
+    ADE.dbgLayout = { hit: hit, VAR: VAR, TAP: TAP };
+    var CAUSE = { guess: ['cause.none', 'cause.button', 'cause.button', 'cause.button'], inspect: ['cause.none', 'cause.none', 'cause.overlay', 'cause.fixed'] };
+    var NODES = { guess: [[['tap', 'hit'], 'hit', 'e1'], [['button'], 'button', 'e3'], [['button'], 'button', 'e3'], [['button'], 'button', 'e3']],
+      inspect: [[['inspector', 'hit'], 'inspector', 'e4'], [['inspector', 'overlay'], 'overlay', 'e4'], [['hit', 'overlay'], 'overlay', 'e2'], [['hit', 'button'], 'button', 'e3']] };
+    var HL = { guess: [[5], [5], [5], [5]], inspect: [[7], [7], [2, 7], [8]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var r = hit(VAR[c][i]), ok = r.hit === 'button', bad = c === 'guess' && i >= 1, nd = NODES[c][i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { under: r.under.length, hit: M(m, 'hit.' + r.hit), booked: ok ? 1 : 0, cause: M(m, CAUSE[c][i]) },
+          codeHighlight: { snippet: 'l6.screen', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'guess';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'guess' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'tại (180, 624): 2 thành phần xử lý chạm (nút và lớp phủ); lớp phủ vẽ sau nên nhận cú chạm dù alpha 0', run: function () {
+          var r = hit('base'); return r.under.length === 2 && r.hit === 'overlay' && r.tree.filter(function (n) { return n.id === 'overlay'; })[0].alpha === 0; } },
+        { name: 'phóng nút lên 64 dp: lớp phủ vẫn nhận cú chạm', run: function () { return hit('tall').hit === 'overlay'; } },
+        { name: 'gỡ lớp phủ khỏi cây: còn 1 thành phần, nút nhận cú chạm', run: function () { var r = hit('fixed'); return r.under.length === 1 && r.hit === 'button'; } },
+        { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 8 dòng', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); }); } }] });
+  })();
 })();

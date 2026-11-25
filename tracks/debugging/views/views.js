@@ -35,4 +35,9 @@
     N('retrace', 'crash', 6, 0, 'pitfall', 'signal'), N('retrace', 'retrace', 6, 2, 'search', 'job')],
     edges: [E('e1', 'src', 'r8'), E('e2', 'r8', 'map'), E('e3', 'r8', 'crash'), E('e4', 'map', 'retrace')],
     metrics: [T('retrace', 'ok'), T('retrace', 'wrong'), T('retrace', 'cause')] });
+  /* l6: cú chạm → hit test → lớp phủ (vẽ trên) hay nút; Layout Inspector cho thấy cả hai */
+  V('layout', { layout: 'pipeline', nodes: [N('layout', 'tap', 0, 1, 'target', 'ui'), N('layout', 'hit', 3, 1, 'search', 'runtime'), N('layout', 'overlay', 6, 0, 'layers', 'signal'),
+    N('layout', 'button', 6, 2, 'check', 'state'), N('layout', 'inspector', 3, 3, 'eye', 'job')],
+    edges: [E('e1', 'tap', 'hit'), E('e2', 'hit', 'overlay'), E('e3', 'hit', 'button'), E('e4', 'inspector', 'hit')],
+    metrics: [T('layout', 'under'), T('layout', 'hit'), T('layout', 'booked'), T('layout', 'cause')] });
 })();

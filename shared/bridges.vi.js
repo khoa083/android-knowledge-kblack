@@ -56,5 +56,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X28.title': 'Tái hiện lỗi trên thiết bị, rồi khóa bằng test',
   'shared.bridge.X28.summary': 'Chương Mã sạch dạy tái hiện lỗi thành một test và chia đôi lịch sử commit để tìm commit gây lỗi. Chương chủ sở hữu lo phần trên thiết bị: vòng tái hiện, thu hẹp, giả thuyết, kiểm; adb để giả điều kiện của người dùng (như tiến trình bị đóng ở nền); bug report và stack trace từ Play Console khi lỗi xảy ra trên máy khác.',
   'shared.bridge.X29.title': 'Từ cơ chế ngoại lệ tới đọc stack trace',
-  'shared.bridge.X29.summary': 'Chương Kotlin giảng ngoại lệ đi ngược chuỗi gọi tới catch đầu tiên và cách bọc lỗi. Chương chủ sở hữu dạy đọc kết quả của nó khi app crash: dòng đầu là tầng bọc ngoài, nguyên nhân gốc ở "Caused by" cuối, "... N more" là frame trùng, frame đầu của app là chỗ bắt đầu tìm.'
+  'shared.bridge.X29.summary': 'Chương Kotlin giảng ngoại lệ đi ngược chuỗi gọi tới catch đầu tiên và cách bọc lỗi. Chương chủ sở hữu dạy đọc kết quả của nó khi app crash: dòng đầu là tầng bọc ngoài, nguyên nhân gốc ở "Caused by" cuối, "... N more" là frame trùng, frame đầu của app là chỗ bắt đầu tìm.',
+  'shared.bridge.X30.title': 'Xem cây giao diện và đếm recomposition',
+  'shared.bridge.X30.summary': 'Chương Compose Runtime giải thích vì sao một composable recompose hay được skip và cách đo trước khi sửa. Chương chủ sở hữu dạy dùng Layout Inspector: xem cây, bounds, thuộc tính, thành phần chồng nhau tại một điểm, và số lần recompose, skip của từng composable.'
 });

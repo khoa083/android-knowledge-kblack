@@ -10,5 +10,6 @@ ADE.addGlossary('en', 'debugging', {
   "stack-trace": { term: "stack trace", def: "A snapshot of the chain of function calls when an exception was thrown: the first line is the exception type and message, each \"at\" line is a frame, and the top frame is where it was thrown.", chapter: "debugging/l4" },
   "root-cause": { term: "root cause", def: "The first exception in a chain of wrapped errors, usually in the last \"Caused by\" section of a stack trace; the layers above only add context.", chapter: "debugging/l4" },
   "mapping-file": { term: "mapping file (mapping.txt)", def: "The file R8 writes at release build time, matching obfuscated names to the real names of classes, functions and fields with line ranges; one per build, kept per version to translate stack traces back.", chapter: "debugging/l5" },
-  "keep-rule": { term: "keep rule", def: "A rule telling R8 to keep the name of, or not remove, a class, function or field; needed for code found by name through reflection.", chapter: "debugging/l5" }
+  "keep-rule": { term: "keep rule", def: "A rule telling R8 to keep the name of, or not remove, a class, function or field; needed for code found by name through reflection.", chapter: "debugging/l5" },
+  "hit-test": { term: "hit test", def: "The step that finds which component receives a tap: among components whose bounds contain the point, the top-most one that handles touch is chosen. Alpha does not matter.", chapter: "debugging/l6" }
 });

@@ -185,4 +185,37 @@
       h('p', { class: 'vz-sub' + (showReal && t.wrong ? ' bad' : ''), 'data-k': 'rt-n-' + i, text: T('rt.count', { ok: t.ok, w: showReal ? t.wrong : 0 }) }),
       h('div', { class: 'vz-legend', text: T('rt.legend') })));
   }, { labelKey: K + 'tab.retrace', icon: 'search' });
+
+  /* ---------- l6: màn hình thu nhỏ (SVG phẳng) với bounds của từng thành phần, chấm đỏ ở điểm chạm; thành phần nhận cú chạm tô đỏ (lớp phủ)
+     hay xanh (nút); lớp trong suốt vẽ nét đứt. Dưới là bảng cây thành phần theo thứ tự vẽ; ở cách xem cây, hàng dưới điểm chạm có viền. ---------- */
+  ADE.registerScreen('debugging.layout', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.dbgLayout, c = ctx.state.case, i = Math.max(0, idx(ctx)), r = D.hit(D.VAR[c][i]), sc = 0.28, ox = 6, oy = 6;
+    var look = c === 'inspect';
+    var hn = r.hit === 'button' ? ADE.t('track.debugging.m.layout.hit.button') : ADE.t('track.debugging.m.layout.hit.overlay');
+    var svg = '<svg class="vz-dg vz-phone" width="130" height="269" style="width:130px;height:auto" viewBox="0 0 114 236" role="img" aria-label="' + esc(T('ly.aria', { h: hn })) + '">';
+    r.tree.forEach(function (n) {
+      if (!n.present || n.id === 'root') return;
+      var b = n.b, k = n.id === r.hit ? (n.id === 'button' ? 'ok' : 'bad') : (look && i >= 1 && n.id === 'overlay' ? 'bad' : '');
+      svg += '<g class="vz-dg-n' + (k ? ' ' + k : '') + (n.alpha === 0 && !k ? ' skip' : '') + '" data-k="ly-' + n.id + '-' + (k || 'n') + '"><rect x="' + (ox + b[0] * sc).toFixed(1) + '" y="' + (oy + b[1] * sc).toFixed(1) +
+        '" width="' + (b[2] * sc).toFixed(1) + '" height="' + ((n.id === 'button' ? 48 : b[3]) * sc).toFixed(1) + '" rx="1.5"' + (n.alpha === 0 ? ' stroke-dasharray="3 2"' : '') + '/></g>';
+    });
+    svg += '<circle class="vz-tap" cx="' + (ox + D.TAP[0] * sc).toFixed(1) + '" cy="' + (oy + D.TAP[1] * sc).toFixed(1) + '" r="3.2"/></svg>';
+    var wrap = h('div', { class: 'vz-phone-wrap' }); wrap.innerHTML = svg;
+    var underIds = r.under.map(function (n) { return n.id; });
+    var tb = h('tbody');
+    r.tree.forEach(function (n) {
+      var on = look && underIds.indexOf(n.id) >= 0, bad = look && i >= 1 && n.id === 'overlay' && n.present;
+      var cl = bad ? 'bad' : (on ? 'hl' : null);
+      tb.appendChild(h('tr', { 'data-k': 'ly-r-' + n.id + '-' + (cl || 'n') + '-' + n.b[3] + (n.present ? '' : '-gone'), class: n.present ? null : 'fade' },
+        h('td', { class: cl, style: 'padding-left:' + (8 + n.depth * 14) + 'px', text: n.present ? n.name : n.name + ' ' + T('ly.gone') }),
+        h('td', { class: cl, text: n.b.join(', ') }), h('td', { class: cl ? 'c ' + cl : 'c', text: String(n.alpha) }), h('td', { class: cl ? 'c ' + cl : 'c', text: T(n.click ? 'ly.yes' : 'ly.no') })));
+    });
+    var btn = r.tree.filter(function (n) { return n.id === 'button'; })[0];
+    box.appendChild(h('div', { class: 'vz' },
+      h('div', { class: 'vz-row' }, wrap, h('div', null,
+        h('p', { class: 'vz-sub' + (r.hit === 'button' ? '' : ' bad'), 'data-k': 'ly-sub-' + r.hit + '-' + r.under.length, text: T('ly.sub', { n: r.under.length, h: hn }) }),
+        h('p', { class: 'vz-sub', 'data-k': 'ly-note-' + c + i, text: T('ly.note.' + c + '.' + i) }))),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-trace' }, h('thead', null, h('tr', null, ['name', 'bounds', 'alpha', 'click'].map(function (k) { return h('th', { text: T('ly.col.' + k) }); }))), tb)),
+      h('div', { class: 'vz-legend', text: T('ly.legend') })));
+  }, { labelKey: K + 'tab.layout', icon: 'layers' });
 })();
