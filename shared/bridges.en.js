@@ -66,5 +66,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X33.title': 'Reading an ANR trace when the main thread waits for a lock',
   'shared.bridge.X33.summary': 'The Mobile System Design chapter teaches threads, locks, deadlock and why ANRs happen. The owner chapter teaches reading the evidence from users\' phones: the Blocked state, the "waiting to lock … held by" line, finding the holder thread, and turning on StrictMode to catch it early on the dev device.',
   'shared.bridge.X34.title': 'Duplicate requests, the radio and the battery',
-  'shared.bridge.X34.summary': 'The Mobile System Design chapters teach choosing a channel and caching. The owner chapter teaches measuring the real app: finding duplicate requests and oversized responses with Network Inspector, and working out why scattered requests keep the radio at full power longer.'
+  'shared.bridge.X34.summary': 'The Mobile System Design chapters teach choosing a channel and caching. The owner chapter teaches measuring the real app: finding duplicate requests and oversized responses with Network Inspector, and working out why scattered requests keep the radio at full power longer.',
+  'shared.bridge.X35.title': 'Measure first, measure right, then conclude',
+  'shared.bridge.X35.summary': 'The Compose Runtime and Mobile System Design chapters say what to optimise (recomposition, startup, battery). The owner chapter teaches measuring so the conclusion holds: a release-like build, a real device, many runs under the same conditions, comparing medians and looking at the spread.'
 });

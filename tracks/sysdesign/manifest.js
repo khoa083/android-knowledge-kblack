@@ -18,7 +18,7 @@ ADE.registerTrack({
     { id: 'i8', titleKey: 'track.sysdesign.i8.title', sims: ['sysdesign.conflict'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'i9', titleKey: 'track.sysdesign.i9.title', sims: ['sysdesign.push'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'i10', titleKey: 'track.sysdesign.i10.title', sims: ['sysdesign.bitmap', 'sysdesign.upload'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'i11', titleKey: 'track.sysdesign.i11.title', sims: ['sysdesign.startup'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'i11', titleKey: 'track.sysdesign.i11.title', sims: ['sysdesign.startup'], simAfter: 'hook', bridges: ['X35'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'i12', titleKey: 'track.sysdesign.i12.title', sims: ['sysdesign.rollout', 'sysdesign.compat'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'i13', titleKey: 'track.sysdesign.i13.title', sims: ['sysdesign.chat'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],

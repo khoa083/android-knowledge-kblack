@@ -19,5 +19,7 @@ ADE.addGlossary('vi', 'debugging', {
   "jank": { term: "jank (khung hình giật)", def: "Khi một khung hình không xong trước hạn (16 ms ở 60 Hz, 8 ms ở 120 Hz), nó bị bỏ cả khung và màn hình giữ hình cũ, người dùng thấy khựng.", chapter: "debugging/l9" },
   "system-trace": { term: "system trace", def: "Bản ghi hoạt động của thiết bị trong một khoảng ngắn: luồng nào chạy khi nào, khung hình nào trễ, CPU bận ra sao; xem bằng Perfetto hay Android Studio.", chapter: "debugging/l9" },
   "strictmode": { term: "StrictMode", def: "Công cụ cho nhà phát triển báo mỗi lần luồng main đọc ghi đĩa hay gọi mạng (và vài lỗi khác); bật trong bản debug để bắt sớm việc có thể gây ANR.", chapter: "debugging/l10" },
-  "radio-tail": { term: "thời gian đuôi của radio (tail time)", def: "Khoảng radio di động còn ở mức toàn công suất sau khi truyền xong (5 giây trong mô hình 3G của tài liệu), trước khi hạ xuống mức thấp; vì nó, nhiều request rải rác tốn pin hơn một lần truyền gom lại.", chapter: "debugging/l11" }
+  "radio-tail": { term: "thời gian đuôi của radio (tail time)", def: "Khoảng radio di động còn ở mức toàn công suất sau khi truyền xong (5 giây trong mô hình 3G của tài liệu), trước khi hạ xuống mức thấp; vì nó, nhiều request rải rác tốn pin hơn một lần truyền gom lại.", chapter: "debugging/l11" },
+  "median": { term: "trung vị (median)", def: "Giá trị ở giữa khi xếp các số đo theo thứ tự (số lần chẵn thì lấy trung bình hai số giữa); ít bị một lần đo bất thường kéo lệch hơn trung bình cộng.", chapter: "debugging/l12" },
+  "macrobenchmark": { term: "Macrobenchmark", def: "Thư viện Jetpack đo các thao tác lớn như khởi động, cuộn, animation bằng cách chạy lặp nhiều lần trên bản build gần release và báo nhỏ nhất, trung vị, lớn nhất.", chapter: "debugging/l12" }
 });

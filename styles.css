@@ -1054,3 +1054,4 @@ pre.code { position: relative; }
 .vz-sec { fill: var(--tok-state); opacity: .55; }
 .vz-radio.h { fill: var(--tok-error); opacity: .6; }
 .vz-radio.l { fill: var(--tok-state); opacity: .5; }
+.vz-dot.used { stroke: var(--tok-error); stroke-width: 3; }

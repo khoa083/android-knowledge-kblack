@@ -650,4 +650,54 @@
         { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 8 dòng', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); }); } }] });
   })();
+
+  /* ================= l12: đo hiệu năng cho đúng: một lần đo mỗi bên, hay lặp 10 lần và so trung vị =================
+     Theo developer.android.com benchmarking/macrobenchmark-overview, macrobenchmark-metrics (min, median, max; tập trung vào trung vị), vitals/launch-time.
+     CÀI THẬT: hai dãy 10 số đo khởi động lạnh (của site); phần trăm, trung vị, nhỏ nhất, lớn nhất được tính từ chúng. */
+  (function () {
+    var m = 'measure', CASES = ['once', 'repeat'], KS = ['s1', 's2', 's3', 's4'];
+    var BEFORE = [1480, 1040, 1010, 995, 1020, 1005, 990, 1030, 1000, 1015], AFTER = [1050, 975, 960, 950, 980, 955, 870, 965, 945, 970];
+    var r1 = function (x) { return Math.round(x * 10) / 10; };
+    function median(xs) { var s = xs.slice().sort(function (a, b) { return a - b; }), n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; }
+    var pct = function (b, a) { return r1((b - a) / b * 100); };
+    // mẫu được hiện ở mỗi bước: [chỉ số trước], [chỉ số sau]; chỉ số được dùng để so
+    var ALL = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    var SHOW = { once: [[[0], []], [[0], [6]], [[0], [6, 1, 2]], [ALL, ALL]], repeat: [[ALL, ALL], [ALL, ALL], [ALL, ALL], [ALL, ALL]] };
+    function view(c, i) {
+      var sh = SHOW[c][i], used = c === 'once' ? [[0], i >= 1 ? [6] : []] : [ALL, ALL];
+      var claim = c === 'once' ? (i >= 1 ? pct(BEFORE[0], AFTER[6]) : null) : (i >= 1 ? pct(median(BEFORE), median(AFTER)) : null);
+      return { show: sh, used: used, claim: claim, mb: c === 'once' ? BEFORE[0] : median(BEFORE), ma: c === 'once' ? (i >= 1 ? AFTER[6] : null) : median(AFTER) };
+    }
+    ADE.dbgMeasure = { BEFORE: BEFORE, AFTER: AFTER, median: median, view: view, pct: pct };
+    var NODES = { once: [[['runs'], 'runs', 'e2'], [['runs', 'claim'], 'claim', 'e3'], [['noise', 'runs'], 'noise', 'e4'], [['claim'], 'claim', 'e3']],
+      repeat: [[['build', 'runs'], 'runs', 'e1'], [['runs', 'stats'], 'stats', 'e2'], [['stats', 'noise'], 'stats', 'e4'], [['stats', 'claim'], 'claim', 'e3']] };
+    var HL = { once: [[6, 7], [6, 7], [6, 7], [4, 6]], repeat: [[3, 4, 5, 6], [5], [5], [6]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var v = view(c, i), bad = c === 'once' && i >= 1, nd = NODES[c][i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { runs: c === 'once' ? 1 : 10, claim: v.claim === null ? 0 : v.claim, mb: v.mb, ma: v.ma === null ? 0 : v.ma },
+          codeHighlight: { snippet: 'l12.code', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'once';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'once' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'so một lần: 1.480 ms với 870 ms là nhanh hơn 41,2 %', run: function () { return pct(BEFORE[0], AFTER[6]) === 41.2; } },
+        { name: 'trung vị trước 1.012,5 ms, sau 962,5 ms: nhanh hơn 4,9 %; khoảng 990–1.480 và 870–1.050', run: function () {
+          return median(BEFORE) === 1012.5 && median(AFTER) === 962.5 && pct(median(BEFORE), median(AFTER)) === 4.9 &&
+            Math.min.apply(null, BEFORE) === 990 && Math.max.apply(null, BEFORE) === 1480 && Math.min.apply(null, AFTER) === 870 && Math.max.apply(null, AFTER) === 1050; } },
+        { name: 'bài tập: trung vị 815 và 795 (2,5 %), trung bình 910 và 795 (12,6 %)', run: function () {
+          var b = [820, 805, 1300, 815, 810], a = [790, 800, 785, 795, 805], mean = function (x) { return x.reduce(function (s, y) { return s + y; }, 0) / x.length; };
+          return median(b) === 815 && median(a) === 795 && r1((815 - 795) / 815 * 100) === 2.5 && mean(b) === 910 && pct(mean(b), mean(a)) === 12.6; } },
+        { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 8 dòng', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); }); } }] });
+  })();
 })();

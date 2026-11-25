@@ -390,4 +390,30 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['t', 'req', 'caller', 'size'].map(function (k) { return h('th', { text: T('nt.col.' + k) }); }))), tb)),
       h('div', { class: 'vz-legend', text: T('nt.legend') })));
   }, { labelKey: K + 'tab.net', icon: 'bolt' });
+
+  /* ---------- l12: biểu đồ chấm (SVG phẳng): hai hàng (trước, sau) trên trục 850–1.500 ms; chấm được dùng để so có viền đỏ; vạch trung vị (cách lặp).
+     Tính từ ADE.dbgMeasure; ô đổi lớp thì nháy. ---------- */
+  ADE.registerScreen('debugging.measure', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.dbgMeasure, c = ctx.state.case, i = Math.max(0, idx(ctx)), v = D.view(c, i);
+    var X0 = 80, W = 500, LO = 850, HI = 1500, x = function (ms) { return X0 + (ms - LO) / (HI - LO) * W; };
+    var svg = '<svg class="vz-dg vz-lanes" viewBox="0 0 ' + (X0 + W + 16) + ' 104" role="img" aria-label="' + esc(T('ms.aria', { b: D.median(D.BEFORE), a: D.median(D.AFTER) })) + '">';
+    [['before', D.BEFORE, 28, 0], ['after', D.AFTER, 64, 1]].forEach(function (row) {
+      svg += '<text class="vz-dg-s" x="4" y="' + (row[2] + 4) + '">' + esc(T('ms.row.' + row[0])) + '</text><line class="vz-dg-e" x1="' + X0 + '" y1="' + row[2] + '" x2="' + (X0 + W) + '" y2="' + row[2] + '"/>';
+      v.show[row[3]].forEach(function (k) {
+        var used = v.used[row[3]].indexOf(k) >= 0 && (c === 'once');
+        svg += '<circle class="vz-dot' + (used ? ' used' : '') + '" data-k="ms-' + row[0] + '-' + k + (used ? '-u' : '') + '" cx="' + x(row[1][k]).toFixed(1) + '" cy="' + row[2] + '" r="' + (used ? 6 : 4.5) + '"/>';
+      });
+      if (c === 'repeat' && i >= 1) { var md = D.median(row[1]); svg += '<line class="vz-dg-e up" data-k="ms-med-' + row[0] + '" x1="' + x(md).toFixed(1) + '" y1="' + (row[2] - 12) + '" x2="' + x(md).toFixed(1) + '" y2="' + (row[2] + 12) + '"/>'; }
+    });
+    [900, 1000, 1100, 1200, 1300, 1400, 1500].forEach(function (t) { svg += '<text class="vz-dg-s" x="' + (x(t) - 14).toFixed(1) + '" y="98">' + t + '</text>'; });
+    svg += '</svg>';
+    var wrap = h('div', { class: 'vz-scroll' }); wrap.innerHTML = svg;
+    var claim = v.claim === null ? T('ms.wait') : T('ms.claim.' + c, { b: v.mb, a: v.ma, p: v.claim });
+    var rg = function (xs) { return [Math.min.apply(null, xs), Math.max.apply(null, xs)]; }, rb = rg(D.BEFORE), ra = rg(D.AFTER);
+    box.appendChild(h('div', { class: 'vz' },
+      wrap,
+      h('p', { class: 'vz-sub' + (c === 'once' && i >= 1 ? ' bad' : ''), 'data-k': 'ms-claim-' + c + i, text: claim }),
+      (c === 'repeat' && i >= 2) || (c === 'once' && i === 3) ? h('p', { class: 'vz-sub', 'data-k': 'ms-range-' + c + i, text: T('ms.range', { b1: rb[0], b2: rb[1], a1: ra[0], a2: ra[1] }) }) : null,
+      h('div', { class: 'vz-legend', text: T('ms.legend') })));
+  }, { labelKey: K + 'tab.measure', icon: 'clock' });
 })();

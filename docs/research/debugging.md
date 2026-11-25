@@ -126,3 +126,12 @@
 | Wake lock quá mức: tổng ≥ 2 giờ/24 giờ ở nền; miễn âm thanh, vị trí, job người dùng; > 5 % phiên trong 28 ngày ảnh hưởng hiển thị trên Play | developer.android.com/topic/performance/vitals/wakelock |
 | **Của site:** 3 request GET /bookings ở giây 0, 2, 7, mỗi cái 1 s và 1,2 MB; radio 13 s / 12 s so với 6 s / 12 s; trang đầu 120 KB | — |
 - Chưa đọc được trang tổng quan về pin (topic/performance/power trả về trang Connectivity); chưa có nguồn cho cache HTTP ở chương này, nên chỉ trỏ sang chương Cache của track Thiết kế hệ thống.
+
+### l12 Đo hiệu năng cho đúng (đọc 2026-11-25)
+| Ý trên site | Nguồn |
+|---|---|
+| Macrobenchmark: khởi động, cuộn, animation; module test riêng; app gần release, không debuggable, nên thu gọn, profileable; measureRepeated (packageName, metrics, iterations); COLD/WARM/HOT; compilationMode mặc định cài Baseline Profile; không khuyên emulator; lỗi khi debuggable, emulator, pin yếu; JSON và trace mỗi lần | developer.android.com/topic/performance/benchmarking/macrobenchmark-overview |
+| StartupTimingMetric min/median/max, "luôn tập trung vào trung vị"; FrameTimingMetric P50–P99, nhìn P95, P99 | developer.android.com/topic/performance/benchmarking/macrobenchmark-metrics |
+| TTID, TTFD (reportFullyDrawn), cold/warm/hot, tối ưu theo cold start, dòng Displayed | developer.android.com/topic/performance/vitals/launch-time (trang không ghi ngưỡng vitals) |
+| **Của site:** 10 số đo mỗi bên; một lần 1.480 với 870 ms (41,2 %); trung vị 1.012,5 với 962,5 ms (4,9 %); bài tập 815/795 và trung bình 910/795 | — |
+- Chưa đọc được nguồn chính thức về JIT, nhiệt độ, lockClocks; site chỉ nói "việc nền, nhiệt độ, pin" làm số đo dao động, dựa trên cảnh báo pin yếu và emulator của trang Macrobenchmark và lời khuyên giữ nhiệt độ ổn định của PowerMetric.

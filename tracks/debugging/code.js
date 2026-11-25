@@ -167,4 +167,16 @@
     c('suspend fun refresh(now: Long) { if (now - lastLoad < 5 * 60_000) return; /* … */ }   // chỉ một nơi gọi mạng', 'suspend fun refresh(now: Long) { if (now - lastLoad < 5 * 60_000) return; /* … */ }   // only one place calls the network'),
     c('@GET("bookings/upcoming") suspend fun upcoming(@Query("page") page: Int, @Query("size") size: Int): List<Booking>   // 120 KB', '@GET("bookings/upcoming") suspend fun upcoming(@Query("page") page: Int, @Query("size") size: Int): List<Booking>   // 120 KB')
   ]);
+
+  /* l12: đo lặp bằng Macrobenchmark (dòng 3–6); đo tay một lần (dòng 7) */
+  add('l12.code', [
+    '@Test fun coldStartup() = rule.measureRepeated(',
+    '    packageName = "vn.henkham",',
+    '    metrics = listOf(StartupTimingMetric()),',
+    c('    iterations = 10,                                 // nhiều mẫu, so trung vị', '    iterations = 10,                                 // many samples, compare medians'),
+    c('    startupMode = StartupMode.COLD,                  // cùng chế độ cho cả trước và sau', '    startupMode = StartupMode.COLD,                  // the same mode before and after'),
+    c(') { pressHome(); startActivityAndWait() }          // chạy trên build gần release, máy thật', ') { pressHome(); startActivityAndWait() }          // on a release-like build, a real device'),
+    c('// đo tay: adb logcat | grep Displayed  →  một con số, một lần chạy', '// by hand: adb logcat | grep Displayed  →  one number, one run'),
+    c('// "ActivityManager: Displayed vn.henkham/.MainActivity: +870ms"   // lần nhanh nhất, không phải điển hình', '// "ActivityManager: Displayed vn.henkham/.MainActivity: +870ms"   // the fastest run, not a typical one')
+  ]);
 })();

@@ -35,5 +35,6 @@ ADE.addBridges([
   { id: 'X31', owner: 'debugging/l7', links: ['storage/h4', 'storage/h7'] },
   { id: 'X32', owner: 'debugging/l8', links: ['kotlin/k8', 'arch/g6'] },
   { id: 'X33', owner: 'debugging/l10', links: ['sysdesign/i3'] },
-  { id: 'X34', owner: 'debugging/l11', links: ['sysdesign/i4', 'sysdesign/i6'] }
+  { id: 'X34', owner: 'debugging/l11', links: ['sysdesign/i4', 'sysdesign/i6'] },
+  { id: 'X35', owner: 'debugging/l12', links: ['runtime/pf', 'sysdesign/i11'] }
 ]);

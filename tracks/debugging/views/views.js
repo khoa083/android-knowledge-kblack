@@ -65,4 +65,9 @@
     N('net', 'radio', 9, 1, 'bolt', 'signal'), N('net', 'ni', 6, 3, 'search', 'runtime')],
     edges: [E('e1', 'ui', 'repo'), E('e2', 'repo', 'http'), E('e3', 'http', 'radio'), E('e4', 'ni', 'http')],
     metrics: [T('net', 'req'), T('net', 'kb'), T('net', 'high'), T('net', 'low')] });
+  /* l12: bản build gần release → nhiều lần chạy → trung vị và khoảng → kết luận; nhiễu tác động lên các lần chạy */
+  V('measure', { layout: 'pipeline', nodes: [N('measure', 'build', 0, 1, 'source', 'ui'), N('measure', 'runs', 3, 1, 'replay', 'job'), N('measure', 'stats', 6, 1, 'list', 'state'),
+    N('measure', 'claim', 9, 1, 'check', 'runtime'), N('measure', 'noise', 3, 3, 'pitfall', 'signal')],
+    edges: [E('e1', 'build', 'runs'), E('e2', 'runs', 'stats'), E('e3', 'stats', 'claim'), E('e4', 'noise', 'runs')],
+    metrics: [T('measure', 'runs'), T('measure', 'claim'), T('measure', 'mb'), T('measure', 'ma')] });
 })();
