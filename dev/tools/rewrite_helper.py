@@ -39,6 +39,20 @@ class RW:
         end = s.index(')\n', start)
         self.s = s[:start] + repr(vi) + ',\n      ' + repr(en) + s[end:]
 
+    def block2(self, sec, n, field, vi, en, var='S'):
+        """Như block, cho module dùng `S = 'sec'` và `B(C, S, n, 'field',` (chuỗi có thể nằm ở dòng sau), như track coroutines."""
+        s = self.s
+        i = s.index("    %s = '%s'" % (var, sec))
+        j = s.find("    %s = '" % var, i + 5)
+        if j < 0:
+            j = len(s)
+        head = "    B(C, %s, %d, '%s'," % (var, n, field)
+        k = s.index(head, i)
+        assert k < j, (sec, n, field)
+        start = k + len(head)
+        end = s.index(')\n', start)
+        self.s = s[:start] + ' ' + repr(vi) + ',\n      ' + repr(en) + s[end:]
+
     def drop_honest(self, ch):
         self.rep(", 'recall', 'honest']}", ", 'recall']}")
         i = self.s.index("    S_ = 'honest'")
