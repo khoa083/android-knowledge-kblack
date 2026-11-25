@@ -1038,3 +1038,5 @@ pre.code { position: relative; }
 .vz-core-edge { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 6 5; }
 .vz-core-path { fill: none; stroke: var(--brand); stroke-width: 2.2; stroke-linejoin: round; opacity: .7; }
 .vz-dg-n.pure rect { fill: var(--paper-2); }
+
+.vz-table .warn { color: var(--tok-state); font-weight: 700; background: repeating-linear-gradient(45deg, transparent 0 5px, rgba(190, 130, 20, .14) 5px 10px); }

@@ -233,7 +233,7 @@
     trk.chapters.forEach(function (c, i) {
       var on = r.chapter === c.id, pg = getProg(trk.id, c.id);
       ol.appendChild(h('li', null, h('a', { href: href(trk.id + '/' + c.id), class: on ? 'on' : '', 'aria-current': on ? 'page' : null },
-        h('span', { class: 'rn' }, pg.done ? icon('check', { size: 13, sw: 2.4 }) : String(i)), h('span', { class: 'rt', text: ADE.t(c.titleKey) }), pg.done ? h('span', { class: 'sr-only', text: ' (' + ADE.t('app.done') + ')' }) : null)));
+        h('span', { class: 'rn' }, pg.done ? icon('check', { size: 13, sw: 2.4 }) : String(c.num != null ? c.num : i)), h('span', { class: 'rt', text: ADE.t(c.titleKey) }), pg.done ? h('span', { class: 'sr-only', text: ' (' + ADE.t('app.done') + ')' }) : null)));
     });
     box.appendChild(ol); rail.appendChild(box);
   }
@@ -549,7 +549,7 @@
     t.chapters.forEach(function (c, i) {
       var pg = getProg(t.id, c.id);
       list.appendChild(h('li', null, h('a', { class: 'panel ch-card', href: href(t.id + '/' + c.id) },
-        h('span', { class: 'rn big' }, pg.done ? icon('check', { size: 18, sw: 2.4 }) : String(i)),
+        h('span', { class: 'rn big' }, pg.done ? icon('check', { size: 18, sw: 2.4 }) : String(c.num != null ? c.num : i)),
         h('span', { class: 'ch-card-t' }, h('b', { text: ADE.t(c.titleKey) }), h('small', { text: pg.done ? ADE.t('app.done') : pg.max > 0 ? ADE.t('app.inProgress') : ADE.t('app.notStarted') })))));
     });
     wrap.appendChild(h('h2', { class: 'caps sec-h', text: ADE.t('app.chapters') }));

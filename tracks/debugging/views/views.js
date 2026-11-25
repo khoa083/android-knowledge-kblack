@@ -1,0 +1,19 @@
+/* View track L: sơ đồ node cho model rời rạc (tab phụ; tab chính là hình ở views/visuals.js). */
+(function () {
+  'use strict';
+  var K = 'track.debugging.';
+  var N = function (m, id, x, y, icon, tok) { return { id: id, x: x, y: y, icon: icon, tok: tok, labelKey: K + 'm.' + m + '.n.' + id }; };
+  var E = function (id, f, t) { return { id: id, from: f, to: t }; };
+  var T = function (m, id) { return { id: id, labelKey: K + 'm.' + m + '.met.' + id }; };
+  function V(m, cfg) {
+    var v = { titleKey: K + 'm.' + m + '.diagramTitle', descKey: K + 'm.' + m + '.diagramDesc', captionKey: K + 'cap.' + m, subjectKey: K + 'col.subject',
+      stateFamilies: { surprise: 'fail' }, famKeys: { done: K + 'fam.done', fail: K + 'fam.fail', idle: K + 'fam.none' } };
+    for (var k in cfg) v[k] = cfg[k];
+    ADE.registerView('debugging.' + m, v);
+  }
+  /* l1: vòng tái hiện → thu hẹp → giả thuyết → kiểm (sai thì quay lại tái hiện); đúng thì sửa và khóa bằng test */
+  V('loop', { layout: 'pipeline', nodes: [N('loop', 'repro', 0, 0, 'replay', 'ui'), N('loop', 'narrow', 3, 0, 'search', 'state'), N('loop', 'hypo', 6, 0, 'target', 'runtime'),
+    N('loop', 'check', 6, 2, 'check', 'job'), N('loop', 'lock', 9, 2, 'source', 'state')],
+    edges: [E('e1', 'repro', 'narrow'), E('e2', 'narrow', 'hypo'), E('e3', 'hypo', 'check'), E('e4', 'check', 'repro'), E('e5', 'check', 'lock')],
+    metrics: [T('loop', 'crash'), T('loop', 'blank'), T('loop', 'releases'), T('loop', 'known')] });
+})();

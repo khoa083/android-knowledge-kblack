@@ -1,0 +1,5 @@
+/* Misconceptions for the debugging track (English). */
+ADE.addMisconceptions('en', 'debugging', {
+  "no-crash-means-fixed": { wrong: "No more crashes means the bug is fixed.", right: "A patch may only hide the bug, like a check that turns a crash into a blank screen. It is fixed when you know the cause, fix that place, and have a test that is red before and green after.", example: "Chapter \"The debugging process, adb and bug reports\": adding if (!::booking.isInitialized) return removes the crash, but 3 scenarios end on a blank screen.", chapter: "debugging/l1" },
+  "cannot-reproduce-means-no-bug": { wrong: "If it does not reproduce on the dev device, there is no bug.", right: "A dev device rarely meets the user's conditions: the process killed in the background, a language change, dark theme, a slow network. Get a bug report or a stack trace to learn the conditions, then recreate them.", example: "Chapter \"The debugging process, adb and bug reports\": scenario 6 uses adb shell am kill to imitate the system killing the process.", chapter: "debugging/l1" }
+});
