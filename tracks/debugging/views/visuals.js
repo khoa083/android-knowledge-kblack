@@ -218,4 +218,41 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-trace' }, h('thead', null, h('tr', null, ['name', 'bounds', 'alpha', 'click'].map(function (k) { return h('th', { text: T('ly.col.' + k) }); }))), tb)),
       h('div', { class: 'vz-legend', text: T('ly.legend') })));
   }, { labelKey: K + 'tab.layout', icon: 'layers' });
+
+  /* ---------- l7: lỗi database: dòng truy vấn và bảng booking thật (hàng khớp truy vấn có viền, ô status làm dòng bị loại tô đỏ);
+     lỗi việc nền: chuỗi worker (SVG phẳng, ô và mũi tên), mỗi ô ghi trạng thái và ràng buộc; worker kẹt tô đỏ, đã xong tô xanh. ---------- */
+  ADE.registerScreen('debugging.inspect', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.dbgInspect, c = ctx.state.case, i = Math.max(0, idx(ctx)), kids = [];
+    if (c === 'db') {
+      var t = D.table(i === 3), res = D.query(t), ids = res.map(function (r) { return r[0]; });
+      kids.push(h('p', { class: 'vz-sub', 'data-k': 'in-q-' + (i >= 2 ? 1 : 0), text: i >= 2 ? T('in.query', { q: D.Q }) : T('in.noquery') }));
+      kids.push(h('p', { class: 'vz-cap', text: T('in.table', { n: t.length }) }));
+      var tb = h('tbody');
+      t.forEach(function (r) {
+        var hit = i >= 2 && ids.indexOf(r[0]) >= 0, badCell = i >= 2 && r[0] === 42 && r[3] !== 'CONFIRMED', hidden = i === 0;
+        tb.appendChild(h('tr', { 'data-k': 'in-r-' + r[0] + '-' + r[3] + (hit ? '-hit' : ''), class: hidden ? 'fade' : null },
+          h('td', { class: hit ? 'hl' : null, text: String(r[0]) }), h('td', { class: hit ? 'hl' : null, text: r[1] }), h('td', { class: hit ? 'hl' : null, text: r[2] }),
+          h('td', { class: badCell ? 'bad' : (hit ? 'hl' : null), text: r[3] })));
+      });
+      kids.push(h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['id', 'patient', 'day', 'status'].map(function (k) { return h('th', { text: T('in.col.' + k) }); }))), tb)));
+      kids.push(h('p', { class: 'vz-sub' + (res.length ? '' : ' bad'), 'data-k': 'in-res-' + res.length + '-' + i, text: T('in.result', { n: res.length, ids: ids.length ? ids.join(', ') : '—' }) }));
+    } else {
+      var v = i === 3 ? 'fixed' : 'base', st = D.states(v, D.NET), ch = D.CHAIN[v], W = 170, GAP = 26;
+      var svg = '<svg class="vz-dg" viewBox="0 0 ' + (3 * W + 2 * GAP + 8) + ' 92" role="img" aria-label="' + esc(T('in.chains', { n: D.stuck(v) })) + '">';
+      ch.forEach(function (w, n) {
+        var x = 4 + n * (W + GAP), s = i === 0 ? '?' : st[w[0]], cl = i === 0 ? '' : (s === 'SUCCEEDED' ? 'ok' : (s === 'ENQUEUED' || s === 'BLOCKED' ? 'bad' : ''));
+        if (n > 0) svg += '<line class="vz-dg-e' + (w[2] ? '' : ' bad') + '" data-k="in-e-' + n + '-' + (w[2] ? 1 : 0) + '" x1="' + (x - GAP) + '" y1="34" x2="' + x + '" y2="34"/>';
+        svg += '<g class="vz-dg-n' + (cl ? ' ' + cl : '') + '" data-k="in-w-' + w[0] + '-' + s + '"><rect x="' + x + '" y="10" width="' + W + '" height="48" rx="4"/>' +
+          '<text class="vz-dg-t" x="' + (x + 8) + '" y="28">' + esc(w[0]) + '</text><text class="vz-dg-s" x="' + (x + 8) + '" y="48">' + esc(s) + '</text></g>';
+        svg += '<text class="vz-dg-s" data-k="in-c-' + w[0] + '-' + (i >= 2 ? 1 : 0) + '" x="' + (x + 8) + '" y="80">' + (i >= 2 || n === 0 ? esc(T('in.need', { c: w[1] })) : '') + '</text>';
+      });
+      svg += '</svg>';
+      var wrap = h('div', { class: 'vz-scroll' }); wrap.innerHTML = svg;
+      kids.push(h('p', { class: 'vz-sub', 'data-k': 'in-net', text: T('in.net', { n: T('in.net.metered') }) }));
+      kids.push(wrap);
+      kids.push(h('p', { class: 'vz-sub' + (D.stuck(v) > 1 ? ' bad' : ''), 'data-k': 'in-stuck-' + i, text: T('in.chains', { n: i === 0 ? '?' : D.stuck(v) }) }));
+    }
+    kids.push(h('div', { class: 'vz-legend', text: T('in.legend') }));
+    box.appendChild(h('div', { class: 'vz' }, kids));
+  }, { labelKey: K + 'tab.inspect', icon: 'list' });
 })();

@@ -11,5 +11,6 @@ ADE.addGlossary('vi', 'debugging', {
   "root-cause": { term: "nguyên nhân gốc (root cause)", def: "Ngoại lệ đầu tiên trong chuỗi bọc lỗi, thường ở phần \"Caused by\" cuối cùng của stack trace; các tầng trên chỉ thêm ngữ cảnh.", chapter: "debugging/l4" },
   "mapping-file": { term: "file mapping (mapping.txt)", def: "File R8 ghi lúc build release, đối chiếu tên rối với tên thật của lớp, hàm, trường kèm khoảng số dòng; mỗi lần build một file, phải lưu theo phiên bản để dịch ngược stack trace.", chapter: "debugging/l5" },
   "keep-rule": { term: "keep rule", def: "Quy tắc báo R8 giữ nguyên tên hay không bỏ một lớp, hàm, trường; cần cho mã được tìm bằng tên qua reflection.", chapter: "debugging/l5" },
-  "hit-test": { term: "hit test", def: "Bước tìm thành phần nhận một cú chạm: trong các thành phần có bounds chứa điểm chạm, thành phần vẽ trên cùng có xử lý chạm được chọn. Alpha không ảnh hưởng.", chapter: "debugging/l6" }
+  "hit-test": { term: "hit test", def: "Bước tìm thành phần nhận một cú chạm: trong các thành phần có bounds chứa điểm chạm, thành phần vẽ trên cùng có xử lý chạm được chọn. Alpha không ảnh hưởng.", chapter: "debugging/l6" },
+  "work-state": { term: "trạng thái worker (WorkInfo.State)", def: "Trạng thái của một việc trong WorkManager: ENQUEUED (chờ ràng buộc), RUNNING, SUCCEEDED, FAILED, BLOCKED (chờ việc phía trước), CANCELLED. FAILED và CANCELLED lan sang việc phụ thuộc.", chapter: "debugging/l7" }
 });

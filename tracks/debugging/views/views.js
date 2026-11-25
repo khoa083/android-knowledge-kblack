@@ -40,4 +40,9 @@
     N('layout', 'button', 6, 2, 'check', 'state'), N('layout', 'inspector', 3, 3, 'eye', 'job')],
     edges: [E('e1', 'tap', 'hit'), E('e2', 'hit', 'overlay'), E('e3', 'hit', 'button'), E('e4', 'inspector', 'hit')],
     metrics: [T('layout', 'under'), T('layout', 'hit'), T('layout', 'booked'), T('layout', 'cause')] });
+  /* l7: app ghi vào database và xếp việc vào WorkManager; hai công cụ xem trạng thái của chúng */
+  V('inspect', { layout: 'pipeline', nodes: [N('inspect', 'app', 0, 1, 'android', 'ui'), N('inspect', 'db', 3, 0, 'store', 'state'), N('inspect', 'wm', 3, 2, 'job', 'job'),
+    N('inspect', 'dbi', 6, 0, 'search', 'runtime'), N('inspect', 'bti', 6, 2, 'search', 'runtime')],
+    edges: [E('e1', 'app', 'db'), E('e2', 'app', 'wm'), E('e3', 'dbi', 'db'), E('e4', 'bti', 'wm')],
+    metrics: [T('inspect', 'stored'), T('inspect', 'shown'), T('inspect', 'stuck'), T('inspect', 'cause')] });
 })();

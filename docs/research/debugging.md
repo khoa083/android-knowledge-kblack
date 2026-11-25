@@ -77,3 +77,13 @@
 | onInterceptTouchEvent, cha thấy trước con, ACTION_CANCEL, requestDisallowInterceptTouchEvent, TouchDelegate | developer.android.com/develop/ui/views/touch-and-input/gestures/viewgroup (trang không nêu luật thứ tự z cho View) |
 | **Của site:** màn đặt lịch 360 × 800, lớp phủ LoadingOverlay alpha 0 clickable, điểm chạm (180, 624), nút 48 → 64 dp; sửa bằng if (state.loading) | — |
 - Alpha không ảnh hưởng hit test: suy ra từ việc hit test dựa trên bounds (trang Compose); trang không nói thẳng về alpha.
+
+### l7 Dữ liệu và việc nền: Database Inspector, Background Task Inspector (đọc 2026-11-25)
+| Ý trên site | Nguồn |
+|---|---|
+| Xem, truy vấn, sửa database khi app chạy; API 26+; Live updates chỉ đọc; Flow/LiveData thấy thay đổi ngay; chạy @Query của DAO; truy vấn tự do; giữ kết nối; offline chỉ đọc | developer.android.com/studio/inspect/database |
+| WorkManager 2.5.0+, API 26+; danh sách, chi tiết (ràng buộc, trạng thái, chuỗi, đầu ra), Graph View, hủy worker; job, alarm, wakelock chuyển từ Energy profiler | developer.android.com/studio/inspect/task |
+| Ý nghĩa sáu trạng thái; FAILED và CANCELLED lan xuống; isFinished | developer.android.com/reference/androidx/work/WorkInfo.State |
+| Ràng buộc phải thỏa tất cả; UNMETERED; Result.retry, backoff EXPONENTIAL 30 giây mặc định, tối thiểu 10 giây | developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work |
+| **Của site:** bảng booking 4 dòng (39 CANCELLED, 40–41 COMPLETED, 42 PENDING), truy vấn CONFIRMED trả 0; chuỗi UploadPhotos (UNMETERED) → SyncBookings → NotifyUser trên 4G | — |
+- Energy Profiler: trang Background Task Inspector nói phần job, alarm, wakelock đã chuyển từ Energy profiler sang đây; dùng điều này cho l11 (pin).

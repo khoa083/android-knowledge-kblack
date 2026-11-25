@@ -99,4 +99,17 @@
     c('        LoadingOverlay(Modifier.alpha(if (state.loading) 1f else 0f))   // luôn trong cây, có clickable', '        LoadingOverlay(Modifier.alpha(if (state.loading) 1f else 0f))   // always in the tree, clickable'),
     c('        // sửa: if (state.loading) LoadingOverlay()        // chỉ có trong cây khi đang tải', '        // fix: if (state.loading) LoadingOverlay()        // in the tree only while loading')
   ]);
+
+  /* l7: lưu lịch với status PENDING (dòng 1–2), truy vấn danh sách (dòng 4); chuỗi worker sai (dòng 6) và đã sửa (dòng 8–9) */
+  add('l7.code', [
+    c('suspend fun book(b: Booking) = dao.insert(b.copy(status = Status.PENDING))   // chờ máy chủ xác nhận', 'suspend fun book(b: Booking) = dao.insert(b.copy(status = Status.PENDING))   // waiting for server confirmation'),
+    c('// danh sách sắp tới:', '// upcoming list:'),
+    '@Query("SELECT * FROM booking WHERE status = \'CONFIRMED\' ORDER BY day")',
+    c('fun confirmed(): Flow<List<Booking>>                    // sửa: status IN (\'PENDING\', \'CONFIRMED\')', 'fun confirmed(): Flow<List<Booking>>                    // fix: status IN (\'PENDING\', \'CONFIRMED\')'),
+    c('// đồng bộ nền:', '// background sync:'),
+    'workManager.beginWith(uploadPhotos).then(syncBookings).then(notifyUser).enqueue()   // uploadPhotos: UNMETERED',
+    c('// sửa: hai chuỗi độc lập', '// fix: two independent chains'),
+    'workManager.beginWith(syncBookings).then(notifyUser).enqueue()                       // CONNECTED',
+    'workManager.enqueue(uploadPhotos)                                                    // UNMETERED'
+  ]);
 })();

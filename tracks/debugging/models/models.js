@@ -391,4 +391,65 @@
         { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 8 dòng', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); }); } }] });
   })();
+
+  /* ================= l7: Database Inspector và Background Task Inspector: lịch đã lưu mà không hiện; đồng bộ kẹt =================
+     Theo developer.android.com studio/inspect/database, studio/inspect/task, reference WorkInfo.State, define-work. CÀI THẬT: truy vấn áp lên các dòng
+     của bảng booking; trạng thái worker tính theo luật WorkInfo.State (ràng buộc chưa thỏa: ENQUEUED; việc trước chưa SUCCEEDED: BLOCKED; FAILED,
+     CANCELLED lan xuống). Dữ liệu bảng, tên worker và mạng 4G là của site. */
+  (function () {
+    var m = 'inspect', CASES = ['db', 'work'], KS = ['s1', 's2', 's3', 's4'];
+    var ROWS = [[39, 'Phạm Thu', '20/11', 'CANCELLED'], [40, 'Trần Thị Bình', '22/11', 'COMPLETED'], [41, 'Lê Văn Cường', '24/11', 'COMPLETED'], [42, 'Nguyễn Văn An', '28/11', 'PENDING']];
+    var Q = "SELECT * FROM booking WHERE status = 'CONFIRMED'";
+    function table(edited) { return ROWS.map(function (r) { return r[0] === 42 && edited ? [r[0], r[1], r[2], 'CONFIRMED'] : r.slice(); }); }
+    function query(rows) { return rows.filter(function (r) { return r[3] === 'CONFIRMED'; }); }
+    var NET = 'METERED';   // 4G: có mạng nhưng đo lưu lượng
+    var met = function (need, net) { return need === 'CONNECTED' ? net !== 'NONE' : (need === 'UNMETERED' ? net === 'UNMETERED' : true); };
+    // [tên, ràng buộc, việc đi trước]; bản sửa: đồng bộ lịch hẹn không còn đứng sau việc tải ảnh
+    var CHAIN = { base: [['UploadPhotos', 'UNMETERED', null], ['SyncBookings', 'CONNECTED', 'UploadPhotos'], ['NotifyUser', 'CONNECTED', 'SyncBookings']],
+      fixed: [['UploadPhotos', 'UNMETERED', null], ['SyncBookings', 'CONNECTED', null], ['NotifyUser', 'CONNECTED', 'SyncBookings']] };
+    function states(v, net) {
+      var st = {};
+      CHAIN[v].forEach(function (w) {
+        var p = w[2] && st[w[2]];
+        if (p === 'FAILED' || p === 'CANCELLED') st[w[0]] = p;
+        else if (w[2] && p !== 'SUCCEEDED') st[w[0]] = 'BLOCKED';
+        else st[w[0]] = met(w[1], net) ? 'SUCCEEDED' : 'ENQUEUED';
+      });
+      return st;
+    }
+    var finished = function (s) { return s === 'SUCCEEDED' || s === 'FAILED' || s === 'CANCELLED'; };
+    function stuck(v) { var st = states(v, NET); return Object.keys(st).filter(function (k) { return !finished(st[k]); }).length; }
+    ADE.dbgInspect = { table: table, query: query, Q: Q, states: states, CHAIN: CHAIN, NET: NET, stuck: stuck };
+    var CAUSE = { db: ['cause.none', 'cause.none', 'cause.status', 'cause.fixed'], work: ['cause.none', 'cause.none', 'cause.wifi', 'cause.fixed'] };
+    var NODES = { db: [[['app', 'db'], 'app', 'e1'], [['dbi', 'db'], 'db', 'e3'], [['dbi', 'db'], 'db', 'e3'], [['dbi', 'db', 'app'], 'app', 'e1']],
+      work: [[['app', 'wm'], 'wm', 'e2'], [['bti', 'wm'], 'wm', 'e4'], [['bti', 'wm'], 'wm', 'e4'], [['app', 'wm'], 'wm', 'e2']] };
+    var HL = { db: [[1, 2], [1, 2], [1], [4]], work: [[6], [6], [6], [8, 9]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var t = table(c === 'db' && i === 3), shown = c === 'db' ? query(t).length : 0, v = c === 'work' && i === 3 ? 'fixed' : 'base';
+        var bad = i >= 1 && i <= 2, nd = NODES[c][i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { stored: c === 'db' ? t.length : 0, shown: shown, stuck: c === 'work' ? stuck(v) : 0, cause: M(m, CAUSE[c][i]) },
+          codeHighlight: { snippet: 'l7.code', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'db';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'db' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'bảng có 4 dòng, kể cả lịch 42 PENDING; truy vấn CONFIRMED trả 0 dòng; sửa 42 thành CONFIRMED thì trả đúng lịch 42', run: function () {
+          var a = table(false), b = query(table(true)); return a.length === 4 && query(a).length === 0 && b.length === 1 && b[0][0] === 42; } },
+        { name: 'trên 4G: UploadPhotos ENQUEUED (cần UNMETERED), hai worker sau BLOCKED; 3 worker chưa xong', run: function () {
+          var s = states('base', 'METERED'); return s.UploadPhotos === 'ENQUEUED' && s.SyncBookings === 'BLOCKED' && s.NotifyUser === 'BLOCKED' && stuck('base') === 3; } },
+        { name: 'tách chuỗi: SyncBookings và NotifyUser SUCCEEDED, chỉ UploadPhotos còn chờ Wi-Fi; có Wi-Fi thì cả chuỗi cũ cũng xong', run: function () {
+          var s = states('fixed', 'METERED'), w = states('base', 'UNMETERED'); return s.SyncBookings === 'SUCCEEDED' && s.NotifyUser === 'SUCCEEDED' && stuck('fixed') === 1 && w.NotifyUser === 'SUCCEEDED'; } },
+        { name: 'mỗi lỗi 4 bước; dòng tô sáng nằm trong đoạn mã 9 dòng', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 9; }); }); }); } }] });
+  })();
 })();

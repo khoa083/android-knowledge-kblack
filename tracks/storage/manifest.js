@@ -11,10 +11,10 @@ ADE.registerTrack({
     { id: 'h1', titleKey: 'track.storage.h1.title', sims: ['storage.choose'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'h2', titleKey: 'track.storage.h2.title', sims: ['storage.file'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'h3', titleKey: 'track.storage.h3.title', sims: ['storage.prefs'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'h4', titleKey: 'track.storage.h4.title', sims: ['storage.room'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'h4', titleKey: 'track.storage.h4.title', sims: ['storage.room'], simAfter: 'hook', bridges: ['X31'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'h5', titleKey: 'track.storage.h5.title', sims: ['storage.rel'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'h6', titleKey: 'track.storage.h6.title', sims: ['storage.mig'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
-    { id: 'h7', titleKey: 'track.storage.h7.title', sims: ['storage.sync'], simAfter: 'hook', bridges: ['X16'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'h7', titleKey: 'track.storage.h7.title', sims: ['storage.sync'], simAfter: 'hook', bridges: ['X16', 'X31'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'h8', titleKey: 'track.storage.h8.title', sims: ['storage.media'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'h9', titleKey: 'track.storage.h9.title', sims: ['storage.backup'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] }
   ],

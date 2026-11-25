@@ -58,5 +58,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X29.title': 'From how exceptions work to reading stack traces',
   'shared.bridge.X29.summary': 'The Kotlin chapter teaches how an exception travels back up the call chain to the first catch, and how to wrap errors. The owner chapter teaches reading the result when the app crashes: the first line is the outer wrapper, the root cause is in the last "Caused by", "... N more" is shared frames, and the first app frame is where to start looking.',
   'shared.bridge.X30.title': 'Looking at the UI tree and counting recompositions',
-  'shared.bridge.X30.summary': 'The Compose Runtime chapter explains why a composable recomposes or is skipped and how to measure before fixing. The owner chapter teaches using Layout Inspector: the tree, bounds, attributes, components overlapping at a point, and each composable\'s recomposition and skip counts.'
+  'shared.bridge.X30.summary': 'The Compose Runtime chapter explains why a composable recomposes or is skipped and how to measure before fixing. The owner chapter teaches using Layout Inspector: the tree, bounds, attributes, components overlapping at a point, and each composable\'s recomposition and skip counts.',
+  'shared.bridge.X31.title': 'Looking at Room and WorkManager while the app runs',
+  'shared.bridge.X31.summary': 'The Saving Data chapters teach Room, Flows from DAOs and background sync with WorkManager. The owner chapter teaches looking at them at runtime: opening tables and running the exact @Query with Database Inspector, editing a row to test a hypothesis, and reading worker states (ENQUEUED, BLOCKED, FAILED) with Background Task Inspector.'
 });
