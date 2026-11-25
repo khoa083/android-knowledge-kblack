@@ -51,4 +51,8 @@
   V('optics', { layout: 'pipeline', nodes: [N('optics', 'action', 0, 1, 'mechanism', 'ui'), N('optics', 'state', 3, 1, 'store', 'state'), N('optics', 'tree', 6, 0, 'layers', 'runtime'), N('optics', 'flow', 6, 2, 'screen', 'job'), N('optics', 'undo', 3, 3, 'refresh', 'runtime')],
     edges: [E('e1', 'action', 'state'), E('e2', 'state', 'tree'), E('e3', 'state', 'flow'), E('e4', 'state', 'undo')],
     metrics: [T('optics', 'lost'), T('optics', 'fresh'), T('optics', 'shared'), T('optics', 'emitted')] });
+  /* P0: triệu chứng → lúc lộ ra → nguyên nhân → chương */
+  V('map', { layout: 'pipeline', nodes: [N('map', 'symptom', 0, 0, 'eye', 'ui'), N('map', 'phase', 3, 0, 'clock', 'state'), N('map', 'cause', 6, 0, 'mechanism', 'runtime'), N('map', 'chapter', 9, 0, 'source', 'job')],
+    edges: [E('e1', 'symptom', 'phase'), E('e2', 'phase', 'cause'), E('e3', 'cause', 'chapter')],
+    metrics: [T('map', 'phase'), T('map', 'chapter')] });
 })();

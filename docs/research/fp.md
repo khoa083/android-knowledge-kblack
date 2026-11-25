@@ -114,3 +114,8 @@
 | Kotlin không có sẵn công cụ tốt để biến đổi giá trị lồng sâu; phải lặp tên trường và chép nhiều tầng dù chỉ đổi một trường; @optics; companion object chỉ cần khi dùng KSP; nên dùng plugin biên dịch (2.3.0); lens get, set, modify; copy { set, transform }, inside | arrow-kt.io immutable data intro, lens, setup (đọc 2026-11-25) |
 | Dùng chung dữ liệu an toàn vì bất biến; với dữ liệu sửa được, mỗi nơi phải tự chép phòng xa | Vermeulen và cộng sự 3.3 |
 | **Của site:** ProfileState ba tầng (patient, address, bookings), dựng lại Patient làm mất phone và card, copy lồng tạo 3 object mới và dùng chung bookings (===), StateFlow không phát khi gán lại cùng object, bản giữ để hoàn tác bị đổi, optic viết tay cho cùng kết quả, bài tập withReminderMinutes | — |
+
+### P0 Bản đồ track: triệu chứng và chương
+| Ý trên site | Nguồn |
+|---|---|
+| **Của site:** 14 triệu chứng (9 khi người dùng dùng app, 2 khi chạy test, 3 khi viết hay sửa mã), mỗi cái là đúng một tình huống mô phỏng của P1–P10 với cùng con số; tổng hợp, không nguồn mới | các chương P1–P10 |

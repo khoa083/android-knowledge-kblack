@@ -364,4 +364,19 @@
       h('p', { class: 'vz-sub' + (c === 'careless' && i !== 1 ? ' bad' : ''), 'data-k': 'op-line', text: line }),
       h('div', { class: 'vz-legend', text: T('optics.legend') })));
   }, { labelKey: K + 'tab.optics', icon: 'layers' });
+
+  /* ---------- P0: bảng tra mọi triệu chứng; hàng đang chọn được viền, ô "?" mở dần theo bước (lúc lộ ra ở bước 1, chương ở bước cuối) ---------- */
+  ADE.registerScreen('fp.map', function (box, ctx) {
+    var h = ADE.ui.h, cur = ctx.state.symptom, i = ctx.step ? ['start', 'first', 'next', 'end'].indexOf(ctx.step.id.split('.').pop()) : (ctx.pos > ctx.N ? 3 : -1);
+    var tb = h('tbody');
+    ADE.fpMap.forEach(function (r) {
+      var on = r[0] === cur;
+      tb.appendChild(h('tr', { 'data-k': 'map-' + r[0] }, h('td', { class: on ? 'hl' : null, text: ADE.t('track.fp.m.map.s.' + r[0] + '.title') }),
+        h('td', { class: on && i < 1 ? 'dim' : (on ? 'hl' : null), text: on && i < 1 ? '?' : ADE.t('track.fp.m.map.phase.' + r[2]) }),
+        h('td', { class: 'c ' + (on && i < 3 ? 'dim' : (on ? 'hl' : '')), text: on && i < 3 ? '?' : r[1].toUpperCase() })));
+    });
+    box.appendChild(h('div', { class: 'vz' }, h('p', { class: 'vz-cap', text: T('map.cap') }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['sym', 'phase', 'ch'].map(function (k) { return h('th', { text: T('map.col.' + k) }); }))), tb)),
+      h('div', { class: 'vz-legend', text: T('map.legend') })));
+  }, { labelKey: K + 'tab.map', icon: 'grid' });
 })();
