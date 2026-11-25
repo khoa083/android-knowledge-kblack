@@ -35,8 +35,8 @@ def add(a):
     a('cap.loop', '''Bốn trạm của vòng gỡ lỗi; giả thuyết sai thì quay lại tái hiện hay thu hẹp, đúng thì đi ra trạm cuối: sửa và khóa bằng test.''',
       '''The four stations of the debugging loop; a wrong hypothesis goes back to reproducing or narrowing down, a right one exits to the last station: fix and lock with a test.''')
     S = [
-        ('guess', 's1', 'Đoán 1: lỗi do xoay màn hình, khóa màn hình dọc', 'Guess 1: rotation causes it, so lock the screen to portrait',
-         'Ai đó từng thấy crash sau khi xoay máy, nên bản 1.4.1 khóa màn hình dọc. Crash giảm từ 4 xuống 3 trong 8 kịch bản: đổi giao diện tối, đổi ngôn ngữ, và quay lại app sau khi hệ thống đã đóng tiến trình vẫn crash.',
+        ('guess', 's1', 'Đoán 1: lỗi do xoay màn hình, cố định màn hình dọc', 'Guess 1: rotation causes it, so lock the screen to portrait',
+         'Ai đó từng thấy crash sau khi xoay máy, nên bản 1.4.1 cố định màn hình dọc. Crash giảm từ 4 xuống 3 trong 8 kịch bản: đổi giao diện tối, đổi ngôn ngữ, và quay lại app sau khi hệ thống đã đóng tiến trình vẫn crash.',
          'Someone once saw a crash after rotating the phone, so release 1.4.1 locks the screen to portrait. Crashes drop from 4 to 3 of the 8 scenarios: switching to dark theme, changing the language, and returning after the system has killed the process still crash.'),
         ('guess', 's2', 'Đoán 2: thêm một phép kiểm cho khỏi crash', 'Guess 2: add a check so it stops crashing',
          'Stack trace báo booking chưa được khởi tạo, nên bản 1.4.2 thêm if (!::booking.isInitialized) return. Không còn crash nào, nhưng 3 kịch bản kia giờ ra một màn trống: lỗi vẫn còn, chỉ không còn ồn ào.',
@@ -90,7 +90,7 @@ def add(a):
     z('loop.cap.method', '''Cách 2: đi đủ vòng tái hiện, thu hẹp, giả thuyết, kiểm.''', '''Way 2: go round the loop: reproduce, narrow down, hypothesise, test.''')
     z('loop.guess', '''Đoán rồi sửa''', '''Guess and patch''')
     z('loop.patch', '''Bản sửa đang áp dụng: {p}''', '''Patch applied: {p}''')
-    for k, vi, en in [('none', 'chưa có', 'none'), ('portrait', 'khóa màn hình dọc', 'portrait lock'), ('check', 'khóa dọc và phép kiểm isInitialized', 'portrait lock and an isInitialized check'),
+    for k, vi, en in [('none', 'chưa có', 'none'), ('portrait', 'cố định màn hình dọc', 'portrait lock'), ('check', 'cố định dọc và phép kiểm isInitialized', 'portrait lock and an isInitialized check'),
                       ('args', 'truyền id qua arguments', 'id passed in arguments')]:
         z('loop.p.' + k, vi, en)
     z('loop.col.n', '''#''', '''#'''); z('loop.col.sc', '''Kịch bản thao tác''', '''Usage scenario'''); z('loop.col.re', '''Tạo lại màn hình?''', '''Screen recreated?'''); z('loop.col.out', '''Kết quả''', '''Result''')
@@ -108,7 +108,7 @@ def add(a):
                       ('method.2', 'Giả thuyết dự đoán đúng cả 8 hàng, kể cả 4 hàng không crash.', 'The hypothesis predicts all 8 rows correctly, including the 4 that do not crash.'),
                       ('method.3', 'Một bản phát hành, có test tạo lại màn hình giữ cho lỗi không quay lại.', 'One release, with a recreation test keeping the bug from coming back.')]:
         z('loop.rel.' + k, vi, en)
-    z('loop.re.yes', '''có''', '''yes'''); z('loop.re.no', '''không''', '''no'''); z('loop.re.hidden', '''không (đã khóa dọc)''', '''no (portrait locked)''')
+    z('loop.re.yes', '''có''', '''yes'''); z('loop.re.no', '''không''', '''no'''); z('loop.re.hidden', '''không (đã cố định dọc)''', '''no (portrait locked)''')
     z('loop.out.ok', '''bình thường''', '''normal'''); z('loop.out.crash', '''crash''', '''crash'''); z('loop.out.blank', '''màn trống''', '''blank screen''')
     z('loop.legend', '''Đỏ: crash. Vàng: màn trống, lỗi bị giấu. Trạm đang đứng có viền; ở cách 1, đường tắt "đoán rồi sửa" không đi qua trạm nào.''',
       '''Red: crash. Amber: blank screen, the bug hidden. The current station is outlined; in way 1 the "guess and patch" shortcut passes no station.''')
@@ -124,7 +124,7 @@ def add(a):
     S_ = 'hook'
     a(C + '.sec.%s.title' % S_, '''Đoán trước khi đọc''', '''Predict before reading''')
     a(C + '.sec.%s.badge' % S_, 'guideline')
-    B(C, S_, 1, 'predict', '''Màn chi tiết crash "thỉnh thoảng". Đội khóa màn hình dọc vì có người thấy crash sau khi xoay máy. Trong 8 kịch bản thao tác ở mô phỏng dưới, bạn đoán còn bao nhiêu kịch bản crash sau bản sửa đó?''',
+    B(C, S_, 1, 'predict', '''Màn chi tiết crash "thỉnh thoảng". Đội cố định màn hình dọc vì có người thấy crash sau khi xoay máy. Trong 8 kịch bản thao tác ở mô phỏng dưới, bạn đoán còn bao nhiêu kịch bản crash sau bản sửa đó?''',
       '''The details screen crashes "sometimes". The team locks the screen to portrait because someone saw a crash after rotating. Of the 8 usage scenarios in the simulation below, how many do you guess still crash after that fix?''')
     B(C, S_, 1, 'ans', '''Ba, giảm từ bốn. Xoay máy chỉ là một trong bốn cách làm màn hình bị tạo lại; đổi giao diện tối, đổi ngôn ngữ và quay lại sau khi tiến trình bị đóng vẫn crash. Bản sửa né một đường dẫn tới lỗi, không sửa nguyên nhân.''',
       '''Three, down from four. Rotating is only one of four ways the screen gets recreated; switching to dark theme, changing the language and returning after the process was killed still crash. The fix avoids one path to the bug without fixing the cause.''')
@@ -218,7 +218,7 @@ adb bugreport                       # gather a bug report into a ZIP file''')
       '''The "Book" button sometimes books twice. Results from 6 scenarios: tap once (1 booking); double-tap quickly (2); tap twice 3 seconds apart (1, the second says "already booked"); tap once on a 5-second slow network (1); double-tap quickly on a slow network (2); tap once, then rotate while waiting (1). What do the failing cases share? Write a hypothesis, with a prediction for a scenario not yet tried: tapping three times quickly.''')
     B(C, S_, 1, 'hint', '''Nhóm có lỗi là hai kịch bản bấm lần hai trước khi yêu cầu đầu tiên trả lời. Bấm cách 3 giây thì không lỗi, vì yêu cầu đầu đã xong.''',
       '''The failing group is the two scenarios where the second tap comes before the first request has answered. Tapping 3 seconds apart does not fail, because the first request has finished.''')
-    B(C, S_, 1, 'sol', '''Giả thuyết: nút vẫn bấm được trong lúc yêu cầu đầu chưa trả lời, và mỗi lần bấm gửi một yêu cầu mới. Dự đoán: bấm ba lần thật nhanh ra 3 lịch. Nếu thử ra đúng 3 thì giả thuyết đứng vững; sửa bằng cách khóa nút khi đang gửi (và cho máy chủ một khóa chống trùng), rồi viết test bấm hai lần.''',
+    B(C, S_, 1, 'sol', '''Giả thuyết: nút vẫn bấm được trong lúc yêu cầu đầu chưa trả lời, và mỗi lần bấm gửi một yêu cầu mới. Dự đoán: bấm ba lần thật nhanh ra 3 lịch. Nếu thử ra đúng 3 thì giả thuyết đứng vững; sửa bằng cách tắt nút khi đang gửi (và cho máy chủ một key chống trùng (idempotency key)), rồi viết test bấm hai lần.''',
       '''Hypothesis: the button stays enabled while the first request is pending, and every tap sends a new request. Prediction: three quick taps make 3 bookings. If trying it gives exactly 3, the hypothesis stands; fix it by disabling the button while sending (and giving the server a deduplication key), then write a double-tap test.''')
 
     S_ = 'recall'

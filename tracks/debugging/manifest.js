@@ -8,7 +8,7 @@ ADE.registerTrack({
   level: 'intermediate', estMinutes: 360, status: 'draft',
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
-    { id: 'l1', num: 1, titleKey: 'track.debugging.l1.title', sims: ['debugging.loop'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'l1', num: 1, titleKey: 'track.debugging.l1.title', sims: ['debugging.loop'], simAfter: 'hook', bridges: ['X28'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'debugging-loop', model: 'debugging.loop', titleKey: 'track.debugging.preset.loop' }

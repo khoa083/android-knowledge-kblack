@@ -3,7 +3,7 @@
   var add = function (id, lines) { ADE.addCode('debugging', id, { lang: 'kotlin', illustrative: true, lines: lines }); };
   var c = function (vi, en) { return { vi: vi, en: en }; };
 
-  /* l1: hai bản sửa theo đoán: khóa màn hình dọc (dòng 1–2) và phép kiểm isInitialized (dòng 7) */
+  /* l1: hai bản sửa theo đoán: cố định màn hình dọc (dòng 1–2) và phép kiểm isInitialized (dòng 7) */
   add('l1.guess', [
     c('// AndroidManifest.xml, bản 1.4.1', '// AndroidManifest.xml, release 1.4.1'),
     '<activity android:name=".MainActivity" android:screenOrientation="portrait" />',

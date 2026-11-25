@@ -22,7 +22,7 @@
 
   /* ================= l1: vòng gỡ lỗi: crash "thỉnh thoảng" ở màn chi tiết; đoán rồi sửa, hay tái hiện, thu hẹp, giả thuyết, kiểm =================
      CÀI THẬT: 8 kịch bản thao tác, mỗi cái có làm màn hình bị tạo lại không (xoay, giao diện tối, ngôn ngữ, tiến trình bị đóng rồi mở lại).
-     Kết quả của một kịch bản với một bản sửa được TÍNH: không tạo lại → bình thường; tạo lại → crash, trừ khi bản sửa khóa dọc (xoay không còn
+     Kết quả của một kịch bản với một bản sửa được TÍNH: không tạo lại → bình thường; tạo lại → crash, trừ khi bản sửa cố định dọc (xoay không còn
      tạo lại), phép kiểm isInitialized (thành màn trống) hay truyền id qua arguments (bình thường). Kịch bản và bản sửa là của site. */
   (function () {
     var m = 'loop', CASES = ['guess', 'method'], KS = ['s1', 's2', 's3', 's4'];
@@ -67,7 +67,7 @@
       selfChecks: [
         { name: 'chưa sửa: 4 trên 8 kịch bản crash (2, 4, 6, 7), không màn trống', run: function () { var t = tally('none'); return t.crash === 4 && t.blank === 0 && SC.length === 8 &&
           SC.map(function (sc, i) { return outcome(sc, 'none') === 'crash' ? i + 1 : 0; }).filter(Boolean).join() === '2,4,6,7'; } },
-        { name: 'khóa dọc: còn 3 crash; thêm phép kiểm: 0 crash nhưng 3 màn trống; truyền id qua arguments: 0 và 0', run: function () {
+        { name: 'cố định dọc: còn 3 crash; thêm phép kiểm: 0 crash nhưng 3 màn trống; truyền id qua arguments: 0 và 0', run: function () {
           var a = tally('portrait'), b = tally('check'), c = tally('args'); return a.crash === 3 && a.blank === 0 && b.crash === 0 && b.blank === 3 && c.crash === 0 && c.blank === 0; } },
         { name: 'giả thuyết "crash khi và chỉ khi màn hình bị tạo lại" khớp cả 8 kịch bản', run: hypothesisHolds },
         { name: 'mỗi cách 4 bước; cách đoán tốn 3 bản phát hành, cách có phương pháp 1; mọi dòng tô sáng nằm trong đoạn mã', run: function () {

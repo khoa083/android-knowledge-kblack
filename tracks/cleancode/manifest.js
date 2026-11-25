@@ -14,7 +14,7 @@ ADE.registerTrack({
     { id: 'j4', titleKey: 'track.cleancode.j4.title', sims: ['cleancode.tdd'], simAfter: 'hook', bridges: ['X21'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'j5', titleKey: 'track.cleancode.j5.title', sims: ['cleancode.testDesign'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'j6', titleKey: 'track.cleancode.j6.title', sims: ['cleancode.refactor'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'j7', titleKey: 'track.cleancode.j7.title', sims: ['cleancode.bisect'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
+    { id: 'j7', titleKey: 'track.cleancode.j7.title', sims: ['cleancode.bisect'], simAfter: 'hook', bridges: ['X28'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'j8', titleKey: 'track.cleancode.j8.title', sims: ['cleancode.solid'], simAfter: 'hook', bridges: ['X22'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'j9', titleKey: 'track.cleancode.j9.title', sims: ['cleancode.components'], simAfter: 'hook', bridges: ['X23'], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'j10', titleKey: 'track.cleancode.j10.title', sims: ['cleancode.review'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },

@@ -866,3 +866,8 @@ Trạng thái: `chưa / đang / xong`.
   4. **Viết lại theo giọng dạy học:** arch, storage, coroutines, runtime, animation (bỏ UX, UI). Khi viết lại arch G0 (mục cầu nối), thêm X24–X27 (G7 ↔ FP P4, P8; G8 ↔ FP P5; G10 ↔ FP P9). Khi viết lại coroutines, thay chữ "chương FP" (chương id `fp` của coroutines) bằng tên chương "Xử lý flow: map, filter, scan, merge/zip/combine, flatMap, retry, distinct".
   5. **Sau đó:** track L và các mục trong `docs/roadmap-v2.md` (chủ đề mới cần danh sách IN/OUT và người dùng duyệt trước).
   - Ghi chú công cụ: `dev/tools/shots.js` giờ luôn chạy với giảm chuyển động (trước đó ảnh ra đen vì khối `.rv` chỉ hiện khi cuộn tới). Khi chạy chuỗi kiểm, cho chuỗi dừng nếu report có lỗi (`grep -q "Không có lỗi"`).
+- **Track L Gỡ lỗi và hiệu năng (bắt đầu 2026-11-25, người dùng: "đừng đi sâu vào IDE"):** dạy câu hỏi mà công cụ trả lời và cấu trúc không đổi theo bản Android Studio (stack trace, mapping, GC root, trạng thái luồng, hạn khung hình); không đường dẫn menu, không vị trí nút. Nguồn chính: tài liệu chính thức (sách Debugging by Tutorials không có lớp text, chỉ đọc vài trang khi cần).
+  - Khung track: `tracks/debugging/*`, `dev/gen/debugging_content.py`; `app.js` đọc trường tùy chọn `num` của chương để số hiển thị khớp id (l1 hiện "1" dù chưa có l0).
+  - l1 Quy trình gỡ lỗi, adb và bug report: XONG (sim `debugging.loop`, 8 kịch bản, cầu nối X28 với Mã sạch J7).
+  - Tham chiếu tới trước: l1 nhắc chương "Đọc stack trace" (l4); khi viết l4 phải đặt đúng tên này.
+  - Tiếp theo: l2 Debugger (breakpoint, watch, evaluate; gỡ lỗi coroutine), rồi l3…l12, l0 cuối; xong l0 thì đổi status sang stable.
