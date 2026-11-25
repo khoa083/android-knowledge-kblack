@@ -1,7 +1,7 @@
 # Lưu dữ liệu · H0: bản đồ track (viết cuối, đặt đầu track)
 # Tổng hợp từ H1–H9; mọi khẳng định có nguồn ở chương được trỏ tới. Trần: 6 mục.
 
-SEC_ORDER = {'h0': ['hook', 'order', 'index', 'links', 'recall', 'honest']}
+SEC_ORDER = {'h0': ['hook', 'order', 'index', 'links', 'recall']}
 
 
 def add(a):
@@ -10,10 +10,10 @@ def add(a):
 
     m = lambda k, vi, en=None: a('m.map.' + k, vi, en)
     m('title', 'Gặp triệu chứng này thì đọc chương nào', 'Seen this symptom? Read this chapter')
-    m('overview', 'Chọn một lỗi lưu dữ liệu hay gặp. Bốn bước: triệu chứng, lúc nó lộ ra (lúc chạy, sai lặng lẽ, sau khi cập nhật app, hay khi đổi máy), nguyên nhân, và chương giải thích.',
-      'Pick a common data-storage bug. Four steps: the symptom, when it shows up (at runtime, silently wrong, after an app update, or on a new phone), the cause, and the chapter that explains it.')
-    m('wrapup', 'Lỗi lưu dữ liệu hay lộ ra muộn: sau vài tháng khi file lớn dần, sau một bản cập nhật, hay khi người dùng đổi máy. Lúc đó dữ liệu thật của người dùng đã ở trong cuộc. Biết lỗi lộ ra lúc nào giúp bạn kiểm đúng chỗ trước khi phát hành.',
-      'Storage bugs tend to show up late: after months as files grow, after an update, or when the user changes phones. By then real user data is at stake. Knowing when a bug shows up tells you where to test before shipping.')
+    m('overview', 'Chọn một lỗi lưu dữ liệu hay gặp. Mô phỏng đi qua bốn bước: triệu chứng bạn thấy; lúc nó lộ ra (lúc chạy, sai mà không báo, sau khi cập nhật app, hay khi đổi máy); nguyên nhân bên dưới; và chương giải thích nguyên nhân đó.',
+      'Pick a common data-storage bug. The simulation walks four steps: the symptom you see; when it shows up (at runtime, silently wrong, after an app update, or on a new phone); the cause underneath; and the chapter that explains that cause.')
+    m('wrapup', 'Lỗi lưu dữ liệu hay lộ ra muộn: sau vài tháng khi file lớn dần, sau một bản cập nhật, hay khi người dùng đổi máy. Tới lúc đó, dữ liệu thật của người dùng đã bị cuốn vào. Biết lỗi thường lộ ra lúc nào giúp bạn kiểm đúng chỗ trước khi phát hành.\nQuy tắc dễ nhớ: với dữ liệu, lỗi hôm nay là dữ liệu mất của tháng sau.',
+      "Storage bugs tend to show up late: months later as a file grows, after an update, or when the user switches phones. By then, the user's real data is caught up in it. Knowing when a bug usually shows up helps you test the right places before release.\nRule of thumb: with data, today's bug is next month's lost data.")
     m('simp.1', 'Mỗi triệu chứng chỉ trỏ tới một chương chính; lỗi thật có thể có nhiều nguyên nhân cùng lúc.', 'Each symptom points to one main chapter; real bugs can have several causes at once.')
     m('ctl.hint', 'Chọn triệu chứng rồi đi bốn bước; tab "Bảng tra" liệt kê tất cả.', 'Pick a symptom and walk the four steps; the "Lookup table" tab lists them all.')
     m('ctl.symptom', 'Triệu chứng', 'Symptom')
@@ -79,8 +79,8 @@ def add(a):
 
     C = 'h0'
     a(C + '.title', 'Bản đồ track: triệu chứng và chương', 'Track map: symptoms and chapters')
-    a(C + '.essence', 'Track này dạy chọn nơi lưu và lưu dữ liệu trên Android sao cho không mất, không hỏng, không chặn màn hình: file riêng, DataStore, Room, đồng bộ nền, bộ nhớ chung và sao lưu, theo tài liệu chính thức của Android.\nPhần 1 (H1–H6) là nền: chọn nơi lưu, ghi file an toàn, DataStore, Room, quan hệ và giao dịch, migration. Phần 2 (H7–H9) là thực hành: offline-first với WorkManager, MediaStore, sao lưu.\nNếu bạn đang gặp một lỗi cụ thể, bắt đầu từ bảng tra triệu chứng bên dưới.',
-      'This track teaches choosing where to store data on Android and storing it so it is not lost, not corrupted and never blocks the screen: app-specific files, DataStore, Room, background sync, shared storage and backup, following the official Android docs.\nPart 1 (H1–H6) is the foundation: choosing storage, safe file writes, DataStore, Room, relations and transactions, migrations. Part 2 (H7–H9) is practice: offline-first with WorkManager, MediaStore, backup.\nIf you are facing a specific bug, start from the symptom lookup table below.')
+    a(C + '.essence', 'Track này dạy chọn nơi lưu và lưu dữ liệu trên Android sao cho không mất, không hỏng, và không làm màn hình đứng: file riêng, DataStore, Room, đồng bộ nền, bộ nhớ chung và sao lưu, theo tài liệu chính thức của Android.\nPhần 1 (H1–H6) là nền tảng: chọn nơi lưu, ghi file an toàn, DataStore, Room, quan hệ và giao dịch, migration. Phần 2 (H7–H9) là thực hành: offline-first với WorkManager, MediaStore, sao lưu.\nĐang gặp một lỗi cụ thể? Bắt đầu từ bảng tra triệu chứng bên dưới.',
+      'This track teaches how to choose where to store data on Android and how to store it so it is never lost, never corrupted, and never freezes the screen: app files, DataStore, Room, background sync, shared storage and backup, following the official Android docs.\nPart 1 (H1–H6) is the foundation: choosing a place, writing files safely, DataStore, Room, relations and transactions, migrations. Part 2 (H7–H9) is practice: offline-first with WorkManager, MediaStore, backup.\nFacing a specific bug? Start from the symptom table below.')
     a(C + '.goal.g1', 'Đã thấy lúc triệu chứng lộ ra', 'Saw when the symptom shows up')
     a(C + '.goal.g2', 'Đã tới chương cần đọc', 'Reached the chapter to read')
     a(C + '.sim.storage.map', 'triệu chứng và chương', 'symptoms and chapters')
@@ -90,38 +90,32 @@ def add(a):
     a(C + '.sec.%s.badge' % S_, 'guideline')
     B(C, S_, 1, 'predict', 'Trong 13 triệu chứng của bảng tra, bạn đoán bao nhiêu cái máy của đội phát triển (cài mới, có mạng, không đổi máy) sẽ không bao giờ gặp?',
       'Of the 13 symptoms in the lookup table, how many do you guess a developer\'s device (fresh install, always online, never switched) would never hit?')
-    B(C, S_, 1, 'ans', 'Ít nhất bảy: hai cái sau cập nhật (thiếu migration, xóa sạch), một cái khi đổi máy (token cũ), một cái chỉ trên Android 10, cache bị dọn khi máy đầy, lịch đặt lúc mất mạng, và file preferences lớn dần sau vài tháng. Đây là đếm trên bảng của site, không phải thống kê.',
-      'At least seven: two after an update (missing migration, wipe), one on a new phone (old tokens), one only on Android 10, a cache cleared on a full device, offline bookings, and a preferences file that grows over months. This counts the site\'s table, not a statistic.')
+    B(C, S_, 1, 'ans', 'Ít nhất bảy. Hai cái lộ ra sau khi cập nhật (thiếu migration, xóa sạch database). Một cái lộ ra khi đổi máy (token cũ). Một cái chỉ có trên Android 10. Và ba cái nữa: cache bị dọn khi máy đầy, lịch đặt lúc mất mạng không tới máy chủ, file preferences lớn dần sau vài tháng. Đây là đếm trên bảng của site, không phải thống kê.',
+      "At least seven. Two show up after an update (a missing migration, a wiped database). One shows up on a new phone (an old token). One exists only on Android 10. And three more: the cache cleared when storage fills, an offline booking never reaching the server, a preferences file growing for months. This is a count from the site's table, not a statistic.")
 
     S_ = 'order'
     a(C + '.sec.%s.title' % S_, 'Thứ tự đọc', 'Reading order')
     a(C + '.sec.%s.badge' % S_, 'guideline')
-    B(C, S_, 1, 'p', 'Đọc H1 trước: nó chọn nơi lưu và trỏ tới chương của từng nơi. H2 và H3 độc lập với nhau. H4 → H5 → H6 nối tiếp (Room, rồi quan hệ, rồi migration). H7 cần H4 (hàng chờ nằm trong Room). H8 và H9 đọc riêng được. Nên đọc Kotlin K1–K7 và Coroutines A1–A3 trước vì các chương dùng suspend và Flow.',
-      'Read H1 first: it chooses the storage and points to each place\'s chapter. H2 and H3 are independent. H4 → H5 → H6 build on each other (Room, then relations, then migrations). H7 needs H4 (the queue lives in Room). H8 and H9 stand alone. Reading Kotlin K1–K7 and Coroutines A1–A3 first helps, since the chapters use suspend and Flow.')
+    B(C, S_, 1, 'p', 'Đọc H1 trước: nó giúp chọn nơi lưu và trỏ tới chương của từng nơi. H2 và H3 đọc riêng được. H4 → H5 → H6 nối tiếp nhau: Room, rồi quan hệ, rồi migration. H7 cần H4, vì hàng chờ gửi nằm trong Room. H8 và H9 đọc riêng được.\nNên đọc trước các chương K1–K7 của track Kotlin và A1–A3 của track Kotlin Coroutines Explorer, vì các chương ở đây dùng hàm suspend và Flow.',
+      "Read H1 first: it helps you choose a place and points to each place's chapter. H2 and H3 stand on their own. H4 → H5 → H6 follow each other: Room, then relations, then migrations. H7 needs H4, because the send queue lives in Room. H8 and H9 stand on their own.\nIt helps to read chapters K1–K7 of the Kotlin track and A1–A3 of the Kotlin Coroutines Explorer track first, since these chapters use suspend functions and Flow.")
 
     S_ = 'index'
     a(C + '.sec.%s.title' % S_, 'Chỉ mục: mỗi chương dùng hình gì', 'Index: the visual of each chapter')
     a(C + '.sec.%s.badge' % S_, 'guideline')
-    B(C, S_, 1, 'p', 'H1: cây quyết định bậc thang kèm bảng thuộc tính nơi lưu. H2: làn thời gian app / hệ thống / đĩa. H3: làn luồng main / IO / đĩa. H4: dãy bốn tầng và bảng chạy lại. H5: bảng appointment cạnh kết quả ghép, kèm bộ đếm truy vấn. H6: dãy ô phiên bản schema. H7: sơ đồ tuần tự app / Room / WorkManager / máy chủ. H8: ma trận phiên bản Android × cách làm. H9: cây thư mục với cột sao lưu và cột trên máy mới.',
-      'H1: a ladder decision tree with a table of storage properties. H2: timeline lanes for app / system / disk. H3: thread lanes for main / IO / disk. H4: a four-stage chain and a rerun table. H5: the appointment table beside the assembled result, with a query counter. H6: a chain of schema versions. H7: a sequence diagram of app / Room / WorkManager / server. H8: a matrix of Android version × approach. H9: a directory tree with backup and new-phone columns.')
+    B(C, S_, 1, 'p', 'Mỗi chương dùng một kiểu hình hợp với nội dung của nó. H1: cây quyết định kèm bảng thuộc tính của các nơi lưu. H2: làn thời gian app, hệ thống, đĩa. H3: làn của main thread, luồng IO và đĩa. H4: dãy bốn tầng của Room kèm bảng các lần chạy lại. H5: bảng lịch hẹn cạnh kết quả ghép, kèm bộ đếm truy vấn. H6: dãy các phiên bản schema. H7: sơ đồ tuần tự app, Room, WorkManager, máy chủ. H8: ma trận phiên bản Android nhân cách làm. H9: cây thư mục, kèm cột "được sao lưu" và cột "trên máy mới".',
+      'Each chapter uses the kind of picture that fits its content. H1: a decision tree with a table of storage properties. H2: timeline lanes for the app, the system and the disk. H3: lanes for the main thread, an IO thread and the disk. H4: Room\'s four stages with a table of reruns. H5: the appointment table beside the assembled result, with a query counter. H6: a strip of schema versions. H7: a sequence diagram of the app, Room, WorkManager and the server. H8: a matrix of Android versions by approach. H9: a directory tree with "backed up" and "on the new phone" columns.')
 
     S_ = 'links'
     a(C + '.sec.%s.title' % S_, 'Cầu nối sang track khác', 'Bridges to other tracks')
     a(C + '.sec.%s.badge' % S_, 'guideline')
-    B(C, S_, 1, 'p', 'H7 nối với Kiến trúc G4 qua cầu nối X16: G4 dạy vai trò của repository và nguồn sự thật, H7 dạy cơ chế lưu và đồng bộ. Flow, hàm suspend và dispatcher dùng trong H3, H4, H7 được giảng ở track Coroutines. Xung đột khi nhiều máy cùng sửa và phân trang thuộc track Thiết kế hệ thống mobile.',
-      'H7 links to Architecture G4 through bridge X16: G4 teaches the repository\'s role and the source of truth, H7 teaches the storage and sync mechanics. Flow, suspend functions and dispatchers used in H3, H4 and H7 are taught in the Coroutines track. Multi-device conflicts and paging belong to the Mobile System Design track.')
+    B(C, S_, 1, 'p', 'H7 nối với chương G4 của track Kiến trúc app Android qua cầu nối X16: G4 dạy vai trò của repository và nguồn sự thật, còn H7 dạy cơ chế lưu và đồng bộ. H4 và H7 nối với chương L7 của track Gỡ lỗi và hiệu năng Android (cầu nối X31), nơi dạy xem database và worker đang chạy. Flow, hàm suspend và dispatcher dùng trong H3, H4, H7 được giảng ở track Kotlin Coroutines Explorer. Xung đột khi nhiều máy cùng sửa, và phân trang, thuộc track Thiết kế hệ thống phía mobile.\nQuy tắc dễ nhớ: track này lo "lưu cho đúng"; các track kia lo "tổ chức", "chạy nền" và "kiểm tra".',
+      'H7 links to chapter G4 of the Android App Architecture track through bridge X16: G4 teaches the role of the repository and the source of truth, H7 teaches the storage and sync mechanics. H4 and H7 link to chapter L7 of the Android Debugging and Performance track (bridge X31), which teaches inspecting the live database and workers. Flow, suspend functions and dispatchers used in H3, H4 and H7 are taught in the Kotlin Coroutines Explorer track. Conflicts between devices, and paging, belong to the Mobile System Design track.\nRule of thumb: this track is about "storing it right"; the others cover "organising", "running in the background" and "checking".')
 
     S_ = 'recall'
     a(C + '.sec.%s.title' % S_, 'Tự trả lời', 'Answer it yourself')
     a(C + '.sec.%s.badge' % S_, 'stable')
     B(C, S_, 1, 'ask', 'Hai thời điểm nào máy dev hay bỏ sót khi kiểm thử lưu dữ liệu?', 'Which two moments does a developer\'s device usually miss when testing storage?')
     B(C, S_, 1, 'ans', 'Cập nhật từ một phiên bản cũ (migration) và khôi phục sang máy mới (sao lưu).', 'Updating from an old version (migrations) and restoring onto a new phone (backup).')
-
-    S_ = 'honest'
-    a(C + '.sec.%s.title' % S_, 'Track này giản lược những gì', 'What this track simplifies')
-    a(C + '.sec.%s.badge' % S_, 'simplified')
-    B(C, S_, 1, 'p', 'Track theo tài liệu chính thức đọc ngày 2026-11-24 (DataStore 1.3.0, Room 3.0, Auto Backup), cùng mã AOSP cho SharedPreferences; chi tiết của Room 2.x được ghi rõ là bản cũ. App Hẹn Khám, số liệu và thời điểm trong các mô phỏng là của site. Track không bàn Firebase, Proto DataStore chi tiết, Paging, mã hóa bằng thư viện ngoài, hay SQL thuần; sách Saving Data on Android ra trước DataStore nên chỉ là nguồn đối chiếu.',
-      'The track follows the official docs as read on 2026-11-24 (DataStore 1.3.0, Room 3.0, Auto Backup), plus the AOSP code for SharedPreferences; Room 2.x details are marked as the older version. The ClinicBook app, the numbers and timings in the simulations are the site\'s. The track does not cover Firebase, Proto DataStore in depth, Paging, encryption libraries or raw SQL; the Saving Data on Android book predates DataStore, so it is only a cross-reference.')
 
     for q, qv, qe, av, ae, wv, we in [
         ('q1', 'Crash mỗi lần mở chỉ ở người dùng lâu năm sau khi cập nhật: đọc chương nào?', 'Crashes on every launch only for long-time users after an update: which chapter?', 'H6 · Migration.', 'H6 · Migrations.', 'Thiếu đường migration cho phiên bản cũ.', 'A missing migration path for an old version.'),
