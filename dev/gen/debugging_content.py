@@ -11,8 +11,8 @@ def a(k, vi, en=None): E.append((P + k, vi, vi if en is None else en))
 
 # ---------------- chung ----------------
 a('title', 'Gỡ lỗi và hiệu năng Android', 'Android Debugging and Performance')
-a('summary', 'Tìm ra nguyên nhân thay vì đoán: quy trình gỡ lỗi, adb và bug report; debugger, breakpoint và evaluate; Logcat; đọc stack trace; R8 và stack trace bị làm rối; Layout Inspector; Database Inspector và Background Task Inspector; bộ nhớ và rò rỉ; trace và khung hình giật. Các chương còn lại (ANR, mạng, đo hiệu năng) đang viết. Ví dụ trên app Hẹn Khám với lỗi gài sẵn; dạy câu hỏi mà công cụ trả lời, không dạy nút bấm của Android Studio.',
-  'Finding the cause instead of guessing: the debugging process, adb and bug reports; the debugger, breakpoints and evaluate; Logcat; reading stack traces; R8 and obfuscated stack traces; Layout Inspector; Database Inspector and Background Task Inspector; memory and leaks; traces and janky frames. The other chapters (ANRs, network, measuring performance) are being written. Examples on the ClinicBook app with planted bugs; it teaches the question each tool answers, not the buttons of Android Studio.')
+a('summary', 'Tìm ra nguyên nhân thay vì đoán: quy trình gỡ lỗi, adb và bug report; debugger, breakpoint và evaluate; Logcat; đọc stack trace; R8 và stack trace bị làm rối; Layout Inspector; Database Inspector và Background Task Inspector; bộ nhớ và rò rỉ; trace và khung hình giật; ANR và StrictMode. Các chương còn lại (mạng, đo hiệu năng) đang viết. Ví dụ trên app Hẹn Khám với lỗi gài sẵn; dạy câu hỏi mà công cụ trả lời, không dạy nút bấm của Android Studio.',
+  'Finding the cause instead of guessing: the debugging process, adb and bug reports; the debugger, breakpoints and evaluate; Logcat; reading stack traces; R8 and obfuscated stack traces; Layout Inspector; Database Inspector and Background Task Inspector; memory and leaks; traces and janky frames; ANRs and StrictMode. The other chapters (network, measuring performance) are being written. Examples on the ClinicBook app with planted bugs; it teaches the question each tool answers, not the buttons of Android Studio.')
 a('col.subject', 'Thành phần', 'Component')
 for k, vi, en in [('done', 'xong', 'done'), ('surprise', 'có vấn đề', 'has a problem'), ('skipped', 'bỏ qua', 'skipped'), ('broken', 'lỗi', 'error')]:
     a('st.' + k, vi, en)
@@ -20,7 +20,7 @@ a('fam.done', 'ổn', 'fine'); a('fam.fail', 'có vấn đề', 'has a problem')
 for k, vi, en in [('observe', 'đọc', 'read'), ('run', 'chạy', 'run'), ('write', 'sửa', 'edit'), ('skip', 'bỏ qua', 'skip'), ('exception', 'lỗi', 'failure'), ('complete', 'hoàn tất', 'complete')]:
     a('kind.' + k, vi, en)
 
-MODULES = ('debugging_v2_l1', 'debugging_v2_l2', 'debugging_v2_l3', 'debugging_v2_l4', 'debugging_v2_l5', 'debugging_v2_l6', 'debugging_v2_l7', 'debugging_v2_l8', 'debugging_v2_l9')   # giữ dấu phẩy cuối
+MODULES = ('debugging_v2_l1', 'debugging_v2_l2', 'debugging_v2_l3', 'debugging_v2_l4', 'debugging_v2_l5', 'debugging_v2_l6', 'debugging_v2_l7', 'debugging_v2_l8', 'debugging_v2_l9', 'debugging_v2_l10')   # giữ dấu phẩy cuối
 for mod in MODULES:
     assert os.path.exists(os.path.join(HERE, mod + '.py')), 'thiếu module ' + mod
     mm = __import__(mod)

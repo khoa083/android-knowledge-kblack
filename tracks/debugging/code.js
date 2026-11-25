@@ -139,4 +139,20 @@
     '    val items = withContext(Dispatchers.Default) { trace("parseJson") { json.decodeFromString<PageDto>(raw).items } }',
     c('    adapter.submitList(adapter.currentList + items)           // main chỉ bind: 5 ms', '    adapter.submitList(adapter.currentList + items)           // main only binds: 5 ms')
   ]);
+
+  /* l10: save và sync cùng khóa (dòng 3–5); bản sửa (dòng 9–10); StrictMode trong bản debug (dòng 12) */
+  add('l10.code', [
+    'object BookingRepo {',
+    '    private val lock = Any()',
+    c('    fun save(b: Booking) = synchronized(lock) { cache[b.id] = b; db.insert(b) }   // nút Lưu gọi trên main', '    fun save(b: Booking) = synchronized(lock) { cache[b.id] = b; db.insert(b) }   // Save calls it on main'),
+    '    fun sync() = synchronized(lock) {',
+    c('        val fresh = api.fetchAll()                    // mạng chậm: giữ khóa 9 giây', '        val fresh = api.fetchAll()                    // slow network: holds the lock for 9 s'),
+    '        cache.putAll(fresh)',
+    '    }',
+    '}',
+    c('// sửa: save chạy trong withContext(Dispatchers.IO); sync gọi mạng ngoài khóa', '// fix: save runs in withContext(Dispatchers.IO); sync calls the network outside the lock'),
+    'fun sync() { val fresh = api.fetchAll(); synchronized(lock) { cache.putAll(fresh) } }',
+    c('// Application.onCreate, chỉ bản debug:', '// Application.onCreate, debug builds only:'),
+    'if (BuildConfig.DEBUG) StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build())'
+  ]);
 })();

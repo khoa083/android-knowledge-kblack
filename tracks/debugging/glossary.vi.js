@@ -17,5 +17,6 @@ ADE.addGlossary('vi', 'debugging', {
   "gc-root": { term: "GC root", def: "Điểm bắt đầu mà GC xem là luôn sống, như trường static hay luồng đang chạy; đối tượng không còn đường tham chiếu từ GC root nào thì được thu.", chapter: "debugging/l8" },
   "retained-size": { term: "retained size", def: "Lượng bộ nhớ sẽ được giải phóng nếu một đối tượng bị thu, gồm mọi thứ chỉ nó giữ; khác shallow size là bộ nhớ của riêng đối tượng.", chapter: "debugging/l8" },
   "jank": { term: "jank (khung hình giật)", def: "Khi một khung hình không xong trước hạn (16 ms ở 60 Hz, 8 ms ở 120 Hz), nó bị bỏ cả khung và màn hình giữ hình cũ, người dùng thấy khựng.", chapter: "debugging/l9" },
-  "system-trace": { term: "system trace", def: "Bản ghi hoạt động của thiết bị trong một khoảng ngắn: luồng nào chạy khi nào, khung hình nào trễ, CPU bận ra sao; xem bằng Perfetto hay Android Studio.", chapter: "debugging/l9" }
+  "system-trace": { term: "system trace", def: "Bản ghi hoạt động của thiết bị trong một khoảng ngắn: luồng nào chạy khi nào, khung hình nào trễ, CPU bận ra sao; xem bằng Perfetto hay Android Studio.", chapter: "debugging/l9" },
+  "strictmode": { term: "StrictMode", def: "Công cụ cho nhà phát triển báo mỗi lần luồng main đọc ghi đĩa hay gọi mạng (và vài lỗi khác); bật trong bản debug để bắt sớm việc có thể gây ANR.", chapter: "debugging/l10" }
 });

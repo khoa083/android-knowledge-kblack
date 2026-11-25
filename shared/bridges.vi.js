@@ -62,5 +62,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X31.title': 'Xem Room và WorkManager khi app đang chạy',
   'shared.bridge.X31.summary': 'Các chương Lưu dữ liệu giảng Room, Flow từ DAO và đồng bộ nền bằng WorkManager. Chương chủ sở hữu dạy nhìn vào chúng lúc chạy: mở bảng và chạy đúng @Query bằng Database Inspector, sửa một dòng để thử giả thuyết, và đọc trạng thái worker (ENQUEUED, BLOCKED, FAILED) bằng Background Task Inspector.',
   'shared.bridge.X32.title': 'Thứ gì đang giữ Activity đã đóng',
-  'shared.bridge.X32.summary': 'Chương Kotlin giảng lambda giữ những gì nó dùng, kể cả this; chương kiến trúc giảng singleton và phạm vi của dependency. Chương chủ sở hữu cho thấy hậu quả khi một thứ sống lâu giữ thứ sống ngắn: Activity rò, bộ nhớ tăng dần tới OutOfMemoryError, và cách tìm mắt xích bằng heap dump.'
+  'shared.bridge.X32.summary': 'Chương Kotlin giảng lambda giữ những gì nó dùng, kể cả this; chương kiến trúc giảng singleton và phạm vi của dependency. Chương chủ sở hữu cho thấy hậu quả khi một thứ sống lâu giữ thứ sống ngắn: Activity rò, bộ nhớ tăng dần tới OutOfMemoryError, và cách tìm mắt xích bằng heap dump.',
+  'shared.bridge.X33.title': 'Đọc trace của ANR khi luồng main chờ khóa',
+  'shared.bridge.X33.summary': 'Chương Thiết kế hệ thống giảng luồng, khóa, deadlock và vì sao ANR xảy ra. Chương chủ sở hữu dạy đọc bằng chứng trên máy người dùng: trạng thái Blocked, dòng "waiting to lock … held by", tìm luồng giữ khóa, và bật StrictMode để bắt sớm trên máy dev.'
 });

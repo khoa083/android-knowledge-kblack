@@ -107,3 +107,12 @@
 | System trace trong Android Studio: khung trên main và RenderThread | developer.android.com/studio/profile/record-traces |
 | Perfetto mã nguồn mở, UI trong trình duyệt, SQL | perfetto.dev/docs |
 | **Của site:** 12 khung, khung thường 4 + 2,5 ms, khung nạp trang parse 28 ms trên main (34,5 ms), bind 5 ms khi parse ở nền; công thức vsync lỡ ceil(t ÷ hạn) − 1 | — |
+
+### l10 ANR và StrictMode (đọc 2026-11-25)
+| Ý trên site | Nguồn |
+|---|---|
+| ANR khi main không xử lý được input hay vẽ; 5 giây cho input; startForeground trong 5 giây; nguyên nhân (I/O, tính lâu, binder, chờ khóa, deadlock); /data/anr, bug report | developer.android.com/topic/performance/vitals/anr |
+| Hạn mặc định AOSP/Pixel (input 5 s; service 20/200 s; broadcast 10/60 s tới Android 13, 10–20/60–120 s từ 14); Blocked, Waiting, held by; Mutex.withLock; nativePollOnce thường không hành động được | developer.android.com/topic/performance/anrs/diagnose-and-fix-anrs |
+| StrictMode: công cụ cho nhà phát triển; ThreadPolicy, VmPolicy, detectAll, penaltyLog; không phải bảo mật, không bắt mọi truy cập | developer.android.com/reference/android/os/StrictMode (penaltyDeath không có trên trang chính; site chỉ nhắc như lỗi dùng sai) |
+| **Của site:** khóa 0x0a1b, SyncWorker tid 24, sync lấy khóa 1 giây trước khi bấm, mạng 0,3 s / 9 s, chờ 8 s; StrictMode bắt đọc/ghi đĩa trong save | — |
+- Trang vitals không ghi ngưỡng tỉ lệ ANR (0,47 %); site không dùng con số đó.

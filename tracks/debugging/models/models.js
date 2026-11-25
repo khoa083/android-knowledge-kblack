@@ -550,4 +550,50 @@
           var b = budget(90); return b === 11 && Math.ceil(13 / b) - 1 === 1 && 7 < b &&
             CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 9; }); }); }); } }] });
   })();
+
+  /* ================= l10: ANR: luồng main chờ khóa do luồng sync giữ trong lúc gọi mạng; StrictMode bắt sớm =================
+     Theo developer.android.com vitals/anr (5 giây cho input; chờ khóa của luồng khác), anrs/diagnose-and-fix-anrs (Blocked, held by), reference StrictMode.
+     CÀI THẬT: luồng sync lấy khóa 1 giây trước khi bấm Lưu và giữ suốt lời gọi mạng; luồng main chờ phần còn lại; ANR khi chờ > 5 giây. Bản sửa gọi mạng
+     ngoài khóa và chạy save trên luồng IO. Vi phạm StrictMode là các thao tác đĩa chạy trên luồng main. Thời gian mạng là của site. */
+  (function () {
+    var m = 'anr', CASES = ['trace', 'strict'], KS = ['s1', 's2', 's3', 's4'];
+    var LEAD = 1, LIMIT = 5, NET = { wifi: 0.3, slow: 9 };
+    var r1 = function (x) { return Math.round(x * 10) / 10; };
+    // luồng main chờ bao lâu khi bấm Lưu ở t = 0
+    function wait(net, fixed) { if (fixed) return 0; return r1(Math.max(0, NET[net] - LEAD)); }
+    // các thao tác của save(); nằm trên main nếu chưa sửa
+    var OPS = [['BookingRepo.save', 'DiskReadViolation'], ['BookingRepo.save', 'DiskWriteViolation']];
+    function violations(onMain, enabled) { return enabled && onMain ? OPS.map(function (o) { return o[1] + ' at ' + o[0]; }) : []; }
+    var PLAN = { trace: [['wifi', false], ['slow', false], ['slow', false], ['slow', true]], strict: [['wifi', false], ['wifi', false], ['wifi', false], ['wifi', true]] };
+    function state(c, i) { var p = PLAN[c][i], w = wait(p[0], p[1]); return { net: p[0], netS: NET[p[0]], wait: w, anr: w > LIMIT, fixed: p[1],
+      viol: c === 'strict' ? violations(!p[1], i >= 1) : [], strictOn: c === 'strict' && i >= 1 }; }
+    ADE.dbgAnr = { state: state, LIMIT: LIMIT };
+    var NODES = { trace: [[['tap', 'main'], 'main', 'e1'], [['main', 'lock'], 'lock', 'e2'], [['lock', 'sync'], 'sync', 'e3'], [['tap', 'main'], 'main', 'e1']],
+      strict: [[['strict', 'main'], 'strict', 'e4'], [['strict', 'main'], 'main', 'e4'], [['main', 'lock'], 'lock', 'e2'], [['strict', 'main'], 'main', 'e4']] };
+    var HL = { trace: [[3], [3], [4, 5], [10]], strict: [[12], [3], [3], [9]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var st = state(c, i), bad = st.anr || st.viol.length > 0, nd = NODES[c][i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { net: st.netS, wait: st.wait, anr: M(m, st.anr ? 'anr.yes' : 'anr.no'), viol: st.viol.length },
+          codeHighlight: { snippet: 'l10.code', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'trace';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'trace' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'Wi-Fi nhanh (0,3 giây): luồng main chờ 0 giây, không ANR', run: function () { var s = state('trace', 0); return s.wait === 0 && !s.anr; } },
+        { name: '4G chậm (9 giây): luồng main chờ 8 giây > 5, ANR', run: function () { var s = state('trace', 1); return s.wait === 8 && s.anr; } },
+        { name: 'gọi mạng ngoài khóa, save trên luồng IO: chờ 0 giây trên 4G chậm', run: function () { var s = state('trace', 3); return s.wait === 0 && !s.anr && s.net === 'slow'; } },
+        { name: 'StrictMode: chưa bật 0 vi phạm; bật thì 2 (đọc và ghi đĩa trong save); dời save khỏi main thì 0; mỗi cách 4 bước, dòng tô sáng trong đoạn mã 12 dòng', run: function () {
+          return state('strict', 0).viol.length === 0 && state('strict', 1).viol.length === 2 && state('strict', 3).viol.length === 0 &&
+            CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 12; }); }); }); } }] });
+  })();
 })();

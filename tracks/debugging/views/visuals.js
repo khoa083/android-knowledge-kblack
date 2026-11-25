@@ -312,4 +312,44 @@
       h('p', { class: 'vz-sub', 'data-k': 'jk-focus-' + c + i, text: T('jk.focus', { t: L.dur, mm: L.main, r: D.RENDER }) }),
       h('div', { class: 'vz-legend', text: T('jk.legend') })));
   }, { labelKey: K + 'tab.jank', icon: 'clock' });
+
+  /* ---------- l10: cách đọc trace: bảng các luồng (tên, trạng thái, đang chờ, đang giữ, đang ở); hàng main và hàng giữ khóa có viền, ô chờ/giữ gây ANR tô đỏ.
+     Cách StrictMode: các dòng vi phạm trong Logcat. Dưới cùng là thanh thời gian chờ của luồng main (0–10 giây) với vạch hạn 5 giây. Tính từ ADE.dbgAnr. ---------- */
+  ADE.registerScreen('debugging.anr', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.dbgAnr, c = ctx.state.case, i = Math.max(0, idx(ctx)), st = D.state(c, i), kids = [];
+    kids.push(h('p', { class: 'vz-sub', 'data-k': 'an-net-' + st.net, text: T('an.net', { n: T('an.net.' + st.net) }) }));
+    if (c === 'trace') {
+      var blocked = st.wait > 0, look = i >= 1, deep = i >= 2;
+      var rows = [
+        ['main (tid 1)', blocked ? 'Blocked' : 'Native', blocked ? '<0x0a1b> (tid 24)' : '—', '—', st.fixed ? 'EditViewModel.onSave → Dispatchers.IO' : 'BookingRepo.save'],
+        ['SyncWorker (tid 24)', 'Native', '—', blocked ? '<0x0a1b>' : '—', st.fixed ? 'api.fetchAll() ' + T('an.outside') : 'socketRead0 ← BookingRepo.sync'],
+        ['RenderThread (tid 8)', 'Native', '—', '—', 'nativePollOnce'],
+        ['BG Thread #0 (tid 26)', 'Waiting', '—', '—', 'Unsafe.park']];
+      var tb = h('tbody');
+      rows.forEach(function (r, n) {
+        var hl = look && (n === 0 || (deep && n === 1)), redW = look && blocked && n === 0, redH = deep && blocked && n === 1;
+        tb.appendChild(h('tr', { 'data-k': 'an-t-' + n + '-' + r[1] + (hl ? '-hl' : '') + (blocked ? '-b' : '') },
+          h('td', { class: hl ? 'hl' : null, text: r[0] }), h('td', { class: redW ? 'bad' : (hl ? 'hl' : null), text: r[1] }),
+          h('td', { class: redW ? 'bad' : (hl ? 'hl' : null), text: r[2] }), h('td', { class: redH ? 'bad' : (hl ? 'hl' : null), text: r[3] }), h('td', { class: hl ? 'hl' : null, text: r[4] })));
+      });
+      kids.push(h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-trace' }, h('thead', null, h('tr', null, ['name', 'state', 'wait', 'hold', 'at'].map(function (k) { return h('th', { text: T('an.col.' + k) }); }))), tb)));
+    } else {
+      kids.push(h('p', { class: 'vz-cap', text: T('an.viol.title') }));
+      var lb = h('tbody');
+      var lines = !st.strictOn ? [T('an.viol.none')] : (st.viol.length ? st.viol.map(function (v) { return 'D/StrictMode: StrictMode policy violation: android.os.strictmode.' + v; }) : [T('an.viol.zero')]);
+      lines.forEach(function (l, n) { lb.appendChild(h('tr', { 'data-k': 'an-v-' + i + '-' + n }, h('td', { class: st.viol.length ? 'bad' : 'dim', text: l }))); });
+      kids.push(h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-trace' }, lb)));
+    }
+    var X0 = 8, W = 500, sc = W / 10, ww = Math.min(st.wait, 10) * sc;
+    var svg = '<svg class="vz-dg vz-lanes" viewBox="0 0 520 52" role="img" aria-label="' + esc(T('an.bar', { w: st.wait })) + '">' +
+      '<line class="vz-dg-e" x1="' + X0 + '" y1="20" x2="' + (X0 + W) + '" y2="20"/>' +
+      (ww > 0 ? '<g class="vz-dg-n' + (st.anr ? ' bad' : '') + '" data-k="an-w-' + st.wait + '"><rect x="' + X0 + '" y="10" width="' + ww.toFixed(1) + '" height="20" rx="2"/></g>' : '') +
+      '<line class="vz-dg-e bad" data-k="an-lim" x1="' + (X0 + D.LIMIT * sc) + '" y1="4" x2="' + (X0 + D.LIMIT * sc) + '" y2="36"/>' +
+      '<text class="vz-dg-s" x="' + (X0 + D.LIMIT * sc + 8) + '" y="46">5 s</text><text class="vz-dg-s" x="' + X0 + '" y="44">0</text><text class="vz-dg-s" x="' + (X0 + W - 20) + '" y="44">10 s</text></svg>';
+    var wrap = h('div', { class: 'vz-scroll' }); wrap.innerHTML = svg;
+    kids.push(wrap);
+    kids.push(h('p', { class: 'vz-sub' + (st.anr ? ' bad' : ''), 'data-k': 'an-sub-' + c + i, text: T('an.bar', { w: st.wait }) }));
+    kids.push(h('div', { class: 'vz-legend', text: T('an.legend') }));
+    box.appendChild(h('div', { class: 'vz' }, kids));
+  }, { labelKey: K + 'tab.anr', icon: 'thread' });
 })();

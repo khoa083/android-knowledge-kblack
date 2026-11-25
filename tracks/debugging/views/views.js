@@ -55,4 +55,9 @@
     N('jank', 'screen', 9, 1, 'screen', 'state'), N('jank', 'worker', 3, 3, 'thread', 'signal')],
     edges: [E('e1', 'vsync', 'main'), E('e2', 'main', 'render'), E('e3', 'render', 'screen'), E('e4', 'worker', 'main')],
     metrics: [T('jank', 'hz'), T('jank', 'budget'), T('jank', 'late'), T('jank', 'missed')] });
+  /* l10: bấm Lưu → luồng main → khóa của BookingRepo ← luồng sync giữ trong lúc gọi mạng; StrictMode báo việc trên main */
+  V('anr', { layout: 'pipeline', nodes: [N('anr', 'tap', 0, 1, 'target', 'ui'), N('anr', 'main', 3, 1, 'thread', 'ui'), N('anr', 'lock', 6, 1, 'forbidden', 'signal'),
+    N('anr', 'sync', 9, 1, 'thread', 'job'), N('anr', 'strict', 3, 3, 'eye', 'runtime')],
+    edges: [E('e1', 'tap', 'main'), E('e2', 'main', 'lock'), E('e3', 'sync', 'lock'), E('e4', 'strict', 'main')],
+    metrics: [T('anr', 'net'), T('anr', 'wait'), T('anr', 'anr'), T('anr', 'viol')] });
 })();

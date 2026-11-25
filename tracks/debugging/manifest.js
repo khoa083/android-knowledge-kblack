@@ -16,7 +16,8 @@ ADE.registerTrack({
     { id: 'l6', num: 6, titleKey: 'track.debugging.l6.title', sims: ['debugging.layout'], simAfter: 'hook', bridges: ['X30'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'l7', num: 7, titleKey: 'track.debugging.l7.title', sims: ['debugging.inspect'], simAfter: 'hook', bridges: ['X31'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'l8', num: 8, titleKey: 'track.debugging.l8.title', sims: ['debugging.leak'], simAfter: 'hook', bridges: ['X32'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'l9', num: 9, titleKey: 'track.debugging.l9.title', sims: ['debugging.jank'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'l9', num: 9, titleKey: 'track.debugging.l9.title', sims: ['debugging.jank'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'l10', num: 10, titleKey: 'track.debugging.l10.title', sims: ['debugging.anr'], simAfter: 'hook', bridges: ['X33'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'debugging-loop', model: 'debugging.loop', titleKey: 'track.debugging.preset.loop' },
@@ -27,7 +28,8 @@ ADE.registerTrack({
     { id: 'debugging-layout', model: 'debugging.layout', titleKey: 'track.debugging.preset.layout' },
     { id: 'debugging-inspect', model: 'debugging.inspect', titleKey: 'track.debugging.preset.inspect' },
     { id: 'debugging-leak', model: 'debugging.leak', titleKey: 'track.debugging.preset.leak' },
-    { id: 'debugging-jank', model: 'debugging.jank', titleKey: 'track.debugging.preset.jank' }
+    { id: 'debugging-jank', model: 'debugging.jank', titleKey: 'track.debugging.preset.jank' },
+    { id: 'debugging-anr', model: 'debugging.anr', titleKey: 'track.debugging.preset.anr' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],
