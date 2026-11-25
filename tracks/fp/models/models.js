@@ -508,4 +508,89 @@
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p6.' + c]; }); }); }) &&
             view('list', 1).nest === 2 && view('outcome', 1).nest === 2 && view('nullable', 1).nest === 1 && view('list', 2).nest === 1; } }] });
   })();
+
+  /* ================= K7: validate gom lỗi: form đăng ký bốn ô, dừng ở lỗi đầu tiên (flatMap) hay kiểm hết rồi gộp lỗi =================
+     Theo Vermeulen và cộng sự 4.4 (map2 với Either chỉ báo được một lỗi), 12.3 (applicative: cấu trúc tính toán cố định, các bước độc lập;
+     monad: kết quả trước quyết định bước sau), 12.4 (kiểu Validation giữ nhiều lỗi, form web tên, ngày sinh, số điện thoại), 10.1 (monoid:
+     phép gộp có tính kết hợp và phần tử đơn vị); Carli ch.12 (monoid, semigroup), ch.14 (fail fast hay gom lỗi; Semigroup gộp lỗi);
+     Arrow typed errors, validation (zipOrAccumulate, NonEmptyList). CÀI THẬT: bốn hàm kiểm chạy trên dữ liệu; người dùng sửa đúng những lỗi được
+     báo rồi nộp lại; đếm số lần nộp; phép gộp lỗi là nối list, kiểm tính kết hợp và phần tử đơn vị. Tên, số, ngày, mã thẻ là của site. */
+  (function () {
+    var m = 'validate', CASES = ['fast', 'acc'], KS = ['s1', 's2', 's3', 's4'], FIELDS = ['name', 'phone', 'dob', 'card'];
+    var BAD = { name: '', phone: '090123456', dob: '31/02/1990', card: 'BH-12' }, GOOD = { name: 'Trần Thị Lan', phone: '0901234567', dob: '15/03/1990', card: 'BHYT-4471' };
+    var REGISTERED = ['0901234567'];   // bước 4 của cách gom lỗi: số này đã có người đăng ký
+    function validDate(s) {
+      var mt = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s); if (!mt) return false;
+      var d = +mt[1], mo = +mt[2], y = +mt[3], x = new Date(Date.UTC(y, mo - 1, d));
+      return x.getUTCFullYear() === y && x.getUTCMonth() === mo - 1 && x.getUTCDate() === d;
+    }
+    var CHECK = { name: function (v) { return v.trim() ? null : 'EmptyName'; }, phone: function (v) { return /^0\d{9}$/.test(v) ? null : 'PhoneDigits'; },
+      dob: function (v) { return validDate(v) ? null : 'BadDate'; }, card: function (v) { return /^BHYT-\d{4}$/.test(v) ? null : 'CardFormat'; } };
+    // dừng sớm: kiểm theo thứ tự, gặp lỗi đầu tiên thì dừng (các ô sau không được kiểm)
+    function fast(form) {
+      var rows = [], stop = false;
+      FIELDS.forEach(function (f) { if (stop) { rows.push({ f: f, v: form[f], st: 'unchecked', err: null }); return; } var e = CHECK[f](form[f]); rows.push({ f: f, v: form[f], st: e ? 'err' : 'ok', err: e }); if (e) stop = true; });
+      return rows;
+    }
+    // gom lỗi: kiểm mọi ô, gộp lỗi bằng phép nối list ([] là phần tử đơn vị)
+    function acc(form) { return FIELDS.map(function (f) { var e = CHECK[f](form[f]); return { f: f, v: form[f], st: e ? 'err' : 'ok', err: e }; }); }
+    var concat = function (a, b) { return a.concat(b); }, EMPTY = [];
+    function combine(rows) { return rows.map(function (r) { return r.err ? [r.err] : []; }).reduce(concat, EMPTY); }
+    // người dùng sửa đúng những lỗi được báo, rồi nộp lại
+    function fixShown(form, rows) { var n = {}; FIELDS.forEach(function (f) { n[f] = form[f]; }); rows.forEach(function (r) { if (r.err) n[r.f] = GOOD[r.f]; }); return n; }
+    function rounds(c) {
+      var form = {}, out = []; FIELDS.forEach(function (f) { form[f] = BAD[f]; });
+      for (var k = 0; k < 8; k++) {
+        var rows = c === 'fast' ? fast(form) : acc(form), errs = combine(rows);
+        out.push({ form: form, rows: rows, errs: errs });
+        if (!errs.length) break;
+        form = fixShown(form, rows);
+      }
+      return out;
+    }
+    function view(c, i) {
+      var R = rounds(c), r, submit, extra = null, combineLine = false;
+      if (c === 'fast') { submit = Math.min(i, R.length - 1); r = R[submit]; }
+      else {
+        submit = i < 2 ? 0 : 1; r = R[submit]; combineLine = i === 1;
+        if (i === 3) extra = REGISTERED.indexOf(r.form.phone) >= 0 ? 'PhoneTaken' : null;   // bước phụ thuộc chạy SAU khi mọi ô hợp lệ
+      }
+      var result = r.errs.length ? 'errors' : (extra ? 'taken' : 'ok');
+      return { submit: submit + 1, rows: r.rows, errs: r.errs, result: result, extra: extra, combine: combineLine, total: R.length,
+        shown: r.errs.length + (extra ? 1 : 0), checked: r.rows.filter(function (x) { return x.st !== 'unchecked'; }).length,
+        unknown: c === 'fast' ? FIELDS.filter(function (f) { return CHECK[f](r.form[f]); }).length - r.errs.length : 0 };
+    }
+    ADE.fpValidate = { FIELDS: FIELDS, view: view, rounds: rounds, combine: combine, concat: concat };
+    var HL = { fast: [[2], [3], [4], [5]], acc: [[2, 3, 4, 5], [6, 9], [7, 8], [11]] };
+    var NODES = [[['form', 'checks', 'screen'], 'screen', 'e2'], [['checks', 'merge', 'screen'], 'screen', 'e3'], [['form', 'checks', 'screen'], 'screen', 'e2'], [['checks', 'dep', 'screen'], 'screen', 'e4']];
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var v = view(c, i), nd = NODES[i], bad = c === 'fast' && i > 0, ns = {}; ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { submits: v.submit, shown: v.shown, checked: v.checked, unknown: v.unknown },
+          codeHighlight: { snippet: 'p7.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'fast';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'p7.fast': 6, 'p7.acc': 11 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'fast' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'dữ liệu: 31/02/1990 không phải ngày có thật, 15/03/1990 thì có; bản nộp đầu có đúng 4 ô sai', run: function () {
+          return !validDate('31/02/1990') && validDate('15/03/1990') && combine(acc(BAD)).length === 4 && combine(acc(GOOD)).length === 0; } },
+        { name: 'dừng sớm: mỗi lần nộp chỉ báo 1 lỗi, các ô sau không được kiểm; phải nộp 5 lần mới qua', run: function () {
+          var R = rounds('fast'); return R.length === 5 && R.slice(0, 4).every(function (r) { return r.errs.length === 1; }) && R[0].rows.filter(function (x) { return x.st === 'unchecked'; }).length === 3 && R[4].errs.length === 0; } },
+        { name: 'gom lỗi: lần nộp đầu báo đủ 4 lỗi; sửa xong nộp lần 2 là qua; bước phụ thuộc (số đã đăng ký) chạy sau đó và báo PhoneTaken', run: function () {
+          var R = rounds('acc'); return R.length === 2 && R[0].errs.join() === 'EmptyName,PhoneDigits,BadDate,CardFormat' && view('acc', 3).result === 'taken' && view('acc', 2).result === 'ok'; } },
+        { name: 'phép gộp là monoid: nối list có tính kết hợp, [] là phần tử đơn vị', run: function () {
+          var a = ['EmptyName'], b = ['PhoneDigits'], d = ['BadDate'];
+          return concat(concat(a, b), d).join() === concat(a, concat(b, d)).join() && concat(EMPTY, a).join() === a.join() && concat(a, EMPTY).join() === a.join(); } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p7.' + c]; }); }); }); } }] });
+  })();
 })();

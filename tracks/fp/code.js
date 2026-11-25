@@ -191,4 +191,28 @@
     '    }',
     '}'
   ]);
+
+  /* K7: dừng sớm: nối bằng flatMap, mỗi lần nộp chỉ thấy lỗi đầu tiên */
+  add('p7.fast', [
+    'fun register(f: Form): Outcome<FormError, Patient> =',
+    '    validName(f.name).flatMap { name ->',
+    '    validPhone(f.phone).flatMap { phone ->',
+    '    validDob(f.dob).flatMap { dob ->',
+    '    validCard(f.card).map { card -> Patient(name, phone, dob, card) } } } }',
+    c('// lỗi đầu tiên dừng cả chuỗi: các ô sau không được kiểm', '// the first error stops the chain: later fields are never checked')
+  ]);
+  /* K7: gom lỗi bằng Kotlin thuần: kiểm mọi ô độc lập, gộp lỗi, chỉ tạo Patient khi mọi ô đều Ok; bước phụ thuộc nối sau bằng flatMap */
+  add('p7.acc', [
+    'fun register(f: Form): Outcome<List<FormError>, Patient> {',
+    c('    val name = validName(f.name)                    // mỗi ô kiểm độc lập', '    val name = validName(f.name)                    // each field is checked on its own'),
+    '    val phone = validPhone(f.phone)',
+    '    val dob = validDob(f.dob)',
+    '    val card = validCard(f.card)',
+    c('    val errors = listOf(name, phone, dob, card).mapNotNull { it.errorOrNull() }   // gộp mọi lỗi', '    val errors = listOf(name, phone, dob, card).mapNotNull { it.errorOrNull() }   // collect every error'),
+    '    return if (name is Ok && phone is Ok && dob is Ok && card is Ok)',
+    '        Ok(Patient(name.value, phone.value, dob.value, card.value))',
+    '    else Err(errors)',
+    '}',
+    c('fun registerNew(f: Form) = register(f).flatMap { p -> ensurePhoneFree(p.phone).map { p } }   // bước phụ thuộc', 'fun registerNew(f: Form) = register(f).flatMap { p -> ensurePhoneFree(p.phone).map { p } }   // a dependent step')
+  ]);
 })();

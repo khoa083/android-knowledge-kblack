@@ -77,3 +77,14 @@
 | Result của Kotlin có map nhưng không có flatMap; tự viết flatten, bind, flatMap cho Result | Carli ch.14 |
 | map của Option, Gen, Parser chỉ khác tên kiểu, tổng quát hóa thành Functor; monad thường cũng là functor; monad = flatMap cùng unit; luật kết hợp và luật đơn vị trái, phải | Vermeulen và cộng sự 11.1, 11.2, 11.4 |
 | **Của site:** ba hộp (List bác sĩ, Patient?, Outcome), f và g của từng hộp, ?.let không lồng (không có kiểu T?? riêng), Result.flatMap viết bằng fold, ensureQuota trả Outcome, chuỗi book bằng flatMap dừng ở S07, bài tập cancel viết thẳng hàng | — |
+
+### K7 Validate gom lỗi: applicative và monoid
+| Ý trên site | Nguồn |
+|---|---|
+| map2 trên Either với mkName, mkAge chỉ báo được một lỗi; Exercise 4.8 hỏi cách báo cả hai | Vermeulen và cộng sự 4.4 (Listing 4.8) |
+| Monoid: phép gộp có tính kết hợp và phần tử đơn vị (cộng với 0, nhân với 1, nối chuỗi với "") | Vermeulen và cộng sự 10.1 |
+| Applicative không viết được join hay flatMap; với applicative cấu trúc tính toán cố định, với monad kết quả trước quyết định bước sau (tra phòng ban và lương theo tên rồi theo id); mọi monad là applicative | Vermeulen và cộng sự 12.3, hình 12.3 |
+| flatMap dừng sau lỗi đầu tiên; map3 không ngụ ý phụ thuộc; Either chỉ giữ một lỗi nên cần kiểu Validation (Failure có head và tail); form web với tên, ngày sinh yyyy-MM-dd, số điện thoại 10 chữ số | Vermeulen và cộng sự 12.4 (Listing 12.7, 12.8) |
+| Monoid, semigroup (monoid là semigroup có phần tử đơn vị); hai chiến lược fail fast và gom lỗi; ap, appl; Semigroup ValidationExceptionComposite gộp lỗi, kết quả "Invalid email, Invalid name" | Carli ch.12 (Key points), ch.14 |
+| short-circuit so với gom lỗi; zipOrAccumulate, mapOrAccumulate, accumulate, NonEmptyList; trang không ghi phiên bản | arrow-kt.io validation, working with typed errors (đọc 2026-11-25) |
+| **Của site:** form đăng ký bốn ô (tên, số, ngày 31/02/1990, mã BHYT), người dùng sửa đúng lỗi được báo, 5 lần nộp so với 2, errorOrNull, smart cast sau is Ok, bước phụ thuộc ensurePhoneFree nối bằng flatMap, bài tập form đổi thông tin | — |

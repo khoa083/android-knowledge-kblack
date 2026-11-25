@@ -11,8 +11,8 @@ def a(k, vi, en=None): E.append((P + k, vi, vi if en is None else en))
 
 # ---------------- chung ----------------
 a('title', 'Lập trình hàm với Kotlin', 'Functional Programming in Kotlin')
-a('summary', 'Dùng lập trình hàm để viết mã Android an toàn hơn. Sáu chương hiện có: hàm thuần và referential transparency (gọi hàm có thể thay bằng kết quả của nó), bất biến và đệ quy, ghép hàm, kiểu dữ liệu đại số, lỗi là giá trị, map và flatMap. Các chương sau ( validate gom lỗi, state thuần bằng reducer, functional core và imperative shell, cập nhật state lồng sâu) chưa viết. Ví dụ Kotlin trên app Hẹn Khám; khi dùng Arrow (thư viện bên ngoài), luôn có bản Kotlin thuần đi trước.',
-  'Using functional programming to write safer Android code. The six chapters so far: pure functions and referential transparency (a call can be replaced by its result), immutability and recursion, composing functions, algebraic data types, errors as values, map and flatMap. Later chapters ( validation that collects errors, pure state with reducers, functional core and imperative shell, updating deeply nested state) are not written yet. Kotlin examples on the ClinicBook app; whenever Arrow (an external library) is used, a plain Kotlin version comes first.')
+a('summary', 'Dùng lập trình hàm để viết mã Android an toàn hơn. Bảy chương hiện có: hàm thuần và referential transparency (gọi hàm có thể thay bằng kết quả của nó), bất biến và đệ quy, ghép hàm, kiểu dữ liệu đại số, lỗi là giá trị, map và flatMap, validate gom lỗi. Các chương sau (state thuần bằng reducer, functional core và imperative shell, cập nhật state lồng sâu) chưa viết. Ví dụ Kotlin trên app Hẹn Khám; khi dùng Arrow (thư viện bên ngoài), luôn có bản Kotlin thuần đi trước.',
+  'Using functional programming to write safer Android code. The seven chapters so far: pure functions and referential transparency (a call can be replaced by its result), immutability and recursion, composing functions, algebraic data types, errors as values, map and flatMap, validation that collects errors. Later chapters (pure state with reducers, functional core and imperative shell, updating deeply nested state) are not written yet. Kotlin examples on the ClinicBook app; whenever Arrow (an external library) is used, a plain Kotlin version comes first.')
 a('col.subject', 'Thành phần', 'Component')
 for k, vi, en in [('done', 'xong', 'done'), ('surprise', 'có vấn đề', 'has a problem'), ('skipped', 'bỏ qua', 'skipped'), ('broken', 'lỗi', 'error')]:
     a('st.' + k, vi, en)
@@ -20,7 +20,7 @@ a('fam.done', 'ổn', 'fine'); a('fam.fail', 'có vấn đề', 'has a problem')
 for k, vi, en in [('observe', 'đọc', 'read'), ('run', 'chạy', 'run'), ('write', 'sửa', 'edit'), ('skip', 'bỏ qua', 'skip'), ('exception', 'lỗi', 'failure'), ('complete', 'hoàn tất', 'complete')]:
     a('kind.' + k, vi, en)
 
-MODULES = ('fp_v2_p1', 'fp_v2_p2', 'fp_v2_p3', 'fp_v2_p4', 'fp_v2_p5', 'fp_v2_p6')   # giữ dấu phẩy cuối
+MODULES = ('fp_v2_p1', 'fp_v2_p2', 'fp_v2_p3', 'fp_v2_p4', 'fp_v2_p5', 'fp_v2_p6', 'fp_v2_p7')   # giữ dấu phẩy cuối
 for mod in MODULES:
     assert os.path.exists(os.path.join(HERE, mod + '.py')), 'thiếu module ' + mod
     mm = __import__(mod)

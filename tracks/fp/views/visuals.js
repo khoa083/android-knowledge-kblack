@@ -239,4 +239,30 @@
       h('p', { class: 'vz-sub', 'data-k': 'mn-chain', text: ch.open ? T('monad.chain.' + c) + ' → ' + ch.val + ' : ' + ch.type : T('monad.chain.none') }),
       h('div', { class: 'vz-legend', text: T('monad.legend') })));
   }, { labelKey: K + 'tab.monad', icon: 'layers' });
+
+  /* ---------- K7: các ô của form và lỗi (bảng phẳng): mỗi hàng một ô của form đăng ký, giá trị ở lần nộp này, ô đó có được kiểm không,
+     và lỗi người dùng thấy. Dừng sớm: các ô sau lỗi đầu tiên mờ "chưa kiểm". Gom lỗi: mọi ô được kiểm; bước 2 thêm dòng gộp lỗi bằng nối list.
+     Hàng giữ data-k nên giá trị mới (người dùng đã sửa) nháy khi đổi bước; không lặp. ---------- */
+  ADE.registerScreen('fp.validate', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.fpValidate, c = ctx.state.case, i = Math.max(0, idx(ctx)), v = P.view(c, i);
+    var tb = h('tbody');
+    v.rows.forEach(function (r) {
+      var stCls = r.st === 'err' ? 'bad' : (r.st === 'ok' ? 'ok' : 'dim');
+      tb.appendChild(h('tr', { 'data-k': 'vd-' + r.f },
+        h('td', { text: T('validate.f.' + r.f) }),
+        h('td', { translate: 'no', 'data-k': 'vd-v-' + r.f, text: r.v === '' ? '""' : r.v }),
+        h('td', { class: 'c ' + stCls, text: T('validate.st.' + r.st) }),
+        h('td', { class: r.err ? 'bad' : 'dim', text: r.err ? T('validate.e.' + r.err) : '—' })));
+    });
+    if (c === 'acc' && i === 3) tb.appendChild(h('tr', { 'data-k': 'vd-dep' }, h('td', { text: T('validate.f.dep') }), h('td', { translate: 'no', text: 'ensurePhoneFree' }),
+      h('td', { class: 'c ' + (v.extra ? 'bad' : 'ok'), text: T('validate.st.' + (v.extra ? 'err' : 'ok')) }), h('td', { class: v.extra ? 'bad' : 'dim', text: v.extra ? T('validate.e.' + v.extra) : '—' })));
+    var res = v.result === 'ok' ? T('validate.res.ok') : (v.result === 'taken' ? T('validate.res.taken') : T('validate.res.err', { n: v.errs.length }));
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-cap', 'data-k': 'vd-sub', text: T('validate.cap.' + c, { n: v.submit }) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['field', 'value', 'checked', 'error'].map(function (k) { return h('th', { text: T('validate.col.' + k) }); }))), tb)),
+      v.combine ? h('p', { class: 'vz-sub', 'data-k': 'vd-comb', translate: 'no', text: v.errs.map(function (e) { return '[' + e + ']'; }).join(' + ') + ' = [' + v.errs.join(', ') + ']' }) : null,
+      h('p', { class: 'vz-sub' + (v.result === 'ok' ? '' : ' bad'), 'data-k': 'vd-res', text: res }),
+      h('p', { class: 'vz-sub', 'data-k': 'vd-total', text: c === 'fast' ? T('validate.total.fast', { n: v.total }) : T('validate.total.acc', { n: v.total }) }),
+      h('div', { class: 'vz-legend', text: T('validate.legend') })));
+  }, { labelKey: K + 'tab.validate', icon: 'list' });
 })();

@@ -35,4 +35,8 @@
   V('monad', { layout: 'pipeline', nodes: [N('monad', 'box', 0, 0, 'store', 'ui'), N('monad', 'fn', 3, 0, 'mechanism', 'job'), N('monad', 'out', 6, 0, 'layers', 'state'), N('monad', 'flat', 3, 2, 'grid', 'runtime'), N('monad', 'chain', 9, 0, 'list', 'state')],
     edges: [E('e1', 'box', 'fn'), E('e2', 'fn', 'out'), E('e3', 'flat', 'out'), E('e4', 'out', 'chain')],
     metrics: [T('monad', 'nest'), T('monad', 'size'), T('monad', 'calls')] });
+  /* K7: form → các hàm kiểm từng ô → (gộp lỗi) → màn hình; bước phụ thuộc chạy sau khi mọi ô hợp lệ */
+  V('validate', { layout: 'pipeline', nodes: [N('validate', 'form', 0, 0, 'screen', 'ui'), N('validate', 'checks', 3, 0, 'check', 'job'), N('validate', 'screen', 6, 0, 'list', 'state'), N('validate', 'merge', 3, 2, 'layers', 'runtime'), N('validate', 'dep', 6, 2, 'mechanism', 'job')],
+    edges: [E('e1', 'form', 'checks'), E('e2', 'checks', 'screen'), E('e3', 'merge', 'screen'), E('e4', 'dep', 'screen')],
+    metrics: [T('validate', 'submits'), T('validate', 'shown'), T('validate', 'checked'), T('validate', 'unknown')] });
 })();
