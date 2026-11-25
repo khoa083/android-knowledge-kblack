@@ -882,7 +882,17 @@ Trạng thái: `chưa / đang / xong`.
   - XONG (2026-11-25): l7 Dữ liệu và việc nền (X31), l8 Bộ nhớ (X32), l9 CPU, trace và khung hình giật, l10 ANR và StrictMode (X33), l11 Mạng và pin (X34), l12 Đo hiệu năng cho đúng (X35), l0 Bản đồ track (đặt đầu); track `stable`, 13 chương. Nguồn: chỉ tài liệu chính thức và thư viện (JetBrains, kotlinx, LeakCanary, Perfetto), đọc 2026-11-25; sách Debugging by Tutorials không dùng.
   - Ghi chú kỹ thuật: engine đếm số trong chữ khi số đổi tại cùng chỗ; nếu motion-check báo "hình đổi mà không có chuyển cảnh" ở bước kế tiếp, thêm một dòng ghi chú có data-k riêng cho từng bước. Trường `num` của chương (app.js) cho số hiển thị khớp id.
 - **Việc còn lại, ghi ngày 2026-11-25 (sau khi xong track L):**
-  1. **Track Kotlin:** viết lại K7–K13 theo giọng dạy học, rồi K0 cuối (K1–K6 xong).
+  1. **Track Kotlin:** XONG 2026-11-26. K7–K13 và K0 đã viết lại theo giọng dạy học (commit c333bff, e788e96).
+     - Bỏ mục "honest": phần giản lược chuyển vào ô `simp.2`. Riêng K13, phần đọc thêm thành mục `more`; ba nguồn reflection, KSP, contracts trước đó chưa đăng ký nên nay đăng ký dưới dạng pageOnly.
+     - K0 có thêm cầu nối sang Kiến trúc, Lập trình hàm, Mã sạch, Gỡ lỗi.
+  - **Sửa lõi chuyển động (2026-11-26, người dùng báo debugging/l8/3 "hình nhảy từ dưới lên"):**
+    - Nguyên nhân: `ui.labMotion` nhớ vị trí vật có data-k theo tọa độ màn hình. Khi chú thích phía trên hình dài thêm một dòng, cả hình dời xuống và mọi vật bị cho trượt lên 10px.
+    - Cách sửa: đo vị trí so với SVG ngoài cùng hoặc bảng chứa vật; thêm nháy một lần khi data-k của phần tử đổi mà chữ giữ nguyên.
+    - motion-check cả 10 track: 0 vấn đề (commit b6df76b).
+  - **Người dùng nhận xét 2026-11-26:** hình nhìn chung chưa mượt và chưa đẹp; quá nhiều dạng bảng giống nhau, hỏi có cần chỗ nào cũng là bảng không.
+    - Đếm sơ bộ số hình dùng bảng: cleancode 12/13, sysdesign 15/17, storage 8/10, debugging 10/14, fp 7/12, arch 6/11.
+    - Đã đề xuất làm lại các hình mà bảng không phải kiểu hợp nhất; chờ người dùng chọn thứ tự ưu tiên.
+    - Hạn mức tuần còn khoảng 22% tới 2026-11-29, không đủ cho cả viết lại 74 chương lẫn làm lại hình.
   2. **Viết lại theo giọng dạy học:** arch (khi viết G0, thêm cầu nối X24–X27), storage, coroutines (thay chữ "chương FP" bằng tên chương "Xử lý flow: map, filter, scan, merge/zip/combine, flatMap, retry, distinct"), runtime, animation. UX và UI vẫn tạm dừng.
   3. **Rà nội dung các phần viết trước khi chuyển sang Opus** (Lập trình hàm P1–P4, Kotlin K1–K6, Mã sạch, Thiết kế hệ thống): đối chiếu khẳng định với nguồn, ưu tiên P1–P4 và K1–K6.
   4. **Chủ đề mới có thể thêm** (cần danh sách IN/OUT và người dùng duyệt): nền tảng Android (vòng đời, process death, Intent, Service, permission, giới hạn chạy nền), kiểm thử đầy đủ, build và phát hành (Gradle, flavor, ký app, CI/CD), mạng thực hành (Retrofit, OkHttp), Hilt thực hành, bảo mật, Compose UI thực hành.
