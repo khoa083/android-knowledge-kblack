@@ -6,5 +6,7 @@ ADE.addGlossary('en', 'debugging', {
   "breakpoint": { term: "breakpoint", def: "A stopping point set on a line of code: when execution reaches it, the debugger pauses the app so you can look at variables. It can have a condition, only log without stopping, or stop only the thread that hits it.", chapter: "debugging/l2" },
   "suspend-policy": { term: "suspend policy", def: "Decides which threads stop when a breakpoint is hit: All stops every thread in the app, Thread stops only the thread that hit the breakpoint.", chapter: "debugging/l2" },
   "logcat": { term: "Logcat", def: "Where you see the whole device's logs (the system, other apps, your app), read from the logd process's ring buffers; filtered with queries by tag, package, level, process.", chapter: "debugging/l3" },
-  "log-tag": { term: "tag (of a log)", def: "A short string attached to each log line saying where it comes from, usually the class name; used for filtering in Logcat.", chapter: "debugging/l3" }
+  "log-tag": { term: "tag (of a log)", def: "A short string attached to each log line saying where it comes from, usually the class name; used for filtering in Logcat.", chapter: "debugging/l3" },
+  "stack-trace": { term: "stack trace", def: "A snapshot of the chain of function calls when an exception was thrown: the first line is the exception type and message, each \"at\" line is a frame, and the top frame is where it was thrown.", chapter: "debugging/l4" },
+  "root-cause": { term: "root cause", def: "The first exception in a chain of wrapped errors, usually in the last \"Caused by\" section of a stack trace; the layers above only add context.", chapter: "debugging/l4" }
 });

@@ -29,5 +29,6 @@ ADE.addBridges([
   { id: 'X25', owner: 'fp/p5', links: ['kotlin/k6', 'arch/g8'] },
   { id: 'X26', owner: 'fp/p8', links: ['arch/g7'] },
   { id: 'X27', owner: 'fp/p9', links: ['cleancode/j3', 'arch/g10'] },
-  { id: 'X28', owner: 'debugging/l1', links: ['cleancode/j7'] }
+  { id: 'X28', owner: 'debugging/l1', links: ['cleancode/j7'] },
+  { id: 'X29', owner: 'debugging/l4', links: ['kotlin/k6'] }
 ]);

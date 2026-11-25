@@ -49,3 +49,12 @@
 | Lộ thông tin qua log (MASVS-STORAGE); READ_LOGS từ API 16; làm sạch log bản không debug; R8 -assumenosideeffects xóa mọi mức trừ warning, error; chỉ log hằng số lúc biên dịch | developer.android.com/privacy-and-security/risks/log-info-disclosure |
 | **Của site:** 16 dòng log, PID 4120 là app; 2 dòng lộ số điện thoại; lọc còn 8, 2, 7; release còn 2 dòng, 1 dòng lộ | — |
 - Ghi chú: Logcat của Studio gọi mức cao nhất là FATAL, truy vấn level: dùng ASSERT, adb logcat dùng chữ F; site dùng tên của lớp Log (ASSERT).
+
+### l4 Đọc stack trace (đọc 2026-11-25)
+| Ý trên site | Nguồn |
+|---|---|
+| Dòng đầu là toString (lớp, ": ", thông điệp); frame "at"; Caused by cho cause; "... n more" là n frame cuối trùng với ngoại lệ bọc ngoài; Suppressed từ try-with-resources; getCause, initCause | docs.oracle.com Java SE 21 Throwable |
+| "--- beginning of crash", "FATAL EXCEPTION: main", "Process: …, PID: …"; loại ngoại lệ và chỗ ném là hai mảnh quan trọng; đi lên stack tìm chỗ truyền giá trị sai; không có mã app thì có thể do việc bất đồng bộ; NPE là nguyên nhân crash lớn nhất trên Google Play | developer.android.com/topic/performance/vitals/crash |
+| Dán stack trace từ bên ngoài; mã nguồn phải cùng phiên bản với bản tạo ra stack trace | developer.android.com/studio/debug/stacktraces (trang không nói về retrace) |
+| Khôi phục stack trace của coroutine, bản sao có cause là bản gốc, frame _COROUTINE._BOUNDARY | kotlinlang.org/docs/coroutines-debugging.html |
+| **Của site:** crash ba tầng (RuntimeException ← IllegalStateException ← DateTimeParseException ngày 2026-11-31); "... 5 more", "... 8 more" tính từ đuôi chung; BookingMapper.kt:22; bài tập "150.000" với "... 6 more" | — |

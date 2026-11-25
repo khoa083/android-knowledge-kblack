@@ -26,4 +26,8 @@
     N('logcat', 'others', 3, 3, 'layers', 'runtime'), N('logcat', 'view', 6, 1, 'search', 'job')],
     edges: [E('e1', 'r8', 'app'), E('e2', 'app', 'logd'), E('e3', 'others', 'logd'), E('e4', 'logd', 'view')],
     metrics: [T('logcat', 'shown'), T('logcat', 'app'), T('logcat', 'pii'), T('logcat', 'found')] });
+  /* l4: tầng gốc → bọc thành tầng giữa → bọc thành tầng ngoài → crash */
+  V('trace', { layout: 'pipeline', nodes: [N('trace', 'root', 0, 0, 'pitfall', 'signal'), N('trace', 'mid', 3, 0, 'layers', 'state'), N('trace', 'outer', 6, 0, 'layers', 'runtime'), N('trace', 'crash', 9, 0, 'cross', 'job')],
+    edges: [E('e1', 'root', 'mid'), E('e2', 'mid', 'outer'), E('e3', 'outer', 'crash')],
+    metrics: [T('trace', 'layers'), T('trace', 'frame'), T('trace', 'fixed')] });
 })();

@@ -1043,3 +1043,4 @@ pre.code { position: relative; }
 .vz-dot { fill: var(--tok-job); }
 .vz-lanes .vz-dg-n.bad rect { fill: rgba(196, 43, 50, .18); }
 .vz-table tr.fade td { opacity: .32; }
+.vz-trace td { white-space: nowrap; font-size: 12px; }

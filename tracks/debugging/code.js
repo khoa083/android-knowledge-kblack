@@ -64,4 +64,14 @@
     c('Log.w("Sync", "retry $n for phone=${b.phone}")              // mức W: R8 không xóa', 'Log.w("Sync", "retry $n for phone=${b.phone}")              // level W: R8 does not remove it'),
     c('Log.w("Sync", "retry $n for booking id=${b.id}")             // sửa: chỉ log id', 'Log.w("Sync", "retry $n for booking id=${b.id}")             // fix: log only the id')
   ]);
+
+  /* l4: chỗ bọc ngoại lệ trong ViewModel (dòng 4–5) và chỗ đọc ngày (dòng 2) */
+  add('l4.code', [
+    c('fun requireBooking(dto: BookingDto): Booking = try {      // DetailViewModel.kt, dòng 55', 'fun requireBooking(dto: BookingDto): Booking = try {      // DetailViewModel.kt, line 55'),
+    c('    mapper.toBooking(dto)                                   // BookingMapper.kt:22 gọi LocalDate.parse(dto.date)', '    mapper.toBooking(dto)                                   // BookingMapper.kt:22 calls LocalDate.parse(dto.date)'),
+    '} catch (e: DateTimeParseException) {',
+    c('    throw IllegalStateException("Booking not loaded", e)    // dòng 58: bọc lại, giữ e làm cause', '    throw IllegalStateException("Booking not loaded", e)    // line 58: wraps it, keeping e as the cause'),
+    c('}                                                          // DetailActivity.onCreate gọi hàm này', '}                                                          // DetailActivity.onCreate calls this'),
+    c('// dto.date = "2026-11-31" từ máy chủ', '// dto.date = "2026-11-31" from the server')
+  ]);
 })();

@@ -212,4 +212,69 @@
         { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 9 dòng', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 9; }); }); }); } }] });
   })();
+
+  /* ================= l4: đọc stack trace ba tầng: sửa theo dòng đầu, hay đọc tới nguyên nhân gốc =================
+     Theo Java SE 21 Throwable.printStackTrace (dòng đầu là toString; Caused by; "... n more" là n frame cuối trùng với ngoại lệ bọc ngoài) và
+     developer.android.com/topic/performance/vitals/crash. CÀI THẬT: mỗi tầng có stack đầy đủ; số frame được in và số "... n more" tính bằng
+     cách đếm phần đuôi giống hệt với stack của tầng bọc ngoài. Tên lớp của app và số dòng là của site. */
+  (function () {
+    var m = 'trace', CASES = ['top', 'root'], KS = ['s1', 's2', 's3', 's4'];
+    var A = ['android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4206)', 'android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:4387)',
+      'android.os.Handler.dispatchMessage(Handler.java:107)', 'android.os.Looper.loop(Looper.java:317)', 'android.app.ActivityThread.main(ActivityThread.java:8705)'];
+    var MID = ['vn.henkham.detail.DetailViewModel.requireBooking(DetailViewModel.kt:58)', 'vn.henkham.detail.DetailActivity.onCreate(DetailActivity.kt:31)',
+      'android.app.Activity.performCreate(Activity.java:9002)', 'android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1526)'].concat(A);
+    var ROOT = ['java.time.format.DateTimeFormatter.createError(DateTimeFormatter.java:2108)', 'java.time.LocalDate.parse(LocalDate.java:435)',
+      'vn.henkham.data.BookingMapper.toBooking(BookingMapper.kt:22)', 'vn.henkham.detail.DetailViewModel.requireBooking(DetailViewModel.kt:55)'].concat(MID.slice(1));
+    var CHAIN = [
+      { head: 'java.lang.RuntimeException: Unable to start activity ComponentInfo{vn.henkham/vn.henkham.DetailActivity}: java.lang.IllegalStateException: Booking not loaded', stack: A },
+      { head: 'java.lang.IllegalStateException: Booking not loaded', stack: MID },
+      { head: "java.time.format.DateTimeParseException: Text '2026-11-31' could not be parsed: Invalid date 'NOVEMBER 31'", stack: ROOT }];
+    var isApp = function (f) { return f.indexOf('vn.henkham.') === 0; };
+    function common(a, b) { var n = 0; while (n < a.length && n < b.length && a[a.length - 1 - n] === b[b.length - 1 - n]) n++; return n; }
+    // các dòng in ra, đúng như printStackTrace: tầng 0 in đủ; tầng k in phần đầu, rồi "... n more"
+    function lines() {
+      var out = [];
+      CHAIN.forEach(function (t, k) {
+        var n = k ? common(t.stack, CHAIN[k - 1].stack) : 0, shown = t.stack.slice(0, t.stack.length - n);
+        out.push({ kind: 'head', layer: k, text: (k ? 'Caused by: ' : '') + t.head });
+        shown.forEach(function (f, j) { out.push({ kind: 'frame', layer: k, text: 'at ' + f, app: isApp(f), f: f }); });
+        if (n) out.push({ kind: 'more', layer: k, n: n, hidden: t.stack.slice(t.stack.length - n) });
+      });
+      return out;
+    }
+    function firstApp(k) { var s = CHAIN[k].stack; for (var j = 0; j < s.length; j++) if (isApp(s[j])) return s[j]; return null; }
+    ADE.dbgTrace = { lines: lines, CHAIN: CHAIN, firstApp: firstApp, common: common };
+    var FRAME = { top: ['frame.none', 'frame.start', 'frame.vm', 'frame.vm'], root: ['frame.none', 'frame.none', 'frame.mapper', 'frame.mapper'] };
+    var LAYERS = { top: [1, 1, 2, 2], root: [3, 3, 3, 3] };
+    var NODES = { top: [[['outer', 'crash'], 'outer', 'e3'], [['outer'], 'outer', 'e3'], [['mid', 'outer'], 'mid', 'e2'], [['root', 'mid'], 'root', 'e1']],
+      root: [[['outer', 'crash'], 'crash', 'e3'], [['root'], 'root', 'e1'], [['root', 'mid'], 'root', 'e1'], [['root'], 'root', 'e1']] };
+    var HL = { top: [[1], [1], [4, 5], [2]], root: [[1], [2], [2], [2, 3]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var bad = c === 'top' && i >= 1, nd = NODES[c][i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { layers: LAYERS[c][i], frame: M(m, FRAME[c][i]), fixed: M(m, c === 'root' && i === 3 ? 'fixed.yes' : 'fixed.no') },
+          codeHighlight: { snippet: 'l4.code', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'top';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'top' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'tầng giữa in 4 frame rồi "... 5 more"; tầng gốc in 4 frame rồi "... 8 more" (dòng 55 và 58 khác nhau nên không tính)', run: function () {
+          var mo = lines().filter(function (l) { return l.kind === 'more'; }); return mo.length === 2 && mo[0].n === 5 && mo[1].n === 8 &&
+            lines().filter(function (l) { return l.kind === 'frame' && l.layer === 1; }).length === 4 && lines().filter(function (l) { return l.kind === 'frame' && l.layer === 2; }).length === 4; } },
+        { name: 'tầng ngoài 0 frame của app; frame đầu của app ở tầng giữa là DetailViewModel.kt:58, ở tầng gốc là BookingMapper.kt:22', run: function () {
+          return firstApp(0) === null && /DetailViewModel\.kt:58/.test(firstApp(1)) && /BookingMapper\.kt:22/.test(firstApp(2)); } },
+        { name: 'phần "... n more" mở ra trùng đúng đáy của tầng bọc ngoài', run: function () {
+          var mo = lines().filter(function (l) { return l.kind === 'more'; })[1]; return mo.hidden.join() === MID.slice(MID.length - 8).join(); } },
+        { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 6 dòng', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 6; }); }); }); } }] });
+  })();
 })();

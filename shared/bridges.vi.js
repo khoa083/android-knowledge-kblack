@@ -54,5 +54,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X27.title': 'Lõi thuần nhận giá trị đã parse, test không cần đồ giả',
   'shared.bridge.X27.summary': 'Chương Mã sạch parse dữ liệu một lần ở ranh giới; chương kiến trúc test từng tầng với repository giả. Chương chủ sở hữu tách hàm thành lõi thuần (nhận giá trị, trả một quyết định) và vỏ mỏng (đọc trước, ghi sau): lõi test bằng giá trị mà không cần đồ giả, vỏ chỉ còn một nhánh nên một bài test tích hợp là đủ.',
   'shared.bridge.X28.title': 'Tái hiện lỗi trên thiết bị, rồi khóa bằng test',
-  'shared.bridge.X28.summary': 'Chương Mã sạch dạy tái hiện lỗi thành một test và chia đôi lịch sử commit để tìm commit gây lỗi. Chương chủ sở hữu lo phần trên thiết bị: vòng tái hiện, thu hẹp, giả thuyết, kiểm; adb để giả điều kiện của người dùng (như tiến trình bị đóng ở nền); bug report và stack trace từ Play Console khi lỗi xảy ra trên máy khác.'
+  'shared.bridge.X28.summary': 'Chương Mã sạch dạy tái hiện lỗi thành một test và chia đôi lịch sử commit để tìm commit gây lỗi. Chương chủ sở hữu lo phần trên thiết bị: vòng tái hiện, thu hẹp, giả thuyết, kiểm; adb để giả điều kiện của người dùng (như tiến trình bị đóng ở nền); bug report và stack trace từ Play Console khi lỗi xảy ra trên máy khác.',
+  'shared.bridge.X29.title': 'Từ cơ chế ngoại lệ tới đọc stack trace',
+  'shared.bridge.X29.summary': 'Chương Kotlin giảng ngoại lệ đi ngược chuỗi gọi tới catch đầu tiên và cách bọc lỗi. Chương chủ sở hữu dạy đọc kết quả của nó khi app crash: dòng đầu là tầng bọc ngoài, nguyên nhân gốc ở "Caused by" cuối, "... N more" là frame trùng, frame đầu của app là chỗ bắt đầu tìm.'
 });

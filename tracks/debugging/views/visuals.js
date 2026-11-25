@@ -130,4 +130,38 @@
       h('p', { class: 'vz-sub' + (v.pii ? ' bad' : ''), 'data-k': 'lc-n', text: T('lc.count', { n: v.shown, p: v.pii }) }),
       h('div', { class: 'vz-legend', text: T('lc.legend') })));
   }, { labelKey: K + 'tab.logcat', icon: 'list' });
+
+  /* ---------- l4: stack trace từng dòng (bảng phẳng, thụt lề theo tầng, không hộp lồng): frame của app in đậm; hàng đang đọc có viền,
+     hàng đặt bản sửa tô đỏ; ở bước 3 của cách đọc tới gốc, dòng "... 8 more" mở ra thành các frame trùng (mờ). Tính từ ADE.dbgTrace. ---------- */
+  ADE.registerScreen('debugging.trace', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.dbgTrace, c = ctx.state.case, i = Math.max(0, idx(ctx)), L = D.lines();
+    var nCaused = L.filter(function (l) { return l.kind === 'head' && l.layer > 0; }).length;
+    function state(l) {
+      if (c === 'top') {
+        if (i === 0) return l.layer === 0 && l.kind !== 'more' ? 'hl' : null;
+        if (i === 2 || i === 3) { if (l.kind === 'frame' && l.layer === 1 && /DetailViewModel\.kt:58/.test(l.text)) return 'bad'; }
+        if (i === 3 && l.layer === 2 && l.kind === 'head') return 'hl';
+        return null;
+      }
+      if (i === 0) return l.kind === 'head' ? 'hl' : null;
+      if (i === 1) return l.kind === 'head' && l.layer === 2 ? 'hl' : null;
+      if (l.kind === 'frame' && l.layer === 2 && /BookingMapper\.kt:22/.test(l.text)) return i === 3 ? 'bad' : 'hl';
+      return null;
+    }
+    var tb = h('tbody'), expand = c === 'root' && i >= 2;
+    L.forEach(function (l, n) {
+      var st = state(l), pad = 'padding-left:' + (8 + l.layer * 16 + (l.kind === 'head' ? 0 : 14)) + 'px';
+      var txt = l.kind === 'more' ? T('tr.more', { n: l.n }) : l.text;
+      var cls = st || (l.kind === 'frame' && !l.app ? 'dim' : null);
+      tb.appendChild(h('tr', { 'data-k': 'tr-' + n + (st ? '-' + st : '') }, h('td', { class: cls, style: pad, text: txt })));
+      if (l.kind === 'more' && l.layer === 2 && expand) l.hidden.forEach(function (f, j) {
+        tb.appendChild(h('tr', { 'data-k': 'tr-x-' + j, class: 'fade' }, h('td', { style: 'padding-left:' + (8 + l.layer * 16 + 28) + 'px', text: 'at ' + f })));
+      });
+    });
+    var key = 'tr.focus.' + c + '.' + i, f = D.firstApp(2).replace(/^.*\(|\)$/g, '');
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-sub' + (c === 'top' && i >= 1 ? ' bad' : ''), 'data-k': 'tr-f-' + c + i, text: T(key, { n: nCaused, f: f }) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-trace' }, tb)),
+      h('div', { class: 'vz-legend', text: T('tr.legend') })));
+  }, { labelKey: K + 'tab.trace', icon: 'layers' });
 })();
