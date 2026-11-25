@@ -1050,3 +1050,5 @@ pre.code { position: relative; }
 .vz-phone-wrap .vz-phone { width: 130px; height: auto; display: block; }
 .vz-phone .vz-dg-n.bad rect { fill: rgba(196, 43, 50, .10); }
 .vz-dg.vz-phone { width: 130px; min-width: 0; }
+.vz-vsync { stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 2 3; }
+.vz-sec { fill: var(--tok-state); opacity: .55; }

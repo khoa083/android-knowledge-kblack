@@ -126,4 +126,17 @@
     c('    override fun onDestroy() { BookingEventBus.unregister(onEvent); super.onDestroy() }  // sửa', '    override fun onDestroy() { BookingEventBus.unregister(onEvent); super.onDestroy() }  // fix'),
     '}'
   ]);
+
+  /* l9: parse trên main lúc bind (dòng 3) và bản sửa parse trên luồng nền (dòng 8–9) */
+  add('l9.code', [
+    'override fun onBindViewHolder(h: BookingVH, pos: Int) {',
+    c('    // gọi khi cuộn tới trang mới', '    // called when scrolling reaches a new page'),
+    c('    val dto = trace("parseJson") { json.decodeFromString<PageDto>(rawPage) }   // trên luồng main: 28 ms', '    val dto = trace("parseJson") { json.decodeFromString<PageDto>(rawPage) }   // on the main thread: 28 ms'),
+    '    h.bind(dto.items[pos % PAGE_SIZE])',
+    '}',
+    c('// sửa: parse trước, trên luồng nền', '// fix: parse beforehand, on a background thread'),
+    'suspend fun loadPage(raw: String) {',
+    '    val items = withContext(Dispatchers.Default) { trace("parseJson") { json.decodeFromString<PageDto>(raw).items } }',
+    c('    adapter.submitList(adapter.currentList + items)           // main chỉ bind: 5 ms', '    adapter.submitList(adapter.currentList + items)           // main only binds: 5 ms')
+  ]);
 })();

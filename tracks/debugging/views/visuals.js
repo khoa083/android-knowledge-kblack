@@ -284,4 +284,32 @@
       h('p', { class: 'vz-sub' + (c === 'leak' && i >= 1 ? ' bad' : ''), 'data-k': 'lk-sub-' + c + i, text: T('lk.sub', { n: n, m: mm, k: inst }) + (c === 'fixed' && i >= 2 ? ' ' + T('lk.cut') : '') }),
       h('div', { class: 'vz-legend', text: T('lk.legend') })));
   }, { labelKey: K + 'tab.leak', icon: 'layers' });
+
+  /* ---------- l9: dòng thời gian (SVG phẳng): vạch vsync theo hạn của tần số đang xét; làn main có một khối cho mỗi khung (rộng theo ms), khối trễ tô đỏ;
+     từ bước 2 hiện đoạn parseJson (vàng nhạt) trên main hay trên làn luồng nền; làn RenderThread. Tính từ ADE.dbgJank; ô đổi lớp thì nháy. ---------- */
+  ADE.registerScreen('debugging.jank', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.dbgJank, c = ctx.state.case, i = Math.max(0, idx(ctx)), hz = D.HZ[i], F = D.frames(c, hz), t = D.tally(c, hz);
+    var X0 = 124, W = 500, sc = W / F.total, showSec = i >= 1;
+    var svg = '<svg class="vz-dg vz-lanes" viewBox="0 0 ' + (X0 + W + 8) + ' ' + (c === 'bg' ? 112 : 84) + '" role="img" aria-label="' + esc(T('jk.aria', { n: F.frames.length, hz: hz, l: t.late, m: t.missed })) + '">';
+    svg += '<text class="vz-dg-s" x="4" y="26">' + esc(T('jk.lane.main')) + '</text><text class="vz-dg-s" x="4" y="56">' + esc(T('jk.lane.render')) + '</text>';
+    if (c === 'bg') svg += '<text class="vz-dg-s" x="4" y="90">' + esc(T('jk.lane.worker')) + '</text>';
+    for (var v = 0; v <= F.total + 0.01; v += F.budget) svg += '<line class="vz-vsync" data-k="jk-v-' + hz + '-' + v + '" x1="' + (X0 + v * sc).toFixed(1) + '" y1="6" x2="' + (X0 + v * sc).toFixed(1) + '" y2="' + (c === 'bg' ? 104 : 72) + '"/>';
+    F.frames.forEach(function (f) {
+      var x = X0 + f.start * sc;
+      svg += '<g class="vz-dg-n' + (f.late ? ' bad' : ' ok') + '" data-k="jk-f-' + f.k + '-' + (f.late ? 'l' : 'o') + '"><rect x="' + x.toFixed(1) + '" y="14" width="' + (f.main * sc).toFixed(1) + '" height="18" rx="2"/></g>';
+      svg += '<g class="vz-dg-n" data-k="jk-r-' + f.k + '"><rect x="' + (x + f.main * sc).toFixed(1) + '" y="44" width="' + (D.RENDER * sc).toFixed(1) + '" height="16" rx="2"/></g>';
+      if (f.page && showSec) {
+        if (c === 'main') svg += '<rect class="vz-sec" data-k="jk-s-' + f.k + '" x="' + (x + 4 * sc).toFixed(1) + '" y="17" width="' + (D.PARSE * sc).toFixed(1) + '" height="12" rx="1"/>';
+        else svg += '<rect class="vz-sec" data-k="jk-w-' + f.k + '" x="' + Math.max(X0, x - D.PARSE * sc - 4).toFixed(1) + '" y="80" width="' + (D.PARSE * sc).toFixed(1) + '" height="14" rx="1"/>';
+      }
+    });
+    svg += '</svg>';
+    var wrap = h('div', { class: 'vz-scroll' }); wrap.innerHTML = svg;
+    var L = t.longest;
+    box.appendChild(h('div', { class: 'vz' },
+      wrap,
+      h('p', { class: 'vz-sub' + (t.late ? ' bad' : ''), 'data-k': 'jk-sub-' + c + '-' + hz, text: T('jk.sub', { hz: hz, b: F.budget, l: t.late, m: t.missed }) }),
+      h('p', { class: 'vz-sub', 'data-k': 'jk-focus-' + c + i, text: T('jk.focus', { t: L.dur, mm: L.main, r: D.RENDER }) }),
+      h('div', { class: 'vz-legend', text: T('jk.legend') })));
+  }, { labelKey: K + 'tab.jank', icon: 'clock' });
 })();

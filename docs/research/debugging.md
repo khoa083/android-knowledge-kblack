@@ -97,3 +97,13 @@
 | Ghi cấp phát kèm stack trace; Sampled so với Full; GC trên dòng thời gian | developer.android.com/studio/profile/record-java-kotlin-allocations |
 | LeakCanary 2.14: bốn bước, tham chiếu yếu, chờ 5 giây, ngưỡng 5/1, leak trace; nguyên nhân hay gặp | square.github.io/leakcanary (thư viện bên ngoài) |
 | **Của site:** nền 18 MB, 2,4 MB mỗi DetailActivity, giới hạn 64 MB, OOM ở lần mở 20 (66 MB); BookingEventBus giữ lambda giữ Activity | — |
+
+### l9 CPU, trace và khung hình giật (đọc 2026-11-25)
+| Ý trên site | Nguồn |
+|---|---|
+| 16/11/8 ms ở 60/90/120 fps; quá hạn thì Choreographer bỏ cả khung; khung chậm 16–700 ms, đứng 700 ms–5 s, ANR quá 5 s; Record View#draw và DrawFrame trên RenderThread; nguyên nhân; trace marker khoảng 10 µs, không gắn hàm dưới khoảng 200 µs; method trace cho giật giả | developer.android.com/topic/performance/vitals/render |
+| System trace gom dữ liệu kernel; Perfetto từ Android 10; không cho chi tiết thực thi trong app | developer.android.com/topic/performance/tracing |
+| trace("tên") { } của androidx.tracing, tự đóng; app phải profileable | developer.android.com/topic/performance/tracing/custom-events (trang không nói giới hạn độ dài tên hay yêu cầu cùng luồng) |
+| System trace trong Android Studio: khung trên main và RenderThread | developer.android.com/studio/profile/record-traces |
+| Perfetto mã nguồn mở, UI trong trình duyệt, SQL | perfetto.dev/docs |
+| **Của site:** 12 khung, khung thường 4 + 2,5 ms, khung nạp trang parse 28 ms trên main (34,5 ms), bind 5 ms khi parse ở nền; công thức vsync lỡ ceil(t ÷ hạn) − 1 | — |

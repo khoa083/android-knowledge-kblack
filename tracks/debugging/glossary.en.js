@@ -15,5 +15,7 @@ ADE.addGlossary('en', 'debugging', {
   "work-state": { term: "worker state (WorkInfo.State)", def: "The state of a WorkManager job: ENQUEUED (waiting for constraints), RUNNING, SUCCEEDED, FAILED, BLOCKED (waiting for the work in front), CANCELLED. FAILED and CANCELLED spread to dependent work.", chapter: "debugging/l7" },
   "memory-leak": { term: "memory leak", def: "When code accidentally keeps a reference path from a GC root to an object no longer needed, so GC cannot collect it. Memory after GC creeps up, then comes an OutOfMemoryError.", chapter: "debugging/l8" },
   "gc-root": { term: "GC root", def: "A starting point the GC treats as always alive, such as a static field or a running thread; objects no longer reachable from any GC root are collected.", chapter: "debugging/l8" },
-  "retained-size": { term: "retained size", def: "The memory freed if an object were collected, including everything only it holds; unlike shallow size, which is the object's own memory.", chapter: "debugging/l8" }
+  "retained-size": { term: "retained size", def: "The memory freed if an object were collected, including everything only it holds; unlike shallow size, which is the object's own memory.", chapter: "debugging/l8" },
+  "jank": { term: "jank", def: "When a frame does not finish before its deadline (16 ms at 60 Hz, 8 ms at 120 Hz), the whole frame is dropped and the screen keeps the old image, so the user sees a hitch.", chapter: "debugging/l9" },
+  "system-trace": { term: "system trace", def: "A recording of device activity over a short period: which thread ran when, which frames were late, how busy the CPU was; viewed in Perfetto or Android Studio.", chapter: "debugging/l9" }
 });

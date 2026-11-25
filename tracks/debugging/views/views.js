@@ -50,4 +50,9 @@
     N('leak', 'lambda', 6, 2, 'mechanism', 'signal'), N('leak', 'act', 9, 2, 'screen', 'ui')],
     edges: [E('e1', 'root', 'bus'), E('e2', 'bus', 'list'), E('e3', 'list', 'lambda'), E('e4', 'lambda', 'act')],
     metrics: [T('leak', 'opens'), T('leak', 'mem'), T('leak', 'inst'), T('leak', 'oom')] });
+  /* l9: vsync → luồng main → RenderThread → màn hình; luồng nền parse song song */
+  V('jank', { layout: 'pipeline', nodes: [N('jank', 'vsync', 0, 1, 'clock', 'runtime'), N('jank', 'main', 3, 1, 'thread', 'ui'), N('jank', 'render', 6, 1, 'thread', 'job'),
+    N('jank', 'screen', 9, 1, 'screen', 'state'), N('jank', 'worker', 3, 3, 'thread', 'signal')],
+    edges: [E('e1', 'vsync', 'main'), E('e2', 'main', 'render'), E('e3', 'render', 'screen'), E('e4', 'worker', 'main')],
+    metrics: [T('jank', 'hz'), T('jank', 'budget'), T('jank', 'late'), T('jank', 'missed')] });
 })();

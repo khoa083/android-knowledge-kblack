@@ -498,4 +498,56 @@
         { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 10 dòng', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 10; }); }); }); } }] });
   })();
+
+  /* ================= l9: khung hình giật: parse JSON trên luồng main hay trên luồng nền; 60 Hz rồi 120 Hz =================
+     Theo developer.android.com vitals/render (16 ms ở 60 fps, 11 ms ở 90, 8 ms ở 120; quá hạn thì bỏ cả khung), tracing, custom-events, perfetto.dev.
+     CÀI THẬT: 12 khung, mỗi khung = việc trên main + RenderThread nối tiếp; khung bắt đầu ở vsync kế tiếp sau khi khung trước xong; trễ khi dài hơn hạn,
+     số vsync lỡ = ceil(thời lượng ÷ hạn) − 1. Số ms là của site. */
+  (function () {
+    var m = 'jank', CASES = ['main', 'bg'], KS = ['s1', 's2', 's3', 's4'];
+    var N = 12, PAGE = [3, 8], RENDER = 2.5, BASE = 4, PARSE = 28, BIND = 5, HZ = [60, 60, 60, 120];
+    var budget = function (hz) { return hz === 60 ? 16 : (hz === 90 ? 11 : 8); };
+    function frames(c, hz) {
+      var b = budget(hz), t = 0, out = [];
+      for (var k = 0; k < N; k++) {
+        var page = PAGE.indexOf(k) >= 0, main = page ? (c === 'main' ? BASE + PARSE : BIND) : BASE, dur = main + RENDER;
+        var missed = dur > b ? Math.ceil(dur / b) - 1 : 0;
+        out.push({ k: k, start: t, main: main, dur: dur, late: dur > b, missed: missed, page: page });
+        t = Math.ceil((t + dur) / b) * b;
+      }
+      return { frames: out, total: t, budget: b };
+    }
+    function tally(c, hz) { var f = frames(c, hz).frames; return { late: f.filter(function (x) { return x.late; }).length, missed: f.reduce(function (s, x) { return s + x.missed; }, 0),
+      longest: f.reduce(function (s, x) { return x.dur > s.dur ? x : s; }, f[0]) }; }
+    ADE.dbgJank = { frames: frames, tally: tally, HZ: HZ, PARSE: PARSE, RENDER: RENDER };
+    var NODES = { main: [[['vsync', 'main', 'render'], 'main', 'e1'], [['main'], 'main', 'e1'], [['main', 'screen'], 'screen', 'e3'], [['vsync', 'main'], 'vsync', 'e1']],
+      bg: [[['worker', 'main'], 'worker', 'e4'], [['main', 'render'], 'main', 'e2'], [['worker'], 'worker', 'e4'], [['vsync', 'main', 'render'], 'screen', 'e3']] };
+    var HL = { main: [[3], [3], [3], [3]], bg: [[8], [9], [8], [9]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var hz = HZ[i], t = tally(c, hz), bad = t.late > 0 && i >= 1, nd = NODES[c][i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { hz: hz, budget: budget(hz), late: t.late, missed: t.missed },
+          codeHighlight: { snippet: 'l9.code', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'main';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'main' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'parse trên main ở 60 Hz: 2 khung 34,5 ms trễ, mỗi khung lỡ 2 vsync, tổng 4; khung thường 6,5 ms', run: function () {
+          var t = tally('main', 60), f = frames('main', 60).frames; return t.late === 2 && t.missed === 4 && f[3].dur === 34.5 && f[0].dur === 6.5; } },
+        { name: 'ở 120 Hz (hạn 8 ms): vẫn 2 khung trễ, mỗi khung lỡ 4 vsync, tổng 8', run: function () { var t = tally('main', 120); return t.late === 2 && t.missed === 8; } },
+        { name: 'parse trên luồng nền: khung nạp trang 7,5 ms; 0 khung trễ ở cả 60 và 120 Hz', run: function () {
+          return tally('bg', 60).late === 0 && tally('bg', 120).late === 0 && frames('bg', 120).frames[3].dur === 7.5; } },
+        { name: 'bài tập 90 Hz: 9 + 4 = 13 ms lỡ 1 vsync; 3 + 4 = 7 ms kịp; mỗi cách 4 bước, dòng tô sáng trong đoạn mã 9 dòng', run: function () {
+          var b = budget(90); return b === 11 && Math.ceil(13 / b) - 1 === 1 && 7 < b &&
+            CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 9; }); }); }); } }] });
+  })();
 })();
