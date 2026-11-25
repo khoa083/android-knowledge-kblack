@@ -1,6 +1,6 @@
 # Nghiên cứu track M (Nền tảng Android: component và vòng đời)
 
-> Dàn ý soạn 2026-11-25, chờ người dùng duyệt, chưa xây. Dàn ý nằm ở `docs/tracks/M-android-platform.md`. Khi có mâu thuẫn, nguồn chính thức thắng.
+> Dàn ý soạn và được duyệt 2026-11-25, chưa xây. Dàn ý nằm ở `docs/tracks/M-android-platform.md`. Khi có mâu thuẫn, nguồn chính thức thắng.
 
 ## Đã đọc để soạn dàn ý (2026-11-25, chỉ mục lục)
 

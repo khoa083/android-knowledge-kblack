@@ -1,6 +1,6 @@
 # TRACK M: Nền tảng Android: component và vòng đời / Android Platform Fundamentals: Components and Lifecycles (`platform`)
 
-> **DÀN Ý, CHỜ NGƯỜI DÙNG DUYỆT (soạn 2026-11-25, người dùng đề xuất chủ đề).** Chưa xây. Năm câu hỏi ở cuối file đã có mặc định; người dùng đổi được.
+> **ĐÃ DUYỆT 2026-11-25 (người dùng đề xuất chủ đề).** Năm câu hỏi ở cuối file theo mặc định. **Chưa xây, để sau:** phiên kế tiếp người dùng ưu tiên viết lại các chủ đề còn khó hiểu.
 >
 > **Nguyên tắc: cần và đủ.**
 > - Dạy **luật mà hệ thống áp lên app**: ai tạo component, ai giết process, khi nào callback được gọi, việc gì bị chặn theo phiên bản Android.
