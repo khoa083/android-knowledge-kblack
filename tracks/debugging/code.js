@@ -74,4 +74,17 @@
     c('}                                                          // DetailActivity.onCreate gọi hàm này', '}                                                          // DetailActivity.onCreate calls this'),
     c('// dto.date = "2026-11-31" từ máy chủ', '// dto.date = "2026-11-31" from the server')
   ]);
+
+  /* l5: tạo lớp thanh toán bằng tên (dòng 3), keep rule (dòng 8), hay bỏ reflection (dòng 9) */
+  add('l5.code', [
+    'object PaymentFactory {',
+    '    fun create(name: String): PaymentMethod {',
+    c('        val cls = Class.forName("vn.henkham.pay.$name")      // tìm lớp bằng tên: R8 không thấy', '        val cls = Class.forName("vn.henkham.pay.$name")      // finds a class by name: invisible to R8'),
+    '        return cls.getDeclaredConstructor().newInstance() as PaymentMethod',
+    '    }',
+    '}',
+    '// proguard-rules.pro',
+    '-keep class vn.henkham.pay.** implements vn.henkham.pay.PaymentMethod { <init>(); }',
+    c('// hoặc bỏ reflection: val makers = mapOf("MomoPayment" to ::MomoPayment, "CardPayment" to ::CardPayment)', '// or drop reflection: val makers = mapOf("MomoPayment" to ::MomoPayment, "CardPayment" to ::CardPayment)')
+  ]);
 })();

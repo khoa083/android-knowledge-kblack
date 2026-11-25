@@ -277,4 +277,63 @@
         { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 6 dòng', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 6; }); }); }); } }] });
   })();
+
+  /* ================= l5: R8 và stack trace bị làm rối: dịch bằng mapping của bản build mới nhất, hay của đúng phiên bản bị crash =================
+     Theo developer.android.com build/shrink-code, studio/command-line/retrace, app-optimization/troubleshoot-the-optimization; Play Console Help 9848633.
+     CÀI THẬT: hai bảng mapping (lớp rối → tên thật, hàm rối → [tên, khoảng dòng rối, dòng thật bắt đầu]); mỗi frame được tra và tính số dòng thật
+     theo khoảng; frame đúng khi kết quả khớp tên thật của bản 1.6.0. Tên lớp, tên rối và số dòng là của site. */
+  (function () {
+    var m = 'retrace', CASES = ['latest', 'exact'], KS = ['s1', 's2', 's3', 's4'];
+    var HEAD = 'java.lang.ClassNotFoundException: vn.henkham.pay.MomoPayment';
+    var FRAMES = [['a.b', 'c', 4], ['a.e', 'f', 3], ['a.g', 'h', 7], null];   // null: frame của Android, không bị làm rối
+    var ANDROID = 'android.view.View.performClick(View.java:7659)';
+    // mapping: lớp rối → [tên thật, file, { hàm rối: [tên, dòng rối đầu, dòng rối cuối, dòng thật đầu] }]
+    var MAPS = {
+      exact: { 'a.b': ['vn.henkham.pay.PaymentFactory', 'PaymentFactory.kt', { c: ['create', 1, 12, 18] }], 'a.d': ['vn.henkham.pay.MomoPayment', 'MomoPayment.kt', {}],
+        'a.e': ['vn.henkham.pay.PaymentViewModel', 'PaymentViewModel.kt', { f: ['pay', 1, 20, 40] }], 'a.g': ['vn.henkham.pay.PayFragment', 'PayFragment.kt', { h: ['onPayClicked', 1, 9, 70] }] },
+      latest: { 'a.b': ['vn.henkham.data.BookingRepo', 'BookingRepo.kt', { c: ['save', 1, 8, 30] }], 'a.e': ['vn.henkham.pay.PaymentViewModel', 'PaymentViewModel.kt', { f: ['pay', 1, 20, 40] }],
+        'a.g': ['vn.henkham.data.BookingDao', 'BookingDao.kt', { h: ['insert', 1, 9, 12] }] } };
+    function tr(map, f) {
+      if (!f) return { text: ANDROID, line: '—' };
+      var c = map[f[0]], fn = c && c[2][f[1]];
+      if (!fn || f[2] < fn[1] || f[2] > fn[2]) return { text: '?', line: '—' };
+      return { text: c[0] + '.' + fn[0] + '(' + c[1] + ':' + (fn[3] + f[2] - fn[1]) + ')', line: c[0] + ' -> ' + f[0] + ' · ' + fn[1] + ':' + fn[2] + ' … -> ' + f[1] };
+    }
+    var obf = function (f) { return f ? f[0] + '.' + f[1] + '(Unknown Source:' + f[2] + ')' : ANDROID; };
+    function rows(c, translated) {
+      return FRAMES.map(function (f) { var got = translated ? tr(MAPS[c], f) : { text: '?', line: '—' }, real = tr(MAPS.exact, f);
+        return { obf: obf(f), got: got.text, line: got.line, real: real.text, ok: translated && got.text === real.text, wrong: translated && got.text !== '?' && got.text !== real.text }; });
+    }
+    function tally(c, translated) { var r = rows(c, translated); return { ok: r.filter(function (x) { return x.ok; }).length, wrong: r.filter(function (x) { return x.wrong; }).length }; }
+    ADE.dbgRetrace = { rows: rows, tally: tally, HEAD: HEAD };
+    var CAUSE = { latest: ['cause.none', 'cause.none', 'cause.none', 'cause.wrong'], exact: ['cause.none', 'cause.none', 'cause.reflect', 'cause.kept'] };
+    var NODES = { latest: [[['crash'], 'crash', 'e3'], [['map', 'retrace'], 'map', 'e4'], [['retrace'], 'retrace', 'e4'], [['retrace'], 'retrace', 'e4']],
+      exact: [[['crash', 'map'], 'map', 'e2'], [['map', 'retrace'], 'retrace', 'e4'], [['src', 'retrace'], 'src', 'e1'], [['src', 'r8'], 'r8', 'e1']] };
+    var HL = { latest: [[2], [2], [2], [2]], exact: [[2], [2], [3], [8, 9]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var t = tally(c, i >= 1), bad = c === 'latest' && i >= 2, nd = NODES[c][i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { ok: t.ok, wrong: i >= 2 ? t.wrong : 0, cause: M(m, CAUSE[c][i]) },
+          codeHighlight: { snippet: 'l5.code', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'latest';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'latest' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'mapping đúng bản 1.6.0: cả 4 frame dịch đúng; a.b.c dòng rối 4 thành PaymentFactory.create dòng 21', run: function () {
+          var r = rows('exact', true); return tally('exact', true).ok === 4 && r[0].got === 'vn.henkham.pay.PaymentFactory.create(PaymentFactory.kt:21)'; } },
+        { name: 'mapping của bản mới nhất: 2 frame đúng (PaymentViewModel và frame Android), 2 frame sai mà trông hợp lý (BookingRepo, BookingDao)', run: function () {
+          var t = tally('latest', true), r = rows('latest', true); return t.ok === 2 && t.wrong === 2 && /BookingRepo\.save/.test(r[0].got) && /BookingDao\.insert/.test(r[2].got); } },
+        { name: 'bài tập: dòng rối 5 trong khoảng 1:12 của c ứng với dòng thật 22 (18 + 5 − 1)', run: function () { return tr(MAPS.exact, ['a.b', 'c', 5]).text === 'vn.henkham.pay.PaymentFactory.create(PaymentFactory.kt:22)'; } },
+        { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 9 dòng', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 9; }); }); }); } }] });
+  })();
 })();

@@ -164,4 +164,25 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-trace' }, tb)),
       h('div', { class: 'vz-legend', text: T('tr.legend') })));
   }, { labelKey: K + 'tab.trace', icon: 'layers' });
+
+  /* ---------- l5: bảng đối chiếu frame (rối, dịch ra, thật, dòng mapping đã dùng); cột "thật" hiện từ bước 3; ô dịch sai tô đỏ.
+     Tính từ ADE.dbgRetrace; ô đổi lớp thì nháy. ---------- */
+  ADE.registerScreen('debugging.retrace', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.dbgRetrace, c = ctx.state.case, i = Math.max(0, idx(ctx)), rs = D.rows(c, i >= 1), t = D.tally(c, i >= 1), showReal = i >= 2;
+    var tb = h('tbody'), sh = function (x) { return String(x).replace(/vn\.henkham\./g, ''); };
+    rs.forEach(function (r, n) {
+      r = { obf: r.obf, got: sh(r.got), real: sh(r.real), line: sh(r.line), ok: r.ok, wrong: r.wrong };
+      tb.appendChild(h('tr', { 'data-k': 'rt-' + n },
+        h('td', { text: r.obf }),
+        h('td', { class: showReal && r.wrong ? 'bad' : (r.got === '?' ? 'dim' : (showReal && r.ok ? 'ok' : null)), text: r.got === '?' ? T('rt.q') : r.got }),
+        h('td', { class: showReal ? null : 'dim', text: showReal ? r.real : T('rt.q') }),
+        h('td', { class: 'dim', text: r.line })));
+    });
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-sub', 'data-k': 'rt-map-' + c, text: T('rt.map', { f: T('rt.map.' + c) }) }),
+      h('p', { class: 'vz-sub' + (c === 'exact' && i >= 2 ? ' bad' : ''), 'data-k': 'rt-head-' + (c === 'exact' && i >= 2 ? 1 : 0), text: T('rt.head', { h: D.HEAD }) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table vz-trace' }, h('thead', null, h('tr', null, ['obf', 'got', 'real', 'line'].map(function (k) { return h('th', { text: T('rt.col.' + k) }); }))), tb)),
+      h('p', { class: 'vz-sub' + (showReal && t.wrong ? ' bad' : ''), 'data-k': 'rt-n-' + i, text: T('rt.count', { ok: t.ok, w: showReal ? t.wrong : 0 }) }),
+      h('div', { class: 'vz-legend', text: T('rt.legend') })));
+  }, { labelKey: K + 'tab.retrace', icon: 'search' });
 })();

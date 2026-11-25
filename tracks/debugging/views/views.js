@@ -30,4 +30,9 @@
   V('trace', { layout: 'pipeline', nodes: [N('trace', 'root', 0, 0, 'pitfall', 'signal'), N('trace', 'mid', 3, 0, 'layers', 'state'), N('trace', 'outer', 6, 0, 'layers', 'runtime'), N('trace', 'crash', 9, 0, 'cross', 'job')],
     edges: [E('e1', 'root', 'mid'), E('e2', 'mid', 'outer'), E('e3', 'outer', 'crash')],
     metrics: [T('trace', 'layers'), T('trace', 'frame'), T('trace', 'fixed')] });
+  /* l5: mã nguồn → R8 (đổi tên, ghi mapping) → stack trace rối từ người dùng → retrace dùng mapping để dịch ngược */
+  V('retrace', { layout: 'pipeline', nodes: [N('retrace', 'src', 0, 0, 'source', 'ui'), N('retrace', 'r8', 3, 0, 'mechanism', 'runtime'), N('retrace', 'map', 3, 2, 'list', 'state'),
+    N('retrace', 'crash', 6, 0, 'pitfall', 'signal'), N('retrace', 'retrace', 6, 2, 'search', 'job')],
+    edges: [E('e1', 'src', 'r8'), E('e2', 'r8', 'map'), E('e3', 'r8', 'crash'), E('e4', 'map', 'retrace')],
+    metrics: [T('retrace', 'ok'), T('retrace', 'wrong'), T('retrace', 'cause')] });
 })();

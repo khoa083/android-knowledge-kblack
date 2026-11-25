@@ -58,3 +58,13 @@
 | Dán stack trace từ bên ngoài; mã nguồn phải cùng phiên bản với bản tạo ra stack trace | developer.android.com/studio/debug/stacktraces (trang không nói về retrace) |
 | Khôi phục stack trace của coroutine, bản sao có cause là bản gốc, frame _COROUTINE._BOUNDARY | kotlinlang.org/docs/coroutines-debugging.html |
 | **Của site:** crash ba tầng (RuntimeException ← IllegalStateException ← DateTimeParseException ngày 2026-11-31); "... 5 more", "... 8 more" tính từ đuôi chung; BookingMapper.kt:22; bài tập "150.000" với "... 6 more" | — |
+
+### l5 R8 và stack trace bị làm rối (đọc 2026-11-25)
+| Ý trên site | Nguồn |
+|---|---|
+| R8 thu gọn từ điểm vào, tối ưu (inline, gộp lớp), làm rối tên, thu gọn tài nguyên; isMinifyEnabled, isShrinkResources, proguard-android-optimize.txt; DSL mới từ AGP 9.3 | developer.android.com/build/shrink-code |
+| Cú pháp retrace, đọc stdin, --verbose/--info/--quiet/--regex | developer.android.com/studio/command-line/retrace |
+| Crash chỉ ở release do reflection; ClassNotFoundException…; keep rule, Jetpack Keep; configuration.txt; -whyareyoukeeping; mapping bị ghi đè mỗi lần build, gói vào AAB; Logcat mới tự dịch ngược (Studio Otter 3 Feature Drop, AGP 9.0) | developer.android.com/topic/performance/app-optimization/troubleshoot-the-optimization |
+| Play lấy mapping từ AAB với AGP 4.1+; APK phải tự tải; chỉ crash sau khi tải mới được dịch | support.google.com/googleplay/android-developer/answer/9848633 |
+| **Của site:** bản 1.6.0, mapping a.b → PaymentFactory (bản mới: BookingRepo); 2 frame sai mà hợp lý; Class.forName("vn.henkham.pay.MomoPayment"); keep rule theo interface PaymentMethod; bài tập dòng 5 → 22 | — |
+- Chưa có nguồn chính thức cho định dạng dòng mapping (khoảng dòng "1:12:… :18:29 -> c"); site dùng dạng của R8 như ví dụ minh họa.
