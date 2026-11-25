@@ -60,4 +60,54 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['n', 'sc', 're', 'out'].map(function (k) { return h('th', { text: T('loop.col.' + k) }); }))), tb)),
       h('div', { class: 'vz-legend', text: T('loop.legend') })));
   }, { labelKey: K + 'tab.loop', icon: 'replay' });
+
+  /* ---------- l2: hai làn luồng (SVG phẳng): làn trên là luồng báo cáo đi qua 500 lịch (vạch đỏ là chỗ dừng; nhiều lần dừng thành dải đỏ),
+     làn dưới là luồng đồng bộ (chấm là nhịp; đoạn đỏ là lúc bị dừng theo quá hạn). Dưới là bảng biến tại chỗ dừng, hoặc log của breakpoint.
+     Giá trị tính từ ADE.dbgBp; ô đổi lớp thì nháy. ---------- */
+  ADE.registerScreen('debugging.bp', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.dbgBp, c = ctx.state.case, i = Math.max(0, idx(ctx)), r = P.run(c, i);
+    var X0 = 120, W = 480, x = function (n) { return X0 + n * W / (P.N - 1); };
+    var svg = '<svg class="vz-dg vz-lanes" viewBox="0 0 620 130" role="img" aria-label="' + esc(T('bp.aria', { s: r.stops, m: r.gap })) + '">';
+    svg += '<text class="vz-dg-s" x="4" y="38">' + esc(T('bp.lane.report')) + '</text><text class="vz-dg-s" x="4" y="98">' + esc(T('bp.lane.sync')) + '</text>';
+    svg += '<line class="vz-dg-e" x1="' + X0 + '" y1="34" x2="' + (X0 + W) + '" y2="34"/><line class="vz-dg-e" x1="' + X0 + '" y1="94" x2="' + (X0 + W) + '" y2="94"/>';
+    svg += '<line class="vz-dg-e up" data-k="bp-prog" x1="' + X0 + '" y1="34" x2="' + x(r.at).toFixed(1) + '" y2="34"/>';
+    if (r.stops > 1) svg += '<g class="vz-dg-n bad" data-k="bp-band"><rect x="' + X0 + '" y="24" width="' + (x(P.BAD) - X0).toFixed(1) + '" height="20" rx="2"/></g>';
+    else if (r.stops === 1) svg += '<g class="vz-dg-n bad" data-k="bp-stop"><rect x="' + (x(r.at) - 3).toFixed(1) + '" y="22" width="6" height="24" rx="1"/></g>';
+    if (r.stops) svg += '<text class="vz-dg-s" data-k="bp-at" x="' + (x(r.at) - 30).toFixed(1) + '" y="16">' + esc(r.at === P.BAD ? T('bp.hit') : 'i = ' + r.at) + '</text>';
+    // nhịp của luồng đồng bộ: mỗi 24 px một chấm; khi bị dừng theo quá hạn, một đoạn đỏ thay cho các chấm sau chỗ dừng
+    var cut = r.expired ? x(r.at) : -1;
+    for (var px = X0 + 6; px < X0 + W; px += 24) {
+      if (cut >= 0 && px > cut && px < cut + 90) continue;
+      svg += '<circle class="vz-dot" cx="' + px + '" cy="94" r="3.5"/>';
+    }
+    if (cut >= 0) svg += '<g class="vz-dg-n bad" data-k="bp-gap"><rect x="' + cut.toFixed(1) + '" y="86" width="90" height="16" rx="2"/></g>';
+    svg += '<text class="vz-dg-s" x="' + X0 + '" y="124">' + esc(T('bp.axis')) + '</text></svg>';
+    var wrap = h('div', { class: 'vz-scroll' }); wrap.innerHTML = svg;
+    var sub1 = c === 'logbp' ? T('bp.sub.logs', { n: r.logs, k: r.filtered }) : T('bp.sub.stops', { s: r.stops, r: r.resumes });
+    var sub2 = T('bp.sub.sync', { m: r.gap, st: T('bp.st.' + (r.expired ? 'expired' : 'alive')) });
+    var tb = h('tbody'), title;
+    if (c === 'logbp') {
+      title = T('bp.log.title');
+      for (var n = P.BAD - 2; n <= P.BAD + 2; n++) {
+        var neg = P.fee(n) < 0, on = neg && i >= 1;
+        tb.appendChild(h('tr', { 'data-k': 'bp-log-' + n }, h('td', { class: on ? 'bad' : null, text: 'i=' + n + ' fee=' + P.fee(n) }), h('td', { class: on ? 'bad' : 'dim', text: i >= 1 ? (neg ? '← fee < 0' : '') : '' })));
+      }
+    } else {
+      title = T('bp.vars.title');
+      var at = r.stops ? r.at : null;
+      var rows = at === null ? [['i', '—'], ['b.discountPercent', '—'], ['fee', '—']] :
+        [['i', String(at)], ['b.id', String(1001 + at)], ['b.base', String(P.BASE)], ['b.discountPercent', String(P.disc(at))], ['fee', String(P.fee(at))]];
+      rows.forEach(function (rw) {
+        var badCell = at !== null && P.fee(at) < 0 && (rw[0] === 'fee' || rw[0] === 'b.discountPercent');
+        tb.appendChild(h('tr', { 'data-k': 'bp-v-' + rw[0] }, h('td', { text: rw[0] }), h('td', { class: badCell ? 'bad' : null, text: rw[1] })));
+      });
+    }
+    box.appendChild(h('div', { class: 'vz' },
+      wrap,
+      h('p', { class: 'vz-sub' + (c === 'plain' && i >= 1 ? ' bad' : ''), 'data-k': 'bp-sub1', text: sub1 }),
+      h('p', { class: 'vz-sub' + (r.expired ? ' bad' : ''), 'data-k': 'bp-sub2', text: sub2 }),
+      h('p', { class: 'vz-cap', text: title }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, h('th', { text: T('bp.col.name') }), h('th', { text: T('bp.col.val') }))), tb)),
+      h('div', { class: 'vz-legend', text: T('bp.legend') })));
+  }, { labelKey: K + 'tab.bp', icon: 'thread' });
 })();

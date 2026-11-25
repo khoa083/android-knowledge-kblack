@@ -16,4 +16,9 @@
     N('loop', 'check', 6, 2, 'check', 'job'), N('loop', 'lock', 9, 2, 'source', 'state')],
     edges: [E('e1', 'repro', 'narrow'), E('e2', 'narrow', 'hypo'), E('e3', 'hypo', 'check'), E('e4', 'check', 'repro'), E('e5', 'check', 'lock')],
     metrics: [T('loop', 'crash'), T('loop', 'blank'), T('loop', 'releases'), T('loop', 'known')] });
+  /* l2: luồng báo cáo → breakpoint → bảng biến; luồng đồng bộ → máy chủ (bị dừng theo hay không tùy chính sách) */
+  V('bp', { layout: 'pipeline', nodes: [N('bp', 'report', 0, 0, 'thread', 'job'), N('bp', 'bp', 3, 0, 'pause', 'signal'), N('bp', 'vars', 6, 0, 'list', 'state'),
+    N('bp', 'sync', 0, 2, 'thread', 'job'), N('bp', 'server', 6, 2, 'source', 'runtime')],
+    edges: [E('e1', 'report', 'bp'), E('e2', 'bp', 'vars'), E('e3', 'bp', 'sync'), E('e4', 'sync', 'server')],
+    metrics: [T('bp', 'stops'), T('bp', 'resumes'), T('bp', 'logs'), T('bp', 'sync')] });
 })();

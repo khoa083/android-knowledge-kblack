@@ -74,4 +74,55 @@
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l, i) { return l.every(function (x) { return x >= 1 && x <= LEN[CODE[c][i]]; }); }); }) &&
             RELEASES.guess[3] === 3 && RELEASES.method[3] === 1; } }] });
   })();
+
+  /* ================= l2: debugger: breakpoint thường, có điều kiện, chính sách All hay Thread, breakpoint chỉ ghi log =================
+     Theo JetBrains IntelliJ IDEA 2026.3 Help (Breakpoints; Examine suspended program). CÀI THẬT: 500 lịch, phí = base × (100 − giảm giá) / 100;
+     chỉ đơn 347 có giảm giá 120 % nên phí âm. Số lần dừng, bấm chạy tiếp, dòng log được đếm từ vòng lặp; luồng đồng bộ gửi nhịp mỗi giây,
+     khoảng không nhịp dài nhất được tính từ thời gian dừng (mỗi lần dừng ngắn 1 giây, bước "xem biến" 30 giây); quá 10 giây là mất phiên.
+     Danh sách lịch, mức giảm giá và hạn 10 giây là của site. */
+  (function () {
+    var m = 'bp', CASES = ['plain', 'cond', 'thread', 'logbp'], KS = ['s1', 's2', 's3'];
+    var N = 500, BAD = 347, BASE = 200000, TIMEOUT = 10, LOOK = 30;
+    var disc = function (i) { return i === BAD ? 120 : (i * 7) % 31; };
+    var fee = function (i) { return BASE * (100 - disc(i)) / 100; };
+    var negatives = function () { var r = []; for (var i = 0; i < N; i++) if (fee(i) < 0) r.push(i); return r; };
+    // chạy vòng lặp tới bước k (0..2) với một kiểu breakpoint: chỉ số đang đứng, các lần dừng, số lần bấm chạy tiếp, số dòng log, khoảng không nhịp dài nhất
+    function run(c, k) {
+      var stops = [], logs = 0, at = 0, gap = 0, cond = c === 'cond' || c === 'thread', all = c !== 'thread';
+      if (c === 'logbp') { logs = N; at = N - 1; }
+      else if (c === 'plain') { var to = k === 0 ? 0 : BAD; for (var i = 0; i <= to; i++) stops.push(i); at = to; }
+      else if (cond) { if (k === 0) at = BAD - 1; else { for (var j = 0; j < N; j++) if (fee(j) < 0) { stops.push(j); break; } at = BAD; } }
+      if (c !== 'logbp' && all && stops.length) gap = k === 2 ? LOOK : 1;
+      return { at: at, stops: stops.length, resumes: Math.max(0, stops.length - 1), logs: logs, filtered: c === 'logbp' && k >= 1 ? negatives().length : 0, gap: gap, expired: gap > TIMEOUT };
+    }
+    ADE.dbgBp = { N: N, BAD: BAD, BASE: BASE, disc: disc, fee: fee, run: run, TIMEOUT: TIMEOUT };
+    var NODES = [[['report', 'bp'], 'bp', 'e1'], [['bp', 'vars'], 'vars', 'e2'], [['sync', 'server'], 'server', 'e4']];
+    var HL = { plain: [[5], [5], [5]], cond: [[4, 5], [4, 5], [5]], thread: [[4, 5], [4, 5], [5]], logbp: [[5], [4, 5], [4]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var r = run(c, i), bad = (c === 'plain' && i >= 1) || r.expired, nd = NODES[i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { stops: r.stops, resumes: r.resumes, logs: r.logs, sync: M(m, i < 2 && c !== 'thread' && c !== 'logbp' ? 'sync.na' : (r.expired ? 'sync.expired' : 'sync.alive')) },
+          codeHighlight: { snippet: 'l2.loop', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 2 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'plain';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'plain' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'trong 500 lịch chỉ đơn 347 có phí âm: 200.000 × (100 − 120) / 100 = −40.000', run: function () { var n = negatives(); return n.length === 1 && n[0] === 347 && fee(347) === -40000 && fee(0) === 200000; } },
+        { name: 'breakpoint thường: 348 lần dừng, 347 lần bấm chạy tiếp; có điều kiện fee < 0: đúng 1 lần dừng, ở đơn 347', run: function () {
+          var a = run('plain', 1), b = run('cond', 1); return a.stops === 348 && a.resumes === 347 && b.stops === 1 && b.at === 347 && b.resumes === 0; } },
+        { name: 'xem biến 30 giây: dừng mọi luồng thì luồng đồng bộ lỡ 30 nhịp > 10, mất phiên; chỉ dừng một luồng thì 0 nhịp, còn phiên', run: function () {
+          return run('plain', 2).expired && run('cond', 2).expired && !run('thread', 2).expired && run('thread', 2).gap === 0 && !run('plain', 1).expired; } },
+        { name: 'breakpoint chỉ ghi log: 0 lần dừng, 500 dòng log, lọc phí âm còn 1 dòng; mỗi kiểu 3 bước, dòng tô sáng trong đoạn mã', run: function () {
+          var r = run('logbp', 1); return r.stops === 0 && r.logs === 500 && r.filtered === 1 &&
+            CASES.every(function (c) { return steps({ case: c }).length === 3 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); }); } }] });
+  })();
 })();

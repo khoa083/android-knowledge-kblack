@@ -39,4 +39,16 @@
     c('BookingDetailFragment().apply { arguments = bundleOf("bookingId" to booking.id) }   // màn danh sách', 'BookingDetailFragment().apply { arguments = bundleOf("bookingId" to booking.id) }   // the list screen'),
     c('// thêm test: launchFragmentInContainer(...).recreate(), kiểm tên bệnh nhân vẫn hiện', '// add a test: launchFragmentInContainer(...).recreate(), check the patient name still shows')
   ]);
+
+  /* l2: vòng lặp tính tổng phí trên luồng nền; breakpoint đặt ở dòng 5 */
+  add('l2.loop', [
+    'suspend fun monthlyTotal(bookings: List<Booking>): Long = withContext(Dispatchers.Default) {',
+    '    var total = 0L',
+    '    for ((i, b) in bookings.withIndex()) {',
+    c('        val fee = b.base * (100 - b.discountPercent) / 100     // điều kiện: fee < 0', '        val fee = b.base * (100 - b.discountPercent) / 100     // condition: fee < 0'),
+    c('        total += fee                                           // breakpoint ở đây', '        total += fee                                           // breakpoint here'),
+    '    }',
+    '    total',
+    '}'
+  ]);
 })();
