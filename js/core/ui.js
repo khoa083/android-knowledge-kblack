@@ -584,6 +584,15 @@
     if (!root || typeof MutationObserver === 'undefined') return { destroy: function () { } };
     var off = function () { return ADE.motionReduced() || ADE.diagramOnly(); };
     var last = null, lastMut = 0, settle = null, mo = null, dead = false, gen = 0;
+    // Vị trí của vật có data-k đo so với khung chứa nó (SVG ngoài cùng, hoặc bảng), không so với màn hình:
+    // chữ phía trên hình dài thêm một dòng hay trang cuộn thì cả hình dời xuống, nhưng vật trong hình không di chuyển,
+    // nên không được trượt (trước đây mọi vật "nhảy từ dưới lên" mỗi khi phần chú thích đổi số dòng).
+    function anchorRect(el) {
+      var a = el.closest ? el.closest('svg') : null;
+      while (a && a.parentElement && a.parentElement.closest('svg')) a = a.parentElement.closest('svg');
+      if (!a && el.closest) a = el.closest('table');
+      return (a && a !== el ? a : root).getBoundingClientRect();
+    }
     function take() {
       var m = {}, keyed = {};
       // phần tử có data-k (định danh ổn định) nhớ vị trí trên màn hình để lần sau trượt từ chỗ cũ tới chỗ mới (FLIP)
@@ -599,8 +608,8 @@
             info.own = own; info.nk = c.children.length;
           }
           info.cls = c.getAttribute('class') || '';
-          var dk = c.getAttribute('data-k');
-          if (dk && !keyed[dk]) { var rc = c.getBoundingClientRect(); if (rc.width || rc.height) keyed[dk] = { x: rc.left, y: rc.top }; }
+          var dk = c.getAttribute('data-k'); info.dk = dk;
+          if (dk && !keyed[dk]) { var rc = c.getBoundingClientRect(), ar = anchorRect(c); if (rc.width || rc.height) keyed[dk] = { x: rc.left - ar.left, y: rc.top - ar.top }; }
           if (c instanceof SVGElement) { info.g = {}; GEO.forEach(function (a) { var v = c.getAttribute(a); if (v != null) info.g[a] = v; }); }
           m[k] = info;
           if (!SKIP[t]) walk(c, k);
@@ -651,8 +660,9 @@
           else flash.push(n.el);
           live.push(n.el);
         }
-        // chỉ đổi lớp (ô được tô, mũi tên thành "hiện tại"…): nháy một lần và giữ chuyển động liên tục
-        if (n.cls !== o.cls && (n.txt == null || n.txt === o.txt)) {
+        // chỉ đổi lớp (ô được tô, mũi tên thành "hiện tại"…), hoặc tác giả đổi data-k để báo "đây là trạng thái mới"
+        // dù chữ giữ nguyên: nháy một lần và giữ chuyển động liên tục
+        if ((n.cls !== o.cls || (n.dk && o.dk && n.dk !== o.dk)) && (n.txt == null || n.txt === o.txt)) {
           if (n.el instanceof SVGElement) n.el.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 420, easing: 'ease-out' });
           else flash.push(n.el);
           live.push(n.el);
@@ -677,7 +687,7 @@
       var ok = old.__keyed || {}, moved = 0;
       if (Object.keys(ok).length) [].forEach.call(root.querySelectorAll('[data-k]'), function (el) {
         var o = ok[el.getAttribute('data-k')]; if (!o || moved > 80) return;
-        var rc = el.getBoundingClientRect(), dx = o.x - rc.left, dy = o.y - rc.top;
+        var rc = el.getBoundingClientRect(), ar = anchorRect(el), dx = o.x - (rc.left - ar.left), dy = o.y - (rc.top - ar.top);
         if ((rc.width || rc.height) && Math.abs(dx) + Math.abs(dy) > 2) {
           moved++; var i = fresh.indexOf(el); if (i >= 0) fresh.splice(i, 1);
           el.animate([{ transform: 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px)' }, { transform: 'none' }], { duration: 560, easing: 'cubic-bezier(.2,.7,.2,1)' });
