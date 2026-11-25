@@ -74,8 +74,8 @@ def add(a):
          'What matters is not only what the type lets you do, but what it stops you doing. A meaningless state that cannot be written cannot reach the app. [[src:book-fp-tut]]'),
         ('sum.s3', 'Gán cả trạng thái bằng một kiểu con, thay vì sửa từng trường bằng copy: một lần gán, một trạng thái, không trường nào bị bỏ quên.',
          'Set the whole state to one subtype instead of patching fields with copy: one assignment, one state, no field forgotten.'),
-        ('sum.s4', 'Kotlin biết hết các kiểu con của một sealed interface ngay lúc biên dịch, nên kiểm được when đã đủ nhánh chưa. Viết else là tự tắt lời nhắc này (track Kotlin, chương K5). [[src:kt-sealed]]',
-         'Kotlin knows every subtype of a sealed interface at compile time, so it can check whether a when covers them all. Writing else switches this reminder off (Kotlin track, chapter K5). [[src:kt-sealed]]'),
+        ('sum.s4', 'Kotlin biết hết các kiểu con của một sealed interface ngay lúc biên dịch, nên kiểm được when đã đủ nhánh chưa. Viết else là tự tắt lời nhắc này (chương K5, "Enum, sealed và when", của track Kotlin). [[src:kt-sealed]]',
+         'Kotlin knows every subtype of a sealed interface at compile time, so it can check whether a when covers them all. Writing else switches this reminder off (chapter K5, "Enums, sealed types and when", of the Kotlin track). [[src:kt-sealed]]'),
     ]:
         m('co.' + k, vi, en)
 
@@ -142,8 +142,8 @@ def add(a):
     S_ = 'kotlin'
     a(C + '.sec.%s.title' % S_, 'Trong Kotlin: sealed interface và when đủ nhánh', 'In Kotlin: sealed interfaces and a complete when')
     a(C + '.sec.%s.badge' % S_, 'stable')
-    B(C, S_, 1, 'p', 'Khai báo một sealed interface (hoặc sealed class) với các kiểu con data object và data class. Vì Kotlin biết hết các kiểu con ngay lúc biên dịch, nó kiểm được when trên kiểu đó đã đủ nhánh chưa, không cần else. Track Kotlin chương K5 nói kỹ phần cú pháp; track Kiến trúc chương G7 dùng một UiState duy nhất cho mô hình MVI. [[src:kt-sealed]]',
-      'Declare a sealed interface (or sealed class) with data object and data class subtypes. Because Kotlin knows every subtype at compile time, it can check whether a when on that type covers them all, with no else needed. The Kotlin track\'s chapter K5 covers the syntax in detail; the Architecture track\'s chapter G7 uses a single UiState for MVI. [[src:kt-sealed]]')
+    B(C, S_, 1, 'p', 'Khai báo một sealed interface (hoặc sealed class) với các kiểu con data object và data class. Vì Kotlin biết hết các kiểu con ngay lúc biên dịch, nó kiểm được when trên kiểu đó đã đủ nhánh chưa, không cần else. Chương K5 của track Kotlin nói kỹ phần cú pháp; chương G7, "MVVM và MVI", của track Kiến trúc app Android dùng một UiState duy nhất cho mô hình MVI. [[src:kt-sealed]]',
+      'Declare a sealed interface (or sealed class) with data object and data class subtypes. Because Kotlin knows every subtype at compile time, it can check whether a when on that type covers them all, with no else needed. Chapter K5 of the Kotlin track covers the syntax in detail; chapter G7, "MVVM and MVI", of the Android App Architecture track uses a single UiState for MVI. [[src:kt-sealed]]')
     B(C, S_, 2, 'kt', '_state.value = SlotsUiState.Loading\n_state.value = try {\n    SlotsUiState.Success(repo.slots())\n} catch (e: IOException) {\n    SlotsUiState.Error(e.message ?: "")\n}',
       '_state.value = SlotsUiState.Loading\n_state.value = try {\n    SlotsUiState.Success(repo.slots())\n} catch (e: IOException) {\n    SlotsUiState.Error(e.message ?: "")\n}')
     B(C, S_, 3, 'p', 'Để ý: mỗi lần đổi trạng thái là một phép gán trả về đúng một kiểu con. Không còn những dòng copy(isLoading = …) rải rác mà chỗ nào cũng phải nhớ tắt cờ.',
