@@ -2,7 +2,7 @@
 # Nguồn: developer.android.com Dependency injection in Android, Manual dependency injection, Dependency injection with Hilt (đọc 2026-11-24).
 # Trần: 8 mục, mục cơ chế ≤ 4 khối.
 
-SEC_ORDER = {'g6': ['hook', 'why', 'manual', 'hilt', 'bugs', 'ex', 'recall', 'honest']}
+SEC_ORDER = {'g6': ['hook', 'why', 'manual', 'hilt', 'bugs', 'ex', 'recall']}
 
 
 def add(a):
@@ -16,7 +16,8 @@ def add(a):
     m('wrapup', 'Dependency injection nghĩa là lớp không tự tạo phụ thuộc mà nhận chúng từ bên ngoài. Ai tạo và giữ instance quyết định có bao nhiêu bản và chúng sống bao lâu. Hilt gắn mỗi binding vào một component có vòng đời rõ ràng; @Singleton cho một bản dùng chung suốt đời Application. Quy tắc an toàn: object sống lâu không được giữ object sống ngắn hơn, nhất là Activity.',
       'Dependency injection means a class does not create its dependencies but receives them from outside. Who creates and holds an instance decides how many copies exist and how long they live. Hilt ties each binding to a component with a clear lifetime; @Singleton gives one shared copy for the whole life of the Application. The safety rule: a long-lived object must not hold a shorter-lived one, an Activity above all.')
     m('simp.1', 'Mỗi dải chỉ vẽ vài object; app thật có nhiều binding hơn và có thêm ActivityRetainedComponent, ServiceComponent.', 'Each band shows only a few objects; a real app has many more bindings plus ActivityRetainedComponent and ServiceComponent.')
-    m('simp.2', 'Lỗi biên dịch của Hilt ở bước cuối được suy ra từ bảng binding mặc định trong tài liệu (SingletonComponent chỉ có Application); câu chữ thông báo thật của Dagger có thể khác.', 'The Hilt compile error in the last step is inferred from the docs\' default-bindings table (SingletonComponent only has Application); Dagger\'s real message may be worded differently.')
+    m('simp.2', 'Lỗi biên dịch của Hilt ở bước cuối được suy ra từ bảng binding mặc định trong tài liệu Android (đọc ngày 2026-11-24): SingletonComponent chỉ có sẵn Application. Câu chữ thông báo thật của Dagger (thư viện mà Hilt dựa vào) có thể khác. Chương chưa nói chi tiết về module Hilt (@Module, @Provides, @Binds), qualifier tự định nghĩa, ActivityRetainedComponent, và Dagger dùng trực tiếp.',
+      'The Hilt compile error in the last step is inferred from the default-bindings table in the Android docs (read on 2026-11-24): SingletonComponent only has Application available. The real message from Dagger (the library Hilt builds on) may be worded differently. The chapter does not cover Hilt modules (@Module, @Provides, @Binds) in detail, custom qualifiers, ActivityRetainedComponent, or using Dagger directly.')
     m('ctl.hint', 'Đổi cách tạo rồi đi lại bốn bước; xem tab "Sơ đồ phạm vi".', 'Switch the approach and walk the four steps again; watch the "Scope map" tab.')
     m('ctl.case', 'Cách tạo repository', 'How the repository is created')
     for k, vi, en in [('manual', 'tự tạo, rồi container thủ công', 'self-created, then a manual container'), ('hilt', 'Hilt với @Singleton', 'Hilt with @Singleton'), ('leak', 'singleton giữ Activity', 'a singleton holding an Activity')]:
@@ -77,7 +78,7 @@ def add(a):
         ('try', 'Đi bốn bước của từng cách; đếm số instance và xem có mũi tên đỏ nào trong "Sơ đồ phạm vi".', 'Walk the four steps of each approach; count the instances and look for red arrows in the "Scope map".'),
         ('manual.s2', 'Tạo phụ thuộc ngay trong lớp dùng nó làm mã khó dùng lại và khó test; đó là vấn đề DI giải quyết. [[src:ax-di]]', 'Creating dependencies inside the class that uses them makes code hard to reuse and test; that is the problem DI solves. [[src:ax-di]]'),
         ('manual.s3', 'Đây là lỗi "hai nguồn sự thật" của chương G2, lần này do cách tạo object chứ không do cách viết repository.', 'This is chapter G2\'s "two sources of truth" bug, caused this time by how objects are created rather than how the repository is written.'),
-        ('manual.s4', 'Manual DI: đặt container dùng chung trong lớp Application. AppContainer không phải singleton kiểu object; singleton làm test khó vì mọi test dùng chung một instance. [[src:ax-di-manual]]', 'Manual DI: put a shared container in the Application class. AppContainer is not an object singleton; singletons make testing harder because all tests share one instance. [[src:ax-di-manual]]'),
+        ('manual.s4', 'Tài liệu Android về DI thủ công khuyên: đặt container (object chứa và tạo các phụ thuộc) dùng chung trong lớp Application. AppContainer không phải singleton kiểu object; singleton làm test khó vì mọi test dùng chung một instance. [[src:ax-di-manual]]', 'The Android docs on manual DI advise: put a shared container (an object that creates and holds the dependencies) in the Application class. AppContainer is not an object singleton; singletons make testing harder because all tests share one instance. [[src:ax-di-manual]]'),
         ('hilt.s2', 'Hilt sinh component cho từng lớp Android có thể inject: SingletonComponent cho Application, ViewModelComponent cho ViewModel, ActivityComponent cho Activity. [[src:ax-hilt]]', 'Hilt generates a component for each injectable Android class: SingletonComponent for the Application, ViewModelComponent for ViewModels, ActivityComponent for Activities. [[src:ax-hilt]]'),
         ('hilt.s3', 'Mặc định binding không có scope: mỗi lần yêu cầu là một instance mới. Binding có scope chỉ được tạo một lần cho mỗi instance của component đó, và mọi yêu cầu dùng chung. [[src:ax-hilt]]', 'Bindings are unscoped by default: every request makes a new instance. A scoped binding is created once per instance of its component, and every request shares it. [[src:ax-hilt]]'),
         ('hilt.s4', 'Tài liệu nhắc: binding có scope nằm trong bộ nhớ tới khi component bị hủy, nên hạn chế dùng scope; chỉ dùng khi cần chia sẻ trạng thái hay đồng bộ. [[src:ax-hilt]]', 'The docs warn: a scoped binding stays in memory until its component is destroyed, so minimise scoping; use it when state must be shared or synchronised. [[src:ax-hilt]]'),
@@ -178,12 +179,6 @@ def add(a):
     B(C, S_, 1, 'ans', 'Một instance mới.', 'A new instance.')
     B(C, S_, 2, 'ask', 'Singleton cần Context thì dùng Context nào, và vì sao?', 'Which Context should a singleton use, and why?')
     B(C, S_, 2, 'ans', 'Context của Application, vì nó sống ít nhất lâu bằng singleton; giữ Activity thì rò rỉ Activity đã hủy.', 'The Application context, because it lives at least as long as the singleton; holding an Activity leaks it once destroyed.')
-
-    S_ = 'honest'
-    a(C + '.sec.%s.title' % S_, 'Chương này giản lược những gì', 'What this chapter simplifies')
-    a(C + '.sec.%s.badge' % S_, 'simplified')
-    B(C, S_, 1, 'p', 'Nguyên tắc theo các trang Dependency injection in Android, Manual dependency injection và Dependency injection with Hilt đọc ngày 2026-11-24. Lỗi biên dịch khi đưa Activity vào @Singleton được suy ra từ bảng binding mặc định và quy tắc component cha con trong tài liệu; câu chữ lỗi thật của Dagger có thể khác. Chương chưa nói về module Hilt (@Module, @Provides, @Binds) chi tiết, qualifier tự định nghĩa, ActivityRetainedComponent, và Dagger thuần (đọc thêm: Dagger by Tutorials).',
-      'The principles follow the Dependency injection in Android, Manual dependency injection and Dependency injection with Hilt pages as read on 2026-11-24. The compile error for an Activity in a @Singleton is inferred from the docs\' default-bindings table and parent/child component rule; Dagger\'s real message may be worded differently. The chapter does not cover Hilt modules (@Module, @Provides, @Binds) in detail, custom qualifiers, ActivityRetainedComponent, or plain Dagger (further reading: Dagger by Tutorials).')
 
     for q, qv, qe, av, ae, wv, we in [
         ('q1', 'SingletonComponent sống bao lâu?', 'How long does SingletonComponent live?', 'Từ Application.onCreate tới khi Application bị hủy.', 'From Application.onCreate until the Application is destroyed.', 'Theo bảng vòng đời component của Hilt.', 'Per Hilt\'s component lifetimes table.'),
