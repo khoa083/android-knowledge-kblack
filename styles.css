@@ -1035,3 +1035,6 @@ pre.code { position: relative; }
 .vz-mn.skip rect { fill: none; stroke: var(--line-strong); stroke-dasharray: 4 4; }
 .vz-mn-op { font-size: 12px; font-weight: 700; fill: var(--brand); }
 .vz-mn-op.off { fill: var(--ink-3); font-weight: 400; }
+.vz-core-edge { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 6 5; }
+.vz-core-path { fill: none; stroke: var(--brand); stroke-width: 2.2; stroke-linejoin: round; opacity: .7; }
+.vz-dg-n.pure rect { fill: var(--paper-2); }

@@ -671,4 +671,62 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p8.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= K9: functional core, imperative shell: hàm đặt lịch trộn I/O với luật, hay lõi thuần decide() cùng vỏ mỏng =================
+     Theo Seemann A.12 và 13.1.3 (ưu tiên hàm thuần; đẩy query không tất định và side effect ra rìa hệ thống; Post đọc hết dữ liệu rồi mới gọi
+     WillAccept thuần, chỉ ghi khi nó trả true; càng nhiều hàm thuần càng ít cần log); Barbini ch.6 (đẩy thay đổi state ra rìa); Carli ch.16
+     (side effect là thay đổi thế giới; kiểu IO, chỉ nhắc). CÀI THẬT: mỗi cách là một danh sách thao tác theo thứ tự, gắn loại (đọc ngoài, quyết
+     định thuần, ghi ngoài); đếm số lần qua lại ranh giới, số đồ giả cần để test luật phí, ghi ra ngoài trước khi quyết định, nhánh luật nằm
+     trong hàm có I/O. Phí 200.000 và 300.000 đ là của site (chương "Hàm thuần"). */
+  (function () {
+    var m = 'core', CASES = ['mixed', 'core'], KS = ['s1', 's2', 's3', 's4'];
+    // [nhãn mã, loại: read | pure | write, bên ngoài cần đồ giả khi test (tên)]
+    var OPS = {
+      mixed: [['clock.now()', 'read', 'clock'], ['repo.slots(day)', 'read', 'repo'], ['if (time < now)', 'pure'], ['analytics.track("booked")', 'write', 'analytics'],
+        ['api.quota(phone)', 'read', 'api'], ['if (slot !in slots || quota == 0)', 'pure'], ['fee = 200_000 / 300_000', 'pure'], ['repo.save(booking)', 'write', 'repo'], ['log.info(...)', 'write', 'log']],
+      core: [['clock.now()', 'read', 'clock'], ['repo.slots(day)', 'read', 'repo'], ['api.quota(phone)', 'read', 'api'], ['decide(req, now, slots, quota)', 'pure'],
+        ['repo.save(booking)', 'write', 'repo'], ['analytics.track("booked")', 'write', 'analytics'], ['log.info(...)', 'write', 'log']] };
+    var side = function (op) { return op[1] === 'pure' ? 'core' : 'shell'; };
+    function count(c) {
+      var ops = OPS[c], cross = 0, fakes = {}, early = 0, firstPure = -1, lastPure = -1;
+      ops.forEach(function (op, k) { if (k > 0 && side(op) !== side(ops[k - 1])) cross++; if (op[1] === 'pure') { if (firstPure < 0) firstPure = k; lastPure = k; } });
+      // test luật phí: hàm trộn phải chạy cả hàm, nên mọi bên ngoài nó chạm tới đều cần đồ giả; lõi thuần test bằng giá trị
+      if (c === 'mixed') ops.forEach(function (op) { if (op[2]) fakes[op[2]] = 1; });
+      ops.forEach(function (op, k) { if (op[1] === 'write' && k < lastPure) early++; });
+      // nhánh luật nằm trong hàm có I/O: hàm trộn chứa mọi phép kiểm; vỏ chỉ còn một if (Accept hay Reject)
+      var branches = c === 'mixed' ? ops.filter(function (op) { return op[0].indexOf('if ') === 0; }).length + 1 : 1;
+      return { cross: cross, fakes: Object.keys(fakes).length, fakeNames: Object.keys(fakes), early: early, branches: branches };
+    }
+    // luật phí thật (chương "Hàm thuần"): thứ Bảy, Chủ nhật 300.000; còn lại 200.000
+    var fee = function (dow) { return dow === 6 || dow === 0 ? 300000 : 200000; };
+    ADE.fpCore = { OPS: OPS, count: count, side: side, fee: fee };
+    var HL = { mixed: [[2, 3, 6], [2, 3, 5, 6, 9], [5], [4, 7]], core: [[9], [2, 3, 4, 5, 6], [10], [10]] };
+    var NODES = [[['shell', 'core'], 'core', 'e1'], [['test', 'core'], 'test', 'e3'], [['core', 'shell'], 'shell', 'e2'], [['shell', 'test'], 'test', 'e3']];
+    function steps(s) {
+      var c = s.case, n = count(c);
+      return KS.map(function (k, i) {
+        var bad = c === 'mixed' && i > 0, nd = NODES[i], ns = {}; ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { cross: n.cross, fakes: i >= 1 ? n.fakes : 0, early: i >= 2 ? n.early : 0, branches: i >= 3 ? n.branches : 0 },
+          codeHighlight: { snippet: 'p9.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'mixed';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'p9.mixed': 11, 'p9.core': 12 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'mixed' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'hàm trộn qua lại ranh giới 4 lần; lõi và vỏ chỉ 2 lần (vào lõi một lần, ra một lần)', run: function () { return count('mixed').cross === 4 && count('core').cross === 2; } },
+        { name: 'test luật phí: hàm trộn cần 5 đồ giả (clock, repo, analytics, api, log); lõi thuần cần 0', run: function () {
+          var a = count('mixed'); return a.fakes === 5 && a.fakeNames.sort().join() === 'analytics,api,clock,log,repo' && count('core').fakes === 0; } },
+        { name: 'hàm trộn gửi thống kê trước khi quyết định xong (1 lần ghi sớm); vỏ chỉ ghi sau decide (0)', run: function () { return count('mixed').early === 1 && count('core').early === 0; } },
+        { name: 'luật phí: thứ Bảy 28/11/2026 là 300.000, thứ Hai 23/11/2026 là 200.000', run: function () {
+          return fee(new Date(Date.UTC(2026, 10, 28)).getUTCDay()) === 300000 && fee(new Date(Date.UTC(2026, 10, 23)).getUTCDay()) === 200000; } },
+        { name: 'mỗi cách 4 bước; nhánh luật trong hàm có I/O: 3 so với 1; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return count('mixed').branches === 3 && count('core').branches === 1 && CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p9.' + c]; }); }); }); } }] });
+  })();
 })();

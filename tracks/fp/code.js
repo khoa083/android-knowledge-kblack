@@ -237,4 +237,34 @@
     c('val history = events.runningFold(Quota(), ::reduce)     // state sau từng event', 'val history = events.runningFold(Quota(), ::reduce)     // the state after each event'),
     c('val current = events.fold(Quota(), ::reduce)            // state hiện tại', 'val current = events.fold(Quota(), ::reduce)            // the current state')
   ]);
+
+  /* K9: một hàm trộn đọc, quyết định và ghi xen kẽ */
+  add('p9.mixed', [
+    'suspend fun book(req: BookRequest): String {',
+    '    val now = clock.now()',
+    '    val slots = repo.slots(req.day)',
+    c('    if (req.time < now) return "Giờ đã qua"', '    if (req.time < now) return "That time has passed"'),
+    c('    analytics.track("booked")                      // gửi trước khi biết có đặt được không', '    analytics.track("booked")                      // sent before we know whether it can be booked'),
+    '    val quota = api.quota(req.phone)',
+    c('    if (req.slotId !in slots || quota == 0) return "Không đặt được"', '    if (req.slotId !in slots || quota == 0) return "Cannot book"'),
+    '    val fee = if (req.day.isWeekend()) 300_000 else 200_000',
+    '    repo.save(Booking(req, fee)); log.info("booked ${req.slotId}")',
+    c('    return "Đã đặt, phí $fee"', '    return "Booked, fee $fee"'),
+    '}'
+  ]);
+  /* K9: lõi thuần decide() và vỏ mỏng book(): đọc hết, gọi lõi, rồi mới ghi */
+  add('p9.core', [
+    'sealed interface Decision { data class Accept(val booking: Booking) : Decision; data class Reject(val reason: BookingError) : Decision }',
+    c('fun decide(req: BookRequest, now: LocalDateTime, slots: Set<String>, quota: Int): Decision = when {   // lõi: thuần', 'fun decide(req: BookRequest, now: LocalDateTime, slots: Set<String>, quota: Int): Decision = when {   // core: pure'),
+    '    req.time < now -> Decision.Reject(BookingError.SlotPassed)',
+    '    req.slotId !in slots -> Decision.Reject(BookingError.SlotTaken(req.slotId))',
+    '    quota == 0 -> Decision.Reject(BookingError.QuotaExceeded)',
+    '    else -> Decision.Accept(Booking(req, fee = if (req.day.isWeekend()) 300_000 else 200_000))',
+    '}',
+    c('suspend fun book(req: BookRequest): Decision {                                   // vỏ: mỏng', 'suspend fun book(req: BookRequest): Decision {                                   // shell: thin'),
+    '    val d = decide(req, clock.now(), repo.slots(req.day), api.quota(req.phone))',
+    '    if (d is Decision.Accept) { repo.save(d.booking); analytics.track("booked"); log.info("booked ${req.slotId}") }',
+    '    return d',
+    '}'
+  ]);
 })();

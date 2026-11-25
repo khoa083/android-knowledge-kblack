@@ -43,4 +43,8 @@
   V('reducer', { layout: 'pipeline', nodes: [N('reducer', 'ui', 0, 0, 'screen', 'ui'), N('reducer', 'sync', 0, 2, 'refresh', 'job'), N('reducer', 'state', 6, 1, 'store', 'state'), N('reducer', 'log', 3, 3, 'list', 'runtime'), N('reducer', 'reduce', 3, 1, 'mechanism', 'job')],
     edges: [E('e1', 'ui', 'state'), E('e2', 'sync', 'state'), E('e3', 'reduce', 'state'), E('e4', 'log', 'reduce')],
     metrics: [T('reducer', 'app'), T('reducer', 'want'), T('reducer', 'writers'), T('reducer', 'count')] });
+  /* K9: vỏ (đọc, ghi bên ngoài) ↔ lõi (quyết định thuần); bài test gọi lõi trực tiếp */
+  V('core', { layout: 'pipeline', nodes: [N('core', 'shell', 0, 0, 'source', 'ui'), N('core', 'core', 4, 0, 'mechanism', 'state'), N('core', 'test', 4, 2, 'check', 'job')],
+    edges: [E('e1', 'shell', 'core'), E('e2', 'core', 'shell'), E('e3', 'test', 'core')],
+    metrics: [T('core', 'cross'), T('core', 'fakes'), T('core', 'early'), T('core', 'branches')] });
 })();

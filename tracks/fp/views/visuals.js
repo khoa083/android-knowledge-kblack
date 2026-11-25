@@ -292,4 +292,38 @@
       h('p', { class: 'vz-sub', 'data-k': 'rd-note', text: note }),
       h('div', { class: 'vz-legend', text: T('reducer.legend') })));
   }, { labelKey: K + 'tab.reducer', icon: 'list' });
+
+  /* ---------- K9: vỏ và lõi (SVG phẳng): hai cột, trái là vỏ (đọc, ghi bên ngoài), phải là lõi (quyết định thuần), đường nét đứt là ranh giới.
+     Mỗi thao tác của hàm đặt lịch là một ô trong cột của nó, theo đúng thứ tự từ trên xuống; vệt nối các ô cho thấy số lần qua lại ranh giới.
+     Bước 2 tô ô cần đồ giả khi test; bước 3 tô lần ghi ra ngoài trước khi quyết định; bước 4 tô nhánh luật nằm giữa I/O. Ô đổi lớp thì nháy. ---------- */
+  ADE.registerScreen('fp.core', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.fpCore, c = ctx.state.case, i = Math.max(0, idx(ctx)), ops = P.OPS[c], n = P.count(c);
+    var SX = 12, CX = 336, W = 292, RH = 30, TOP = 44, H = TOP + ops.length * RH + 10;
+    var lastPure = -1; ops.forEach(function (op, k) { if (op[1] === 'pure') lastPure = k; });
+    function mark(op, k) {
+      if (i === 1) return c === 'mixed' ? (op[2] ? 'bad' : '') : (op[1] === 'pure' ? 'ok' : '');
+      if (i === 2) return op[1] === 'write' ? (k < lastPure ? 'bad' : 'ok') : '';
+      if (i === 3) return op[1] === 'pure' ? (c === 'mixed' && op[0].indexOf('if ') === 0 ? 'bad' : 'ok') : '';
+      return '';
+    }
+    var svg = '<svg class="vz-dg vz-core" viewBox="0 0 640 ' + H + '" role="img" aria-label="' + esc(T('core.aria', { n: n.cross })) + '">';
+    svg += '<text class="vz-rl-tl" x="' + SX + '" y="20">' + esc(T('core.col.shell')) + '</text>';
+    svg += '<text class="vz-rl-tl" x="' + CX + '" y="20">' + esc(T('core.col.core')) + '</text>';
+    svg += '<line class="vz-core-edge" x1="320" y1="8" x2="320" y2="' + (H - 4) + '"/>';
+    var pts = ops.map(function (op, k) { return [(P.side(op) === 'core' ? CX : SX) + W / 2, TOP + k * RH + 12]; });
+    svg += '<polyline class="vz-core-path" data-k="co-path" points="' + pts.map(function (q) { return q[0] + ',' + q[1]; }).join(' ') + '"/>';
+    ops.forEach(function (op, k) {
+      var x = P.side(op) === 'core' ? CX : SX, y = TOP + k * RH, mk = mark(op, k);
+      svg += '<g class="vz-dg-n ' + op[1] + (mk ? ' ' + mk : '') + '" data-k="co-op-' + k + '"><rect x="' + x + '" y="' + y + '" width="' + W + '" height="24" rx="4"/>' +
+        '<text class="vz-dg-s" x="' + (x + 8) + '" y="' + (y + 16) + '"' + fit((k + 1) + '. ' + op[0], W - 16) + '>' + esc((k + 1) + '. ' + op[0]) + '</text></g>';
+    });
+    svg += '</svg>';
+    var wrap = h('div', { class: 'vz-scroll' }); wrap.innerHTML = svg;
+    var vals = [n.cross, n.fakes, n.early, n.branches];
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-cap', text: T('core.cap.' + c) }),
+      wrap,
+      h('p', { class: 'vz-sub' + (c === 'mixed' && i > 0 ? ' bad' : ''), 'data-k': 'co-focus', text: T('core.focus.' + i, { n: vals[i] }) }),
+      h('div', { class: 'vz-legend', text: T('core.legend') })));
+  }, { labelKey: K + 'tab.core', icon: 'layers' });
 })();

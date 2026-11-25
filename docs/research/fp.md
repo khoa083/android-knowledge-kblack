@@ -97,3 +97,13 @@
 | Giao diện hướng command; command là data class, CreateToDoList tạo id ngẫu nhiên sẵn trong command; nhiều event, ít command; command là API công khai, event nằm trong domain; lập trình hàm đẩy thay đổi state ra rìa | Barbini ch.6 (Using Commands to Change the State; Understanding Commands and Events Better; Mutable and Immutable State) |
 | State là giá trị đổi được; kiểu State<S, T> mô tả việc chuyển trạng thái (chỉ nhắc, không dạy) | Carli ch.15 (Key points) |
 | **Của site:** gói 5 lượt, lịch 41 và 42, màn đặt lịch và bước đồng bộ cùng trừ (5, 3, 1, 2 so với 5, 4, 3, 4), Quota với tập active, runningFold, reducer tự sinh id khi phát lại ra 3, StateFlow.update và Flow.scan, bài tập PackageExtended và VisitCompleted | — |
+
+### K9 Functional core, imperative shell
+| Ý trên site | Nguồn |
+|---|---|
+| Ưu tiên hàm thuần; RT là trừu tượng tối thượng; hàm thuần dễ ghép, dễ unit test | Seemann A.12 |
+| Post đọc hết dữ liệu (GUID, database, ngày giờ), gọi WillAccept thuần, chỉ ghi khi nó trả true; đẩy query không tất định và side effect ra rìa (Main, controller, message handler); tên gọi functional core, imperative shell (Bernhardt) | Seemann 13.1.3 (Listing 13.6) |
+| Càng nhiều hàm thuần càng ít cần log; chỉ log việc không thuần | Seemann (phần log, trang 273) |
+| Lập trình hàm giữ thay đổi state ở rìa | Barbini ch.6 (Mutable and Immutable State) |
+| Side effect là thay đổi thế giới; kiểu IO (chỉ nhắc) | Carli ch.16 (Key points) |
+| **Của site:** hàm book() trộn 9 thao tác so với vỏ 7 thao tác quanh decide(); đếm qua ranh giới (4 so với 2), 5 đồ giả so với 0, thống kê gửi trước khi quyết định, Decision Accept/Reject, bài test giá trị, bài tập decideCancel | — |
