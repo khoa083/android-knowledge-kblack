@@ -1,6 +1,6 @@
 # Kotlin · K0: bản đồ track (viết CUỐI, đặt đầu track). Chỉ tổng hợp K1–K13; mọi khẳng định có nguồn ở chương tương ứng.
 
-SEC_ORDER = {'k0': ['hook', 'order', 'index', 'bridges', 'honest']}
+SEC_ORDER = {'k0': ['hook', 'order', 'index', 'bridges']}
 
 CH = [
     ('k1', 'val, kiểu, hàm và biểu thức', 'val, types, functions and expressions'),
@@ -11,7 +11,7 @@ CH = [
     ('k6', 'Ngoại lệ, require/check và use', 'Exceptions, require/check and use'),
     ('k7', 'Collection: read-only, mutable và xử lý', 'Collections: read-only, mutable and processing'),
     ('k8', 'Lambda, closure và inline', 'Lambdas, closures and inline'),
-    ('k9', 'Sequence và hiệu năng', 'Sequences and performance'),
+    ('k9', 'Sequence và hiệu năng xử lý collection', 'Sequences and collection processing performance'),
     ('k10', 'Generics và variance', 'Generics and variance'),
     ('k11', 'Ủy quyền: by lazy, by remember, by viewModels', 'Delegation: by lazy, by remember, by viewModels'),
     ('k12', 'Scope function và DSL', 'Scope functions and DSLs'),
@@ -96,9 +96,10 @@ def add(a):
     m('title', 'Gặp triệu chứng này thì đọc chương nào', 'Which chapter to read for this symptom')
     m('overview', 'Chọn một triệu chứng hay gặp khi viết Kotlin trên Android. Mô phỏng đi qua bốn bước: lỗi lộ ra lúc nào (biên dịch, lúc chạy, hay sai mà không báo gì), cơ chế gây ra nó, và chương giải thích cơ chế đó.',
       'Pick a symptom you often meet writing Kotlin on Android. The simulation walks four steps: when the problem shows up (compile time, runtime, or silently wrong), the mechanism behind it, and the chapter that explains that mechanism.')
-    m('wrapup', '8 trong 13 triệu chứng ở đây thuộc loại "sai mà không báo gì": chia nguyên, else nuốt kiểu con, catch quá rộng, return trong forEach, Sequence thiếu thao tác cuối, apply lồng. Biết cơ chế là cách nhanh nhất để nhận ra chúng. Mỗi chương có một mô phỏng, hai lỗi thật, một bài tập và quiz.',
-      '8 of the 13 symptoms here are "silently wrong": integer division, else swallowing a subtype, an overly broad catch, return inside forEach, a Sequence missing its terminal operation, nested apply. Knowing the mechanism is the fastest way to spot them. Every chapter has a simulation, two real bugs, an exercise and a quiz.')
-    m('simp.1', 'Mỗi triệu chứng chỉ trỏ tới một chương chính; một lỗi thật có thể liên quan nhiều chương.', 'Each symptom points to one main chapter; a real bug may involve several.')
+    m('wrapup', '8 trong 13 triệu chứng ở đây thuộc loại "sai mà không báo gì": không lỗi biên dịch, không crash, chỉ có kết quả sai. Đó là chia nguyên, phần tử mất khỏi HashSet, else nuốt kiểu con, catch quá rộng, List đổi theo, return trong forEach, Sequence thiếu thao tác cuối, và apply lồng nhau. Biết cơ chế là cách nhanh nhất để nhận ra chúng. Mỗi chương có một mô phỏng, hai lỗi thật, một bài tập và quiz.\nQuy tắc dễ nhớ: lỗi biên dịch là người bạn tốt nhất; lỗi đáng sợ là lỗi không lên tiếng.',
+      '8 of the 13 symptoms here are "silently wrong": no compile error, no crash, just a wrong result. They are integer division, an element lost from a HashSet, else swallowing a subtype, an overly broad catch, a List changing underneath, return inside forEach, a Sequence missing its terminal operation, and nested apply. Knowing the mechanism is the fastest way to spot them. Every chapter has a simulation, two real bugs, an exercise and a quiz.\nRule of thumb: a compile error is your best friend; the scary bug is the one that stays quiet.')
+    m('simp.1', 'Mỗi triệu chứng chỉ trỏ tới một chương chính; một lỗi thật có thể liên quan nhiều chương. Mọi mô phỏng của track là mô hình giảng dạy; site không chạy hay biên dịch Kotlin trong trang.',
+      'Each symptom points to one main chapter; a real bug may involve several. Every simulation in the track is a teaching model; the site neither runs nor compiles Kotlin in the page.')
     m('ctl.hint', 'Đổi triệu chứng; để ý "lúc xảy ra": nhiều lỗi khó nhất không có lỗi biên dịch hay crash nào.', 'Change the symptom; watch "when it shows up": many of the hardest bugs have no compile error and no crash.')
     m('ctl.symptom', 'Triệu chứng', 'Symptom')
     for row in SYM:
@@ -131,8 +132,8 @@ def add(a):
 
     C = 'k0'
     a(C + '.title', 'Bản đồ track: triệu chứng và chương', 'Track map: symptoms and chapters')
-    a(C + '.essence', 'Track gồm hai phần. Phần 1 (K1–K7) là nền tảng cho người mới: kiểu, null, class, data class, sealed, ngoại lệ, collection. Phần 2 (K8–K13) đi vào cơ chế: lambda và inline, sequence, variance, delegate, scope function, Java interop.\nMỗi chương bắt đầu từ một lỗi thật trên Android, có một mô phỏng, hai lỗi hay gặp, một bài tập, câu tự trả lời và quiz.\nNếu đang gặp một lỗi cụ thể, dùng mô phỏng bên dưới để tìm chương.',
-      'The track has two parts. Part 1 (K1–K7) is the foundation for newcomers: types, null, classes, data classes, sealed types, exceptions, collections. Part 2 (K8–K13) goes into mechanisms: lambdas and inline, sequences, variance, delegates, scope functions, Java interop.\nEvery chapter starts from a real Android bug and has a simulation, two common bugs, an exercise, self-check questions and a quiz.\nIf you are facing a specific bug, use the simulation below to find the chapter.')
+    a(C + '.essence', 'Track gồm hai phần. Phần 1 (K1–K7) là nền tảng cho người mới: kiểu, null, class, data class, sealed, ngoại lệ, collection. Phần 2 (K8–K13) đi vào cơ chế bên dưới: lambda và inline, sequence, variance, delegate, scope function, và Kotlin nhìn từ Java.\nMỗi chương bắt đầu từ một lỗi thật trên Android, rồi có một mô phỏng, hai lỗi hay gặp, một bài tập, câu tự trả lời và quiz.\nĐang gặp một lỗi cụ thể? Chọn triệu chứng trong mô phỏng bên dưới để tìm chương.',
+      'The track has two parts. Part 1 (K1–K7) is the foundation for newcomers: types, null, classes, data classes, sealed types, exceptions, collections. Part 2 (K8–K13) goes into the mechanisms underneath: lambdas and inline, sequences, variance, delegates, scope functions, and Kotlin as seen from Java.\nEvery chapter starts from a real Android bug, then has a simulation, two common bugs, an exercise, self-check questions and a quiz.\nFacing a specific bug? Pick its symptom in the simulation below to find the chapter.')
     a(C + '.goal.g1', 'Đã thấy lỗi lộ ra lúc nào', 'Saw when the problem shows up')
     a(C + '.goal.g2', 'Đã tới chương cần đọc', 'Reached the chapter to read')
     a(C + '.sim.kotlin.map', 'triệu chứng → chương', 'symptom → chapter')
@@ -141,13 +142,13 @@ def add(a):
     a(C + '.sec.%s.title' % S_, 'Đoán trước khi đọc', 'Predict before reading')
     a(C + '.sec.%s.badge' % S_, 'stable')
     B(C, S_, 1, 'predict', 'Trong 13 triệu chứng của mô phỏng ngay dưới, bạn đoán bao nhiêu cái KHÔNG có lỗi biên dịch cũng không crash, chỉ cho kết quả sai?', 'Of the 13 symptoms in the simulation just below, how many do you think give NO compile error and NO crash, just a wrong result?')
-    B(C, S_, 1, 'ans', 'Tám: chia nguyên, phần tử mất khỏi HashSet, else nuốt kiểu con, catch quá rộng, List đổi theo, return trong forEach, Sequence thiếu thao tác cuối, apply lồng. Đó là lý do track dạy cơ chế: những lỗi này không tự báo.', 'Eight: integer division, an element lost from a HashSet, else swallowing a subtype, an overly broad catch, a List changing underneath, return inside forEach, a Sequence missing its terminal operation, nested apply. That is why the track teaches mechanisms: these bugs do not announce themselves.')
+    B(C, S_, 1, 'ans', 'Tám: chia nguyên, phần tử mất khỏi HashSet, else nuốt kiểu con, catch quá rộng, List đổi theo, return trong forEach, Sequence thiếu thao tác cuối, apply lồng. Vì những lỗi này không tự báo, track dạy cơ chế để bạn tự nhận ra chúng.', 'Eight: integer division, an element lost from a HashSet, else swallowing a subtype, an overly broad catch, a List changing underneath, return inside forEach, a Sequence missing its terminal operation, nested apply. Because these bugs do not announce themselves, the track teaches the mechanisms so you can spot them yourself.')
 
     S_ = 'order'
     a(C + '.sec.%s.title' % S_, 'Thứ tự đọc', 'Reading order')
     a(C + '.sec.%s.badge' % S_, 'stable')
-    B(C, S_, 1, 'p', 'Người mới đọc theo thứ tự K1 → K13. Phần 1 (K1–K7) đủ để đọc và viết mã Kotlin của một app Android thông thường. Phần 2 (K8–K13) cần cho ai làm việc với Coroutines, Compose hay mã Java cũ, vì các track đó dựa trên lambda inline, delegate và variance. Đã biết Kotlin thì có thể đi thẳng tới chương có triệu chứng mình đang gặp.',
-      'Newcomers read in order, K1 → K13. Part 1 (K1–K7) is enough to read and write the Kotlin of an ordinary Android app. Part 2 (K8–K13) matters for anyone working with Coroutines, Compose or old Java code, because those tracks build on inline lambdas, delegates and variance. If you already know Kotlin, jump straight to the chapter for the symptom you are facing.')
+    B(C, S_, 1, 'p', 'Người mới đọc theo thứ tự K1 → K13. Phần 1 (K1–K7) đủ để đọc và viết mã Kotlin của một app Android thông thường. Phần 2 (K8–K13) cần cho ai làm việc với Coroutines, Compose hay mã Java cũ, vì các track đó dựa trên lambda inline, delegate và variance. Đã biết Kotlin thì có thể đi thẳng tới chương có triệu chứng mình đang gặp.\nQuy tắc dễ nhớ: Phần 1 để viết đúng, Phần 2 để hiểu vì sao nó chạy như vậy.',
+      'Newcomers read in order, K1 → K13. Part 1 (K1–K7) is enough to read and write the Kotlin of an ordinary Android app. Part 2 (K8–K13) matters for anyone working with Coroutines, Compose or old Java code, because those tracks build on inline lambdas, delegates and variance. If you already know Kotlin, jump straight to the chapter for the symptom you are facing.\nRule of thumb: Part 1 is for writing it right, Part 2 for understanding why it behaves that way.')
 
     S_ = 'index'
     a(C + '.sec.%s.title' % S_, 'Chỉ mục: cơ chế theo chương', 'Index: mechanisms by chapter')
@@ -160,14 +161,8 @@ def add(a):
     S_ = 'bridges'
     a(C + '.sec.%s.title' % S_, 'Cầu nối sang các track khác', 'Bridges to the other tracks')
     a(C + '.sec.%s.badge' % S_, 'guideline')
-    B(C, S_, 1, 'p', '• Coroutines: suspend lambda và coroutineScope dựa trên lambda (K8); Flow<out T> hiệp biến (K10); catch rộng nuốt cả CancellationException (K6); thu thập Flow theo vòng đời thay cho callback giữ Activity (K8).\n• Compose Runtime: by remember dùng State.getValue (K11); UiState sealed với when phủ đủ (K5); UiState<out T> với Loading : UiState<Nothing> (K10).\n• Mọi track: data class làm state phải bất biến (K4, K7).',
-      '• Coroutines: suspend lambdas and coroutineScope build on lambdas (K8); Flow<out T> is covariant (K10); a broad catch also swallows CancellationException (K6); collecting a Flow with the lifecycle instead of a callback holding an Activity (K8).\n• Compose Runtime: by remember uses State.getValue (K11); a sealed UiState with an exhaustive when (K5); UiState<out T> with Loading : UiState<Nothing> (K10).\n• Every track: data classes used as state should be immutable (K4, K7).')
-
-    S_ = 'honest'
-    a(C + '.sec.%s.title' % S_, 'Track này nói thật tới đâu', 'How far this track\'s claims go')
-    a(C + '.sec.%s.badge' % S_, 'simplified')
-    B(C, S_, 1, 'p', 'Mọi mô phỏng là mô hình giảng dạy có nhãn giản lược; site không chạy hay biên dịch Kotlin trong trang. Quy tắc ngôn ngữ theo tài liệu kotlinlang.org đọc ngày 2026-11-23; chi tiết bên trong ghim mã stdlib tag v2.1.0, kotlinx.coroutines 1.9.0 và androidx-main commit 296313a4. Máy viết track không có kotlinc hay javap, nên mọi khẳng định về bytecode lấy từ tài liệu hay sách và được ghi là giản lược. Sách (Kotlin Essentials, Effective Kotlin, Functional Kotlin, Advanced Kotlin, Kotlin Exercises) là nguồn giảng dạy phụ; khi lệch với tài liệu chính thức, chương theo tài liệu và ghi rõ.',
-      'Every simulation is a teaching model labelled as simplified; the site neither runs nor compiles Kotlin in the page. Language rules follow the kotlinlang.org docs as read on 2026-11-23; internal details are pinned to the stdlib at tag v2.1.0, kotlinx.coroutines 1.9.0 and androidx-main commit 296313a4. The machine that wrote this track had no kotlinc or javap, so every bytecode claim comes from the docs or books and is marked simplified. The books (Kotlin Essentials, Effective Kotlin, Functional Kotlin, Advanced Kotlin, Kotlin Exercises) are secondary teaching sources; where they differ from the official docs, the chapter follows the docs and says so.')
+    B(C, S_, 1, 'p', '• Kotlin Coroutines Explorer: suspend lambda và coroutineScope dựa trên lambda (K8); Flow<out T> hiệp biến (K10); catch rộng nuốt cả CancellationException (K6); thu thập Flow theo vòng đời thay cho callback giữ Activity (K8).\n• Compose Runtime Explorer: by remember dùng State.getValue (K11); UiState sealed với when phủ đủ (K5); UiState<out T> với Loading : UiState<Nothing> (K10).\n• Kiến trúc app Android: lỗi đi qua các tầng (K6); by viewModels và scope của Hilt (K11).\n• Lập trình hàm với Kotlin: kiểu dữ liệu đại số dựng trên sealed (K5); lỗi là giá trị thay cho ném ngoại lệ (K6).\n• Mã sạch và kỷ luật làm nghề; Gỡ lỗi và hiệu năng Android: require trong constructor để parse một lần ở ranh giới, đọc chuỗi "Caused by" của stack trace (K6); lambda giữ Activity gây rò rỉ bộ nhớ (K8).\n• Mọi track: data class làm state phải bất biến (K4, K7).',
+      '• Kotlin Coroutines Explorer: suspend lambdas and coroutineScope build on lambdas (K8); Flow<out T> is covariant (K10); a broad catch also swallows CancellationException (K6); collecting a Flow with the lifecycle instead of a callback holding an Activity (K8).\n• Compose Runtime Explorer: by remember uses State.getValue (K11); a sealed UiState with an exhaustive when (K5); UiState<out T> with Loading : UiState<Nothing> (K10).\n• Android App Architecture: errors across layers (K6); by viewModels and Hilt scopes (K11).\n• Functional Programming in Kotlin: algebraic data types built on sealed (K5); errors as values instead of throwing (K6).\n• The clean code track and Android Debugging and Performance: require in constructors to parse once at the boundary, reading the "Caused by" chain of a stack trace (K6); a lambda holding an Activity causes a memory leak (K8).\n• Every track: data classes used as state should be immutable (K4, K7).')
 
     for q, qv, qe, av, ae, wv, we in [
         ('q1', 'Code sau forEach không chạy: đọc chương nào?', 'The code after forEach never runs: which chapter?', 'K8.', 'K8.', 'return trong lambda inline là non-local return.', 'A return inside an inline lambda is a non-local return.'),
