@@ -893,7 +893,19 @@ Trạng thái: `chưa / đang / xong`.
     - Đếm sơ bộ số hình dùng bảng: cleancode 12/13, sysdesign 15/17, storage 8/10, debugging 10/14, fp 7/12, arch 6/11.
     - Đã đề xuất làm lại các hình mà bảng không phải kiểu hợp nhất; chờ người dùng chọn thứ tự ưu tiên.
     - Hạn mức tuần còn khoảng 22% tới 2026-11-29, không đủ cho cả viết lại 74 chương lẫn làm lại hình.
-  2. **Viết lại theo giọng dạy học:** arch (khi viết G0, thêm cầu nối X24–X27), storage, coroutines (thay chữ "chương FP" bằng tên chương "Xử lý flow: map, filter, scan, merge/zip/combine, flatMap, retry, distinct"), runtime, animation. UX và UI vẫn tạm dừng.
+  2. **Viết lại theo giọng dạy học:** XONG 2026-11-26.
+     - **arch:** viết lại đủ G0–G11 (commit a083ee4, 0148828, da04a12).
+       - Bỏ số chương sách và "Bài tập của site, theo …".
+       - Gọi tác giả bằng tên đầy đủ.
+       - Giải thích thuật ngữ ngay chỗ dùng; mỗi phần có một câu "quy tắc dễ nhớ".
+       - G0 có cầu nối X24–X27.
+     - **storage, coroutines, runtime, animation:** chỉ làm lượt nhẹ, chưa viết lại từng đoạn (commit 942b783, b156bfe, f987cd7, a2a1bcf).
+       - Callout mở bằng "Tài liệu Android nói" thay cho tên trang.
+       - "the book"/"sách"/"AAT" đổi thành tên tác giả khi là quan điểm riêng; với ví dụ chỉ có trong sách thì viết trung tính.
+       - "chương FP" của coroutines nay dùng tên chương.
+       - Nếu người dùng thấy vẫn khó hiểu: viết lại sâu từng chương như arch.
+     - Công cụ viết lại tạm (scratchpad): rw.py, pagepfx2.py, bookref.py.
+     - Lint còn báo nhầm ở: id nguồn `book-aat`, chữ "booking"/"bookmark", "Mục 0" (phần tử danh sách), và ẩn dụ "cuốn sách có kẹp trang" ở U1.
   3. **Rà nội dung các phần viết trước khi chuyển sang Opus** (Lập trình hàm P1–P4, Kotlin K1–K6, Mã sạch, Thiết kế hệ thống): đối chiếu khẳng định với nguồn, ưu tiên P1–P4 và K1–K6.
   4. **Chủ đề mới có thể thêm** (cần danh sách IN/OUT và người dùng duyệt): nền tảng Android (vòng đời, process death, Intent, Service, permission, giới hạn chạy nền), kiểm thử đầy đủ, build và phát hành (Gradle, flavor, ký app, CI/CD), mạng thực hành (Retrofit, OkHttp), Hilt thực hành, bảo mật, Compose UI thực hành.
 - **Track M, Nền tảng Android (`platform`): dàn ý ĐÃ DUYỆT 2026-11-25, theo cả năm mặc định. Xây SAU, vì phiên kế tiếp người dùng ưu tiên viết lại các chủ đề còn khó hiểu.**
