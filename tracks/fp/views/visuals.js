@@ -167,7 +167,7 @@
       else { okCell = null; errCell = h('span', { class: 'vz-chip ' + (x.rail === 'crash' ? 'bad' : 'hl'), 'data-k': 'er-v-' + x.step, translate: 'no', text: x.rail === 'crash' ? T('errors.crash', { v: x.val }) : x.val }); }
       tb.appendChild(h('tr', { 'data-k': 'er-row-' + x.step },
         h('td', { class: 'c', text: String(n + 1) }),
-        h('td', { translate: 'no', text: x.step === 'parse' ? 'parsePhone' : (x.step === 'slot' ? 'findFreeSlot' : (x.step === 'quota' ? 'checkQuota' : 'save')) }),
+        h('td', { translate: 'no', text: x.step === 'parse' ? 'parsePhone' : (x.step === 'slot' ? 'findFreeSlot' : (x.step === 'quota' ? (c === 'throw' || c === 'result' ? 'checkQuota' : 'quotaLeft') : 'save')) }),
         h('td', { class: x.rail === 'ok' ? 'ok' : (x.rail === 'skip' ? 'dim' : '') }, okCell),
         h('td', { class: x.rail === 'crash' ? 'bad' : (x.rail === 'skip' ? 'dim' : '') }, errCell)));
     });
