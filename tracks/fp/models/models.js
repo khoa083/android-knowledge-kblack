@@ -323,4 +323,79 @@
         { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p4.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= K5: lỗi là giá trị: cùng luồng đặt lịch viết bằng ngoại lệ, nullable, Result và kiểu lỗi riêng =================
+     Theo Vermeulen và cộng sự ch.4 (ngoại lệ phá referential transparency, kiểu hàm không nói gì về lỗi, giá trị đặc biệt như null
+     để lỗi lặng lẽ đi tiếp); Carli ch.14 (đưa side effect vào kiểu trả về; dừng ở lỗi đầu tiên; Result<T> của Kotlin, lỗi là Throwable);
+     Barbini ch.7 (null ổn khi lý do hiển nhiên; ngoại lệ chỉ cho việc không cứu được; kiểu kết quả sealed); API kotlin.Result và
+     runCatching (bắt mọi Throwable). CÀI THẬT: bốn bước parse, slot, quota, save chạy trên bốn tình huống; mỗi cách viết quyết định
+     lỗi đi đâu (giá trị, ngoại lệ bị bắt, hay không ai bắt) và màn hình hiện gì. Số điện thoại, mã giờ, ngày nghỉ là của site. */
+  (function () {
+    var m = 'errors', CASES = ['throw', 'nullable', 'result', 'typed'], KS = ['s1', 's2', 's3', 's4'];
+    var SCEN = ['ok', 'taken', 'bug', 'closed'], STEPS = ['parse', 'slot', 'quota', 'save'];
+    // bước hỏng và loại lỗi của từng tình huống: lỗi nghiệp vụ (biz) hay lỗi lập trình (bug: quotas[phone]!! với số mới)
+    var FAIL = { ok: null, taken: { at: 'slot', kind: 'biz' }, bug: { at: 'quota', kind: 'bug' }, closed: { at: 'slot', kind: 'biz' } };
+    var OK_VAL = { parse: 'Phone("0901234567")', slot: 'Slot("S12", 2026-11-28T09:00)', quota: 'quotaLeft = 2', save: 'Booking(41)' };
+    var ERR_VAL = {
+      throw: { taken: 'SlotTakenException("S07")', bug: 'NullPointerException', closed: 'ClinicClosedException' },
+      nullable: { taken: 'null', bug: 'NullPointerException', closed: 'null' },
+      result: { taken: 'Result.failure(SlotTakenException)', bug: 'Result.failure(NullPointerException)', closed: 'Result.failure(ClinicClosedException)' },
+      typed: { taken: 'Err(SlotTaken("S07"))', bug: 'NullPointerException', closed: 'Err(ClinicClosed)' } };
+    var SIG = { throw: 'Booking', nullable: 'Booking?', result: 'Result<Booking>', typed: 'Outcome<BookingError, Booking>' };
+    // ai bắt lỗi lập trình: catch (e: Exception) và runCatching bắt mọi thứ; nullable và kiểu lỗi riêng không bắt
+    var CATCHES_ALL = { throw: true, nullable: false, result: true, typed: false };
+    // màn hình đọc kết quả thế nào (dòng cuối của mỗi đoạn mã)
+    function screen(c, scen) {
+      var f = FAIL[scen];
+      if (!f) return 'booked';
+      if (f.kind === 'bug') return CATCHES_ALL[c] ? 'failed' : 'crash';
+      if (scen === 'taken') return (c === 'result' || c === 'typed') ? 'taken' : 'failed';
+      return c === 'typed' ? 'compile' : 'failed';   // closed: lỗi mới; chỉ when không else trên sealed bị trình biên dịch chặn
+    }
+    function run(c, scen) {
+      var f = FAIL[scen], hit = false, rows = STEPS.map(function (st) {
+        if (hit) return { step: st, rail: 'skip', val: null };
+        if (f && f.at === st) { hit = true; var crash = f.kind === 'bug' && !CATCHES_ALL[c]; return { step: st, rail: crash ? 'crash' : 'err', val: ERR_VAL[c][scen] }; }
+        return { step: st, rail: 'ok', val: st === 'parse' && scen === 'bug' ? 'Phone("0987654321")' : OK_VAL[st] };
+      });
+      var sc = screen(c, scen);
+      return { rows: rows, screen: sc, ran: rows.filter(function (r) { return r.rail !== 'skip'; }).length,
+        reason: (sc === 'taken' || sc === 'compile') ? 1 : 0, hidden: (f && f.kind === 'bug' && CATCHES_ALL[c]) ? 1 : 0, flagged: sc === 'compile' ? 1 : 0 };
+    }
+    ADE.fpErrors = { STEPS: STEPS, SCEN: SCEN, SIG: SIG, run: run, screen: screen };
+    var HL = { throw: [[2, 6, 8], [4, 9], [5, 9], [4, 9]], nullable: [[1, 5, 7], [3, 8], [4], [3, 8]],
+      result: [[1, 5, 8], [3, 9], [1, 4, 9], [3, 9]], typed: [[6, 10, 13], [8, 16], [9], [1, 14]] };
+    var STATE = { booked: 'done', taken: 'done', compile: 'done', failed: 'surprise', crash: 'broken' };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var r = run(c, SCEN[i]), st = STATE[r.screen], bad = st !== 'done', crash = r.screen === 'crash';
+        var nodes = i === 0 ? ['input', 'chain', 'screen'] : (crash ? ['chain', 'screen'] : ['chain', 'rail', 'screen']);
+        var ns = { screen: K + 'st.' + st }; if (crash) ns.chain = K + 'st.broken';
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nodes, nodeStates: ns,
+          metrics: { ran: r.ran, reason: r.reason, hidden: r.hidden, flagged: r.flagged },
+          codeHighlight: { snippet: 'p5.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: i === 0 ? 'e2' : (crash ? 'e1' : 'e3'), tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 0 ? 'run' : (i === 3 ? 'complete' : 'observe')), subject: 'screen' }] });
+        var tryIt = i === 0 && c === 'throw';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'p5.throw': 9, 'p5.nullable': 8, 'p5.result': 9, 'p5.typed': 19 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'throw' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'đường đi đúng: lỗi ở bước nào thì các bước sau bị bỏ qua; đường thành công chạy đủ 4 bước', run: function () {
+          return CASES.every(function (c) { var a = run(c, 'ok'), b = run(c, 'taken'), d = run(c, 'bug');
+            return a.ran === 4 && b.ran === 2 && b.rows[2].rail === 'skip' && b.rows[3].rail === 'skip' && d.ran === 3 && d.rows[3].rail === 'skip'; }); } },
+        { name: 'giờ đã có người đặt: chỉ Result (có kiểm is) và kiểu lỗi riêng cho màn biết lý do; ngoại lệ bắt chung và null thì không', run: function () {
+          return run('throw', 'taken').reason === 0 && run('nullable', 'taken').reason === 0 && run('result', 'taken').reason === 1 && run('typed', 'taken').reason === 1; } },
+        { name: 'lỗi lập trình: catch (e: Exception) và runCatching giấu nó; nullable và kiểu lỗi riêng để nó lộ ra (crash khi test)', run: function () {
+          return run('throw', 'bug').hidden === 1 && run('result', 'bug').hidden === 1 && run('nullable', 'bug').screen === 'crash' && run('typed', 'bug').screen === 'crash' && run('typed', 'bug').rows[2].rail === 'crash'; } },
+        { name: 'thêm lỗi ClinicClosed: chỉ kiểu lỗi riêng bị trình biên dịch chỉ ra (1 chỗ when); ba cách kia im lặng hiện "thất bại"', run: function () {
+          return run('typed', 'closed').flagged === 1 && ['throw', 'nullable', 'result'].every(function (c) { return run(c, 'closed').flagged === 0 && run(c, 'closed').screen === 'failed'; }); } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p5.' + c]; }); }); }); } }] });
+  })();
 })();

@@ -153,4 +153,30 @@
       h('p', { class: 'vz-sub', 'data-k': 'adt-sub', text: sub }),
       h('div', { class: 'vz-legend', text: T('adt.legend') })));
   }, { labelKey: K + 'tab.adt', icon: 'grid' });
+
+  /* ---------- K5: đường ray: mỗi hàng là một bước của luồng đặt lịch, hai cột là đường thành công và đường lỗi.
+     Bước hỏng đặt giá trị lỗi sang cột lỗi; các bước sau mờ "bỏ qua"; lỗi không ai bắt tô đỏ "crash".
+     Dưới bảng: chữ ký hàm của cách viết đang chọn và điều màn hình hiện. Ô giữ data-k để trượt và nháy khi đổi bước; không lặp. ---------- */
+  ADE.registerScreen('fp.errors', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.fpErrors, c = ctx.state.case, i = Math.max(0, idx(ctx)), scen = P.SCEN[i], r = P.run(c, scen);
+    var tb = h('tbody');
+    r.rows.forEach(function (x, n) {
+      var okCell, errCell;
+      if (x.rail === 'ok') { okCell = h('span', { class: 'vz-chip ok', 'data-k': 'er-v-' + x.step, translate: 'no', text: x.val }); errCell = null; }
+      else if (x.rail === 'skip') { okCell = h('span', { class: 'vz-chip dim', 'data-k': 'er-v-' + x.step, text: T('errors.skip') }); errCell = h('span', { class: 'vz-chip dim', text: T('errors.skip') }); }
+      else { okCell = null; errCell = h('span', { class: 'vz-chip ' + (x.rail === 'crash' ? 'bad' : 'hl'), 'data-k': 'er-v-' + x.step, translate: 'no', text: x.rail === 'crash' ? T('errors.crash', { v: x.val }) : x.val }); }
+      tb.appendChild(h('tr', { 'data-k': 'er-row-' + x.step },
+        h('td', { class: 'c', text: String(n + 1) }),
+        h('td', { translate: 'no', text: x.step === 'parse' ? 'parsePhone' : (x.step === 'slot' ? 'findFreeSlot' : (x.step === 'quota' ? 'checkQuota' : 'save')) }),
+        h('td', { class: x.rail === 'ok' ? 'ok' : (x.rail === 'skip' ? 'dim' : '') }, okCell),
+        h('td', { class: x.rail === 'crash' ? 'bad' : (x.rail === 'skip' ? 'dim' : '') }, errCell)));
+    });
+    var bad = r.screen === 'failed' || r.screen === 'crash';
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-cap', 'data-k': 'er-in', text: T('errors.in.' + scen) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['n', 'fn', 'ok', 'err'].map(function (k) { return h('th', { text: T('errors.col.' + k) }); }))), tb)),
+      h('p', { class: 'vz-sub', 'data-k': 'er-sig', translate: 'no', text: 'fun book(raw: String, slotId: String): ' + P.SIG[c] }),
+      h('p', { class: 'vz-sub' + (bad ? ' bad' : ''), 'data-k': 'er-screen', text: T('errors.screen', { s: T('errors.out.' + r.screen) }) }),
+      h('div', { class: 'vz-legend', text: T('errors.legend') })));
+  }, { labelKey: K + 'tab.errors', icon: 'rail' });
 })();

@@ -27,4 +27,8 @@
   V('adt', { layout: 'pipeline', nodes: [N('adt', 'type', 0, 0, 'layers', 'ui'), N('adt', 'states', 3, 0, 'grid', 'state'), N('adt', 'screen', 6, 0, 'screen', 'job'), N('adt', 'catch', 3, 2, 'mechanism', 'runtime')],
     edges: [E('e1', 'type', 'states'), E('e2', 'states', 'screen'), E('e3', 'catch', 'states')],
     metrics: [T('adt', 'combos'), T('adt', 'invalid'), T('adt', 'silent'), T('adt', 'flagged')] });
+  /* K5: đầu vào → chuỗi bốn bước → màn hình; lỗi rẽ sang đường lỗi rồi tới màn hình */
+  V('errors', { layout: 'pipeline', nodes: [N('errors', 'input', 0, 0, 'source', 'ui'), N('errors', 'chain', 3, 0, 'mechanism', 'job'), N('errors', 'screen', 6, 0, 'screen', 'state'), N('errors', 'rail', 3, 2, 'layers', 'runtime')],
+    edges: [E('e1', 'input', 'chain'), E('e2', 'chain', 'screen'), E('e3', 'chain', 'rail'), E('e4', 'rail', 'screen')],
+    metrics: [T('errors', 'ran'), T('errors', 'reason'), T('errors', 'hidden'), T('errors', 'flagged')] });
 })();

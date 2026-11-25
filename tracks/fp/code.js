@@ -103,4 +103,62 @@
     'catch (e: IOException) { _state.value = SlotsUiState.Error(e.message ?: "") }',
     'when (s) { Loading -> Spinner(); is Error -> ErrorText(s.message); is Success -> SlotList(s.slots); is Refreshing -> SlotList(s.slots, refreshing = true) }'
   ]);
+
+  /* K5: ngoại lệ: chữ ký không nói gì về lỗi; màn hình bắt mọi Exception (dòng 9), kể cả lỗi lập trình */
+  add('p5.throw', [
+    c('class SlotTakenException(id: String) : Exception("Giờ $id đã có người đặt")', 'class SlotTakenException(id: String) : Exception("Slot $id is already taken")'),
+    c('fun book(raw: String, slotId: String): Booking {      // chữ ký không nhắc tới lỗi', 'fun book(raw: String, slotId: String): Booking {      // the signature never mentions errors'),
+    c('    val phone = parsePhone(raw)                        // có thể ném IllegalArgumentException', '    val phone = parsePhone(raw)                        // may throw IllegalArgumentException'),
+    c('    val slot = findFreeSlot(slotId)                    // có thể ném SlotTakenException', '    val slot = findFreeSlot(slotId)                    // may throw SlotTakenException'),
+    c('    checkQuota(phone)                                  // có thể ném QuotaExceededException', '    checkQuota(phone)                                  // may throw QuotaExceededException'),
+    '    return save(phone, slot)',
+    '}',
+    c('val message = try { book(raw, id); "Đã đặt lịch" }', 'val message = try { book(raw, id); "Booked" }'),
+    c('    catch (e: Exception) { "Đặt lịch thất bại" }       // bắt cả lỗi lập trình', '    catch (e: Exception) { "Booking failed" }          // also catches programming bugs')
+  ]);
+  /* K5: nullable: mỗi bước hỏng trả null; màn hình chỉ biết "có hay không" */
+  add('p5.nullable', [
+    'fun book(raw: String, slotId: String): Booking? {',
+    '    val phone = parsePhone(raw) ?: return null',
+    '    val slot = findFreeSlot(slotId) ?: return null',
+    '    if (!quotaLeft(phone)) return null',
+    '    return save(phone, slot)',
+    '}',
+    c('val message = if (book(raw, id) != null) "Đã đặt lịch"', 'val message = if (book(raw, id) != null) "Booked"'),
+    c('    else "Đặt lịch thất bại"                            // không biết vì sao', '    else "Booking failed"                               // no idea why')
+  ]);
+  /* K5: Result: runCatching gói mọi Throwable (dòng 1); màn hình phải đoán lớp ngoại lệ (dòng 9) */
+  add('p5.result', [
+    'fun book(raw: String, slotId: String): Result<Booking> = runCatching {',
+    '    val phone = parsePhone(raw)',
+    '    val slot = findFreeSlot(slotId)',
+    '    checkQuota(phone)',
+    '    save(phone, slot)',
+    '}',
+    'val message = book(raw, id).fold(',
+    c('    onSuccess = { "Đã đặt lịch" },', '    onSuccess = { "Booked" },'),
+    c('    onFailure = { e -> if (e is SlotTakenException) "Giờ này đã có người đặt" else "Đặt lịch thất bại" })', '    onFailure = { e -> if (e is SlotTakenException) "This slot is already taken" else "Booking failed" })')
+  ]);
+  /* K5: kiểu lỗi riêng: lỗi nghiệp vụ là một sealed interface; when không có else (dòng 14) */
+  add('p5.typed', [
+    'sealed interface BookingError {',
+    '    data object InvalidPhone : BookingError',
+    '    data class SlotTaken(val slotId: String) : BookingError',
+    '    data object QuotaExceeded : BookingError',
+    '}',
+    'fun book(raw: String, slotId: String): Outcome<BookingError, Booking> {',
+    '    val phone = parsePhone(raw) ?: return Err(BookingError.InvalidPhone)',
+    '    val slot = findFreeSlot(slotId) ?: return Err(BookingError.SlotTaken(slotId))',
+    '    if (!quotaLeft(phone)) return Err(BookingError.QuotaExceeded)',
+    '    return Ok(save(phone, slot))',
+    '}',
+    'val message = when (val r = book(raw, id)) {',
+    c('    is Ok -> "Đã đặt lịch"', '    is Ok -> "Booked"'),
+    c('    is Err -> when (r.error) {                          // không có else', '    is Err -> when (r.error) {                          // no else'),
+    c('        BookingError.InvalidPhone -> "Số điện thoại không hợp lệ"', '        BookingError.InvalidPhone -> "Invalid phone number"'),
+    c('        is BookingError.SlotTaken -> "Giờ này đã có người đặt"', '        is BookingError.SlotTaken -> "This slot is already taken"'),
+    c('        BookingError.QuotaExceeded -> "Bạn đã hết lượt đặt trong tuần"', '        BookingError.QuotaExceeded -> "You have no bookings left this week"'),
+    '    }',
+    '}'
+  ]);
 })();

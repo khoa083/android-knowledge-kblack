@@ -58,3 +58,13 @@
 | Pair là tích Descartes, số giá trị nhân; Triage 3 giá trị; Struct = Boolean × Triage × Byte = 1.536; Unit là 1, Nothing là 0; Either là tổng; callback (Data, Result?, Error?) không an toàn kiểu, viết lại thành Result × (Info + Error), "điều không làm được quan trọng hơn điều làm được"; Optional là A + 1; Exercise 10.1, 10.3 | Carli ch.10 |
 | Kiểu con trực tiếp của sealed biết lúc biên dịch, when phủ đủ không cần else | Kotlin docs, Sealed classes (nguồn kt-sealed của track Kotlin, mở rộng cho fp) |
 | **Của site:** màn "Lịch trống" và thiết kế của nó (vào là tải; bản 2 thêm tải lại giữ dữ liệu cũ), đếm theo dạng (nullable tính có hoặc không), ba màn dùng chung state, khối catch quên tắt isLoading, crash slots!!; cầu nối X24 tới Kotlin K5 và Kiến trúc G7 | — |
+
+### K5 Lỗi là giá trị
+| Ý trên site | Nguồn |
+|---|---|
+| Ném ngoại lệ là mất kiểm soát: chương trình dừng hoặc ai đó ở trên bắt; ngoại lệ phá RT (failingFn: cùng dòng ném, trong try trả 43, ngoài try thì dừng; nghĩa phụ thuộc ngữ cảnh); không an toàn kiểu ((Int) -> Int không nói gì về lỗi); checked exception không hợp với hàm bậc cao; sentinel value để lỗi lặng lẽ đi tiếp, nơi gọi có thể quên kiểm | Vermeulen và cộng sự 4.1, 4.2 |
+| Ngoại lệ là side effect; làm "sạch" hàm bằng cách đưa side effect vào kiểu trả về; hai chiến lược: fail fast (Optional, Either) và gom lỗi (applicative, để chương sau); Optional mất lý do lỗi; Either giữ lỗi đầu tiên; Result<T> của Kotlin, lỗi là Throwable, có map nhưng không có flatMap; ViewModel dùng fold để chọn trạng thái (NoSearchDone, SearchRunning, Failure, Success, NoResult) | Carli ch.14 |
+| null khi lỗi đủ dùng nếu lý do hiển nhiên; trả kèm chuỗi lỗi (Pair) vẫn buộc kiểm null; ngoại lệ phá chuỗi hàm và làm hỏng việc chạy hàng loạt; chỉ dùng ngoại lệ cho tình huống không thể phục hồi; Outcome sealed (Success, Failure) và onFailure { return it } trả về sớm | Barbini ch.7 |
+| Result gói giá trị T hoặc Throwable; danh sách hàm (map, mapCatching, recover, fold, getOrElse…), không có flatMap; runCatching bắt mọi Throwable | API kotlin.Result, runCatching (bản 2.4, đọc 2026-11-25) |
+| Either và Raise; either { }, bind, raise, ensure, ensureNotNull, fold, getOrElse, recover; catch tự bỏ qua OutOfMemoryError và CancellationException; bản 2.3.0 | arrow-kt.io typed errors, setup (đọc 2026-11-25) |
+| **Của site:** luồng đặt lịch bốn bước (parsePhone, findFreeSlot, checkQuota, save), bốn cách viết, bốn tình huống (suôn sẻ, giờ S07 đã đặt, bug quotas[phone]!! với số mới, lỗi mới ClinicClosed), kiểu Outcome ba dòng, hệ quả "runCatching gói cả CancellationException" suy từ "bắt mọi Throwable", bài tập hủy lịch | — |

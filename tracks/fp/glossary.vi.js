@@ -11,5 +11,7 @@ ADE.addGlossary('vi', 'fp', {
   "partial-application": { term: "partial application", def: "Cố định trước một số tham số của hàm, nhận về hàm cần phần còn lại; các giá trị đã cố định nằm trong closure. Gần với dependency injection.", chapter: "fp/p3" },
   "algebraic-data-type": { term: "kiểu dữ liệu đại số (ADT)", def: "Kiểu ghép từ kiểu khác bằng hai phép: product (và: mọi trường cùng có, số giá trị nhân với nhau, như data class) và sum (hoặc: đúng một trong các lựa chọn, số giá trị cộng với nhau, như sealed interface).", chapter: "fp/p4" },
   "product-type": { term: "product type", def: "Kiểu gồm nhiều trường cùng có mặt; số giá trị bằng tích số giá trị của từng trường. Pair và data class là product type.", chapter: "fp/p4" },
-  "sum-type": { term: "sum type", def: "Kiểu là đúng một trong vài lựa chọn; số giá trị bằng tổng số giá trị của các lựa chọn. Either và sealed interface với các kiểu con là sum type.", chapter: "fp/p4" }
+  "sum-type": { term: "sum type", def: "Kiểu là đúng một trong vài lựa chọn; số giá trị bằng tổng số giá trị của các lựa chọn. Either và sealed interface với các kiểu con là sum type.", chapter: "fp/p4" },
+  "errors-as-values": { term: "lỗi là giá trị (errors as values)", def: "Thay vì ném ngoại lệ, hàm trả về một kiểu mô tả cả thành công lẫn lỗi (T?, Result, một sealed interface kiểu Outcome, hay Either của Arrow). Lỗi hiện trong chữ ký và nơi gọi phải xử lý nó.", chapter: "fp/p5" },
+  "fail-fast": { term: "dừng sớm (fail fast)", def: "Chiến lược nối các bước có thể hỏng: gặp lỗi đầu tiên thì dừng và trả lỗi đó, bỏ qua các bước sau. Hợp khi bước sau cần kết quả của bước trước; ngược với gom mọi lỗi.", chapter: "fp/p5" }
 });
