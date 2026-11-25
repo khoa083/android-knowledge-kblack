@@ -226,7 +226,7 @@
     RY.forEach(function (y, n) {
       var open = cells[n + 1].open, x1 = BX + BW, y1 = BY + BH / 2, x2 = RX, y2 = y + RH / 2;
       svg += '<line class="vz-dg-e' + (open ? ' up' : '') + '" data-k="mn-e-' + n + '" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>';
-      svg += '<text class="vz-mn-op' + (open ? '' : ' off') + '" x="' + (x2 - 6) + '" y="' + (y2 - 8) + '" text-anchor="end">' + OPS[n] + '</text>';
+      svg += '<text class="vz-mn-op' + (open ? '' : ' off') + '" x="' + (x2 - 6) + '" y="' + (y2 > y1 + 20 ? y2 + 18 : y2 - 8) + '" text-anchor="end">' + OPS[n] + '</text>';
       svg += boxes(RX, y, RW, RH, cells[n + 1], n + 1);
     });
     svg += '</svg>';
