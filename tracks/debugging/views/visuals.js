@@ -255,4 +255,33 @@
     kids.push(h('div', { class: 'vz-legend', text: T('in.legend') }));
     box.appendChild(h('div', { class: 'vz' }, kids));
   }, { labelKey: K + 'tab.inspect', icon: 'list' });
+
+  /* ---------- l8: đường tham chiếu (SVG phẳng, 5 ô một hàng) và các cột bộ nhớ sau GC theo từng lần mở, vạch ngang giới hạn 64 MB.
+     Ô đỏ: mắt xích giữ Activity đã đóng (từ bước 3 của cách rò); cách sửa có mắt xích list → lambda bị cắt. Tính từ ADE.dbgLeak. ---------- */
+  ADE.registerScreen('debugging.leak', function (box, ctx) {
+    var h = ADE.ui.h, D = ADE.dbgLeak, c = ctx.state.case, i = Math.max(0, idx(ctx)), n = D.OPENS[i], mm = D.mem(c, n), inst = D.alive(c, n).length;
+    var ids = ['root', 'bus', 'list', 'lambda', 'act'], W = 112, G = 14, showPath = i >= 2;
+    var svg = '<svg class="vz-dg" viewBox="0 0 ' + (5 * W + 4 * G + 8) + ' 210" role="img" aria-label="' + esc(T('lk.aria', { n: n, m: mm })) + '">';
+    ids.forEach(function (id, k) {
+      var x = 4 + k * (W + G), lb = ADE.t('track.debugging.m.leak.n.' + id), cut = c === 'fixed' && k === 3;
+      var cl = showPath && c === 'leak' ? 'bad' : (cut ? 'skip' : (showPath ? 'ok' : ''));
+      if (k > 0) svg += '<line class="vz-dg-e' + (showPath && c === 'leak' ? ' bad' : '') + '" data-k="lk-e-' + k + '-' + (c === 'fixed' && k >= 3 ? 'cut' : 'on') + '"' + (c === 'fixed' && k >= 3 ? ' stroke-dasharray="4 4"' : '') +
+        ' x1="' + (x - G) + '" y1="26" x2="' + x + '" y2="26"/>';
+      svg += '<g class="vz-dg-n' + (cl ? ' ' + cl : '') + '" data-k="lk-n-' + id + '-' + (cl || 'n') + '"><rect x="' + x + '" y="8" width="' + W + '" height="36" rx="4"/>' +
+        '<text class="vz-dg-s" x="' + (x + 6) + '" y="30"' + fit(lb, W - 12) + '>' + esc(lb) + '</text></g>';
+    });
+    // cột bộ nhớ sau GC cho mỗi lần mở; trục 0..70 MB, vạch giới hạn 64 MB
+    var X0 = 40, BW = (5 * W + 4 * G - X0) / 20, Y1 = 200, HMB = 2.0, ly = Y1 - D.LIMIT * HMB;
+    svg += '<line class="vz-dg-e bad" data-k="lk-limit" x1="' + X0 + '" y1="' + ly + '" x2="' + (5 * W + 4 * G) + '" y2="' + ly + '"/><text class="vz-dg-s" x="4" y="' + (ly + 4) + '">64</text>';
+    for (var j = 1; j <= n; j++) {
+      var v = D.mem(c, j), hgt = Math.min(v, 70) * HMB, over = v > D.LIMIT;
+      svg += '<g class="vz-dg-n' + (over ? ' bad' : (c === 'leak' && j > 1 ? '' : ' ok')) + '" data-k="lk-b-' + j + '-' + (over ? 'x' : 'o') + '"><rect x="' + (X0 + (j - 1) * BW + 2).toFixed(1) + '" y="' + (Y1 - hgt).toFixed(1) + '" width="' + (BW - 4).toFixed(1) + '" height="' + hgt.toFixed(1) + '" rx="1"/></g>';
+    }
+    svg += '<text class="vz-dg-s" x="4" y="' + Y1 + '">0</text></svg>';
+    var wrap = h('div', { class: 'vz-scroll' }); wrap.innerHTML = svg;
+    box.appendChild(h('div', { class: 'vz' },
+      wrap,
+      h('p', { class: 'vz-sub' + (c === 'leak' && i >= 1 ? ' bad' : ''), 'data-k': 'lk-sub-' + c + i, text: T('lk.sub', { n: n, m: mm, k: inst }) + (c === 'fixed' && i >= 2 ? ' ' + T('lk.cut') : '') }),
+      h('div', { class: 'vz-legend', text: T('lk.legend') })));
+  }, { labelKey: K + 'tab.leak', icon: 'layers' });
 })();

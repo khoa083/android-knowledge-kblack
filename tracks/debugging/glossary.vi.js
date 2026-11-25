@@ -12,5 +12,8 @@ ADE.addGlossary('vi', 'debugging', {
   "mapping-file": { term: "file mapping (mapping.txt)", def: "File R8 ghi lúc build release, đối chiếu tên rối với tên thật của lớp, hàm, trường kèm khoảng số dòng; mỗi lần build một file, phải lưu theo phiên bản để dịch ngược stack trace.", chapter: "debugging/l5" },
   "keep-rule": { term: "keep rule", def: "Quy tắc báo R8 giữ nguyên tên hay không bỏ một lớp, hàm, trường; cần cho mã được tìm bằng tên qua reflection.", chapter: "debugging/l5" },
   "hit-test": { term: "hit test", def: "Bước tìm thành phần nhận một cú chạm: trong các thành phần có bounds chứa điểm chạm, thành phần vẽ trên cùng có xử lý chạm được chọn. Alpha không ảnh hưởng.", chapter: "debugging/l6" },
-  "work-state": { term: "trạng thái worker (WorkInfo.State)", def: "Trạng thái của một việc trong WorkManager: ENQUEUED (chờ ràng buộc), RUNNING, SUCCEEDED, FAILED, BLOCKED (chờ việc phía trước), CANCELLED. FAILED và CANCELLED lan sang việc phụ thuộc.", chapter: "debugging/l7" }
+  "work-state": { term: "trạng thái worker (WorkInfo.State)", def: "Trạng thái của một việc trong WorkManager: ENQUEUED (chờ ràng buộc), RUNNING, SUCCEEDED, FAILED, BLOCKED (chờ việc phía trước), CANCELLED. FAILED và CANCELLED lan sang việc phụ thuộc.", chapter: "debugging/l7" },
+  "memory-leak": { term: "rò rỉ bộ nhớ (memory leak)", def: "Khi mã vô tình giữ một đường tham chiếu từ GC root tới đối tượng không còn cần, nên GC không thu được nó. Bộ nhớ sau GC tăng dần, rồi tới OutOfMemoryError.", chapter: "debugging/l8" },
+  "gc-root": { term: "GC root", def: "Điểm bắt đầu mà GC xem là luôn sống, như trường static hay luồng đang chạy; đối tượng không còn đường tham chiếu từ GC root nào thì được thu.", chapter: "debugging/l8" },
+  "retained-size": { term: "retained size", def: "Lượng bộ nhớ sẽ được giải phóng nếu một đối tượng bị thu, gồm mọi thứ chỉ nó giữ; khác shallow size là bộ nhớ của riêng đối tượng.", chapter: "debugging/l8" }
 });

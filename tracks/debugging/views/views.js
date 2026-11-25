@@ -45,4 +45,9 @@
     N('inspect', 'dbi', 6, 0, 'search', 'runtime'), N('inspect', 'bti', 6, 2, 'search', 'runtime')],
     edges: [E('e1', 'app', 'db'), E('e2', 'app', 'wm'), E('e3', 'dbi', 'db'), E('e4', 'bti', 'wm')],
     metrics: [T('inspect', 'stored'), T('inspect', 'shown'), T('inspect', 'stuck'), T('inspect', 'cause')] });
+  /* l8: GC root → BookingEventBus → listeners → lambda → DetailActivity đã đóng */
+  V('leak', { layout: 'pipeline', nodes: [N('leak', 'root', 0, 0, 'target', 'runtime'), N('leak', 'bus', 3, 0, 'store', 'state'), N('leak', 'list', 6, 0, 'list', 'state'),
+    N('leak', 'lambda', 6, 2, 'mechanism', 'signal'), N('leak', 'act', 9, 2, 'screen', 'ui')],
+    edges: [E('e1', 'root', 'bus'), E('e2', 'bus', 'list'), E('e3', 'list', 'lambda'), E('e4', 'lambda', 'act')],
+    metrics: [T('leak', 'opens'), T('leak', 'mem'), T('leak', 'inst'), T('leak', 'oom')] });
 })();

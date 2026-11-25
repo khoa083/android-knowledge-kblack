@@ -60,5 +60,7 @@ ADE.addSharedStrings('en', {
   'shared.bridge.X30.title': 'Looking at the UI tree and counting recompositions',
   'shared.bridge.X30.summary': 'The Compose Runtime chapter explains why a composable recomposes or is skipped and how to measure before fixing. The owner chapter teaches using Layout Inspector: the tree, bounds, attributes, components overlapping at a point, and each composable\'s recomposition and skip counts.',
   'shared.bridge.X31.title': 'Looking at Room and WorkManager while the app runs',
-  'shared.bridge.X31.summary': 'The Saving Data chapters teach Room, Flows from DAOs and background sync with WorkManager. The owner chapter teaches looking at them at runtime: opening tables and running the exact @Query with Database Inspector, editing a row to test a hypothesis, and reading worker states (ENQUEUED, BLOCKED, FAILED) with Background Task Inspector.'
+  'shared.bridge.X31.summary': 'The Saving Data chapters teach Room, Flows from DAOs and background sync with WorkManager. The owner chapter teaches looking at them at runtime: opening tables and running the exact @Query with Database Inspector, editing a row to test a hypothesis, and reading worker states (ENQUEUED, BLOCKED, FAILED) with Background Task Inspector.',
+  'shared.bridge.X32.title': 'What is keeping a closed Activity alive',
+  'shared.bridge.X32.summary': 'The Kotlin chapter teaches that a lambda holds what it uses, this included; the architecture chapter teaches singletons and dependency scopes. The owner chapter shows what happens when something long-lived holds something short-lived: a leaked Activity, memory creeping up to an OutOfMemoryError, and how to find the link with a heap dump.'
 });

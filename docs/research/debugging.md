@@ -87,3 +87,13 @@
 | Ràng buộc phải thỏa tất cả; UNMETERED; Result.retry, backoff EXPONENTIAL 30 giây mặc định, tối thiểu 10 giây | developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work |
 | **Của site:** bảng booking 4 dòng (39 CANCELLED, 40–41 COMPLETED, 42 PENDING), truy vấn CONFIRMED trả 0; chuỗi UploadPhotos (UNMETERED) → SyncBookings → NotifyUser trên 4G | — |
 - Energy Profiler: trang Background Task Inspector nói phần job, alarm, wakelock đã chuyển từ Energy profiler sang đây; dùng điều này cho l11 (pin).
+
+### l8 Bộ nhớ: churn, rò rỉ, heap dump (đọc 2026-11-25)
+| Ý trên site | Nguồn |
+|---|---|
+| Heap dump: Shallow Size, Retained Size (cây dominator), Depth từ GC root, References, lọc Activity/Fragment rò | developer.android.com/studio/profile/memory-profiler |
+| Heap phân thế hệ; GC có thể đẩy khung hình quá 16 ms; giới hạn heap, OOM; getMemoryClass | developer.android.com/topic/performance/memory-overview |
+| Rò rỉ thường do biến static; churn gây nhiều GC; đối tượng tạm trong vòng lặp, recompose, khi vẽ; onTrimMemory | developer.android.com/topic/performance/memory/manage-app-memory |
+| Ghi cấp phát kèm stack trace; Sampled so với Full; GC trên dòng thời gian | developer.android.com/studio/profile/record-java-kotlin-allocations |
+| LeakCanary 2.14: bốn bước, tham chiếu yếu, chờ 5 giây, ngưỡng 5/1, leak trace; nguyên nhân hay gặp | square.github.io/leakcanary (thư viện bên ngoài) |
+| **Của site:** nền 18 MB, 2,4 MB mỗi DetailActivity, giới hạn 64 MB, OOM ở lần mở 20 (66 MB); BookingEventBus giữ lambda giữ Activity | — |

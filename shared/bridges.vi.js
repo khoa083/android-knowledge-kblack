@@ -60,5 +60,7 @@ ADE.addSharedStrings('vi', {
   'shared.bridge.X30.title': 'Xem cây giao diện và đếm recomposition',
   'shared.bridge.X30.summary': 'Chương Compose Runtime giải thích vì sao một composable recompose hay được skip và cách đo trước khi sửa. Chương chủ sở hữu dạy dùng Layout Inspector: xem cây, bounds, thuộc tính, thành phần chồng nhau tại một điểm, và số lần recompose, skip của từng composable.',
   'shared.bridge.X31.title': 'Xem Room và WorkManager khi app đang chạy',
-  'shared.bridge.X31.summary': 'Các chương Lưu dữ liệu giảng Room, Flow từ DAO và đồng bộ nền bằng WorkManager. Chương chủ sở hữu dạy nhìn vào chúng lúc chạy: mở bảng và chạy đúng @Query bằng Database Inspector, sửa một dòng để thử giả thuyết, và đọc trạng thái worker (ENQUEUED, BLOCKED, FAILED) bằng Background Task Inspector.'
+  'shared.bridge.X31.summary': 'Các chương Lưu dữ liệu giảng Room, Flow từ DAO và đồng bộ nền bằng WorkManager. Chương chủ sở hữu dạy nhìn vào chúng lúc chạy: mở bảng và chạy đúng @Query bằng Database Inspector, sửa một dòng để thử giả thuyết, và đọc trạng thái worker (ENQUEUED, BLOCKED, FAILED) bằng Background Task Inspector.',
+  'shared.bridge.X32.title': 'Thứ gì đang giữ Activity đã đóng',
+  'shared.bridge.X32.summary': 'Chương Kotlin giảng lambda giữ những gì nó dùng, kể cả this; chương kiến trúc giảng singleton và phạm vi của dependency. Chương chủ sở hữu cho thấy hậu quả khi một thứ sống lâu giữ thứ sống ngắn: Activity rò, bộ nhớ tăng dần tới OutOfMemoryError, và cách tìm mắt xích bằng heap dump.'
 });

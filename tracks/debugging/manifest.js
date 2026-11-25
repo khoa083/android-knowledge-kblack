@@ -14,7 +14,8 @@ ADE.registerTrack({
     { id: 'l4', num: 4, titleKey: 'track.debugging.l4.title', sims: ['debugging.trace'], simAfter: 'hook', bridges: ['X29'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'l5', num: 5, titleKey: 'track.debugging.l5.title', sims: ['debugging.retrace'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
     { id: 'l6', num: 6, titleKey: 'track.debugging.l6.title', sims: ['debugging.layout'], simAfter: 'hook', bridges: ['X30'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'l7', num: 7, titleKey: 'track.debugging.l7.title', sims: ['debugging.inspect'], simAfter: 'hook', bridges: ['X31'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'l7', num: 7, titleKey: 'track.debugging.l7.title', sims: ['debugging.inspect'], simAfter: 'hook', bridges: ['X31'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'l8', num: 8, titleKey: 'track.debugging.l8.title', sims: ['debugging.leak'], simAfter: 'hook', bridges: ['X32'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'debugging-loop', model: 'debugging.loop', titleKey: 'track.debugging.preset.loop' },
@@ -23,7 +24,8 @@ ADE.registerTrack({
     { id: 'debugging-trace', model: 'debugging.trace', titleKey: 'track.debugging.preset.trace' },
     { id: 'debugging-retrace', model: 'debugging.retrace', titleKey: 'track.debugging.preset.retrace' },
     { id: 'debugging-layout', model: 'debugging.layout', titleKey: 'track.debugging.preset.layout' },
-    { id: 'debugging-inspect', model: 'debugging.inspect', titleKey: 'track.debugging.preset.inspect' }
+    { id: 'debugging-inspect', model: 'debugging.inspect', titleKey: 'track.debugging.preset.inspect' },
+    { id: 'debugging-leak', model: 'debugging.leak', titleKey: 'track.debugging.preset.leak' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

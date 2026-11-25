@@ -452,4 +452,50 @@
         { name: 'mỗi lỗi 4 bước; dòng tô sáng nằm trong đoạn mã 9 dòng', run: function () {
           return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 9; }); }); }); } }] });
   })();
+
+  /* ================= l8: rò rỉ bộ nhớ: listener đăng ký vào object toàn cục mà không hủy =================
+     Theo developer.android.com memory-profiler (retained size, depth, references, lọc Activity rò), memory-overview (giới hạn heap, OOM), manage-app-memory,
+     LeakCanary (thư viện bên ngoài). CÀI THẬT: đồ thị tham chiếu GC root → BookingEventBus → listeners → lambda → DetailActivity; sau GC, instance còn
+     đường từ GC root thì ở lại. Bộ nhớ = nền + số Activity còn sống × 2,4 MB; vượt 64 MB là OOM. Các số MB là của site. */
+  (function () {
+    var m = 'leak', CASES = ['leak', 'fixed'], KS = ['s1', 's2', 's3', 's4'];
+    var BASE = 18, PER = 2.4, LIMIT = 64, OPENS = [5, 5, 5, 20];
+    var r1 = function (x) { return Math.round(x * 10) / 10; };
+    // sau n lần mở rồi đóng (màn cuối còn mở), các Activity còn đường từ GC root
+    function alive(c, n) {
+      var reach = [];
+      for (var k = 1; k <= n; k++) { var current = k === n, listened = c === 'leak' || current; if (listened || current) reach.push(k); }
+      return reach;
+    }
+    var mem = function (c, n) { return r1(BASE + alive(c, n).length * PER); };
+    function firstOom(c) { for (var n = 1; n <= 100; n++) if (mem(c, n) > LIMIT) return n; return null; }
+    ADE.dbgLeak = { mem: mem, alive: alive, LIMIT: LIMIT, OPENS: OPENS, firstOom: firstOom };
+    var NODES = { leak: [[['act'], 'act', 'e4'], [['act', 'lambda'], 'act', 'e4'], [['root', 'bus', 'list', 'lambda', 'act'], 'list', 'e2'], [['act'], 'act', 'e4']],
+      fixed: [[['act'], 'act', 'e4'], [['act'], 'act', 'e4'], [['root', 'bus', 'list'], 'list', 'e2'], [['act'], 'act', 'e4']] };
+    var HL = { leak: [[8], [8], [1, 2, 7], [8]], fixed: [[8, 9], [9], [9], [9]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var n = OPENS[i], mm = mem(c, n), inst = alive(c, n).length, bad = c === 'leak' && i >= 1, nd = NODES[c][i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var oom = mm > LIMIT ? 'oom.crash' : (inst > 3 ? 'oom.slow' : 'oom.ok');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { opens: n, mem: mm, inst: inst, oom: M(m, oom) },
+          codeHighlight: { snippet: 'l8.code', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'leak';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'leak' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'không hủy đăng ký: sau 5 lần mở còn 5 DetailActivity, 30 MB; mỗi lần thêm 2,4 MB', run: function () { return alive('leak', 5).length === 5 && mem('leak', 5) === 30 && mem('leak', 1) === 20.4; } },
+        { name: 'OOM ở lần mở thứ 20: 18 + 20 × 2,4 = 66 MB > 64 MB; lần 19 là 63,6 MB', run: function () { return firstOom('leak') === 20 && mem('leak', 20) === 66 && mem('leak', 19) === 63.6; } },
+        { name: 'hủy trong onDestroy: luôn 1 instance, 20,4 MB, không bao giờ OOM', run: function () { return alive('fixed', 20).length === 1 && mem('fixed', 20) === 20.4 && firstOom('fixed') === null; } },
+        { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 10 dòng', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 10; }); }); }); } }] });
+  })();
 })();

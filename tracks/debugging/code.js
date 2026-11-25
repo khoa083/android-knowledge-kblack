@@ -112,4 +112,18 @@
     'workManager.beginWith(syncBookings).then(notifyUser).enqueue()                       // CONNECTED',
     'workManager.enqueue(uploadPhotos)                                                    // UNMETERED'
   ]);
+
+  /* l8: object toàn cục giữ listener (dòng 1–2), lambda giữ Activity (dòng 7), đăng ký (dòng 8), hủy trong onDestroy (dòng 9) */
+  add('l8.code', [
+    c('object BookingEventBus {                                   // object: sống suốt tiến trình', 'object BookingEventBus {                                   // object: lives as long as the process'),
+    '    private val listeners = mutableListOf<(BookingEvent) -> Unit>()',
+    '    fun register(l: (BookingEvent) -> Unit) { listeners += l }',
+    '    fun unregister(l: (BookingEvent) -> Unit) { listeners -= l }',
+    '}',
+    'class DetailActivity : AppCompatActivity() {',
+    c('    private val onEvent: (BookingEvent) -> Unit = { render(it) }  // lambda giữ this', '    private val onEvent: (BookingEvent) -> Unit = { render(it) }  // the lambda holds this'),
+    '    override fun onCreate(s: Bundle?) { super.onCreate(s); BookingEventBus.register(onEvent) }',
+    c('    override fun onDestroy() { BookingEventBus.unregister(onEvent); super.onDestroy() }  // sửa', '    override fun onDestroy() { BookingEventBus.unregister(onEvent); super.onDestroy() }  // fix'),
+    '}'
+  ]);
 })();
