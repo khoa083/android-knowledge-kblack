@@ -729,4 +729,68 @@
         { name: 'mỗi cách 4 bước; nhánh luật trong hàm có I/O: 3 so với 1; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
           return count('mixed').branches === 3 && count('core').branches === 1 && CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p9.' + c]; }); }); }); } }] });
   })();
+
+  /* ================= K10: state bất biến và cập nhật lồng sâu: dựng lại object bên trong và sửa list tại chỗ, hay copy lồng và list mới =================
+     Theo tài liệu Arrow immutable data, lens (copy lồng phải lặp tên trường và chép nhiều tầng dù chỉ đổi một trường; @optics, set, modify, copy { });
+     Vermeulen và cộng sự 3.3 (dùng chung dữ liệu); Carli ch.19 (Arrow). CÀI THẬT: state là object JS lồng ba tầng; "dựng lại" tạo Patient mới với
+     giá trị mặc định cho trường không nhắc tới; copy lồng chỉ tạo mới các object trên đường tới trường đổi (kiểm bằng ===); StateFlow chỉ phát khi
+     giá trị mới khác giá trị cũ (so bằng equals), nên sửa list tại chỗ rồi gán lại cùng object thì không phát. Tên, địa chỉ, mã thẻ là của site. */
+  (function () {
+    var m = 'optics', CASES = ['careless', 'careful'], KS = ['s1', 's2', 's3', 's4'];
+    function initial() { return { patient: { name: 'Lan', phone: '0901234567', card: 'BHYT-4471', address: { street: '12 Lê Lợi', city: 'Huế' } }, bookings: [41] }; }
+    var DEFAULTS = { phone: '', card: null };
+    var copy = function (o, ch) { var n = {}; Object.keys(o).forEach(function (k) { n[k] = o[k]; }); Object.keys(ch).forEach(function (k) { n[k] = ch[k]; }); return n; };
+    // đổi thành phố: dựng lại Patient (quên phone, card) hay copy lồng ba tầng
+    function moveCity(c, s) {
+      var p = s.patient;
+      if (c === 'careless') return copy(s, { patient: { name: p.name, phone: DEFAULTS.phone, card: DEFAULTS.card, address: { street: p.address.street, city: 'Đà Nẵng' } } });
+      return copy(s, { patient: copy(p, { address: copy(p.address, { city: 'Đà Nẵng' }) }) });
+    }
+    // thêm lịch 42: sửa MutableList tại chỗ rồi gán lại cùng object, hay tạo list mới qua copy
+    function addBooking(c, s) { if (c === 'careless') { s.bookings.push(42); return s; } return copy(s, { bookings: s.bookings.concat([42]) }); }
+    var eq = function (a, b) { return JSON.stringify(a) === JSON.stringify(b); };
+    // StateFlow: chỉ phát khi giá trị mới khác giá trị cũ (equals); cùng object thì chắc chắn bằng nhau
+    var emits = function (oldV, newV) { return oldV !== newV && !eq(oldV, newV); };
+    // optic viết tay: get/set theo đường patient.address.city (đại diện cho Arrow optics)
+    var cityLens = { set: function (s, v) { return copy(s, { patient: copy(s.patient, { address: copy(s.patient.address, { city: v }) }) }); } };
+    function run(c) {
+      var s0 = initial(), s1 = moveCity(c, s0), oldForUndo = s1, before = JSON.stringify(s1), s2;
+      var lost = ['phone', 'card'].filter(function (k) { return s1.patient[k] !== s0.patient[k]; });
+      var nodes = { root: s1 !== s0, patient: s1.patient !== s0.patient, address: s1.patient.address !== s0.patient.address, bookings: s1.bookings !== s0.bookings };
+      s2 = addBooking(c, s1);
+      return { s0: s0, s1: s1, s2: s2, lost: lost, nodes: nodes, fresh: Object.keys(nodes).filter(function (k) { return nodes[k]; }).length,
+        shared: Object.keys(nodes).filter(function (k) { return !nodes[k]; }).length, emitted: emits(s1, s2),   // cùng object thì không phát; object mới khác nội dung thì phát
+        undoBroken: JSON.stringify(oldForUndo) !== before, lensSame: eq(cityLens.set(s0, 'Đà Nẵng'), moveCity('careful', initial())) };
+    }
+    ADE.fpOptics = { run: run, initial: initial };
+    var HL = { careless: [[2], [2], [4, 5], [3, 4]], careful: [[1], [1], [3, 4], [5, 6]] };
+    var NODES = [[['action', 'state'], 'state', 'e1'], [['state', 'tree'], 'tree', 'e2'], [['state', 'flow'], 'flow', 'e3'], [['state', 'undo'], 'undo', 'e4']];
+    function steps(s) {
+      var c = s.case, r = run(c);
+      return KS.map(function (k, i) {
+        var bad = c === 'careless' && i !== 1, nd = NODES[i], ns = {}; ns[nd[1]] = K + 'st.' + (bad ? (i === 2 ? 'broken' : 'surprise') : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { lost: r.lost.length, fresh: i >= 1 ? r.fresh : 0, shared: i >= 1 ? r.shared : 0, emitted: i >= 2 ? (r.emitted ? 1 : 0) : 0 },
+          codeHighlight: { snippet: 'p10.' + c, lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'write' : 'observe')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'careless';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    var LEN = { 'p10.careless': 5, 'p10.careful': 6 };
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'careless' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'dựng lại Patient làm mất phone và card (2 trường); copy lồng giữ đủ, chỉ city đổi thành Đà Nẵng', run: function () {
+          var a = run('careless'), b = run('careful'); return a.lost.join() === 'phone,card' && b.lost.length === 0 && b.s1.patient.address.city === 'Đà Nẵng' && b.s1.patient.card === 'BHYT-4471'; } },
+        { name: 'copy lồng: 3 object mới (root, patient, address), bookings dùng chung (===)', run: function () {
+          var b = run('careful'); return b.fresh === 3 && b.shared === 1 && b.nodes.bookings === false; } },
+        { name: 'sửa list tại chỗ rồi gán lại cùng object: StateFlow không phát và bản cũ để hoàn tác cũng bị đổi; list mới: phát, bản cũ giữ nguyên', run: function () {
+          var a = run('careless'), b = run('careful'); return !a.emitted && a.undoBroken && b.emitted && !b.undoBroken && b.s2.bookings.join() === '41,42' && b.s1.bookings.join() === '41'; } },
+        { name: 'optic set theo đường patient.address.city cho cùng kết quả với copy lồng', run: function () { return run('careful').lensSame; } },
+        { name: 'mỗi cách 4 bước; mọi dòng tô sáng nằm trong đoạn mã', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= LEN['p10.' + c]; }); }); }); } }] });
+  })();
 })();

@@ -20,6 +20,9 @@
       'Two styles: the Either<E, A> wrapper type and the Raise<E> context; the either { } block, .bind(), raise, ensure, ensureNotNull, fold, getOrElse, recover; catch skips fatal errors such as OutOfMemoryError and CancellationException. Version 2.3.0 per the setup page (read on 2026-11-25) (K5).'),
     s('arrow-validation', 'Validation and accumulating errors (Arrow)', 'https://arrow-kt.io/learn/typed-errors/validation/', 'Arrow (thư viện bên ngoài)', 'version',
       'Dừng ngay ở lỗi đầu tiên (short-circuit) so với gom mọi lỗi; zipOrAccumulate nhận các khối kiểm độc lập và một hàm tạo kết quả; mapOrAccumulate kiểm từng phần tử; lỗi gom trong NonEmptyList (đọc ngày 2026-11-25, trang không ghi số phiên bản) (K7).',
-      'Short-circuiting at the first error versus collecting every error; zipOrAccumulate takes independent check blocks and a function building the result; mapOrAccumulate checks each element; errors are collected in a NonEmptyList (read on 2026-11-25; the page states no version number) (K7).')
+      'Short-circuiting at the first error versus collecting every error; zipOrAccumulate takes independent check blocks and a function building the result; mapOrAccumulate checks each element; errors are collected in a NonEmptyList (read on 2026-11-25; the page states no version number) (K7).'),
+    s('arrow-optics', 'Immutable data and lenses (Arrow 2.3.0)', 'https://arrow-kt.io/learn/immutable-data/lens/', 'Arrow (thư viện bên ngoài)', 'version',
+      'Kotlin không có sẵn công cụ tốt cho giá trị lồng sâu, phải lặp tên trường và chép nhiều tầng; @optics sinh optic cho mỗi trường; lens có get, set, modify; copy { set / transform } đổi nhiều trường; nên dùng plugin biên dịch, KSP cần companion object (bản 2.3.0, đọc ngày 2026-11-25) (K10).',
+      'Kotlin lacks good built-in tooling for deeply nested values, so you repeat field names and copy several levels; @optics generates an optic per field; a lens has get, set, modify; copy { set / transform } changes several fields; the compiler plugin is recommended, KSP needs a companion object (version 2.3.0, read on 2026-11-25) (K10).')
   ]);
 })();

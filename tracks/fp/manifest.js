@@ -15,7 +15,8 @@ ADE.registerTrack({
     { id: 'p6', titleKey: 'track.fp.p6.title', sims: ['fp.monad'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'p7', titleKey: 'track.fp.p7.title', sims: ['fp.validate'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'p8', titleKey: 'track.fp.p8.title', sims: ['fp.reducer'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
-    { id: 'p9', titleKey: 'track.fp.p9.title', sims: ['fp.core'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
+    { id: 'p9', titleKey: 'track.fp.p9.title', sims: ['fp.core'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
+    { id: 'p10', titleKey: 'track.fp.p10.title', sims: ['fp.optics'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
     { id: 'fp-pure', model: 'fp.pure', titleKey: 'track.fp.preset.pure' },
@@ -26,7 +27,8 @@ ADE.registerTrack({
     { id: 'fp-monad', model: 'fp.monad', titleKey: 'track.fp.preset.monad' },
     { id: 'fp-validate', model: 'fp.validate', titleKey: 'track.fp.preset.validate' },
     { id: 'fp-reducer', model: 'fp.reducer', titleKey: 'track.fp.preset.reducer' },
-    { id: 'fp-core', model: 'fp.core', titleKey: 'track.fp.preset.core' }
+    { id: 'fp-core', model: 'fp.core', titleKey: 'track.fp.preset.core' },
+    { id: 'fp-optics', model: 'fp.optics', titleKey: 'track.fp.preset.optics' }
   ],
   logKinds: ['observe', 'run', 'write', 'skip', 'exception', 'complete'],
   labels: ['stable', 'version', 'impl', 'simplified', 'guideline'],

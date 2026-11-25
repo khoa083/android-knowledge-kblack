@@ -326,4 +326,42 @@
       h('p', { class: 'vz-sub' + (c === 'mixed' && i > 0 ? ' bad' : ''), 'data-k': 'co-focus', text: T('core.focus.' + i, { n: vals[i] }) }),
       h('div', { class: 'vz-legend', text: T('core.legend') })));
   }, { labelKey: K + 'tab.core', icon: 'layers' });
+
+  /* ---------- K10: cây object của state (SVG phẳng, một tầng mỗi cột): ProfileState → patient, bookings → các trường → address → street, city.
+     Ô viền là object được tạo mới, ô đậm là object dùng lại (===), ô đỏ là trường bị mất. Bước 3 đổi bookings; bước 4 so bản cũ để hoàn tác,
+     hoặc cho thấy optic cho cùng kết quả. Ô đổi lớp thì nháy; chữ đổi thì nháy; không lặp. ---------- */
+  ADE.registerScreen('fp.optics', function (box, ctx) {
+    var h = ADE.ui.h, P = ADE.fpOptics, c = ctx.state.case, i = Math.max(0, idx(ctx)), r = P.run(c);
+    var st = i >= 2 ? r.s2 : r.s1, s0 = r.s0, pt = st.patient;
+    var show = function (v) { return v === null ? 'null' : (v === '' ? '""' : (Array.isArray(v) ? '[' + v.join(', ') + ']' : '"' + v + '"')); };
+    var N = [
+      ['root', 'ProfileState', null, 8, 104, null],
+      ['patient', 'patient', null, 168, 56, 'root'], ['bookings', 'bookings', show(st.bookings), 168, 170, 'root'],
+      ['name', 'name', show(pt.name), 336, 8, 'patient'], ['phone', 'phone', show(pt.phone), 336, 44, 'patient'], ['card', 'card', show(pt.card), 336, 80, 'patient'],
+      ['address', 'address', null, 336, 128, 'patient'], ['street', 'street', show(pt.address.street), 496, 104, 'address'], ['city', 'city', show(pt.address.city), 496, 146, 'address']];
+    var pos = {}; N.forEach(function (n) { pos[n[0]] = n; });
+    function cls(id) {
+      if (id === 'phone' || id === 'card') return r.lost.indexOf(id) >= 0 ? 'bad' : '';
+      if (id === 'city') return 'on';
+      if (id === 'bookings') return i >= 2 ? (r.emitted ? 'on' : 'bad') : (r.nodes.bookings ? 'on' : 'ok');
+      if (r.nodes[id] === undefined) return '';
+      return r.nodes[id] ? 'on' : 'ok';
+    }
+    var W = 136, HH = 28;
+    var svg = '<svg class="vz-dg vz-tree" viewBox="0 0 640 196" role="img" aria-label="' + esc(T('optics.aria', { f: r.fresh, l: r.lost.length })) + '">';
+    N.forEach(function (n) { if (n[5]) { var p = pos[n[5]]; svg += '<line class="vz-dg-e" x1="' + (p[3] + W) + '" y1="' + (p[4] + HH / 2) + '" x2="' + n[3] + '" y2="' + (n[4] + HH / 2) + '"/>'; } });
+    N.forEach(function (n) {
+      var lb = n[2] === null ? n[1] : n[1] + ' = ' + n[2], k = cls(n[0]);
+      svg += '<g class="vz-dg-n' + (k ? ' ' + k : '') + '" data-k="op-' + n[0] + '"><rect x="' + n[3] + '" y="' + n[4] + '" width="' + W + '" height="' + HH + '" rx="4"/>' +
+        '<text class="vz-dg-s" x="' + (n[3] + 6) + '" y="' + (n[4] + 18) + '"' + fit(lb, W - 12) + '>' + esc(lb) + '</text></g>';
+    });
+    svg += '</svg>';
+    var wrap = h('div', { class: 'vz-scroll' }); wrap.innerHTML = svg;
+    var line = i < 2 ? T('optics.sum', { f: r.fresh, s: r.shared, l: r.lost.length }) : (i === 2 ? T('optics.emit.' + (r.emitted ? 'yes' : 'no')) : (c === 'careless' ? T('optics.undo.broken') : T('optics.lens')));
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-cap', text: T('optics.cap.' + c + '.' + Math.min(i, 2)) }),
+      wrap,
+      h('p', { class: 'vz-sub' + (c === 'careless' && i !== 1 ? ' bad' : ''), 'data-k': 'op-line', text: line }),
+      h('div', { class: 'vz-legend', text: T('optics.legend') })));
+  }, { labelKey: K + 'tab.optics', icon: 'layers' });
 })();

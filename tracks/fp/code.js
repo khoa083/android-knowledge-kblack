@@ -267,4 +267,22 @@
     '    return d',
     '}'
   ]);
+
+  /* K10: dựng lại object bên trong (mất trường) và sửa MutableList tại chỗ (StateFlow không phát) */
+  add('p10.careless', [
+    'val p = state.patient',
+    c('state = state.copy(patient = Patient(name = p.name, address = Address(p.address.street, "Đà Nẵng")))   // phone, card về mặc định', 'state = state.copy(patient = Patient(name = p.name, address = Address(p.address.street, "Da Nang")))   // phone, card fall back to defaults'),
+    c('val old = state                                         // giữ để hoàn tác', 'val old = state                                         // kept for undo'),
+    c('state.bookings.add(42)                                  // bookings là MutableList: sửa tại chỗ', 'state.bookings.add(42)                                  // bookings is a MutableList: changed in place'),
+    c('_state.value = state                                    // cùng object: StateFlow không phát', '_state.value = state                                    // the same object: StateFlow does not emit')
+  ]);
+  /* K10: copy lồng, list mới; Arrow optics cho cùng kết quả */
+  add('p10.careful', [
+    c('state = state.copy(patient = state.patient.copy(address = state.patient.address.copy(city = "Đà Nẵng")))', 'state = state.copy(patient = state.patient.copy(address = state.patient.address.copy(city = "Da Nang")))'),
+    'val old = state',
+    c('state = state.copy(bookings = state.bookings + 42)      // List chỉ đọc: tạo list mới', 'state = state.copy(bookings = state.bookings + 42)      // a read-only List: a new list is built'),
+    c('_state.value = state                                    // object mới: StateFlow phát', '_state.value = state                                    // a new object: StateFlow emits'),
+    c('// Arrow optics (thư viện bên ngoài): cùng kết quả với dòng 1', '// Arrow optics (an external library): the same result as line 1'),
+    c('state = ProfileState.patient.address.city.set(state, "Đà Nẵng")', 'state = ProfileState.patient.address.city.set(state, "Da Nang")')
+  ]);
 })();

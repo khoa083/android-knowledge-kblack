@@ -107,3 +107,10 @@
 | Lập trình hàm giữ thay đổi state ở rìa | Barbini ch.6 (Mutable and Immutable State) |
 | Side effect là thay đổi thế giới; kiểu IO (chỉ nhắc) | Carli ch.16 (Key points) |
 | **Của site:** hàm book() trộn 9 thao tác so với vỏ 7 thao tác quanh decide(); đếm qua ranh giới (4 so với 2), 5 đồ giả so với 0, thống kê gửi trước khi quyết định, Decision Accept/Reject, bài test giá trị, bài tập decideCancel | — |
+
+### K10 FP trên Android: state bất biến và cập nhật lồng sâu
+| Ý trên site | Nguồn |
+|---|---|
+| Kotlin không có sẵn công cụ tốt để biến đổi giá trị lồng sâu; phải lặp tên trường và chép nhiều tầng dù chỉ đổi một trường; @optics; companion object chỉ cần khi dùng KSP; nên dùng plugin biên dịch (2.3.0); lens get, set, modify; copy { set, transform }, inside | arrow-kt.io immutable data intro, lens, setup (đọc 2026-11-25) |
+| Dùng chung dữ liệu an toàn vì bất biến; với dữ liệu sửa được, mỗi nơi phải tự chép phòng xa | Vermeulen và cộng sự 3.3 |
+| **Của site:** ProfileState ba tầng (patient, address, bookings), dựng lại Patient làm mất phone và card, copy lồng tạo 3 object mới và dùng chung bookings (===), StateFlow không phát khi gán lại cùng object, bản giữ để hoàn tác bị đổi, optic viết tay cho cùng kết quả, bài tập withReminderMinutes | — |

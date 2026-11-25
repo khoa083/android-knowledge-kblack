@@ -47,4 +47,8 @@
   V('core', { layout: 'pipeline', nodes: [N('core', 'shell', 0, 0, 'source', 'ui'), N('core', 'core', 4, 0, 'mechanism', 'state'), N('core', 'test', 4, 2, 'check', 'job')],
     edges: [E('e1', 'shell', 'core'), E('e2', 'core', 'shell'), E('e3', 'test', 'core')],
     metrics: [T('core', 'cross'), T('core', 'fakes'), T('core', 'early'), T('core', 'branches')] });
+  /* K10: thao tác → state mới → cây object; StateFlow phát cho màn hình; bản cũ để hoàn tác */
+  V('optics', { layout: 'pipeline', nodes: [N('optics', 'action', 0, 1, 'mechanism', 'ui'), N('optics', 'state', 3, 1, 'store', 'state'), N('optics', 'tree', 6, 0, 'layers', 'runtime'), N('optics', 'flow', 6, 2, 'screen', 'job'), N('optics', 'undo', 3, 3, 'refresh', 'runtime')],
+    edges: [E('e1', 'action', 'state'), E('e2', 'state', 'tree'), E('e3', 'state', 'flow'), E('e4', 'state', 'undo')],
+    metrics: [T('optics', 'lost'), T('optics', 'fresh'), T('optics', 'shared'), T('optics', 'emitted')] });
 })();
