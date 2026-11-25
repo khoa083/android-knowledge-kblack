@@ -903,6 +903,7 @@ pre.code { position: relative; }
 .vz-ruler td { font-size: 10px; min-width: 30px; height: 34px; vertical-align: middle; white-space: normal; }
 .vz-ruler td.vz-rng:not(.hl):not(.bad) { background: color-mix(in srgb, var(--brand) 26%, var(--paper)); }
 .vz-sub { display: block; font-size: 11px; color: var(--ink-3); font-weight: 400; }
+.vz-sub.bad { color: var(--tok-error); font-weight: 700; }
 .vz-note { margin: 0; font: 12px/1.45 var(--mono); color: var(--ink-2); }
 .vz-note.bad { color: var(--tok-error); font-weight: 700; }
 .vz-note.ok { color: var(--ink); font-weight: 700; }
