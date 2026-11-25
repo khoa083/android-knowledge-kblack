@@ -17,6 +17,14 @@ Trạng thái: `chưa / đang / xong`.
 | P7 | Tích hợp trang chung (cầu nối X1–X8, catalog, lộ trình, tìm kiếm, nguồn, README) | **xong** (2026-11-21) | README.md, sources.md, bản đồ cầu nối SVG, gỡ track hello |
 | P8 | QA nghiệm thu; gỡ track "hello" | **xong** (2026-11-21) | Chrome + Edge đạt; Firefox/Safari chưa xác minh (không có trên máy) |
 
+> **Trạng thái hiện tại (2026-11-25):**
+> - 10 track stable, 138 chương: A, B, C, F, G, H, I, J, K, L.
+> - D UX và E UI tạm dừng ("Sắp ra mắt").
+> - M Nền tảng Android đã duyệt dàn ý, chưa xây.
+> - Cầu nối X1–X35.
+> - Bảng trạng thái đầy đủ ở `docs/roadmap-v2.md`; việc còn lại ở cuối file này.
+> - Nhật ký bên dưới giữ nguyên theo ngày; các dòng "chờ duyệt" hay "chưa xây" cũ phản ánh đúng thời điểm ghi.
+
 ## Nhật ký
 
 ### P0 — 2026-11-20

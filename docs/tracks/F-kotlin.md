@@ -2,6 +2,7 @@
 
 > Áp dụng toàn bộ hợp đồng chung `00-MASTER-PROMPT.md`. Spec này nằm trong `docs/` của site vì thư mục prompt chỉ được đọc.
 > Viết ngày 2026-11-23 theo yêu cầu mới của người dùng: **chọn kiến thức cần và đủ, không bám từng chương sách** (sợ lan man).
+> **ĐÃ XÂY XONG 2026-11-23** (K0–K13, 14 chương, stable). K1–K6 đã viết lại theo giọng dạy học; K7–K13 và K0 còn chờ viết lại (xem `docs/progress.md`, mục "Việc còn lại").
 
 ## Manifest
 | Trường | Giá trị |

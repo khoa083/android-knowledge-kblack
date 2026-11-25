@@ -1,6 +1,6 @@
 # TRACK J — Mã sạch và kỷ luật làm nghề / Clean Code and Craft (`cleancode`)
 
-> **ĐÃ DUYỆT (2026-11-24).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **giữ j11**, tên track **"Mã sạch và kỷ luật làm nghề"**. Chưa xây; làm sau track I.
+> **ĐÃ DUYỆT (2026-11-24).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **giữ j11**, tên track **"Mã sạch và kỷ luật làm nghề"**. **ĐÃ XÂY XONG 2026-11-24** (J0–J11, stable).
 > Nguyên tắc: **cần và đủ**; ví dụ bằng Kotlin trên app "Hẹn Khám". Mỗi chương bắt đầu từ một lỗi thật: sửa một chỗ hỏng chỗ khác, test vỡ khi refactor, bug không tái hiện được.
 
 ## Manifest đề xuất

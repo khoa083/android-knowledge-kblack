@@ -94,7 +94,7 @@ Trạng thái: **đạt** (đã thấy và kiểm ở cả vi và en) · **một
 |---|---|---|
 | `README.md`, `sources.md` | đạt | thư mục gốc; `sources.md` sinh bằng `node dev/tools/sources-md.js` |
 | Track hello thử ở P1, gỡ ở P7 | đạt | khối script, thư mục và `domain.sandbox` đã gỡ |
-| Cầu nối X1–X8 viết một lần ở chủ sở hữu, link hai chiều | đạt | script kiểm hai chiều trong progress P7 |
+| Cầu nối X1–X8 viết một lần ở chủ sở hữu, link hai chiều | đạt | script kiểm hai chiều trong progress P7. Cập nhật 2026-11-25: nay có X1–X35 (thêm dần khi xây track F–L), cùng quy tắc |
 | Mọi chuỗi có vi + en (cả D, E, mock app) | đạt | report 0 lỗi |
 | Chữ hoa chỉ cho tiêu đề ≤ 40 ký tự | đạt | quét mọi route: 0 phần tử viết hoa > 40 ký tự (sau sửa `app.js` trang Nguồn và tiêu đề lab D1) |
 | Gate tĩnh P8 (module, fetch, XHR, import/export, http, webfont, TODO, nhánh theo track) | đạt | progress P8 |

@@ -37,6 +37,8 @@ Trong một mục `…sec.<s>`, ngoài `.p.<n>` và `.code`, có thể dùng dan
 | `bug` + `cause` + `fix` (+ `fixkt`) | thẻ bug: triệu chứng hiện, nguyên nhân và cách sửa ẩn | |
 | `ex` (+ `exkt`, `hint`) + `sol` (+ `solkt`) | bài tập có gợi ý và lời giải ẩn | |
 
+Manifest: `chapter.num` (tùy chọn, thêm 2026-11-25) là số hiển thị của chương trên thanh bên và trang chương; không có thì dùng vị trí trong mảng `chapters`. Dùng khi chương bản đồ đứng đầu mang số 0 (ví dụ `{ id: 'l0', num: 0 }`).
+
 Manifest: `chapter.simAfter = '<id mục>'` đặt sim sau mục đó (mặc định ngay sau "bản chất"). `registry.validateAll` báo lỗi khi `simAfter` trỏ sai, `kind` lạ, hoặc khối hỏi–đáp thiếu trường. Cách dùng các khối theo nhịp sư phạm: `docs/chapter-template-v2.md`.
 - Plural: `key.one` / `key.other` (en), `key.other` hoặc khoá thường (vi); gọi `ADE.t(key, {n})`.
 - Markup: `[[term:id]]`, `[[src:id]]`, `[[badge:key]]`, `` `code` ``. Không `**đậm**`. Mọi chuỗi ở dạng NFC.

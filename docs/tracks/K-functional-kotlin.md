@@ -1,6 +1,6 @@
 # TRACK K — Lập trình hàm với Kotlin / Functional Programming in Kotlin (`fp`)
 
-> **ĐÃ DUYỆT (2026-11-24).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **dùng Arrow ở p5 và p10** (có bản Kotlin thuần đi trước), **property-based testing để OUT**. Chưa xây; làm sau track J.
+> **ĐÃ DUYỆT (2026-11-24).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **dùng Arrow ở p5 và p10** (có bản Kotlin thuần đi trước), **property-based testing để OUT**. **ĐÃ XÂY XONG 2026-11-25** (11 chương P0–P10, stable; id chương dùng chữ `p` để khỏi trùng chương K của track Kotlin).
 > Nguyên tắc: **cần và đủ**. Dạy FP để viết mã Android an toàn hơn: ít trạng thái lẫn lộn, lỗi hiện ra trong kiểu, logic test được không cần mock. Không bắt đầu từ lý thuyết phạm trù.
 
 ## Manifest đề xuất

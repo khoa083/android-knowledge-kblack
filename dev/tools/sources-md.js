@@ -8,11 +8,19 @@ const BOOKS = [
   ['Measuring the User Experience (3rd ed.)', 'Bill Albert, Tom Tullis', 'D'], ['Strategic Writing for UX', 'Torrey Podmajersky', 'D'], ['Writing Is Designing', 'Michael Metts, Andy Welfle', 'D, E'],
   ['Articulating Design Decisions', 'Tom Greever', 'D'], ['Designing for Behavior Change (2nd ed.)', 'Stephen Wendel', 'D'], ['Design Sprint', 'Richard Banfield, C. Todd Lombardo, Trace Wax', 'D'],
   ['The Design Thinking Playbook', 'Michael Lewrick, Patrick Link, Larry Leifer', 'D'], ['Designing Interfaces (3rd ed.)', 'Jenifer Tidwell, Charles Brewer, Aynne Valencia', 'E'],
-  ['Mobile Design Pattern Gallery', 'Theresa Neil', 'E'], ['Practical UI Patterns for Design Systems', 'Diana MacDonald', 'E'], ["The Non-Designer's Design Book", 'Robin Williams', 'E']
+  ['Mobile Design Pattern Gallery', 'Theresa Neil', 'E'], ['Practical UI Patterns for Design Systems', 'Diana MacDonald', 'E'], ["The Non-Designer's Design Book", 'Robin Williams', 'E'],
+  ['Kotlin Coroutines by Tutorials', 'Kodeco', 'A'], ['Android UI Development with Jetpack Compose', 'Thomas Künneth', 'B'], ['Jetpack Compose by Tutorials', 'Kodeco', 'B'], ['Jetpack Compose 1.3 Essentials', 'Neil Smyth', 'B'],
+  ['Kotlin Essentials; Effective Kotlin; Kotlin Exercises', 'Marcin Moskała', 'F'],
+  ['Clean Android Architecture', 'Alexandru Dumbravan', 'G'], ['Clean Architecture for Android', 'Eran Boudjnah', 'G'], ['Saving Data on Android', 'raywenderlich.com (Kodeco)', 'H'],
+  ['Mobile System Design', "Tjeerd in 't Veen", 'I'], ['Designing Data-Intensive Applications', 'Martin Kleppmann', 'I'], ['System Design Interview (vol. 1, 2)', 'Alex Xu', 'I'],
+  ['Acing the System Design Interview', 'Zhiyong Tan', 'I'], ['Operating System Concepts (10th ed.)', 'Abraham Silberschatz, Peter B. Galvin, Greg Gagne', 'I'], ['API Design Patterns', 'JJ Geewax', 'I'],
+  ['Clean Code; The Clean Coder; Clean Architecture; Clean Craftsmanship; Clean Agile', 'Robert C. Martin', 'J'], ['The Software Craftsman', 'Sandro Mancuso', 'J'],
+  ['Code That Fits in Your Head', 'Mark Seemann', 'J, K'], ['Android Test-Driven Development', 'Kodeco', 'J'],
+  ['From Objects to Functions', 'Uberto Barbini', 'K'], ['Functional Programming in Kotlin', 'Marco Vermeulen, Rúnar Bjarnason, Paul Chiusano', 'K'], ['Functional Programming in Kotlin by Tutorials', 'Kodeco', 'K'], ['Functional Kotlin', 'Marcin Moskała', 'K']
 ];
 const expr = `(() => {
   const L = [], tr = id => { const t = ADE.getTrack(id); return t ? t.code : id; };
-  L.push('# Nguồn / Sources', '', 'Sinh tự động từ registry của site (dev/tools/sources-md.js). Generated from the site registry. Ngày đối chiếu / checked: 2026-11-20 … 2026-11-21.', '');
+  L.push('# Nguồn / Sources', '', 'Sinh tự động từ registry của site (dev/tools/sources-md.js). Generated from the site registry. Ngày đối chiếu / checked: 2026-11-20 … 2026-11-25.', '');
   L.push('## Phiên bản và ngày đối chiếu / Versions and check dates', '');
   (ADE.versions && ADE.versions.items || []).forEach(v => L.push('- ' + v.name + ': ' + v.value + (v.note ? ' — ' + (v.note.vi || '') + ' / ' + (v.note.en || '') : '')));
   L.push('', '## Nguồn chính thức, chuẩn và thứ cấp / Official, normative and secondary sources', '',
@@ -33,7 +41,7 @@ const expr = `(() => {
 const out = execFileSync('node', [path.join(__dirname, 'cdp.js'), 'file:///' + path.join(root, 'index.html').replace(/\\/g, '/') + '#/vi/', '--wait', '2500', '--eval', expr], { encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
 const line = out.split('\n').find(l => l.startsWith('= '));
 let md = JSON.parse(line.slice(2));
-md += '\n## Sách (nguồn phụ, không chép) / Books (secondary, not copied)\n\nChỉ lấy ý tưởng và framework có ghi tên tác giả; không chép văn bản, mã, hình hay bài tập. Ideas and named frameworks only; no text, code, figures or exercises copied.\n\n';
+md += '\n## Sách tham khảo / Reference books\n\nSách là nguồn giảng dạy cùng tài liệu chính thức; khi mâu thuẫn, tài liệu chính thức thắng. Bài giảng viết lại bằng lời của site và không dẫn số chương sách. Framework của tác giả ghi tên tác giả. Books are teaching sources alongside the official documentation; when they conflict, the official documentation wins. Lessons are written in the site\'s own words and do not cite book chapter numbers. Named frameworks credit their authors.\n\n';
 BOOKS.forEach(b => { md += '- *' + b[0] + '* — ' + b[1] + ' (track ' + b[2] + ')\n'; });
 md += '\n## Cảm hứng UX / UX inspiration\n\nHai trang mẫu chỉ là cảm hứng UX (bố cục, cách xem theo bước); site không sao chép mã, CSS, SVG, câu chữ hay ví dụ của chúng. The two sample sites are UX inspiration only; no code, CSS, SVG, wording or examples are copied. Xem trang Nguồn của site / see the site\'s Sources page.\n';
 fs.writeFileSync(path.join(root, 'sources.md'), md, 'utf8');
