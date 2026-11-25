@@ -41,6 +41,7 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 | 8 | **Track mới: Clean Code** (tuyển tập, người dùng bổ sung nguồn) | `deep_dive_kotlin/ggplaybook/`: *The Clean Coder*, *Clean Craftsmanship* (TDD, refactoring, simple design, kỷ luật), *Clean Architecture* (SOLID, nguyên lý thành phần, Dependency Rule; dùng chung với track 5), *Clean Agile*, *Code That Fits in Your Head* (Seemann: heuristic, checklist, đo độ phức tạp), *The Software Craftsman*, *Clean Code* (2008, bổ sung 2026-11-24; bản dịch tiếng Việt cộng đồng để đối chiếu thuật ngữ: github.com/quoctinnguyen8/Clean-Code---Tieng-Viet, cleancode.tinnq.com); cùng với *Effective Kotlin* để có ví dụ Kotlin. Có thể dùng thêm *API Design Patterns* và *Fundamentals of Software Architecture* (cùng thư mục) cho phần thiết kế API và kiến trúc |
 | 9 | **Track mới: Functional Programming in Kotlin** ("Build Your Software Faster and Safer…") | `From Objects to Functions….pdf`, `Functional Programming in K_….pdf`, `Functional Programming in Kotlin by Tutorials.pdf`, Functional Kotlin |
 | 10 | **Track mới: Gỡ lỗi và hiệu năng Android** (người dùng thêm 2026-11-24) | *Android Debugging by Tutorials* (PDF không có lớp text); *Android Test-Driven Development* ch.12–14 |
+| 11 | **Track mới: Nền tảng Android: component và vòng đời** (người dùng thêm 2026-11-25) | *Android Programming* (Big Nerd Ranch, bản 5); *Pro Android with Kotlin* bản 2; *Programming Android with Kotlin* ch.3–4; *Kickstart Modern Android Development* ch.2, 5, 12 |
 
 ## Trạng thái các track (cập nhật 2026-11-25)
 
@@ -58,6 +59,7 @@ Kỹ thuật: thêm loại mục `sec.*.deep`, `sec.*.bug`, `sec.*.exercise` cho
 | J | Mã sạch và kỷ luật làm nghề (`cleancode`) | **Xong**, stable, 12 chương (J0–J11), 2026-11-24 | `docs/tracks/J-clean-code.md` |
 | K | Lập trình hàm với Kotlin (`fp`) | **Xong**, stable, 11 chương (P0–P10), 2026-11-25 | `docs/tracks/K-functional-kotlin.md` |
 | L | Gỡ lỗi và hiệu năng Android (`debugging`) | **Xong**, stable, 13 chương (L0–L12), 2026-11-25 | `docs/tracks/L-debugging-performance.md` |
+| M | Nền tảng Android: component và vòng đời (`platform`) | **Dàn ý, chờ duyệt** 2026-11-25, 17 chương (M0–M16) | `docs/tracks/M-android-platform.md` |
 
 Mỗi dàn ý ghi cột **Hình chính** cho từng chương. Kiểu hình chọn theo nội dung, xem `docs/chapter-template-v2.md`, mục "Chọn kiểu hình theo nội dung". Một track chỉ được xây sau khi người dùng duyệt IN/OUT và dàn chương của nó.
 

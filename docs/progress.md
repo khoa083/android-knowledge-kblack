@@ -878,4 +878,9 @@ Trạng thái: `chưa / đang / xong`.
   2. **Viết lại theo giọng dạy học:** arch (khi viết G0, thêm cầu nối X24–X27), storage, coroutines (thay chữ "chương FP" bằng tên chương "Xử lý flow: map, filter, scan, merge/zip/combine, flatMap, retry, distinct"), runtime, animation. UX và UI vẫn tạm dừng.
   3. **Rà nội dung các phần viết trước khi chuyển sang Opus** (Lập trình hàm P1–P4, Kotlin K1–K6, Mã sạch, Thiết kế hệ thống): đối chiếu khẳng định với nguồn, ưu tiên P1–P4 và K1–K6.
   4. **Chủ đề mới có thể thêm** (cần danh sách IN/OUT và người dùng duyệt): nền tảng Android (vòng đời, process death, Intent, Service, permission, giới hạn chạy nền), kiểm thử đầy đủ, build và phát hành (Gradle, flavor, ký app, CI/CD), mạng thực hành (Retrofit, OkHttp), Hilt thực hành, bảo mật, Compose UI thực hành.
+- **Track M, Nền tảng Android (`platform`): dàn ý soạn 2026-11-25, CHỜ NGƯỜI DÙNG DUYỆT.**
+  - Dàn ý ở `docs/tracks/M-android-platform.md`, nghiên cứu ở `docs/research/platform.md`.
+  - 17 chương: m1–m16 và m0, chia bốn phần: app và hệ thống; màn hình; việc khi không có màn hình; quyền và chia sẻ.
+  - Có năm câu hỏi kèm mặc định. Quan trọng nhất là order 65, tức là đặt sau Kotlin và trước Kiến trúc.
+  - Chưa xây: chỉ xây sau khi người dùng duyệt IN/OUT và dàn chương.
 
