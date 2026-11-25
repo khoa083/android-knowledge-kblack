@@ -11,8 +11,8 @@ def a(k, vi, en=None): E.append((P + k, vi, vi if en is None else en))
 
 # ---------------- chung ----------------
 a('title', 'Kiến trúc app Android', 'Android App Architecture')
-a('summary', 'Vì sao cần kiến trúc, các tầng UI, domain, data và hướng phụ thuộc, state và sự kiện, repository và offline-first, DI với Hilt, MVVM và MVI, lỗi qua các tầng, module hóa và kiểm thử. Theo hướng dẫn chính thức của Android, đối chiếu với sách Clean Architecture.',
-  'Why architecture matters, the UI, domain and data layers and the direction of dependencies, state and events, repositories and offline-first, DI with Hilt, MVVM and MVI, errors across layers, modularization and testing. Following Android\'s official guide, compared with the Clean Architecture books.')
+a('summary', 'Vì sao cần kiến trúc, các tầng UI, domain, data và hướng phụ thuộc, state và sự kiện, repository và offline-first, DI với Hilt, MVVM và MVI, lỗi qua các tầng, module hóa và kiểm thử. Theo hướng dẫn chính thức của Android, có so sánh với trường phái của Robert C. Martin.',
+  'Why architecture matters, the UI, domain and data layers and the direction of dependencies, state and events, repositories and offline-first, DI with Hilt, MVVM and MVI, errors across layers, modularization and testing. Following Android\'s official guide, compared with Robert C. Martin\'s school.')
 a('preset.god', 'Kiến trúc · Activity làm mọi thứ so với tách tầng', 'Architecture · an Activity doing everything versus layers')
 a('col.subject', 'Tầng', 'Layer')
 for k, vi, en in [('done', 'xong', 'done'), ('surprise', 'có vấn đề', 'has a problem'), ('skipped', 'không có', 'absent'), ('broken', 'lỗi', 'error')]:

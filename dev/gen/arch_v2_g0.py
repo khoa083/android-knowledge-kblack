@@ -1,6 +1,6 @@
 # Kiến trúc · G0: bản đồ track (viết cuối, đặt đầu track). Tổng hợp G1–G11.
 
-SEC_ORDER = {'g0': ['hook', 'order', 'index', 'links', 'recall', 'honest']}
+SEC_ORDER = {'g0': ['hook', 'order', 'index', 'links', 'recall']}
 
 
 def add(a):
@@ -11,9 +11,10 @@ def add(a):
     m('title', 'Gặp triệu chứng này thì đọc chương nào', 'Seen this symptom? Read this chapter')
     m('overview', 'Chọn một triệu chứng hay gặp trong app Android. Bốn bước: triệu chứng, lúc nó lộ ra (khi build, khi test, lúc chạy, hay sai lặng lẽ), nguyên nhân kiến trúc, và chương giải thích.',
       'Pick a symptom common in Android apps. Four steps: the symptom, when it shows up (at build, in tests, at runtime, or silently wrong), the architectural cause, and the chapter that explains it.')
-    m('wrapup', 'Phần lớn lỗi kiến trúc không làm app crash mà làm nó sai lặng lẽ: dữ liệu lệch, thông báo lặp, test chập chờn. Vì vậy chúng khó tìm bằng debugger và dễ tìm hơn khi biết hình dạng của chúng. Mỗi triệu chứng ở đây dẫn tới một chương có mô phỏng và cách sửa.',
-      'Most architecture bugs do not crash the app; they make it silently wrong: drifting data, repeated messages, flaky tests. That makes them hard to find with a debugger and easier once you know their shape. Each symptom here leads to a chapter with a simulation and a fix.')
-    m('simp.1', 'Mỗi triệu chứng chỉ trỏ tới một chương chính; nhiều lỗi thật có nhiều nguyên nhân cùng lúc.', 'Each symptom points to one main chapter; many real bugs have several causes at once.')
+    m('wrapup', 'Phần lớn lỗi kiến trúc không làm app crash mà làm nó sai lặng lẽ: dữ liệu lệch nhau, thông báo lặp lại, test lúc qua lúc trượt. Vì vậy chúng khó tìm bằng debugger, và dễ tìm hơn khi đã biết hình dạng của chúng. Mỗi triệu chứng ở đây dẫn tới một chương có mô phỏng và cách sửa.\nQuy tắc dễ nhớ: thấy hai chỗ cùng giữ một dữ liệu là đã thấy một lỗi đang chờ xảy ra.',
+      'Most architecture bugs do not crash the app; they make it quietly wrong: data drifting apart, messages repeating, tests passing one run and failing the next. That makes them hard to find with a debugger, and easier once you know their shape. Each symptom here leads to a chapter with a simulation and a fix.\nRule of thumb: two places holding the same data is a bug waiting to happen.')
+    m('simp.1', 'Mỗi triệu chứng chỉ trỏ tới một chương chính; nhiều lỗi thật có nhiều nguyên nhân cùng lúc. Track theo hướng dẫn kiến trúc chính thức của Android (đọc ngày 2026-11-23 và 2026-11-24), có so sánh với sách của Alexandru Dumbravan và Eran Boudjnah. Mô phỏng là mô hình giảng dạy, không chạy Android hay Gradle thật. Room và DataStore chi tiết, Dagger dùng trực tiếp, MVP, điều hướng chi tiết và kiến trúc hệ thống lớn nằm ngoài track.',
+      "Each symptom points to one main chapter; many real bugs have several causes at once. The track follows Android's official architecture guidance (read on 2026-11-23 and 2026-11-24), compared with the views of Alexandru Dumbravan and Eran Boudjnah. Simulations are teaching models that run no real Android or Gradle. Room and DataStore in depth, using Dagger directly, MVP, detailed navigation and large-system architecture are outside the track.")
     m('ctl.hint', 'Chọn triệu chứng rồi đi bốn bước; tab "Bảng tra" liệt kê tất cả.', 'Pick a symptom and walk the four steps; the "Lookup table" tab lists them all.')
     m('ctl.symptom', 'Triệu chứng', 'Symptom')
     m('diagramTitle', 'Triệu chứng, lúc lộ ra, nguyên nhân, chương', 'Symptom, when it shows, cause, chapter')
@@ -89,8 +90,8 @@ def add(a):
 
     C = 'g0'
     a(C + '.title', 'Bản đồ track: triệu chứng và chương', 'Track map: symptoms and chapters')
-    a(C + '.essence', 'Track này dạy cách tổ chức một app Android để thay đổi, xoay màn hình, mất mạng và kiểm thử bớt đau, theo hướng dẫn chính thức của Android và đối chiếu với sách Clean Architecture.\nPhần 1 (G1–G5) là nền: vì sao cần kiến trúc, các tầng và hướng phụ thuộc, tầng UI, tầng data, tầng domain tùy chọn. Phần 2 (G6–G11) là thực hành: DI, MVVM và MVI, lỗi qua các tầng, module hóa, kiểm thử, và đổi kiến trúc dần dần.\nNếu bạn đang gặp một lỗi cụ thể, bắt đầu từ bảng tra triệu chứng bên dưới.',
-      'This track teaches how to organise an Android app so that change, rotation, losing the network and testing hurt less, following Android\'s official guide and comparing it with the Clean Architecture books.\nPart 1 (G1–G5) is the foundation: why architecture matters, layers and dependency direction, the UI layer, the data layer, the optional domain layer. Part 2 (G6–G11) is practice: DI, MVVM and MVI, errors across layers, modularization, testing, and changing architecture gradually.\nIf you are facing a specific bug, start from the symptom lookup below.')
+    a(C + '.essence', 'Track này dạy cách tổ chức một app Android để thay đổi, xoay màn hình, mất mạng và kiểm thử bớt đau, theo hướng dẫn chính thức của Android, có so sánh với trường phái của Robert C. Martin.\nPhần 1 (G1–G5) là nền: vì sao cần kiến trúc, các tầng và hướng phụ thuộc, tầng UI, tầng data, tầng domain tùy chọn. Phần 2 (G6–G11) là thực hành: DI, MVVM và MVI, lỗi qua các tầng, module hóa, kiểm thử, và đổi kiến trúc dần dần.\nNếu bạn đang gặp một lỗi cụ thể, bắt đầu từ bảng tra triệu chứng bên dưới.',
+      'This track teaches how to organise an Android app so that change, rotation, losing the network and testing hurt less, following Android\'s official guide, compared with Robert C. Martin\'s school.\nPart 1 (G1–G5) is the foundation: why architecture matters, layers and dependency direction, the UI layer, the data layer, the optional domain layer. Part 2 (G6–G11) is practice: DI, MVVM and MVI, errors across layers, modularization, testing, and changing architecture gradually.\nIf you are facing a specific bug, start from the symptom lookup below.')
     a(C + '.goal.g1', 'Đã thấy lúc triệu chứng lộ ra', 'Saw when the symptom shows up')
     a(C + '.goal.g2', 'Đã tới chương cần đọc', 'Reached the chapter to read')
     a(C + '.sim.arch.map', 'triệu chứng và chương', 'symptoms and chapters')
@@ -118,20 +119,14 @@ def add(a):
     S_ = 'links'
     a(C + '.sec.%s.title' % S_, 'Cầu nối sang track khác', 'Bridges to other tracks')
     a(C + '.sec.%s.badge' % S_, 'guideline')
-    B(C, S_, 1, 'p', 'G3 ↔ Coroutines A8 và Runtime SH (sự kiện một lần, thu thập theo vòng đời, state hoisting). G6 ↔ Kotlin K11 (by viewModels() là một delegate). G8 ↔ Kotlin K6 (ngoại lệ, catch quá rộng). G10 ↔ Coroutines A9 và Runtime B9 (runTest, kiểm thử giao diện). Track Lưu dữ liệu đi sâu Room, DataStore và WorkManager mà G4 chỉ dùng; track Mã sạch đi sâu SOLID và nguyên lý thành phần mà G2, G9 chỉ nhắc.',
-      'G3 ↔ Coroutines A8 and Runtime SH (one-off events, lifecycle-aware collection, state hoisting). G6 ↔ Kotlin K11 (by viewModels() is a delegate). G8 ↔ Kotlin K6 (exceptions, over-broad catch). G10 ↔ Coroutines A9 and Runtime B9 (runTest, UI testing). The Saving Data track goes deep into Room, DataStore and WorkManager, which G4 only uses; the Clean Code and Craft track goes deep into SOLID and component principles, which G2 and G9 only mention.')
+    B(C, S_, 1, 'p', 'G3 ↔ Coroutines A8 và Runtime SH (sự kiện một lần, thu thập theo vòng đời, state hoisting). G6 ↔ Kotlin K11 (by viewModels() là một delegate). G8 ↔ Kotlin K6 (ngoại lệ, catch quá rộng). G10 ↔ Coroutines A9 và Runtime B9 (runTest, kiểm thử giao diện). G7 ↔ Lập trình hàm P4 và P8 (X24: vì sao UiState nên là sealed; X26: reducer là chỗ duy nhất đổi state). G8 ↔ Lập trình hàm P5 (X25: lỗi nghiệp vụ là giá trị). G10 ↔ Lập trình hàm P9 (X27: lõi thuần nhận giá trị đã parse, test không cần đồ giả). Track Lưu dữ liệu trên Android đi sâu Room, DataStore và WorkManager mà G4 chỉ dùng; track Mã sạch và kỷ luật làm nghề đi sâu SOLID và nguyên lý thành phần mà G2, G9 chỉ nhắc.\nQuy tắc dễ nhớ: mỗi cầu nối là một chỗ hai track nhìn cùng một vấn đề từ hai phía.',
+      'G3 ↔ Coroutines A8 and Runtime SH (one-off events, lifecycle-aware collection, state hoisting). G6 ↔ Kotlin K11 (by viewModels() is a delegate). G8 ↔ Kotlin K6 (exceptions, over-broad catch). G10 ↔ Coroutines A9 and Runtime B9 (runTest, UI testing). G7 ↔ Functional Programming P4 and P8 (X24: why UiState should be sealed; X26: reducers are the only place that changes state). G8 ↔ Functional Programming P5 (X25: business errors as values). G10 ↔ Functional Programming P9 (X27: a pure core takes parsed values and needs no fakes in tests). The Saving Data on Android track goes deep into Room, DataStore and WorkManager, which G4 only uses; the clean code track goes deep into SOLID and component principles, which G2 and G9 only mention.\nRule of thumb: each bridge is a place where two tracks look at the same problem from two sides.')
 
     S_ = 'recall'
     a(C + '.sec.%s.title' % S_, 'Tự trả lời', 'Answer it yourself')
     a(C + '.sec.%s.badge' % S_, 'stable')
     B(C, S_, 1, 'ask', 'Vì sao lỗi kiến trúc khó tìm bằng debugger?', 'Why are architecture bugs hard to find with a debugger?')
     B(C, S_, 1, 'ans', 'Phần lớn không crash mà sai lặng lẽ; nguyên nhân nằm ở cách tổ chức mã chứ không ở một dòng.', 'Most do not crash but are silently wrong; the cause is in how the code is organised, not one line.')
-
-    S_ = 'honest'
-    a(C + '.sec.%s.title' % S_, 'Track này giản lược những gì', 'What this track simplifies')
-    a(C + '.sec.%s.badge' % S_, 'simplified')
-    B(C, S_, 1, 'p', 'Track theo hướng dẫn kiến trúc chính thức của Android đọc ngày 2026-11-23 và 2026-11-24, đối chiếu với Dumbravan (Clean Android Architecture) và Boudjnah (Clean Architecture for Android); mỗi chương ghi nguồn trong mục trung thực và bảng nguồn. Ví dụ là app hư cấu Hẹn Khám; mô phỏng là mô hình giảng dạy, không chạy Android hay Gradle thật. Phần Room, DataStore chi tiết, Dagger thuần, MVP, điều hướng chi tiết và kiến trúc hệ thống lớn nằm ngoài track (xem dàn ý track).',
-      'The track follows Android\'s official architecture guidance as read on 2026-11-23 and 2026-11-24, compared with Dumbravan (Clean Android Architecture) and Boudjnah (Clean Architecture for Android); each chapter lists its sources in its honesty section and source table. The example is the fictional ClinicBook app; simulations are teaching models that do not run real Android or Gradle. Room and DataStore in depth, plain Dagger, MVP, detailed navigation and large-system architecture are outside the track (see the track outline).')
 
     for q, qv, qe, av, ae, wv, we in [
         ('q1', 'Thông báo hiện lại sau khi xoay: đọc chương nào?', 'A message shows again after rotating: which chapter?', 'G3 (UI layer: UiState, ViewModel, sự kiện).', 'G3 (the UI layer: UiState, ViewModel, events).', 'Sự kiện một lần phải thành UI state.', 'One-off events must become UI state.'),
