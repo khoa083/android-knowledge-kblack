@@ -638,7 +638,7 @@
       if (c === 'events' && i === 3) replay = runningFold(es, INIT, impureReduce(1)).slice(1).map(function (s) { return s.remaining; });
       var last = shown[shown.length - 1], want = truth[truth.length - 1];
       return { events: es, truth: truth, shown: shown, replay: replay, replayAt: replayAt, app: replay ? replay[replay.length - 1] : last, want: want,
-        writers: c === 'mutable' ? 3 : 1, count: c === 'events' ? es.length : 0 };
+        writers: c === 'mutable' ? 4 : 1,   // p8.mutable: onPackageBought, onBookTapped, onBookingSynced, onCancelled count: c === 'events' ? es.length : 0 };
     }
     ADE.fpReducer = { EVENTS: EVENTS, view: view, reduce: reduce, runningFold: runningFold, mutableRun: mutableRun };
     var HL = { mutable: [[3, 4], [3, 4, 5], [1], [1]], events: [[4, 5, 6], [7, 9], [9, 10], [6]] };
