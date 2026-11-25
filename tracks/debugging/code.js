@@ -51,4 +51,17 @@
     '    total',
     '}'
   ]);
+
+  /* l3: log trong BookingRepo và Sync; dòng 3, 8 lộ số điện thoại; dòng 9 là bản sửa */
+  add('l3.log', [
+    'private const val TAG = "BookingRepo"',
+    'suspend fun save(b: Booking) {',
+    c('    Log.d(TAG, "saving booking for phone=${b.phone}")     // lộ số điện thoại', '    Log.d(TAG, "saving booking for phone=${b.phone}")     // leaks the phone number'),
+    '    try { dao.insert(b) }',
+    '    catch (e: SQLiteConstraintException) { Log.e(TAG, "save failed", e) }',
+    '}',
+    c('// SyncWorker', '// SyncWorker'),
+    c('Log.w("Sync", "retry $n for phone=${b.phone}")              // mức W: R8 không xóa', 'Log.w("Sync", "retry $n for phone=${b.phone}")              // level W: R8 does not remove it'),
+    c('Log.w("Sync", "retry $n for booking id=${b.id}")             // sửa: chỉ log id', 'Log.w("Sync", "retry $n for booking id=${b.id}")             // fix: log only the id')
+  ]);
 })();

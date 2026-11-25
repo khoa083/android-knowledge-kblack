@@ -125,4 +125,91 @@
           var r = run('logbp', 1); return r.stops === 0 && r.logs === 500 && r.filtered === 1 &&
             CASES.every(function (c) { return steps({ case: c }).length === 3 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 8; }); }); }); } }] });
   })();
+
+  /* ================= l3: Logcat: lọc dần để tìm dòng lỗi; log còn lại trong bản release =================
+     Theo developer.android.com/studio/debug/logcat (truy vấn key:value: cùng key OR, khác key AND, level: là mức đó trở lên, package:mine),
+     tools/logcat, reference Log, privacy-and-security/risks/log-info-disclosure (R8 -assumenosideeffects xóa v, d, i; giữ w, e).
+     CÀI THẬT: 16 dòng log (của site); mỗi bước là một truy vấn có cấu trúc, áp thật lên 16 dòng; bản release bỏ mọi dòng V, D, I của app. */
+  (function () {
+    var m = 'logcat', CASES = ['find', 'release'], KS = ['s1', 's2', 's3', 's4'];
+    var LV = { V: 2, D: 3, I: 4, W: 5, E: 6, A: 7 };
+    var APP = 'vn.henkham';
+    // [pid, mức, tag, package, nội dung, có số điện thoại]
+    var LOGS = [
+      [589, 'I', 'ActivityManager', 'system_server', 'Start proc 4120:vn.henkham', 0],
+      [4120, 'D', 'BookingRepo', APP, 'load bookings page=1', 0],
+      [1022, 'D', 'SystemUI', 'com.android.systemui', 'status bar updated', 0],
+      [2211, 'I', 'GmsCore', 'com.google.android.gms', 'heartbeat ok', 0],
+      [4120, 'I', 'Sync', APP, 'sync started', 0],
+      [4120, 'D', 'BookingRepo', APP, 'saving booking for phone=0912345678', 1],
+      [589, 'W', 'ActivityManager', 'system_server', 'slow operation: 120ms', 0],
+      [4120, 'V', 'ListAdapter', APP, 'bind row 3', 0],
+      [2211, 'D', 'GmsCore', 'com.google.android.gms', 'token refresh', 0],
+      [4120, 'W', 'Sync', APP, 'retry 1 for phone=0912345678', 1],
+      [1022, 'I', 'SystemUI', 'com.android.systemui', 'clock tick', 0],
+      [4120, 'D', 'Sync', APP, 'server responded 409', 0],
+      [4120, 'E', 'BookingRepo', APP, 'save failed: SQLiteConstraintException', 0],
+      [589, 'I', 'ActivityManager', 'system_server', 'Displayed vn.henkham/.MainActivity', 0],
+      [2211, 'W', 'GmsCore', 'com.google.android.gms', 'location timeout', 0],
+      [4120, 'I', 'Sync', APP, 'sync finished: 1 failed', 0]];
+    var ERR = 12, FIXED = 'retry 1 for booking id=42';
+    // truy vấn có cấu trúc: { package: [...], level: 'W', tag: [...] }; cùng key OR (mảng), khác key AND
+    function match(row, q) {
+      if (q.package && q.package.indexOf(row[3]) < 0) return false;
+      if (q.level && LV[row[1]] < LV[q.level]) return false;
+      if (q.tag && q.tag.indexOf(row[2]) < 0) return false;
+      return true;
+    }
+    var Q = { find: [{}, { package: [APP] }, { package: [APP], level: 'W' }, { package: [APP], tag: ['BookingRepo', 'Sync'] }],
+      release: [{ package: [APP] }, { package: [APP] }, { package: [APP] }, { package: [APP] }] };
+    var BUILD = { find: ['debug', 'debug', 'debug', 'debug'], release: ['debug', 'release', 'release', 'release'] };
+    var stripped = function (row, build) { return build === 'release' && row[3] === APP && LV[row[1]] <= LV.I; };
+    function view(c, i) {
+      var q = Q[c][i], b = BUILD[c][i], fixed = c === 'release' && i === 3;
+      var rows = LOGS.map(function (r, k) {
+        var gone = stripped(r, b), shown = !gone && match(r, q), pii = shown && r[5] === 1 && !fixed;
+        return { k: k, row: r, shown: shown, gone: gone, pii: pii, msg: fixed && r[5] && r[1] === 'W' ? FIXED : r[4] };
+      });
+      var shown = rows.filter(function (x) { return x.shown; });
+      return { q: q, build: b, rows: rows, shown: shown.length, app: shown.filter(function (x) { return x.row[3] === APP; }).length,
+        pii: rows.filter(function (x) { return x.pii; }).length, found: shown.some(function (x) { return x.k === ERR; }) && shown.length <= 8 };
+    }
+    // chuỗi truy vấn hiển thị (giữ nguyên cú pháp Logcat, không dịch)
+    function qtext(q) {
+      var p = [];
+      if (q.package) p.push('package:mine');
+      if (q.level) p.push('level:' + { W: 'WARN', E: 'ERROR', I: 'INFO' }[q.level]);
+      (q.tag || []).forEach(function (t) { p.push('tag:' + t); });
+      return p.join(' ');
+    }
+    ADE.dbgLogcat = { view: view, qtext: qtext, LOGS: LOGS };
+    var NODES = { find: [[['others', 'logd', 'view'], 'view', 'e3'], [['app', 'view'], 'view', 'e4'], [['view'], 'view', 'e4'], [['app', 'view'], 'view', 'e4']],
+      release: [[['app', 'logd'], 'logd', 'e2'], [['app', 'r8'], 'r8', 'e1'], [['logd', 'view'], 'view', 'e4'], [['app', 'view'], 'view', 'e4']] };
+    var HL = { find: [[5], [3, 5], [5, 8], [3, 5, 8]], release: [[3, 8], [3], [8], [9]] };
+    function steps(s) {
+      var c = s.case;
+      return KS.map(function (k, i) {
+        var v = view(c, i), bad = (c === 'find' && i === 0) || (c === 'release' && (i === 0 || i === 2)), nd = NODES[c][i], ns = {};
+        ns[nd[1]] = K + 'st.' + (bad ? 'surprise' : 'done');
+        var o = S(m, c + '.' + k, { type: i === 0 ? 'scenario' : (bad ? 'pitfall' : 'mechanism'), activeNodes: nd[0], nodeStates: ns,
+          metrics: { shown: v.shown, app: v.app, pii: v.pii, found: M(m, v.found ? 'found.yes' : 'found.no') },
+          codeHighlight: { snippet: 'l3.log', lines: HL[c][i] },
+          movingSignals: [{ edge: nd[2], tok: bad ? 'signal' : 'state' }],
+          logEvents: [{ t: i, kind: bad ? 'exception' : (i === 3 ? 'complete' : (i === 0 ? 'observe' : 'run')), subject: nd[1] }] });
+        var tryIt = i === 0 && c === 'find';
+        o.callouts = [{ kind: tryIt ? 'try' : (bad ? 'pitfall' : 'source'), textKey: tryIt ? M(m, 'co.try') : M(m, 'co.' + c + '.' + k) }];
+        return o;
+      });
+    }
+    reg(m, { controls: [sel(m, 'case', CASES)], init: function () { return { case: 'find' }; }, act: setter(['case']), steps: steps,
+      simpExtra: [M(m, 'simp.2')],
+      selfChecks: [
+        { name: 'không lọc 16 dòng; package:mine còn 8; thêm level:WARN còn 2 và có dòng lỗi', run: function () {
+          var a = view('find', 0), b = view('find', 1), c = view('find', 2); return a.shown === 16 && b.shown === 8 && c.shown === 2 && c.found && !a.found; } },
+        { name: 'tag:BookingRepo tag:Sync (cùng key nên OR) cùng package:mine còn 7 dòng', run: function () { return view('find', 3).shown === 7; } },
+        { name: 'bản debug: 2 dòng lộ số điện thoại; release xóa V, D, I còn 2 dòng của app, vẫn 1 dòng lộ (Log.w); log id thì 0', run: function () {
+          return view('release', 0).pii === 2 && view('release', 1).shown === 2 && view('release', 2).pii === 1 && view('release', 3).pii === 0; } },
+        { name: 'mỗi cách 4 bước; dòng tô sáng nằm trong đoạn mã 9 dòng', run: function () {
+          return CASES.every(function (c) { return steps({ case: c }).length === 4 && HL[c].every(function (l) { return l.every(function (x) { return x >= 1 && x <= 9; }); }); }); } }] });
+  })();
 })();

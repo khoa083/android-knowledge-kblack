@@ -39,3 +39,13 @@
 | Chế độ debug của kotlinx-coroutines (tên coroutine, -Dkotlinx.coroutines.debug, -ea, chi phí không đáng kể); khôi phục stack trace, cause là ngoại lệ gốc, frame _COROUTINE._BOUNDARY; DebugProbes không chạy trên Android | kotlinlang.org/docs/coroutines-debugging.html (1.11.0, ngày trang 07/09/2026); kotlinx-coroutines-debug README |
 | **Của site:** 500 lịch, đơn 347 giảm 120 % (phí −40.000); 348 lần dừng so với 1; luồng đồng bộ nhịp mỗi giây, hạn 10 giây, xem biến 30 giây | — |
 - Trang kotlinlang.org/docs/debug-coroutines-using-intellij.html trả 404 (2026-11-25); trang developer.android.com/studio/debug không có chi tiết breakpoint.
+
+### l3 Logcat (đọc 2026-11-25, các trang không ghi ngày)
+| Ý trên site | Nguồn |
+|---|---|
+| Định dạng dòng; truy vấn key:value (tag, package, process, message, level, age), is:crash, is:stacktrace; - để loại, ~ cho regex; cùng key OR, khác key AND, & ưu tiên hơn |; level: là mức đó trở lên; package:mine; age theo đồng hồ máy tính; PROCESS ENDED/STARTED | developer.android.com/studio/debug/logcat |
+| v, d, i, w, e, wtf; hằng số 2–7; wtf ở ASSERT kèm stack; isLoggable mặc định INFO, setprop log.tag.<TAG>; tag > 23 ký tự ném lỗi tới API 25; tạo chuỗi tốn cấp phát | developer.android.com/reference/android/util/Log |
+| adb logcat tag:mức, V D I W E F S, *:S; -v threadtime mặc định; -b buffer; logd buffer vòng; bốn tầng lọc | developer.android.com/tools/logcat (trang không mô tả -s, -c, --pid) |
+| Lộ thông tin qua log (MASVS-STORAGE); READ_LOGS từ API 16; làm sạch log bản không debug; R8 -assumenosideeffects xóa mọi mức trừ warning, error; chỉ log hằng số lúc biên dịch | developer.android.com/privacy-and-security/risks/log-info-disclosure |
+| **Của site:** 16 dòng log, PID 4120 là app; 2 dòng lộ số điện thoại; lọc còn 8, 2, 7; release còn 2 dòng, 1 dòng lộ | — |
+- Ghi chú: Logcat của Studio gọi mức cao nhất là FATAL, truy vấn level: dùng ASSERT, adb logcat dùng chữ F; site dùng tên của lớp Log (ASSERT).

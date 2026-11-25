@@ -110,4 +110,24 @@
       h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, h('th', { text: T('bp.col.name') }), h('th', { text: T('bp.col.val') }))), tb)),
       h('div', { class: 'vz-legend', text: T('bp.legend') })));
   }, { labelKey: K + 'tab.bp', icon: 'thread' });
+
+  /* ---------- l3: bảng log kiểu bắt gói tin; dòng truy vấn ở trên; hàng bị lọc thì mờ, hàng bị R8 xóa thì mờ kèm ghi chú;
+     hàng lỗi cần tìm và hàng lộ số điện thoại tô đỏ. Tính từ ADE.dbgLogcat; ô đổi lớp thì nháy. ---------- */
+  ADE.registerScreen('debugging.logcat', function (box, ctx) {
+    var h = ADE.ui.h, L = ADE.dbgLogcat, c = ctx.state.case, i = Math.max(0, idx(ctx)), v = L.view(c, i), q = L.qtext(v.q);
+    var tb = h('tbody');
+    v.rows.forEach(function (x) {
+      var r = x.row, hot = x.shown && (x.pii || (c === 'find' && x.k === 12 && i >= 2));
+      var cl = !x.shown ? null : (hot ? 'bad' : null);
+      tb.appendChild(h('tr', { 'data-k': 'lc-' + x.k, class: x.shown ? null : 'fade' },
+        h('td', { class: cl, text: String(r[0]) }), h('td', { class: cl ? 'c ' + cl : 'c', text: r[1] }), h('td', { class: cl, text: r[2] }),
+        h('td', { class: cl, text: x.gone ? T('lc.removed') : x.msg })));
+    });
+    box.appendChild(h('div', { class: 'vz' },
+      h('p', { class: 'vz-sub', 'data-k': 'lc-q-' + c + i, text: T('lc.query', { q: q || T('lc.none') }) }),
+      h('p', { class: 'vz-sub', 'data-k': 'lc-b-' + v.build, text: T('lc.build.' + v.build) }),
+      h('div', { class: 'vz-scroll' }, h('table', { class: 'vz-table' }, h('thead', null, h('tr', null, ['pid', 'lvl', 'tag', 'msg'].map(function (k) { return h('th', { text: T('lc.col.' + k) }); }))), tb)),
+      h('p', { class: 'vz-sub' + (v.pii ? ' bad' : ''), 'data-k': 'lc-n', text: T('lc.count', { n: v.shown, p: v.pii }) }),
+      h('div', { class: 'vz-legend', text: T('lc.legend') })));
+  }, { labelKey: K + 'tab.logcat', icon: 'list' });
 })();

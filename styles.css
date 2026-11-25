@@ -1042,3 +1042,4 @@ pre.code { position: relative; }
 .vz-table .warn { color: var(--tok-state); font-weight: 700; background: repeating-linear-gradient(45deg, transparent 0 5px, rgba(190, 130, 20, .14) 5px 10px); }
 .vz-dot { fill: var(--tok-job); }
 .vz-lanes .vz-dg-n.bad rect { fill: rgba(196, 43, 50, .18); }
+.vz-table tr.fade td { opacity: .32; }

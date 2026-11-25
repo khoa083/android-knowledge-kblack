@@ -21,4 +21,9 @@
     N('bp', 'sync', 0, 2, 'thread', 'job'), N('bp', 'server', 6, 2, 'source', 'runtime')],
     edges: [E('e1', 'report', 'bp'), E('e2', 'bp', 'vars'), E('e3', 'bp', 'sync'), E('e4', 'sync', 'server')],
     metrics: [T('bp', 'stops'), T('bp', 'resumes'), T('bp', 'logs'), T('bp', 'sync')] });
+  /* l3: lời gọi Log trong app (R8 có thể xóa lúc build) → buffer của logd ← hệ thống và app khác; Logcat đọc và lọc */
+  V('logcat', { layout: 'pipeline', nodes: [N('logcat', 'app', 0, 0, 'source', 'ui'), N('logcat', 'r8', 0, 2, 'cross', 'signal'), N('logcat', 'logd', 3, 1, 'list', 'state'),
+    N('logcat', 'others', 3, 3, 'layers', 'runtime'), N('logcat', 'view', 6, 1, 'search', 'job')],
+    edges: [E('e1', 'r8', 'app'), E('e2', 'app', 'logd'), E('e3', 'others', 'logd'), E('e4', 'logd', 'view')],
+    metrics: [T('logcat', 'shown'), T('logcat', 'app'), T('logcat', 'pii'), T('logcat', 'found')] });
 })();
