@@ -758,7 +758,8 @@
       var lost = ['phone', 'card'].filter(function (k) { return s1.patient[k] !== s0.patient[k]; });
       var nodes = { root: s1 !== s0, patient: s1.patient !== s0.patient, address: s1.patient.address !== s0.patient.address, bookings: s1.bookings !== s0.bookings };
       s2 = addBooking(c, s1);
-      return { s0: s0, s1: s1, s2: s2, lost: lost, nodes: nodes, fresh: Object.keys(nodes).filter(function (k) { return nodes[k]; }).length,
+      return { s0: s0, s1: JSON.parse(before), s2: s2, lost: lost,   /* s1 chụp lại trước khi list bị sửa tại chỗ, để hình bước 1–2 không thấy lịch 42 */
+         nodes: nodes, fresh: Object.keys(nodes).filter(function (k) { return nodes[k]; }).length,
         shared: Object.keys(nodes).filter(function (k) { return !nodes[k]; }).length, emitted: emits(s1, s2),   // cùng object thì không phát; object mới khác nội dung thì phát
         undoBroken: JSON.stringify(oldForUndo) !== before, lensSame: eq(cityLens.set(s0, 'Đà Nẵng'), moveCity('careful', initial())) };
     }
