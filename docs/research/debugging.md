@@ -1,6 +1,6 @@
 # Nghiên cứu track L (Gỡ lỗi và hiệu năng Android)
 
-> Track đã duyệt 2026-11-24, chưa xây. Dàn ý: `docs/tracks/L-debugging-performance.md`. Nguồn chính thức thắng khi mâu thuẫn.
+> Track đã duyệt 2026-11-24, xây xong 2026-11-25 (L0–L12). Dàn ý: `docs/tracks/L-debugging-performance.md`. Nguồn chính thức thắng khi mâu thuẫn.
 
 ## Đã đọc để soạn dàn ý (2026-11-24, chỉ mục lục)
 - **Kodeco, *Android Debugging by Tutorials*:** ch.1–12, lấy từ bookmark PDF trong catalog. PDF không có lớp text nên khi viết phải đọc dạng ảnh trang.
@@ -135,3 +135,12 @@
 | TTID, TTFD (reportFullyDrawn), cold/warm/hot, tối ưu theo cold start, dòng Displayed | developer.android.com/topic/performance/vitals/launch-time (trang không ghi ngưỡng vitals) |
 | **Của site:** 10 số đo mỗi bên; một lần 1.480 với 870 ms (41,2 %); trung vị 1.012,5 với 962,5 ms (4,9 %); bài tập 815/795 và trung bình 910/795 | — |
 - Chưa đọc được nguồn chính thức về JIT, nhiệt độ, lockClocks; site chỉ nói "việc nền, nhiệt độ, pin" làm số đo dao động, dựa trên cảnh báo pin yếu và emulator của trang Macrobenchmark và lời khuyên giữ nhiệt độ ổn định của PowerMetric.
+
+### l0 Bản đồ track: triệu chứng, công cụ và chương
+| Ý trên site | Nguồn |
+|---|---|
+| **Của site:** 15 triệu chứng (9 trên máy người dùng, 6 khi phát triển), mỗi cái là đúng một tình huống mô phỏng của L1–L12 với cùng con số; tổng hợp, không nguồn mới | các chương L1–L12 |
+
+## Cầu nối của track L
+X28 (L1 ↔ Mã sạch J7), X29 (L4 ↔ Kotlin K6), X30 (L6 ↔ Runtime PF), X31 (L7 ↔ Lưu dữ liệu H4, H7), X32 (L8 ↔ Kotlin K8, Kiến trúc G6), X33 (L10 ↔ Thiết kế hệ thống I3), X34 (L11 ↔ I4, I6), X35 (L12 ↔ Runtime PF, I11).
+

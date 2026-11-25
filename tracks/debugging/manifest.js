@@ -1,13 +1,14 @@
 /* Track L: Gỡ lỗi và hiệu năng Android. Nội dung sinh từ dev/gen/debugging_content.py (module debugging_v2_<chương>.py).
-   Spec: docs/tracks/L-debugging-performance.md (13 chương, đã duyệt 2026-11-24). Trong lúc viết: status 'draft'.
+   Spec: docs/tracks/L-debugging-performance.md (13 chương, đã duyệt 2026-11-24). Xong L0–L12 ngày 2026-11-25: status 'stable'.
    num: số hiển thị của chương (khớp id l1…l12; l0 bản đồ viết cuối, đặt đầu). Dạy câu hỏi mà công cụ trả lời, không dạy nút bấm của IDE. */
 ADE.registerTrack({
   id: 'debugging', code: 'L', order: 120, domain: 'engineering',
   accent: '#A0523C', icon: 'search',
   titleKey: 'track.debugging.title', summaryKey: 'track.debugging.summary',
-  level: 'intermediate', estMinutes: 360, status: 'draft',
+  level: 'intermediate', estMinutes: 375, status: 'stable',
   prerequisites: [], languages: ['vi', 'en'],
   chapters: [
+    { id: 'l0', num: 0, titleKey: 'track.debugging.l0.title', sims: ['debugging.map'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'l1', num: 1, titleKey: 'track.debugging.l1.title', sims: ['debugging.loop'], simAfter: 'hook', bridges: ['X28'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'l2', num: 2, titleKey: 'track.debugging.l2.title', sims: ['debugging.bp'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] },
     { id: 'l3', num: 3, titleKey: 'track.debugging.l3.title', sims: ['debugging.logcat'], simAfter: 'hook', bridges: [], goals: [{ id: 'g1', step: 3 }, { id: 'g2', step: 'end' }] },
@@ -22,6 +23,7 @@ ADE.registerTrack({
     { id: 'l12', num: 12, titleKey: 'track.debugging.l12.title', sims: ['debugging.measure'], simAfter: 'hook', bridges: ['X35'], goals: [{ id: 'g1', step: 2 }, { id: 'g2', step: 'end' }] }
   ],
   presets: [
+    { id: 'debugging-map', model: 'debugging.map', titleKey: 'track.debugging.preset.map' },
     { id: 'debugging-loop', model: 'debugging.loop', titleKey: 'track.debugging.preset.loop' },
     { id: 'debugging-bp', model: 'debugging.bp', titleKey: 'track.debugging.preset.bp' },
     { id: 'debugging-logcat', model: 'debugging.logcat', titleKey: 'track.debugging.preset.logcat' },

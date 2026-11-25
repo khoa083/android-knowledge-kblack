@@ -70,4 +70,8 @@
     N('measure', 'claim', 9, 1, 'check', 'runtime'), N('measure', 'noise', 3, 3, 'pitfall', 'signal')],
     edges: [E('e1', 'build', 'runs'), E('e2', 'runs', 'stats'), E('e3', 'stats', 'claim'), E('e4', 'noise', 'runs')],
     metrics: [T('measure', 'runs'), T('measure', 'claim'), T('measure', 'mb'), T('measure', 'ma')] });
+  /* l0: triệu chứng → lộ ra ở đâu → công cụ → chương */
+  V('map', { layout: 'pipeline', nodes: [N('map', 'symptom', 0, 0, 'eye', 'ui'), N('map', 'phase', 3, 0, 'clock', 'state'), N('map', 'cause', 6, 0, 'search', 'runtime'), N('map', 'chapter', 9, 0, 'source', 'job')],
+    edges: [E('e1', 'symptom', 'phase'), E('e2', 'phase', 'cause'), E('e3', 'cause', 'chapter')],
+    metrics: [T('map', 'phase'), T('map', 'chapter')] });
 })();

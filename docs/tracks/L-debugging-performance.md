@@ -1,6 +1,7 @@
 # TRACK L — Gỡ lỗi và hiệu năng Android / Android Debugging and Performance (`debugging`)
 
-> **ĐÃ DUYỆT (2026-11-24, người dùng đề xuất chủ đề).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **xây sau K**, **gỡ lỗi coroutine gộp vào l2 và l4**. Chưa xây.
+> **ĐÃ DUYỆT (2026-11-24, người dùng đề xuất chủ đề).** Hai câu hỏi cuối theo mặc định (người dùng đổi được): **xây sau K**, **gỡ lỗi coroutine gộp vào l2 và l4**. **ĐÃ XÂY XONG 2026-11-25** (L0–L12, stable); người dùng nhắc thêm: không đi sâu vào IDE.
+> Khác với dàn ý: l4 dùng bảng phẳng thụt lề thay cho hộp lồng (quy tắc tránh hộp lồng sâu); Energy Profiler không còn là công cụ riêng (job, alarm, wakelock đã chuyển sang Background Task Inspector), nên l11 dạy pin qua mô hình radio và wake lock; Database Inspector ở đường dẫn studio/inspect/database.
 > Nguyên tắc: **cần và đủ**. Dạy cách tìm ra nguyên nhân bằng công cụ, không dạy từng nút bấm của Android Studio. Mỗi chương bắt đầu từ một triệu chứng thật: crash không tái hiện được, stack trace toàn chữ a.b.c, app chậm dần rồi OOM, ANR trên máy người dùng.
 
 ## Manifest đề xuất

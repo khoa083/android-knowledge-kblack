@@ -871,5 +871,11 @@ Trạng thái: `chưa / đang / xong`.
   - l1 Quy trình gỡ lỗi, adb và bug report: XONG (sim `debugging.loop`, 8 kịch bản, cầu nối X28 với Mã sạch J7).
   - Tham chiếu tới trước: l1 nhắc chương "Đọc stack trace" (l4); khi viết l4 phải đặt đúng tên này.
   - XONG (2026-11-25): l2 Debugger (X: không), l3 Logcat, l4 Đọc stack trace (cầu nối X29 với Kotlin K6), l5 R8 và stack trace bị làm rối, l6 Layout Inspector: xem cây giao diện (cầu nối X30 với Runtime PF). Các tham chiếu tới trước đã khớp tên.
-  - Tiếp theo: l7 Dữ liệu và việc nền (Database Inspector, Background Task Inspector), l8 bộ nhớ, l9 trace và khung hình giật, l10 ANR và StrictMode, l11 mạng và pin, l12 đo hiệu năng, l0 bản đồ cuối; xong l0 thì đổi status sang stable.
-  - Ghi chú kỹ thuật: engine đếm số trong chữ khi số đổi tại cùng chỗ; nếu motion-check báo "hình đổi mà không có chuyển cảnh" ở bước kế tiếp, thêm một dòng ghi chú có data-k riêng cho từng bước.
+  - XONG (2026-11-25): l7 Dữ liệu và việc nền (X31), l8 Bộ nhớ (X32), l9 CPU, trace và khung hình giật, l10 ANR và StrictMode (X33), l11 Mạng và pin (X34), l12 Đo hiệu năng cho đúng (X35), l0 Bản đồ track (đặt đầu); track `stable`, 13 chương. Nguồn: chỉ tài liệu chính thức và thư viện (JetBrains, kotlinx, LeakCanary, Perfetto), đọc 2026-11-25; sách Debugging by Tutorials không dùng.
+  - Ghi chú kỹ thuật: engine đếm số trong chữ khi số đổi tại cùng chỗ; nếu motion-check báo "hình đổi mà không có chuyển cảnh" ở bước kế tiếp, thêm một dòng ghi chú có data-k riêng cho từng bước. Trường `num` của chương (app.js) cho số hiển thị khớp id.
+- **Việc còn lại, ghi ngày 2026-11-25 (sau khi xong track L):**
+  1. **Track Kotlin:** viết lại K7–K13 theo giọng dạy học, rồi K0 cuối (K1–K6 xong).
+  2. **Viết lại theo giọng dạy học:** arch (khi viết G0, thêm cầu nối X24–X27), storage, coroutines (thay chữ "chương FP" bằng tên chương "Xử lý flow: map, filter, scan, merge/zip/combine, flatMap, retry, distinct"), runtime, animation. UX và UI vẫn tạm dừng.
+  3. **Rà nội dung các phần viết trước khi chuyển sang Opus** (Lập trình hàm P1–P4, Kotlin K1–K6, Mã sạch, Thiết kế hệ thống): đối chiếu khẳng định với nguồn, ưu tiên P1–P4 và K1–K6.
+  4. **Chủ đề mới có thể thêm** (cần danh sách IN/OUT và người dùng duyệt): nền tảng Android (vòng đời, process death, Intent, Service, permission, giới hạn chạy nền), kiểm thử đầy đủ, build và phát hành (Gradle, flavor, ký app, CI/CD), mạng thực hành (Retrofit, OkHttp), Hilt thực hành, bảo mật, Compose UI thực hành.
+
