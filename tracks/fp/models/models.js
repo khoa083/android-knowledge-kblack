@@ -683,7 +683,7 @@
     // [nhãn mã, loại: read | pure | write, bên ngoài cần đồ giả khi test (tên)]
     var OPS = {
       mixed: [['clock.now()', 'read', 'clock'], ['repo.slots(day)', 'read', 'repo'], ['if (time < now)', 'pure'], ['analytics.track("booked")', 'write', 'analytics'],
-        ['api.quota(phone)', 'read', 'api'], ['if (slot !in slots || quota == 0)', 'pure'], ['fee = 200_000 / 300_000', 'pure'], ['repo.save(booking)', 'write', 'repo'], ['log.info(...)', 'write', 'log']],
+        ['api.quota(phone)', 'read', 'api'], ['if (slot !in slots || quota == 0)', 'pure'], ['fee = if (weekend) 300_000 else 200_000', 'pure'], ['repo.save(booking)', 'write', 'repo'], ['log.info(...)', 'write', 'log']],
       core: [['clock.now()', 'read', 'clock'], ['repo.slots(day)', 'read', 'repo'], ['api.quota(phone)', 'read', 'api'], ['decide(req, now, slots, quota)', 'pure'],
         ['repo.save(booking)', 'write', 'repo'], ['analytics.track("booked")', 'write', 'analytics'], ['log.info(...)', 'write', 'log']] };
     var side = function (op) { return op[1] === 'pure' ? 'core' : 'shell'; };
@@ -694,7 +694,7 @@
       if (c === 'mixed') ops.forEach(function (op) { if (op[2]) fakes[op[2]] = 1; });
       ops.forEach(function (op, k) { if (op[1] === 'write' && k < lastPure) early++; });
       // nhánh luật nằm trong hàm có I/O: hàm trộn chứa mọi phép kiểm; vỏ chỉ còn một if (Accept hay Reject)
-      var branches = c === 'mixed' ? ops.filter(function (op) { return op[0].indexOf('if ') === 0; }).length + 1 : 1;
+      var branches = c === 'mixed' ? ops.filter(function (op) { return op[1] === 'pure' && op[0].indexOf('if ') >= 0; }).length : 1;
       return { cross: cross, fakes: Object.keys(fakes).length, fakeNames: Object.keys(fakes), early: early, branches: branches };
     }
     // luật phí thật (chương "Hàm thuần"): thứ Bảy, Chủ nhật 300.000; còn lại 200.000

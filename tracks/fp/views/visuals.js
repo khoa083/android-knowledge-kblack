@@ -301,9 +301,9 @@
     var SX = 12, CX = 336, W = 292, RH = 30, TOP = 44, H = TOP + ops.length * RH + 10;
     var lastPure = -1; ops.forEach(function (op, k) { if (op[1] === 'pure') lastPure = k; });
     function mark(op, k) {
-      if (i === 1) return c === 'mixed' ? (op[2] ? 'bad' : '') : (op[1] === 'pure' ? 'ok' : '');
+      if (i === 1) return c === 'mixed' ? (op[2] && ops.findIndex(function (o) { return o[2] === op[2]; }) === k ? 'bad' : '') : (op[1] === 'pure' ? 'ok' : '');
       if (i === 2) return op[1] === 'write' ? (k < lastPure ? 'bad' : 'ok') : '';
-      if (i === 3) return op[1] === 'pure' ? (c === 'mixed' && op[0].indexOf('if ') === 0 ? 'bad' : 'ok') : '';
+      if (i === 3) return op[1] === 'pure' ? (c === 'mixed' && op[0].indexOf('if ') >= 0 ? 'bad' : 'ok') : '';
       return '';
     }
     var svg = '<svg class="vz-dg vz-core" viewBox="0 0 640 ' + H + '" role="img" aria-label="' + esc(T('core.aria', { n: n.cross })) + '">';

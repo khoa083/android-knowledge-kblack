@@ -70,8 +70,8 @@ def add(a):
          '''Seemann describes a Post method that first reads all the data, calls a pure function, and writes only when that function allows it. The mixed function here does the opposite: it writes before knowing the outcome. [[src:book-seemann]]'''),
         ('mixed.s4', '''Uberto Barbini: lập trình hàm giữ mọi thay đổi state ở rìa để logic chính khỏi phải lo tới chúng. [[src:book-barbini]]''',
          '''Uberto Barbini: functional programming keeps all state changes at the edges so the core logic can ignore them. [[src:book-barbini]]'''),
-        ('core.s1', '''Seemann gọi kiểu kiến trúc này là functional core, imperative shell (lõi thuần, vỏ mệnh lệnh): logic phức tạp viết thành hàm thuần, còn việc không tất định và side effect nằm sát rìa. [[src:book-seemann]]''',
-         '''Seemann calls this architecture functional core, imperative shell: complex logic written as pure functions, with nondeterminism and side effects kept close to the edge. [[src:book-seemann]]'''),
+        ('core.s1', '''Seemann dùng kiểu kiến trúc mà Gary Bernhardt đặt tên là functional core, imperative shell (lõi thuần, vỏ mệnh lệnh): logic phức tạp viết thành hàm thuần, còn việc không tất định và side effect nằm sát rìa. [[src:book-seemann]]''',
+         '''Seemann uses the architecture Gary Bernhardt named functional core, imperative shell: complex logic written as pure functions, with nondeterminism and side effects kept close to the edge. [[src:book-seemann]]'''),
         ('core.s2', '''Đây là cùng ý ở chương "Hàm thuần và referential transparency": ngày là tham số thì bài test không phụ thuộc hôm nay là thứ mấy. [[src:book-seemann]]''',
          '''This is the same idea as in the chapter "Pure functions and referential transparency": when the date is a parameter, the test does not depend on what day it is today. [[src:book-seemann]]'''),
         ('core.s3', '''Trong ví dụ của Seemann, chỉ khi hàm thuần WillAccept trả true thì Post mới cho side effect xảy ra. [[src:book-seemann]]''',
@@ -122,8 +122,8 @@ def add(a):
     S_ = 'split'
     a(C + '.sec.%s.title' % S_, '''Lõi thuần, vỏ mỏng''', '''A pure core, a thin shell''')
     a(C + '.sec.%s.badge' % S_, 'guideline')
-    B(C, S_, 1, 'p', '''Seemann gọi cách tổ chức này là functional core, imperative shell. Lõi là các hàm thuần chứa mọi luật: nhận giá trị, trả giá trị. Vỏ là lớp mỏng bên ngoài: đọc mọi thứ lõi cần, gọi lõi, rồi làm theo kết quả (ghi, gửi, hiển thị). Ví dụ của ông là một hàm Post đọc hết dữ liệu, gọi hàm thuần WillAccept, và chỉ ghi khi hàm đó trả true. [[src:book-seemann]]''',
-      '''Seemann calls this way of organising code functional core, imperative shell. The core is pure functions holding every rule: values in, values out. The shell is a thin outer layer: it reads everything the core needs, calls the core, and then acts on the result (writes, sends, displays). His example is a Post method that reads all the data, calls the pure WillAccept function, and writes only when it returns true. [[src:book-seemann]]''')
+    B(C, S_, 1, 'p', '''Cách tổ chức này có tên functional core, imperative shell, do Gary Bernhardt đặt; Seemann dùng nó, kể cả cho toàn bộ mã mẫu trong sách của ông. Lõi là các hàm thuần chứa mọi luật: nhận giá trị, trả giá trị. Vỏ là lớp mỏng bên ngoài: đọc mọi thứ lõi cần, gọi lõi, rồi làm theo kết quả (ghi, gửi, hiển thị). Ví dụ của ông là một hàm Post đọc hết dữ liệu, gọi hàm thuần WillAccept, và chỉ ghi khi hàm đó trả true. [[src:book-seemann]]''',
+      '''This way of organising code is called functional core, imperative shell, a name coined by Gary Bernhardt; Seemann uses it, including for all the sample code in his book. The core is pure functions holding every rule: values in, values out. The shell is a thin outer layer: it reads everything the core needs, calls the core, and then acts on the result (writes, sends, displays). His example is a Post method that reads all the data, calls the pure WillAccept function, and writes only when it returns true. [[src:book-seemann]]''')
     B(C, S_, 2, 'kt', '''fun decide(req: BookRequest, now: LocalDateTime, slots: Set<String>, quota: Int): Decision = when {
     req.time < now -> Decision.Reject(BookingError.SlotPassed)
     req.slotId !in slots -> Decision.Reject(BookingError.SlotTaken(req.slotId))
