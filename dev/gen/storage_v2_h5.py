@@ -143,7 +143,7 @@ def add(a):
     B(C, S_, 1, 'fix', 'Một hàm DAO trả về Map<Doctor, List<Appointment>> bằng JOIN, hoặc List<DoctorWithAppointments> với @Relation và @Transaction.', 'One DAO function returning Map<Doctor, List<Appointment>> via a JOIN, or List<DoctorWithAppointments> with @Relation and @Transaction.')
     B(C, S_, 2, 'bug', 'Hiếm khi, hai người đặt cùng một giờ trống và cả hai đều thành công.', 'Rarely, two bookings take the same free slot and both succeed.')
     B(C, S_, 2, 'cause', 'Repository gọi riêng "kiểm giờ còn trống" rồi "chèn lịch hẹn" thành hai lời gọi DAO rời. Một lần đặt khác chen vào giữa hai bước.', 'The repository calls "check the slot is free" and "insert the appointment" as two separate DAO calls. Another booking lands between the two steps.')
-    B(C, S_, 2, 'fix', 'Gộp hai bước vào một hàm DAO có @Transaction, và để bước kiểm là một câu UPDATE có điều kiện trả về số dòng đổi, như ví dụ book ở trên.', 'Merge both steps into one @Transaction DAO method, with the check as a conditional UPDATE returning the number of rows changed, like the book example above.')
+    B(C, S_, 2, 'fix', 'Gộp hai bước vào một hàm DAO có @Transaction, và để bước kiểm là một câu UPDATE có điều kiện trả về số dòng đổi, như ví dụ book ở trên.', 'Merge both steps into one @Transaction DAO method, with the check as a conditional UPDATE returning the number of rows changed, like the book() example above.')
 
     S_ = 'ex'
     a(C + '.sec.%s.title' % S_, 'Bài tập', 'Exercise')

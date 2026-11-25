@@ -803,7 +803,7 @@ ADE.addTrackStrings('storage', 'en', {
   "track.storage.h5.sec.bugs.b.01.fix": "One DAO function returning Map<Doctor, List<Appointment>> via a JOIN, or List<DoctorWithAppointments> with @Relation and @Transaction.",
   "track.storage.h5.sec.bugs.b.02.bug": "Rarely, two bookings take the same free slot and both succeed.",
   "track.storage.h5.sec.bugs.b.02.cause": "The repository calls \"check the slot is free\" and \"insert the appointment\" as two separate DAO calls. Another booking lands between the two steps.",
-  "track.storage.h5.sec.bugs.b.02.fix": "Merge both steps into one @Transaction DAO method, with the check as a conditional UPDATE returning the number of rows changed, like the book example above.",
+  "track.storage.h5.sec.bugs.b.02.fix": "Merge both steps into one @Transaction DAO method, with the check as a conditional UPDATE returning the number of rows changed, like the book() example above.",
   "track.storage.h5.sec.ex.title": "Exercise",
   "track.storage.h5.sec.ex.badge": "guideline",
   "track.storage.h5.sec.ex.b.01.ex": "ClinicBook has a visit table and a prescription table (with a visitId column). The History screen needs every visit with its prescriptions, including visits with none. Write the DAO function your way, say how many queries it runs, and why it cannot produce one prescription under two visits.",
