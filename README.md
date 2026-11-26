@@ -176,6 +176,7 @@ There are no other steps.
 
 ### Using the site
 
+- **Where to start:** the home page has a "Where to start?" section with a six-step path for newcomers (Kotlin → Coroutines → Architecture → Storage → Compose Runtime → Compose Animation), each step with one line on why it comes next.
 - **Guided:** learn chapter by chapter.
   - Use Previous, Next, Play and Pause, and adjust the speed.
   - Press `?` to see the keyboard shortcuts.

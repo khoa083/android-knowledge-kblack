@@ -1,6 +1,6 @@
 # Prompt để bắt đầu phiên tiếp theo (dán vào Claude Code, thư mục E:\AndroidDeepDiveExplorer)
 
-> Viết lại ngày 2026-11-26, thay bản ngày 2026-11-25. Phiên này đang dở đợt viết lại theo văn phong giảng dạy.
+> Cập nhật cuối ngày 2026-11-26: đợt viết lại theo văn phong giảng dạy đã XONG cho mọi track đang mở (trừ UX/UI tạm dừng và các track viết theo văn phong mới từ đầu).
 
 ```
 Đọc CLAUDE.md, docs/chapter-template-v2.md (mục "Quy tắc viết"), và docs/progress.md (dòng "TIẾP THEO" gần cuối mục "Việc còn lại") trước.
@@ -8,15 +8,15 @@
 Trạng thái (2026-11-26):
 - 10 track stable, 138 chương. Tạm dừng, KHÔNG đụng: D UX, E UI.
 - M Nền tảng Android: đã duyệt dàn ý, XÂY SAU đợt viết lại.
-- Đã viết lại THẬT theo văn phong giảng dạy: Kotlin (K0–K13), arch (G0–G11), storage (H0–H9), coroutines và runtime (toàn bộ, 2026-11-26).
+- Đã viết lại THẬT theo văn phong giảng dạy: Kotlin (K0–K13), arch (G0–G11), storage (H0–H9), coroutines, runtime, animation (toàn bộ, 2026-11-26).
 - Trang chủ đã làm gọn cho người mới (mục "Bắt đầu từ đâu?", lộ trình `starter` trong shared/paths.js).
 
-Việc của phiên này: làm tiếp đợt viết lại, từng chương một, commit sau mỗi chương, KHÔNG push.
-1. animation (13 chương; bỏ 16 chỗ nhắc tên sách).
-2. Rà nội dung với nguồn: P1–P4 và K1–K6 trước, rồi Mã sạch và Thiết kế hệ thống.
-3. Chưa quyết: làm lại hình để bớt bảng (người dùng chê nhiều bảng, hình chưa mượt). Hỏi người dùng trước khi làm.
+Việc của phiên này (từng chương một, commit sau mỗi chương, KHÔNG push):
+1. Rà nội dung với nguồn: P1–P4 và K1–K6 trước, rồi Mã sạch và Thiết kế hệ thống.
+2. Chưa quyết: làm lại hình để bớt bảng (người dùng chê nhiều bảng, hình chưa mượt). Hỏi người dùng trước khi làm.
+3. Sau đó: xây track M (docs/tracks/M-android-platform.md, dàn ý đã duyệt).
 
-QUAN TRỌNG: người dùng đã phản đối lượt "sửa nhẹ" (thay từ máy móc). Phải viết lại THẬT từng đoạn p/note, overview, wrapup:
+Khi sửa lời giảng (ở bất kỳ track nào), nhớ: người dùng đã phản đối lượt "sửa nhẹ" (thay từ máy móc). Phải viết lại THẬT từng đoạn p/note, overview, wrapup:
 - câu ngắn, mỗi đoạn một ý; giải thích thuật ngữ ngay chỗ dùng;
 - một hình ảnh đời thường; một dòng "Quy tắc dễ nhớ:" / "Rule of thumb:" cho mỗi mục chính;
 - không tên sách, không số chương sách; tên tác giả chỉ khi là quan điểm riêng; nguồn ở chip [[src:id]];
