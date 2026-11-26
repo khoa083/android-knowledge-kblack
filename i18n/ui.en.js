@@ -53,8 +53,15 @@ ADE.addUiStrings('en', {
 
   /* ---- home, catalog ---- */
   'app.heroTitle': 'Understand Mobile (Android…) from the inside',
-  'app.heroLead': 'Each track follows one mechanism from cause to effect: tapping a button, running a coroutine, drawing a frame, reading a screen. You step through it, change the conditions, and watch the diagram, code and event log change together.',
-  'app.browseCatalog': 'Browse the catalog',
+  'app.heroLead': 'Learn Android by watching each mechanism run step by step, on diagrams that move.',
+  'app.startBtn': 'Start learning',
+  'app.startTitle': 'Where to start?',
+  'app.startLead': 'New here? Learn in the order below. Each step is a track; open it to see its chapters. You do not need to finish a track before moving on.',
+  'app.startThen': 'After the six steps, pick what you need next:',
+  'app.howTo': 'In each chapter: read the essence, step through the diagram, then answer the self-check at the end.',
+  'app.allTracks': 'All tracks',
+  'app.filterToggle': 'Filter by group, level, status',
+  'app.browseCatalog': 'See all tracks',
   'app.openLive': 'Open Live Explorer',
   'app.continue': 'Continue learning',
   'app.continueBtn': 'Back to this chapter',

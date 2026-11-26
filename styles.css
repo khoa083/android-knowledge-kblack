@@ -222,6 +222,25 @@ progress { accent-color: var(--brand); height: 8px; width: 90px; vertical-align:
 .card-t { font-weight: 800; font-size: 16px; line-height: 1.35; }
 .card-s { font-size: 13px; color: var(--ink-2); }
 .card-p { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+/* trang chủ gọn (2026-11-26): "Bắt đầu từ đâu", mô tả track cắt còn 2 dòng, các phần phụ gập lại */
+.start-steps { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; counter-reset: none; }
+.start-step { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 10px 14px; text-decoration: none; color: var(--ink); border-left: 5px solid var(--accent, var(--ink)); }
+.start-step:hover { background: var(--paper-3); text-decoration: none; }
+.start-n { font: 800 18px var(--mono); width: 30px; height: 30px; display: grid; place-items: center; border: 1.5px solid var(--ink); border-radius: 50%; }
+.start-b { display: grid; gap: 2px; min-width: 0; }
+.start-t { font-weight: 800; font-size: 15px; }
+.start-w { font-size: 13px; color: var(--ink-2); }
+.start-p { font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.start-more { margin: 12px 0 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; }
+.home .card-s { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+details.fold > summary { cursor: pointer; font-size: 13px; color: var(--ink-2); min-height: 32px; display: flex; align-items: center; gap: 6px; list-style: none; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: '▸'; font-weight: 800; }
+details.fold[open] > summary::before { content: '▾'; }
+details.fold.big { margin-top: 18px; }
+details.fold.big > summary { font-size: 14px; font-weight: 800; color: var(--ink); }
+details.fold.big[open] > summary { margin-bottom: 8px; }
+@media (max-width: 560px) { .start-step { grid-template-columns: auto 1fr; } .start-p { grid-column: 2; } }
 .path-steps { list-style: decimal; padding-left: 22px; margin-top: 8px; font-size: 13px; }
 .path-steps li { padding: 2px 0; }
 .bridge-list { display: grid; gap: 10px; }

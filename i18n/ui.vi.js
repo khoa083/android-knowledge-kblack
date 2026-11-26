@@ -53,8 +53,15 @@ ADE.addUiStrings('vi', {
 
   /* ---- trang chủ, catalog ---- */
   'app.heroTitle': 'Hiểu Mobile (Android…) từ bên trong',
-  'app.heroLead': 'Mỗi track đi theo một cơ chế từ nguyên nhân đến kết quả: bấm một nút, chạy một coroutine, vẽ một khung hình, đọc một màn hình. Bạn bấm từng bước, đổi điều kiện và xem sơ đồ, mã và nhật ký sự kiện cùng thay đổi.',
-  'app.browseCatalog': 'Xem danh mục',
+  'app.heroLead': 'Học Android bằng cách xem từng cơ chế chạy từng bước, trên sơ đồ có chuyển động.',
+  'app.startBtn': 'Bắt đầu học',
+  'app.startTitle': 'Bắt đầu từ đâu?',
+  'app.startLead': 'Mới vào thì học theo thứ tự dưới đây. Mỗi bước là một track; bấm vào để xem danh sách chương. Không cần học hết một track mới sang bước sau.',
+  'app.startThen': 'Học xong sáu bước, chọn tiếp theo nhu cầu:',
+  'app.howTo': 'Mỗi chương: đọc phần bản chất, bấm từng bước trên sơ đồ, rồi làm câu tự kiểm tra cuối chương.',
+  'app.allTracks': 'Tất cả track',
+  'app.filterToggle': 'Lọc theo nhóm, cấp độ, trạng thái',
+  'app.browseCatalog': 'Xem tất cả track',
   'app.openLive': 'Mở Live Explorer',
   'app.continue': 'Tiếp tục học',
   'app.continueBtn': 'Quay lại chương này',

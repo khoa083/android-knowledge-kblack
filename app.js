@@ -371,11 +371,18 @@
   function pageHome() {
     setTitle('');
     var wrap = h('article', { class: 'page home' });
+    /* Trang chủ gọn cho người mới (2026-11-26, người dùng báo trang chủ quá nhiều thông tin):
+       hero một câu + một nút chính → "Bắt đầu từ đâu" (lộ trình có start: true) → tất cả track (bộ lọc gập lại)
+       → lộ trình khác và bản đồ cầu nối, cả hai gập lại. */
+    var starter = ADE.pathList.filter(function (p) { return p.start; })[0];
+    var steps = starter ? starter.steps.map(function (ref) { return ADE.resolveRef(ref); }).filter(function (r) { return r && ADE.trackOpen(r.track); }) : [];
+    var toCatalog = function (e) { e.preventDefault(); var c = document.getElementById('catalog'); if (c) c.scrollIntoView(); };
     var hero = h('section', { class: 'hero panel' },
       h('div', { class: 'hero-art', 'aria-hidden': 'true', html: ADE.diagram.logo(84) }),
       h('div', { class: 'hero-t' }, h('h1', { class: 'caps', text: ADE.t('app.heroTitle') }), para(ADE.t('app.heroLead')),
-        h('div', { class: 'row-actions' }, h('a', { class: 'btn primary', href: '#catalog', onclick: function (e) { e.preventDefault(); var c = document.getElementById('catalog'); if (c) c.scrollIntoView(); } }, icon('layers', { size: 16 }), h('span', { text: ADE.t('app.browseCatalog') })),
-          h('a', { class: 'btn', href: href('live') }, icon('play', { size: 16 }), h('span', { text: ADE.t('app.openLive') })))));
+        h('div', { class: 'row-actions' },
+          steps.length ? h('a', { class: 'btn primary', href: href(steps[0].track.id) }, icon('play', { size: 16 }), h('span', { text: ADE.t('app.startBtn') })) : null,
+          h('a', { class: 'btn', href: '#catalog', onclick: toCatalog }, icon('layers', { size: 16 }), h('span', { text: ADE.t('app.browseCatalog') })))));
     wrap.appendChild(hero);
 
     var last = ADE.store.get('last', null), lc = last && ADE.getChapter(last.track, last.chapter);
@@ -387,15 +394,33 @@
           h('a', { class: 'btn', href: href('progress') }, icon('list', { size: 14 }), h('span', { text: ADE.t('app.prog.open') })))));
     }
 
-    // hai chế độ + phím tắt
-    wrap.appendChild(h('section', { class: 'modes' },
-      h('div', { class: 'panel pad' }, h('h2', { class: 'caps', text: ADE.t('app.guided') }), para(ADE.t('app.guidedDesc'))),
-      h('div', { class: 'panel pad' }, h('h2', { class: 'caps', text: ADE.t('app.live') }), para(ADE.t('app.liveDesc'))),
-      h('div', { class: 'panel pad' }, h('h2', { class: 'caps', text: ADE.t('app.shortcuts') }), para(ADE.t('app.shortcutsDesc')), h('button', { type: 'button', class: 'btn', onclick: openHelp }, icon('keyboard', { size: 16 }), h('span', { text: ADE.t('app.showShortcuts') })))));
+    // bắt đầu từ đâu: các bước của lộ trình cho người mới, mỗi bước một câu "vì sao"
+    if (steps.length) {
+      var ss = h('section', { class: 'start', 'aria-labelledby': 'start-h' }, h('h2', { class: 'caps sec-h', id: 'start-h', text: ADE.t('app.startTitle') }), para(ADE.t('app.startLead'), 'hint'));
+      var ol = h('ol', { class: 'start-steps' });
+      steps.forEach(function (r, i) {
+        var t = r.track, tp = trackProgress(t), wk = 'shared.path.' + starter.id + '.why.' + t.id;
+        ol.appendChild(h('li', null, h('a', { class: 'start-step panel', href: href(t.id), style: '--accent:' + t.accent },
+          h('span', { class: 'start-n', 'aria-hidden': 'true', text: String(i + 1) }),
+          h('span', { class: 'start-b' },
+            h('span', { class: 'start-t' }, h('span', { class: 'card-code', text: t.code }), ' ', ADE.t(t.titleKey)),
+            ADE.hasKey(wk) ? h('span', { class: 'start-w', text: ADE.t(wk) }) : null),
+          h('span', { class: 'start-p', text: ADE.t('app.chaptersDone', { n: tp.done, total: tp.total }) }))));
+      });
+      ss.appendChild(ol);
+      var more = (starter.more || []).map(function (ref) { return ADE.resolveRef(ref); }).filter(function (r) { return r && ADE.trackOpen(r.track); });
+      if (more.length) {
+        var mc = h('span', { class: 'chips' });
+        more.forEach(function (r) { mc.appendChild(h('a', { class: 'chip', href: href(r.track.id), text: r.track.code + ' · ' + ADE.t(r.track.titleKey) })); });
+        ss.appendChild(h('p', { class: 'start-more' }, h('b', { text: ADE.t('app.startThen') + ' ' }), mc));
+      }
+      ss.appendChild(h('p', { class: 'hint' }, ADE.t('app.howTo') + ' ', h('button', { type: 'button', class: 'btn small', onclick: openHelp }, icon('keyboard', { size: 14 }), h('span', { text: ADE.t('app.showShortcuts') }))));
+      wrap.appendChild(ss);
+    }
 
-    // catalog
+    // catalog: tất cả track; bộ lọc gập lại
     var cat = h('section', { class: 'catalog', id: 'catalog' });
-    cat.appendChild(h('h2', { class: 'caps sec-h', text: ADE.t('app.catalog') }));
+    cat.appendChild(h('h2', { class: 'caps sec-h', text: ADE.t('app.allTracks') }));
     var doms = ADE.domains();
     var fb = h('div', { class: 'filters' });
     var dchips = h('div', { class: 'chips filter', role: 'group', 'aria-label': ADE.t('app.filterDomain') });
@@ -410,7 +435,8 @@
     };
     fb.appendChild(sel('f-level', 'app.filterLevel', [['all', ADE.t('app.all')], ['beginner', ADE.t('app.level.beginner')], ['intermediate', ADE.t('app.level.intermediate')], ['advanced', ADE.t('app.level.advanced')]]));
     fb.appendChild(sel('f-status', 'app.filterStatus', [['all', ADE.t('app.all')], ['stable', ADE.t('app.status.stable')], ['draft', ADE.t('app.status.draft')], ['soon', ADE.t('app.status.soon')]]));
-    cat.appendChild(fb);
+    var filtering = filters.domain !== 'all' || filters.level !== 'all' || filters.status !== 'all';
+    cat.appendChild(h('details', { class: 'fold', open: filtering ? true : null }, h('summary', { text: ADE.t('app.filterToggle') }), fb));
     var shown = 0;
     doms.forEach(function (d) {
       if (filters.domain !== 'all' && filters.domain !== d.id) return;
@@ -424,10 +450,10 @@
     if (!shown) cat.appendChild(empty(ADE.tracks.length ? 'app.noMatch' : 'app.noTracks'));
     wrap.appendChild(cat);
 
-    // lộ trình học
-    var paths = ADE.pathList.map(function (p) { return { p: p, steps: p.steps.map(function (ref) { return { ref: ref, r: ADE.resolveRef(ref) }; }) }; }).filter(function (x) { return x.steps.some(function (s) { return s.r; }); });
+    // lộ trình khác (gập lại)
+    var paths = ADE.pathList.filter(function (p) { return !p.start; }).map(function (p) { return { p: p, steps: p.steps.map(function (ref) { return { ref: ref, r: ADE.resolveRef(ref) }; }) }; }).filter(function (x) { return x.steps.some(function (s) { return s.r; }); });
     if (paths.length) {
-      var ps = h('section', { class: 'paths' }, h('h2', { class: 'caps sec-h', text: ADE.t('app.paths') }));
+      var ps = h('details', { class: 'paths fold big' }, h('summary', { class: 'caps', text: ADE.t('app.paths') }));
       var grid2 = h('div', { class: 'cards' });
       paths.forEach(function (x) {
         var ol = h('ol', { class: 'path-steps' });
@@ -441,10 +467,16 @@
       ps.appendChild(grid2); wrap.appendChild(ps);
     }
 
-    // bản đồ cầu nối
+    // bản đồ cầu nối (gập lại; đồ thị chỉ dựng khi mở lần đầu)
     var bridges = ADE.bridgeList.filter(function (b) { return ADE.resolveRef(b.owner); });
     if (bridges.length) {
-      var bs = h('section', { class: 'bridges' }, h('h2', { class: 'caps sec-h', text: ADE.t('app.bridgeMap') }));
+      var bd = h('details', { class: 'bridges fold big' }, h('summary', { class: 'caps', text: ADE.t('app.bridgeMap') }));
+      var built = false;
+      bd.addEventListener('toggle', function () { if (bd.open && !built) { built = true; buildBridges(bd); } });
+      wrap.appendChild(bd);
+    }
+    return wrap;
+    function buildBridges(bs) {
       bs.appendChild(para(ADE.t('app.graph.homeIntro'), 'hint'));
       bs.appendChild(mountGraph({ height: 440, label: ADE.t('app.bridgeMap'), data: function () { return graphData({ mode: 'global' }); },
         toggles: [{ id: 'all', labelKey: 'app.graph.allChapters', get: function () { return gprefs.all; }, set: function (v) { gprefs.all = v; } },
@@ -456,9 +488,8 @@
         ul.appendChild(h('li', { class: 'panel pad' }, h('b', { text: b.id + ' · ' + ADE.t('shared.bridge.' + b.id + '.title') }), para(ADE.t('shared.bridge.' + b.id + '.summary')),
           h('p', { class: 'hint' }, ADE.t('app.owner') + ': ', o.chapter ? h('a', { href: href(o.track.id + '/' + o.chapter.id), text: ADE.t(o.chapter.titleKey) }) : ADE.t(o.track.titleKey)), links));
       });
-      bs.appendChild(ul); wrap.appendChild(bs);
+      bs.appendChild(ul);
     }
-    return wrap;
   }
   /* Đồ thị kiểu graph view (js/core/graph.js). Dữ liệu sinh từ registry, không biết id track nào:
      hub = track, chấm = chương, cạnh = thuộc track / cầu nối / bước kế tiếp của lộ trình học / thuật ngữ định nghĩa ở chương.
