@@ -8,11 +8,11 @@
 Trạng thái (2026-11-26):
 - 10 track stable, 138 chương. Tạm dừng, KHÔNG đụng: D UX, E UI.
 - M Nền tảng Android: đã duyệt dàn ý, XÂY SAU đợt viết lại.
-- Đã viết lại THẬT theo văn phong giảng dạy: Kotlin (K0–K13), arch (G0–G11), storage (H0–H9), coroutines (toàn bộ, 2026-11-26).
+- Đã viết lại THẬT theo văn phong giảng dạy: Kotlin (K0–K13), arch (G0–G11), storage (H0–H9), coroutines và runtime (toàn bộ, 2026-11-26).
 - Trang chủ đã làm gọn cho người mới (mục "Bắt đầu từ đâu?", lộ trình `starter` trong shared/paths.js).
 
 Việc của phiên này: làm tiếp đợt viết lại, từng chương một, commit sau mỗi chương, KHÔNG push.
-1. runtime (19 chương; bỏ 38 chỗ nhắc tên sách), rồi animation (13 chương; bỏ 16 chỗ).
+1. animation (13 chương; bỏ 16 chỗ nhắc tên sách).
 2. Rà nội dung với nguồn: P1–P4 và K1–K6 trước, rồi Mã sạch và Thiết kế hệ thống.
 3. Chưa quyết: làm lại hình để bớt bảng (người dùng chê nhiều bảng, hình chưa mượt). Hỏi người dùng trước khi làm.
 
